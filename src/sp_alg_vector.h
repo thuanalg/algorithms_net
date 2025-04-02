@@ -31,7 +31,7 @@ extern "C" {
 	{spllog(0, "Malloc: 0x%p, size: %d.", (__obj__), (__nn__)); memset((__obj__), 0, (__nn__));} \
 	else {spllog(0, "Malloc: error.");}} 
 
-#define sp_alg_free(__obj__)   { if(__obj__) { spllog(0, "Free: 0x%p.", (__obj__)); free(__obj__); } }
+#define sp_alg_free(__obj__)   { if(__obj__) { spllog(0, "Free: 0x%p.", (__obj__)); free(__obj__); (__obj__) = 0; } }
 
 #ifndef  UNIX_LINUX
 	#ifndef __STATIC_SIMPLE_ALGORITHMS_NET__
@@ -66,6 +66,7 @@ do {\
 	;	(__target__)->total += __total__;;\
 	;	(__target__)->range += __range__;;\
 	;	if(!(__target__)) {break;};\
+	;	;spllog(0, "New size: total: %d, __nitem__: %d.", __total__, (__nitem__));;\
 	;	;;\
 	;} \
 	else {\
@@ -83,10 +84,36 @@ do {\
 		};\
 	;	;;\
 	;};\
-	;spllog(0, "New size: ---->total: %d, range: %d.", (__target__)->total, __range__);	;;\
+	;;	;;\
 	;memcpy((__target__)->data + (__target__)->pl, (__src__), sizeof(__type__) * (__nitem__));	;;\
-	;(__target__)->pl += sizeof(__type__);;	;;\
+	;(__target__)->pl += sizeof(__type__) * (__nitem__);;	;;\
+	;spllog(0, "New size: ---->total: %d, range: %d, pl: %d.", (__target__)->total, __range__, (__target__)->pl);;	;;\
 } while(0);
+
+#define sp_apl_vector_rem(__target__, __type__, __index__, __nitem__) \
+do{\
+	;char *__po__ = 0;\
+	;if ((__target__)->pl < sizeof(__type__) * (__nitem__) ) {break;} ;\
+	;if ((__target__)->pl == sizeof(__type__) * (__nitem__)) { (__target__)->pl = 0;break;} ;\
+	;__po__ = (__target__)->data + sizeof(__type__) * (__index__);\
+	;memmove(__po__, __po__ + sizeof(__type__) * (__nitem__), (__target__)->pl - sizeof(__type__) * (__nitem__));\
+	;(__target__)->pl -= sizeof(__type__) * (__nitem__);;\
+	;;;\
+	;;\
+} while (0);
+
+#define sp_apl_vector_clear(__target__) \
+do{\
+	;(__target__) = (SP_ALGORITHMS_NET_GENERIC_ST *) realloc((__target__), sizeof(SP_ALGORITHMS_NET_GENERIC_ST));;;\
+	;;if(!(__target__)) {\
+	;	;spllog(5, "FATAL Error realloc.");\
+	;	;break;\
+	;};\
+	;__target__->total = sizeof(SP_ALGORITHMS_NET_GENERIC_ST);;\
+	;__target__->range = 0;;\
+	;__target__->pl = 0;;\
+} while (0);
+
 #ifdef __cplusplus
 }
 #endif
