@@ -28,7 +28,7 @@ extern "C" {
 #endif
 
 #define sp_alg_malloc(__nn__, __obj__, __type__) { (__obj__) = (__type__*) malloc(__nn__); if(__obj__) \
-	{spllog(0, "Malloc: 0x%p.", (__obj__)); memset((__obj__), 0, (__nn__));} \
+	{spllog(0, "Malloc: 0x%p, size: %d.", (__obj__), (__nn__)); memset((__obj__), 0, (__nn__));} \
 	else {spllog(0, "Malloc: error.");}} 
 
 #define sp_alg_free(__obj__)   { if(__obj__) { spllog(0, "Free: 0x%p.", (__obj__)); free(__obj__); } }
@@ -56,14 +56,36 @@ extern "C" {
 		char 	data[0];
 	} SP_ALGORITHMS_NET_GENERIC_ST;
 
-#define sp_apl_vector_add(__target__, __type__, __src__, __nstep__)  \
+#define sp_apl_vector_add(__target__, __type__, __src__, __nitem__, __nstep__)  \
 do {\
-	;if(!__target__) {\
+	;int __total__ = 0;\
+	;int __range__ = (__nstep__) * sizeof(__type__) * (__nitem__);\
+	;if(!(__target__)) {\
+	;	__total__ = __range__ + sizeof(SP_ALGORITHMS_NET_GENERIC_ST);;\
+	;	sp_alg_malloc(__total__, __target__, SP_ALGORITHMS_NET_GENERIC_ST);;\
+	;	(__target__)->total += __total__;;\
+	;	(__target__)->range += __range__;;\
+	;	if(!(__target__)) {break;};\
 	;	;;\
-	;	;;\
-	;	;;\
+	;} \
+	else {\
+	;	if((__target__)->pl + sizeof(__type__) * (__nitem__) > (__target__)->range) {\
+	;		;__total__ = (__target__)->total + __range__;\
+	;		;(__target__) = (SP_ALGORITHMS_NET_GENERIC_ST *) realloc((__target__), __total__);\
+	;		;if(!(__target__)) {\
+	;			;spllog(5, "FATAL Error realloc.");\
+	;			;break;\
+			;};\
+	;		spllog(0, "New size: total: %d, __nitem__: %d.", __total__, (__nitem__));;\
+	;		(__target__)->total += __range__;;\
+	;		(__target__)->range += __range__;;\
+	;		;;\
+		};\
 	;	;;\
 	;};\
+	;spllog(0, "New size: ---->total: %d, range: %d.", (__target__)->total, __range__);	;;\
+	;memcpy((__target__)->data + (__target__)->pl, (__src__), sizeof(__type__) * (__nitem__));	;;\
+	;(__target__)->pl += sizeof(__type__);;	;;\
 } while(0);
 #ifdef __cplusplus
 }
