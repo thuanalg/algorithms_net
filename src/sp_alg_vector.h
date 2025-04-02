@@ -14,11 +14,11 @@ extern "C" {
 
 #ifndef __UNIX_LINUX_CPP11_AND_NEWERS__
 	#define sp_alg_console_log(__lv__, ___fmttt___, ...)		{; const char *pfn = 0; __SP_FILLE__(pfn);;\
-		fprintf(stdout, "[%d] [%s:%s:%d] "___fmttt___"\n" , (__lv__), (char *)pfn, (char*)__FUNCTION__, (int)__LINE__, ##__VA_ARGS__);}
+		fprintf(stdout, "[%d - %s - %s] [%s:%s:%d] "___fmttt___"\n" , (__lv__), __DATE__, __TIME__, (char *)pfn, (char*)__FUNCTION__, (int)__LINE__, ##__VA_ARGS__);}
 #else
-	#define sp_alg_console_log(__lv__, ___fmttt___, ...)		{ ;std::string __c11fmt__="[%d] [%s:%s:%d] ";\
+	#define sp_alg_console_log(__lv__, ___fmttt___, ...)		{ ;std::string __c11fmt__="[%d - %s - %s] [%s:%s:%d] ";\
 		__c11fmt__+=___fmttt___;__c11fmt__+="\n"; const char *pfn = 0; __FILLE__(pfn);;\
-		fprintf(stdout, __c11fmt__.c_str(), (__lv__),,(char *)pfn, (char *)__FUNCTION__, (int)__LINE__, ##__VA_ARGS__);}
+		fprintf(stdout, __c11fmt__.c_str(), (__lv__), __DATE__, __TIME__, (char *)pfn, (char *)__FUNCTION__, (int)__LINE__, ##__VA_ARGS__);}
 #endif
 
 #ifdef __ADD_SIMPLE_LOG__
