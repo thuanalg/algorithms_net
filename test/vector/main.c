@@ -48,7 +48,8 @@ int main() {
     }
     spllog(0, "--------------------------"); spllog(0, ""); spllog(0, "");
     sp_apl_vector_insert(p, int, arr1, 2, 1, 10);
-    sp_apl_vector_insert(p, int, arr1, 2000, 1, 10);
+    sp_apl_vector_insert(p, int, arr1, 2000, 5, 10);
+    sp_apl_vector_quicksort(p, sp_apl_quicksort_int);
     count = p->pl / sizeof(int);
     for (i = 0; i < count; ++i) {
         spllog(1, "12345678, %d", *(data + i));
