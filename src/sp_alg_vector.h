@@ -61,7 +61,7 @@ extern "C" {
 
 typedef int (*SPL_VECTOR_CMP_CALLBACK)(void*, int l, int h);
 
-#define sp_apl_vector_add(__target__, __type__, __src__, __nitem__, __nstep__)  \
+#define sp_apl_vector_append(__target__, __type__, __src__, __nitem__, __nstep__)  \
 do {\
 	;int __total__ = 0;\
 	;int __range__ = (__nstep__) * sizeof(__type__) * (__nitem__);\
@@ -120,7 +120,47 @@ do{\
 	;__target__->pl = 0;;\
 } while (0);
 
-
+#define sp_apl_vector_insert(__target__, __type__, __src__, __index__, __nitem__, __nstep__)  \
+do {\
+	;int __total__ = 0;\
+	;char * __po__ = 0;\
+	;int __range__ = (__nstep__) * sizeof(__type__) * (__nitem__);\
+	;int __adjust__ = (__index__) < 0 ? 0 : (__index__);\
+	;\
+	;if(!(__target__)) {\
+	;	__total__ = __range__ + sizeof(SP_ALGORITHMS_NET_GENERIC_ST);;\
+	;	sp_alg_malloc(__total__, __target__, SP_ALGORITHMS_NET_GENERIC_ST);;\
+	;	(__target__)->total += __total__;;\
+	;	(__target__)->range += __range__;;\
+	;	if(!(__target__)) {break;};\
+	;	;spllog(0, "New size: total: %d, __nitem__: %d.", __total__, (__nitem__));;\
+	;	;(__target__)->sz = sizeof(__type__);\
+	;	;;\
+	;} \
+	else {\
+	;	if((__target__)->pl + sizeof(__type__) * (__nitem__) > (__target__)->range) {\
+	;		;__total__ = (__target__)->total + __range__;\
+	;		;(__target__) = (SP_ALGORITHMS_NET_GENERIC_ST *) realloc((__target__), __total__);\
+	;		;if(!(__target__)) {\
+	;			;spllog(5, "FATAL Error realloc.");\
+	;			;break;\
+			;};\
+	;		spllog(0, "New size: total: %d, __nitem__: %d.", __total__, (__nitem__));;\
+	;		(__target__)->total += __range__;;\
+	;		(__target__)->range += __range__;;\
+	;		;;\
+		};\
+	;	;;\
+	;};\
+	;__adjust__ = __index__ > (__target__)->pl/sizeof(__type__) ? ((__target__)->pl/sizeof(__type__)) : __index__;	;;\
+	;;;\
+	;__po__ = (__target__)->data + (__adjust__) * sizeof(__type__);	;;\
+	;memmove(__po__ + sizeof(__type__) * (__nitem__ ), __po__,  (__target__)->pl - sizeof(__type__) * (__adjust__));	;;\
+	;;;\
+	;memcpy(__po__, (__src__), sizeof(__type__) * (__nitem__));	;;\
+	;(__target__)->pl += sizeof(__type__) * (__nitem__);;	;;\
+	;spllog(0, "New size: ---->total: %d, range: %d, pl: %d.", (__target__)->total, __range__, (__target__)->pl);;	;;\
+} while(0);
 
 
 DLL_API_SIMPLE_ALGORITHMS_NET int 

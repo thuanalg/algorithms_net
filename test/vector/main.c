@@ -6,15 +6,15 @@ int main() {
     SP_ALGORITHMS_NET_GENERIC_ST* p = 0;
     int a = 75, b = 10, c = 15, i = 0;
     int arr[5] = {1, 2, 3, 4, 5};
-    int arr1[5] = {11, 12, 13, 4, 51};
-    sp_apl_vector_add(p, int, &a,1, 2);
-    sp_apl_vector_add(p, int, &b,1, 2);
-    sp_apl_vector_add(p, int, &a,1, 2);
-    sp_apl_vector_add(p, int, &c,1, 2);
+    int arr1[5] = {110, 12, 13, 4, 51};
+    sp_apl_vector_append(p, int, &a,1, 2);
+    sp_apl_vector_append(p, int, &b,1, 2);
+    sp_apl_vector_append(p, int, &a,1, 2);
+    sp_apl_vector_append(p, int, &c,1, 2);
 
     //sp_apl_vector_add(p, int, arr,5, 10);
     //sp_apl_vector_add(p, int, arr1,5, 10);
-    sp_apl_vector_add(p, int, arr1,5, 10);
+    sp_apl_vector_append(p, int, arr1,5, 10);
     //sp_apl_vector_add(p, int, arr1,5, 10);
     //sp_apl_vector_add(p, int, arr1,5, 10);
 
@@ -35,13 +35,20 @@ int main() {
     //for (i = 0; i < count; ++i) {
     //    spllog(1, "12345678, %d", *(data + i));
     //}
-    sp_apl_vector_add(p, int, arr1, 5, 10);
+    //sp_apl_vector_append(p, int, arr1, 5, 10);
+    //count = p->pl / sizeof(int);
+    //for (i = 0; i < count; ++i) {
+    //    spllog(1, "12345678, %d", *(data + i));
+    //}
+    spllog(0, "---------"); spllog(0, ""); spllog(0, ""); spllog(0, "");
+    sp_apl_vector_quicksort(p, sp_apl_quicksort_int);
     count = p->pl / sizeof(int);
     for (i = 0; i < count; ++i) {
         spllog(1, "12345678, %d", *(data + i));
     }
-    spllog(0, "---------");
-    sp_apl_vector_quicksort(p, sp_apl_quicksort_int);
+    spllog(0, "--------------------------"); spllog(0, ""); spllog(0, "");
+    sp_apl_vector_insert(p, int, arr1, 2, 1, 10);
+    sp_apl_vector_insert(p, int, arr1, 2000, 1, 10);
     count = p->pl / sizeof(int);
     for (i = 0; i < count; ++i) {
         spllog(1, "12345678, %d", *(data + i));
