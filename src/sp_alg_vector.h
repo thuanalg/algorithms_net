@@ -8,9 +8,11 @@ extern "C" {
 #include <string.h>
 #include <stdlib.h>
 
-#define __SP_FILLE__(__p__)	do { __p__ = strrchr(__FILE__, '/'); if(__p__) {++__p__;break;} \
-	__p__ = strrchr(__FILE__, '\\'); if(__p__) {++__p__;break;}\
-	__p__ = __FILE__;} while(0);
+#ifndef __SP_FILLE__
+	#define __SP_FILLE__(__p__)	do { __p__ = strrchr(__FILE__, '/'); if(__p__) {++__p__;break;} \
+		__p__ = strrchr(__FILE__, '\\'); if(__p__) {++__p__;break;}\
+		__p__ = __FILE__;} while(0);
+#endif
 
 #ifndef __UNIX_LINUX_CPP11_AND_NEWERS__
 	#define sp_alg_console_log(__lv__, ___fmttt___, ...)		{; const char *pfn = 0; __SP_FILLE__(pfn);;\
@@ -116,9 +118,13 @@ do{\
 	;__target__->pl = 0;;\
 } while (0);
 
-#define sp_apl_vector_sort(__target__, __cpm_fn__) \
-do{\
-} while (0);
+
+
+DLL_API_SIMPLE_ALGORITHMS_NET int 
+sp_apl_hello();
+
+DLL_API_SIMPLE_ALGORITHMS_NET int 
+sp_apl_vector_quicksort(SP_ALGORITHMS_NET_GENERIC_ST *v, SPL_VECTOR_CMP_CALLBACK f);
 
 #ifdef __cplusplus
 }
