@@ -55,10 +55,11 @@ extern "C" {
 		int 	pl;
 		int 	pc;
 		int 	type;
+		int 	sz;
 		char 	data[0];
 	} SP_ALGORITHMS_NET_GENERIC_ST;
 
-typedef int (*SPL_VECTOR_CMP_CALLBACK)(void*, void*);
+typedef int (*SPL_VECTOR_CMP_CALLBACK)(void*, int l, int h);
 
 #define sp_apl_vector_add(__target__, __type__, __src__, __nitem__, __nstep__)  \
 do {\
@@ -71,6 +72,7 @@ do {\
 	;	(__target__)->range += __range__;;\
 	;	if(!(__target__)) {break;};\
 	;	;spllog(0, "New size: total: %d, __nitem__: %d.", __total__, (__nitem__));;\
+	;	;(__target__)->sz = sizeof(__type__);\
 	;	;;\
 	;} \
 	else {\
@@ -120,11 +122,15 @@ do{\
 
 
 
-DLL_API_SIMPLE_ALGORITHMS_NET int 
-sp_apl_hello();
 
 DLL_API_SIMPLE_ALGORITHMS_NET int 
 sp_apl_vector_quicksort(SP_ALGORITHMS_NET_GENERIC_ST *v, SPL_VECTOR_CMP_CALLBACK f);
+
+DLL_API_SIMPLE_ALGORITHMS_NET int 
+sp_apl_quicksort_int_cmp(void* arr, int i, int j);
+
+DLL_API_SIMPLE_ALGORITHMS_NET int
+sp_apl_quicksort_int(void* arr, int i, int j);
 
 #ifdef __cplusplus
 }
