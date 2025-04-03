@@ -56,6 +56,8 @@ extern "C" {
 		char 	data[0];
 	} SP_ALGORITHMS_NET_GENERIC_ST;
 
+typedef int (*SPL_VECTOR_CMP_CALLBACK)(void*, void*);
+
 #define sp_apl_vector_add(__target__, __type__, __src__, __nitem__, __nstep__)  \
 do {\
 	;int __total__ = 0;\
@@ -112,6 +114,10 @@ do{\
 	;__target__->total = sizeof(SP_ALGORITHMS_NET_GENERIC_ST);;\
 	;__target__->range = 0;;\
 	;__target__->pl = 0;;\
+} while (0);
+
+#define sp_apl_vector_sort(__target__, __cpm_fn__) \
+do{\
 } while (0);
 
 #ifdef __cplusplus
