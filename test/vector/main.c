@@ -59,7 +59,7 @@ int main__() {
     return 0;
 }
 
-int main() {
+int main_01() {
     int* data = 0;
     int count = 0;
     SP_ALGORITHMS_NET_GENERIC_ST* p = 0;
@@ -102,5 +102,14 @@ int main() {
 
     spllog(0, "");
     sp_alg_free(p);
+    return 0;
+}
+
+int main() {
+    SP_ALG_KADANE_RESULT resurt = { 0 };
+    int arr[] = { -2, 1, -3, 4, -1, 2, 1, -5, 6, 4, -10, 1 };
+    int n = sizeof(arr) / sizeof(arr[0]);
+    sp_alg_kadane(arr, n, &resurt);
+    //printf("Maximum Subarray Sum: %d\n", kadane(arr, n));
     return 0;
 }

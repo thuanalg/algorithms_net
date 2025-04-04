@@ -1,7 +1,7 @@
 # Add main.cpp file of the project root directory as a source file
 project(algorithms-net)
 set(SOURCE_LIB_SIMPLELOG_FILES simplelog/simplelog.c simplelog/simplelog.h )
-set(SOURCE_LIB_VECTOR_FILES sp_alg_vector.c sp_alg_vector.h )
+set(SOURCE_LIB_VECTOR_FILES sp_alg_vector.c sp_alg_vector.h kandane-algo/sp_alg_kandane.c )
 set(SOURCE_VECTOR_BIN_FILES ../test/vector/main.c)
 
 

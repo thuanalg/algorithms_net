@@ -154,7 +154,8 @@ do{\
 	;__target__->total = sizeof(SP_ALGORITHMS_NET_GENERIC_ST);;\
 	;__target__->range = 0;;\
 	;__target__->pl = 0;;\
-	;sp_alg_malloc(__target__->total, __target__, SP_ALGORITHMS_NET_GENERIC_ST);;\
+	;__target__ = realloc(__target__, sizeof(SP_ALGORITHMS_NET_GENERIC_ST));;\
+	;;\
 } while (0);
 
 
@@ -210,6 +211,14 @@ do {\
 } while(0);
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+// Structure to store the result: maximum sum and the start/end indices of the subarray
+typedef struct {
+	int max_sum;  // Maximum sum of the subarray
+	int start;    // Starting index of the subarray
+	int end;      // Ending index of the subarray
+} SP_ALG_KADANE_RESULT;
+
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 
 DLL_API_SIMPLE_ALGORITHMS_NET int 
 sp_apl_vector_quicksort(SP_ALGORITHMS_NET_GENERIC_ST *v, SPL_VECTOR_CMP_CALLBACK f);
@@ -219,6 +228,9 @@ sp_apl_quicksort_int_cmp(void* arr, int i, int j);
 
 DLL_API_SIMPLE_ALGORITHMS_NET int
 sp_apl_quicksort_int(void* arr, int i, int j);
+
+DLL_API_SIMPLE_ALGORITHMS_NET int
+sp_alg_kadane(int*, int n, SP_ALG_KADANE_RESULT* resurt);
 
 #define		sp_apl_vector_append		__sp_apl_vector_append__
 #define		sp_apl_vector_rem			__sp_apl_vector_rem__
