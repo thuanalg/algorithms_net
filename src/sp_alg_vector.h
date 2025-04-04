@@ -119,25 +119,23 @@ do{\
 	;if((__nitem__) < 1) break;\
 	;if ((__index__) * sizeof(__type__)  >= (__target__)->pl) break;\
 	;if ((__nitem__) * sizeof(__type__) > (__target__)->pl) break;\
-	;if (((__nitem__) + (__index__) * sizeof(__type__)) > (__target__)->pl/sizeof(__type__)) break;\
+	;if ( ( sizeof(__type__) * ((__nitem__) + (__index__))) > (__target__)->pl) break;\
+	;;;\
+	;;\
+	;;;\
 	;;\
 	;;\
-	;if ((__target__)->pl == sizeof(__type__) * ((__nitem__) + (__index__)) ) { \
-		;(__target__)->pl = 0;\
-		;(__target__)->range = 0;\
-		;(__target__)->total = sizeof(SP_ALGORITHMS_NET_GENERIC_ST);\
-		;sp_alg_malloc(__target__->total, __target__, SP_ALGORITHMS_NET_GENERIC_ST);\
-		;;\
-		break;\
-	;} ;\
 	;__po__ = (__target__)->data + sizeof(__type__) * (__index__);\
 	;memmove(__po__, __po__ + sizeof(__type__) * (__nitem__), (__target__)->pl - sizeof(__type__) * (__nitem__));\
 	;(__target__)->pl -= sizeof(__type__) * (__nitem__);;\
+	;;;\
 	;if((__nstep__) * sizeof(__type__) + (__target__)->pl < (__target__)->range) {\
 		;int __dta__ = (__target__)->range - (__nstep__) * sizeof(__type__);\
 		;(__target__)->range -= __dta__;\
 		;(__target__)->total -= __dta__;\
-		;sp_alg_malloc(__target__->total, __target__, SP_ALGORITHMS_NET_GENERIC_ST);;\
+		;;\
+		;__target__ = realloc(__target__, __target__->total);;\
+		;if(!__target__) { spllog(5, "FATAL Error realloc.");exit(1); };;\
 	};;\
 	;;\
 } while (0);
@@ -226,6 +224,7 @@ sp_apl_quicksort_int(void* arr, int i, int j);
 #define		sp_apl_vector_rem			__sp_apl_vector_rem__
 #define		sp_apl_vector_insert		__sp_apl_vector_insert__
 #define		sp_apl_vector_clear			__sp_apl_vector_clear__
+
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 
 #ifdef __cplusplus
