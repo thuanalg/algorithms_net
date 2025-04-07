@@ -232,6 +232,9 @@ sp_apl_quicksort_int(void* arr, int i, int j);
 DLL_API_SIMPLE_ALGORITHMS_NET int
 sp_alg_kadane(int*, int n, SP_ALG_KADANE_RESULT* resurt);
 
+DLL_API_SIMPLE_ALGORITHMS_NET int
+sp_alg_lis_dp(int* arr, int n);
+
 #define		sp_apl_vector_append		__sp_apl_vector_append__
 #define		sp_apl_vector_rem			__sp_apl_vector_rem__
 #define		sp_apl_vector_insert		__sp_apl_vector_insert__

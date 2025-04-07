@@ -105,11 +105,21 @@ int main_01() {
     return 0;
 }
 
-int main() {
+int main_02() {
     SP_ALG_KADANE_RESULT resurt = { 0 };
     int arr[] = { -2, 1, -3, 4, -1, 2, 1, -5, 6, 4, -10, 1 };
     int n = sizeof(arr) / sizeof(arr[0]);
     sp_alg_kadane(arr, n, &resurt);
     //printf("Maximum Subarray Sum: %d\n", kadane(arr, n));
+    return 0;
+}
+
+int main() {
+    /*Longest Increasing Subsequence (LIS)*/
+    int count = 0;
+    int arr[] = { 10, 22, 9, 33, 21, 50, 41, 75, 60, 76, 0, 81 };
+    int n = sizeof(arr) / sizeof(arr[0]);
+    count = sp_alg_lis_dp(arr, n);
+    printf("Length of LIS (O(n^2)) is %d\n", count);
     return 0;
 }
