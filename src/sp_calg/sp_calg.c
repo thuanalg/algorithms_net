@@ -1,0 +1,4 @@
+#include <sp_calg.h>
+int sp_calg_hello() {
+	return 0;
+}
