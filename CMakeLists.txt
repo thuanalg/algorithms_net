@@ -3,7 +3,7 @@ project(algorithms-net)
 set(SOURCE_LIB_SIMPLELOG_FILES src/simplelog/simplelog.c )
 set(SOURCE_LIB_CALG_FILES src/sp_calg/sp_calg.c )
 set(SOURCE_LIB_CPPALG_FILES src/sp_cppalg/sp_cppalg.cpp )
-#set(SOURCE_VECTOR_BIN_FILES ../test/spalgo/main.c)
+set(SOURCE_TEST_ALG_BIN_FILES ../tests/console/main.cpp)
 
 
 ###---------------------------------------------------------------------------------------###
@@ -41,12 +41,22 @@ endif()
 
 
 ###---------------------------------------------------------------------------------------###
+include_directories(./include)
+add_executable(spalg_test_console ${SOURCE_TEST_ALG_BIN_FILES})
+if(DEFINED UNIX_LINUX)
+	target_compile_definitions(spalg_test_console PUBLIC __UNIX_LINUX_CPP11_AND_NEWERS__=1)
+else()
+	target_compile_definitions(spalg_test_console PUBLIC _HAS_STD_BYTE=0)
+endif()
 
-#target_link_libraries(test_vector 
-#	simplelog
-#	libspalgo
-#)
-#
-#target_link_libraries(libspalgo 
-#	simplelog
-#)
+
+###---------------------------------------------------------------------------------------###
+
+target_link_libraries(libspcalg 
+	libsimplelog
+)
+
+
+target_link_libraries(libspcppalg 
+	libsimplelog
+)
