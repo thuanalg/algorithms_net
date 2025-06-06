@@ -3,6 +3,7 @@
 #include <string>
 #include "simplelog.h"
 #include <sp_cppalg.h>
+#include <sp_calg.h>
 using namespace std;
 class AAA {
 public:
