@@ -57,6 +57,11 @@ target_link_libraries(libspcalg
 )
 
 
-target_link_libraries(libspcppalg 
+target_link_libraries( 
 	libsimplelog
+)
+
+target_link_libraries(spalg_test_console 
+	libspcppalg
+	libspcalg
 )
