@@ -16,6 +16,7 @@ private:
 int main(int argc, char *argv) {
 	int k = 0;
 	k = sizeof(AAA);
-	fprintf(stdout, "kk= :%d.\n", k);
+	fprintf(stdout, "kk= :%d, sizeof(std::string): %d.\n", 
+		k, sizeof(std::string));
 	return EXIT_SUCCESS;
 }
