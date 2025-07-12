@@ -28,7 +28,7 @@ DLL_API_SIMPLE_CALGORITHMS_NET int
 sp_calg_hello();
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
-#define sp_is_palindrome(__arr__, __n__, __rs__)                               \
+#define sp_is_cpalindrome(__arr__, __n__, __rs__)                               \
 	do {                                                                   \
 		int start = 0, end = __n__ - 1;                                \
 		__rs__ = 1;                                                    \

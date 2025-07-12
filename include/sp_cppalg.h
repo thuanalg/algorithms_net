@@ -33,6 +33,19 @@ DLL_API_SIMPLE_CPPALGORITHMS_NET int
 sp_cppalg_greedy(int a, int b,
 	SP_CppCALLBACK_FUNCTION f, void *obj);
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+#define sp_is_cpppalindrome(__arr__, __n__, __rs__)                               \
+	do {                                                                   \
+		int start = 0, end = __n__ - 1;                                \
+		__rs__ = 1;                                                    \
+		while (start < end) {                                          \
+			if (str[start] != str[end]) {                          \
+				__rs__ = 0;                                    \
+				break;                                         \
+			}                                                      \
+			start++;                                               \
+			end--;                                                 \
+		};                                                             \
+	} while (0);
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 
