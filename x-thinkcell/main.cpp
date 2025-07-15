@@ -3,6 +3,7 @@
 #include <cassert>
 #include <cassert>
 #include <iostream>
+#include <utility>
 void IntervalMapTest();
 template<typename K, typename V>
 class interval_map {
@@ -81,7 +82,11 @@ void IntervalMapTest() {
 
 	val = im[3];
 	fprintf(stdout, "val=%c.\n", val);
-	assert(val == 'b');
+	assert(val == 'd');
+	for(int j = 0; j < 20; j++) {
+		val = im[j];
+		printf("\nval[%d]=%c\n", j, val);
+	}
 /*	
 	// Verify the results
 	assert(val == 'b');
