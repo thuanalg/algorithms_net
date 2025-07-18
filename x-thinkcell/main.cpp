@@ -124,10 +124,21 @@ void IntervalMapTest() {
 	std::cout << "Test passed!" << std::endl;
 */
 }
-//int main(int argc, char *argv[]) {
-//	IntervalMapTest();
-//	return 0;
-//}
+class AAAA
+{
+	public:
+	AAAA();
+	virtual ~AAAA();
+
+      private:
+	int a, b;
+};
+int main(int argc, char *argv[]) {
+	int sz = sizeof(AAAA);
+	sz = sizeof(std::string);
+	IntervalMapTest();
+	return 0;
+}
 
 // std::move,
 // std::forward, 
@@ -148,7 +159,7 @@ void IntervalMapTest() {
 #include <vector>
 #include <ranges>
 #include <algorithm>
-
+/*
 int
 main()
 {
@@ -167,7 +178,8 @@ main()
 		std::cout << x << " ";
 	}
 }
-//make_unique C++20
+*/
+    //make_unique C++20
 /*
 | Tính năng / Thư viện | Thuộc C++ Phiên bản nào? | Ghi chú                                                                                                   |
 | -------------------- | ------------------------ | --------------------------------------------------------------------------------------------------------- |
