@@ -1,20 +1,20 @@
-#include <map>
+﻿#include <map>
 #include <iostream>
 #include <cassert>
 #include <cassert>
 #include <iostream>
 #include <utility>
 void IntervalMapTest();
-template<typename K, typename V>
-class interval_map {
+template <typename K, typename V> class interval_map
+{
 	friend void IntervalMapTest();
 	V m_valBegin;
-	std::map<K,V> m_map;
-public:
+	std::map<K, V> m_map;
+
+      public:
 	// constructor associates whole range of K with val
-	template<typename V_forward>
-	interval_map(V_forward&& val)
-	: m_valBegin(std::forward<V_forward>(val))
+	template <typename V_forward>
+	interval_map(V_forward &&val) : m_valBegin(std::forward<V_forward>(val))
 	{
 		int a = 0;
 	}
@@ -25,23 +25,25 @@ public:
 	// includes keyBegin, but excludes keyEnd.
 	// If !( keyBegin < keyEnd ), this designates an empty interval,
 	// and assign must do nothing.
-	template<typename V_forward>
-	void assign( K const& keyBegin, K const& keyEnd, V_forward&& val )
-		requires (std::is_same<std::remove_cvref_t<V_forward>, V>::value)
+	template <typename V_forward>
+	void assign(K const &keyBegin, K const &keyEnd, V_forward &&val)
+		requires(std::is_same<std::remove_cvref_t<V_forward>, V>::value)
 	{
 		// If the interval is empty, do nothing
 		if (!(keyBegin < keyEnd)) {
 			return;
 		}
 
-		// First, handle the case where keyBegin is not already in the map
+		// First, handle the case where keyBegin is not already in the
+		// map
 		auto itLow = m_map.lower_bound(keyBegin);
-		//m_map.upper_bound
+		// m_map.upper_bound
 		if (itLow == m_map.begin() || (--itLow)->second != val) {
 			// Insert the boundary with the value val
 			m_map[keyBegin] = std::forward<V_forward>(val);
 		} else {
-			// If keyBegin is already associated with the same value, no need to insert it again
+			// If keyBegin is already associated with the same
+			// value, no need to insert it again
 			++itLow;
 		}
 
@@ -49,7 +51,9 @@ public:
 		auto itHigh = m_map.lower_bound(keyEnd);
 		if (itHigh == m_map.end() || itHigh->first != keyEnd) {
 			// Insert keyEnd with the value to stop the interval
-			m_map[keyEnd] = itHigh == m_map.begin() ? m_valBegin : (--itHigh)->second;
+			m_map[keyEnd] = itHigh == m_map.begin()
+					    ? m_valBegin
+					    : (--itHigh)->second;
 		}
 
 		// Remove any redundant elements between keyBegin and keyEnd
@@ -61,14 +65,24 @@ public:
 	}
 
 	// look-up of the value associated with key
-	V const& operator[]( K const& key ) const {
-		auto it=m_map.upper_bound(key);
-		if(it==m_map.begin()) {
+	V const &operator[](K const &key) const
+	{
+		auto it = m_map.upper_bound(key);
+		if (it == m_map.begin()) {
 			return m_valBegin;
 		} else {
 			return (--it)->second;
 		}
 	}
+	V const &find(K const &key) const
+	{
+		auto it = m_map.find(key);
+		if (it == m_map.end()) {
+			return m_valBegin;
+		} else {
+			return it->second;
+		}
+	};
 };
 #include <stdio.h>
 // Many solutions we receive are incorrect. Consider using a randomized test
@@ -95,7 +109,10 @@ void IntervalMapTest() {
 		val = im[j];
 		printf("\nval[%d]=%c\n", j, val);
 	}
-/*	
+	auto rt = im.find(2);
+
+
+	/*	
 	// Verify the results
 	assert(val == 'b');
 
@@ -107,9 +124,69 @@ void IntervalMapTest() {
 	std::cout << "Test passed!" << std::endl;
 */
 }
-int main(int argc, char *argv[]) {
-	IntervalMapTest();
-	return 0;
-}
+//int main(int argc, char *argv[]) {
+//	IntervalMapTest();
+//	return 0;
+//}
 
-// std::move, std::forward, emplace_back
+// std::move,
+// std::forward, 
+// emplace_back
+//std::ranges, 
+// std::views
+//std::concepts, 
+// std::coroutines, 
+//std::vector
+//std::unordered_map
+
+//int main(int argc, char *argv[]) {
+//	IntervalMapTest();
+//	return 0;
+//}
+
+#include <iostream>
+#include <vector>
+#include <ranges>
+#include <algorithm>
+
+int
+main()
+{
+	std::vector<int> data = {1, 4, 2, 6, 3, 5};
+
+	auto view =
+	    data |
+	    std::views::filter([](int x) { return x % 2 == 0; }) // lọc chẵn
+	    | std::views::transform([](int x) { return x * 10; }); // nhân 10
+
+	std::vector<int> result(view.begin(), view.end());
+
+	std::ranges::sort(result); // sắp xếp
+
+	for (int x : result) {
+		std::cout << x << " ";
+	}
+}
+//make_unique C++20
+/*
+| Tính năng / Thư viện | Thuộc C++ Phiên bản nào? | Ghi chú                                                                                                   |
+| -------------------- | ------------------------ | --------------------------------------------------------------------------------------------------------- |
+| `std::move`          | C++11                    | Dùng để chuyển quyền sở hữu tài nguyên (move semantics).                                                  |
+| `std::forward`       | C++11                    | Dùng trong perfect forwarding để giữ nguyên giá trị l-value/r-value.                                      |
+| `emplace_back`       | C++11                    | Thêm phần tử vào cuối container (ví dụ `std::vector`) bằng cách khởi tạo trực tiếp tại chỗ.               |
+| `std::ranges`        | C++20                    | Khái niệm mới để làm việc với dãy giá trị (ranges) và kết hợp với `views`.                                |
+| `std::views`         | C++20                    | Một phần của ranges; cung cấp các thao tác lazy (trì hoãn) như `filter`, `transform`, `take`, v.v.        |
+| `std::concepts`      | C++20                    | Cho phép ràng buộc kiểu dữ liệu trong template bằng các khái niệm rõ ràng.                                |
+| `std::coroutines`    | C++20                    | Cung cấp khả năng lập trình bất đồng bộ (asynchronous) hiệu quả, như `co_await`, `co_yield`, `co_return`. |
+| `std::vector`        | C++98                    | Container động, quản lý mảng động tự động (một phần của STL).                                             |
+| `std::unordered_map` | C++11                    | Bản ánh xạ (hash map), cho phép tra cứu O(1) trung bình.                                                  |
+| `std::map`		   | C++11                    | Key có thứ tự                                                  |
+
+
+| Tên               | Mô tả ngắn gọn                                | Phiên bản C++ |
+| ----------------- | --------------------------------------------- | ------------- |
+| `std::unique_ptr` | Chỉ có **1 owner** duy nhất. Không copy được. | C++11         |
+| `std::shared_ptr` | Cho phép nhiều owner (ref-counted).           | C++11         |
+| `std::weak_ptr`   | Tránh **vòng tham chiếu** với `shared_ptr`.   | C++11         |
+
+*/
