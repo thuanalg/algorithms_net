@@ -189,6 +189,7 @@ main()
 | `std::ranges`        | C++20                    | Khái niệm mới để làm việc với dãy giá trị (ranges) và kết hợp với `views`.                                |
 | `std::views`         | C++20                    | Một phần của ranges; cung cấp các thao tác lazy (trì hoãn) như `filter`, `transform`, `take`, v.v.        |
 | `std::concepts`      | C++20                    | Cho phép ràng buộc kiểu dữ liệu trong template bằng các khái niệm rõ ràng.                                |
+| `std::require`       | C++20                    | .                                |
 | `std::coroutines`    | C++20                    | Cung cấp khả năng lập trình bất đồng bộ (asynchronous) hiệu quả, như `co_await`, `co_yield`, `co_return`. |
 | `std::vector`        | C++98                    | Container động, quản lý mảng động tự động (một phần của STL).                                             |
 | `std::unordered_map` | C++11                    | Bản ánh xạ (hash map), cho phép tra cứu O(1) trung bình.                                                  |
@@ -200,5 +201,28 @@ main()
 | `std::unique_ptr` | Chỉ có **1 owner** duy nhất. Không copy được. | C++11         |
 | `std::shared_ptr` | Cho phép nhiều owner (ref-counted).           | C++11         |
 | `std::weak_ptr`   | Tránh **vòng tham chiếu** với `shared_ptr`.   | C++11         |
+
+
+| **Mục**                         | **Chi tiết**                                                                                         |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| **Giới thiệu**                  | Lambda là biểu thức khai báo hàm ẩn danh (anonymous function), có thể định nghĩa nội tuyến (inline). |
+| **Hỗ trợ từ phiên bản**         | C++11 trở đi (mở rộng thêm ở C++14, C++17 và C++20).                                                 |
+| **Cấu trúc tổng quát**          | `[capture](params) specifiers -> return_type { body }`                                               |
+| **Thành phần chính**            |                                                                                                      |
+| - `[capture]`                   | Cách bắt biến bên ngoài (by value `[=]`, by reference `[&]`, hoặc liệt kê `[x, &y]`)                 |
+| - `(params)`                    | Danh sách tham số, giống hàm thông thường.                                                           |
+| - `-> return_type` *(tuỳ chọn)* | Kiểu trả về (C++11 cần rõ, C++14 có thể suy diễn `auto`)                                             |
+| - `{ body }`                    | Phần thân hàm                                                                                        |
+| **Ví dụ đơn giản**              | `auto add = [](int a, int b) { return a + b; };`                                                     |
+| **Gọi lambda**                  | `int result = add(2, 3);`  → `result = 5`                                                            |
+| **Lambda không có capture**     | `[](){ std::cout << "Hello!\n"; }();`                                                                |
+| **Lambda với capture by value** | `int x = 10; auto f = [=]() { return x + 5; };`                                                      |
+| **Lambda với capture by ref**   | `int x = 10; auto f = [&]() { x += 5; }; f();`                                                       |
+| **Lambda trong `std::sort`**    | `std::sort(v.begin(), v.end(), [](int a, int b) { return a < b; });`                                 |
+| **Lambda trả về auto** (C++14)  | `auto square = [](auto x) { return x * x; };`                                                        |
+| **Mutable lambda**              | Cho phép thay đổi biến bắt theo giá trị. `auto f = [=]() mutable { x++; };`                          |
+| **Generic lambda (C++14+)**     | `auto f = [](auto a, auto b) { return a + b; };`                                                     |
+| **Constexpr lambda (C++17)**    | `constexpr auto add = [](int a, int b) { return a + b; };`                                           |
+| **Capturing `*this` (C++20)**   | `[*this] { return this->x; };`                                                                       |
 
 */
