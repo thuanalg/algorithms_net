@@ -76,12 +76,17 @@ template <typename K, typename V> class interval_map
 	}
 	V const &find(K const &key) const
 	{
+		for (auto it : m_map) {
+			std::cout << it.first << " ";
+		}
+		std::cout << std::endl;
 		auto it = m_map.find(key);
 		if (it == m_map.end()) {
 			return m_valBegin;
 		} else {
 			return it->second;
 		}
+
 	};
 };
 #include <stdio.h>
