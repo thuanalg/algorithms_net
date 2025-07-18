@@ -15,7 +15,9 @@ public:
 	template<typename V_forward>
 	interval_map(V_forward&& val)
 	: m_valBegin(std::forward<V_forward>(val))
-	{}
+	{
+		int a = 0;
+	}
 
 	// Assign value val to interval [keyBegin, keyEnd).
 	// Overwrite previous values in this interval.
@@ -34,6 +36,7 @@ public:
 
 		// First, handle the case where keyBegin is not already in the map
 		auto itLow = m_map.lower_bound(keyBegin);
+		//m_map.upper_bound
 		if (itLow == m_map.begin() || (--itLow)->second != val) {
 			// Insert the boundary with the value val
 			m_map[keyBegin] = std::forward<V_forward>(val);
@@ -73,11 +76,16 @@ public:
 // We recommend to implement a test function that tests the functionality of
 // the interval_map, for example using a map of int intervals to char.
 void IntervalMapTest() {
-	interval_map<int, char> im('a');
+	char myval = 'A';
+	interval_map<int, char> im(myval);
 	char val = 0;
 	// Assign intervals
-	im.assign(3, 5, 'b');
+	val = im[4];
+	myval = 'B';
+	im.assign(3, 5, myval);
+	val = im[4];
 	im.assign(7, 10, 'c');
+	val = im[8];
 	im.assign(1, 4, 'd');
 
 	val = im[3];
@@ -103,3 +111,5 @@ int main(int argc, char *argv[]) {
 	IntervalMapTest();
 	return 0;
 }
+
+// std::move, std::forward, emplace_back
