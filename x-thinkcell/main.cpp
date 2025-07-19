@@ -443,8 +443,14 @@ print_path(int v, const vector<int> &parent)
 int
 main()
 {
-	Grid grid = {{0, 1, 4, INF}, {INF, 0, 1, INF}, {INF, INF, 0, 1},
-	    {INF, INF, INF, 0}};
+	Grid grid = {
+		{0, 1, 4, INF, INF, 12}, 
+		{INF, 0, 10, INF, 1, INF}, 
+		{INF, INF, 0, 1, INF, 12},
+	    {INF, INF, INF, 0, INF, INF},
+	    {INF, INF, INF, 0, 2, 5},
+	    {INF, INF, INF, 0, INF, 1},
+	};
 
 	vector<int> parent(grid.size(), -1);
 	vector<int> dist = dijkstra(grid, 0, parent);
