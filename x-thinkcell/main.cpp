@@ -147,13 +147,12 @@ class AAAA
       private:
 	int a, b;
 };
+/*
 int main(int argc, char *argv[]) {
-	int sz = sizeof(AAAA);
-	sz = sizeof(std::string);
 	IntervalMapTest();
 	return 0;
 }
-
+*/
 // std::move,
 // std::forward, 
 // emplace_back
@@ -204,7 +203,7 @@ main()
 | `std::views`         | C++20                    | Một phần của ranges; cung cấp các thao tác lazy (trì hoãn) như `filter`, `transform`, `take`, v.v.        |
 | `std::concepts`      | C++20                    | Cho phép ràng buộc kiểu dữ liệu trong template bằng các khái niệm rõ ràng.                                |
 | `std::require`       | C++20                    | .                                |
-| `std::coroutines`    | C++20                    | Cung cấp khả năng lập trình bất đồng bộ (asynchronous) hiệu quả, như `co_await`, `co_yield`, `co_return`. |
+| `std::coroutines`    | C++20                    | - Cung cấp khả năng lập trình bất đồng bộ (asynchronous) hiệu quả, như `co_await`, `co_yield`, `co_return`. |
 | `std::vector`        | C++98                    | Container động, quản lý mảng động tự động (một phần của STL).                                             |
 | `std::unordered_map` | C++11                    | Bản ánh xạ (hash map), cho phép tra cứu O(1) trung bình.                                                  |
 | `std::map`		   | C++11                    | Key có thứ tự                                                  |
@@ -275,3 +274,189 @@ main()
 | 30  | `std::chrono::duration`   | Thời lượng/thời gian                     | C++11           |
 
 */
+
+// 0. Main problem: Identify islands in a grid
+// 1. List all islands
+// 2. Find the largest island (by area = number of land cells)
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+using Grid = vector<vector<int>>;
+using Coord = pair<int, int>;
+
+//const vector<Coord> directions = {
+//    {-1, 0}, {1, 0}, {0, -1}, {0, 1} // Up, Down, Left, Right
+//};
+
+const vector<Coord> directions = {
+    {-1, 0}, {1, 0}, {0, -1}, {0, 1}, // Up, Down, Left, Right
+    {-1, -1}, {-1, 1}, {1, -1}, {1, 1} // Diagonals: NW, NE, SW, SE
+};
+
+// Depth-First Search to collect all connected land cells
+void
+dfs(int x, int y, const Grid &grid, vector<vector<bool>> &visited,
+    vector<Coord> &island)
+{
+	int rows = grid.size();
+	int cols = grid[0].size();
+
+	if (x < 0 || y < 0 || x >= rows || y >= cols)
+		return;
+	if (grid[x][y] == 0 || visited[x][y])
+		return;
+
+	visited[x][y] = true;
+	island.emplace_back(x, y);
+
+	for (auto [dx, dy] : directions) {
+		dfs(x + dx, y + dy, grid, visited, island);
+	}
+}
+
+// Find all islands in the grid
+vector<vector<Coord>>
+listAllIslands(const Grid &grid)
+{
+	int rows = grid.size();
+	int cols = grid[0].size();
+	vector<vector<bool>> visited(rows, vector<bool>(cols, false));
+	vector<vector<Coord>> islands;
+
+	for (int i = 0; i < rows; ++i)
+		for (int j = 0; j < cols; ++j)
+			if (grid[i][j] == 1 && !visited[i][j]) {
+				vector<Coord> island;
+				dfs(i, j, grid, visited, island);
+				//islands.push_back(move(island));
+				islands.emplace_back(move(island));
+			}
+
+	return islands;
+}
+
+/*
+
+int
+main()
+{
+	Grid grid = {
+	    {1, 1, 0, 0, 0},
+	    {1, 0, 0, 1, 1},
+	    {0, 0, 1, 1, 0},
+	    {0, 0, 0, 0, 0},
+	    {0, 1, 0, 0, 0},
+	    {0, 1, 0, 0, 0},
+	    {0, 1, 0, 0, 0},
+	    {0, 1, 0, 0, 0},
+	    {0, 1, 0, 0, 0},
+	    {0, 1, 0, 0, 0},
+	    {0, 1, 0, 0, 0},
+	};
+
+	// 1. List all islands
+	auto islands = listAllIslands(grid);
+	cout << "Found " << islands.size() << " islands:\n";
+	for (int i = 0; i < islands.size(); ++i) {
+		cout << "- Island " << i + 1 << " with " << islands[i].size()
+		     << " cells: ";
+		for (auto [x, y] : islands[i])
+			cout << "(" << x << "," << y << ") ";
+		cout << '\n';
+	}
+
+	// 2. Find the largest island
+	auto maxIslandIt = max_element(islands.begin(), islands.end(),
+	    [](const auto &a, const auto &b) { return a.size() < b.size(); });
+
+	if (maxIslandIt != islands.end()) {
+		cout << "The largest island has " << maxIslandIt->size()
+		     << " cells: ";
+		for (auto [x, y] : *maxIslandIt)
+			cout << "(" << x << "," << y << ") ";
+		cout << '\n';
+	}
+
+	return 0;
+}
+*/
+
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <limits>
+#include <stack>
+
+using namespace std;
+
+using Grid = vector<vector<int>>;
+const int INF = numeric_limits<int>::max();
+
+vector<int>
+dijkstra(const Grid &grid, int s, vector<int> &parent)
+{
+	int n = grid.size();
+	vector<int> dist(n, INF);
+	vector<bool> visited(n, false);
+	priority_queue<pair<int, int>, vector<pair<int, int>>, greater<>> pq;
+
+	dist[s] = 0;
+	parent[s] = -1; // root has no parent
+	pq.emplace(0, s);
+
+	while (!pq.empty()) {
+		auto [d, u] = pq.top();
+		pq.pop();
+		if (visited[u])
+			continue;
+		visited[u] = true;
+
+		for (int v = 0; v < n; ++v) {
+			if (grid[u][v] != INF &&
+			    dist[v] > dist[u] + grid[u][v]) {
+				dist[v] = dist[u] + grid[u][v];
+				parent[v] = u; // save parent
+				pq.emplace(dist[v], v);
+			}
+		}
+	}
+
+	return dist;
+}
+
+// In đường đi từ s đến v
+void
+print_path(int v, const vector<int> &parent)
+{
+	if (parent[v] == -1) {
+		cout << v;
+		return;
+	}
+	print_path(parent[v], parent);
+	cout << " -> " << v;
+}
+
+int
+main()
+{
+	Grid grid = {{0, 1, 4, INF}, {INF, 0, 1, INF}, {INF, INF, 0, 1},
+	    {INF, INF, INF, 0}};
+
+	vector<int> parent(grid.size(), -1);
+	vector<int> dist = dijkstra(grid, 0, parent);
+
+	for (int i = 0; i < dist.size(); ++i) {
+		cout << "Distance to " << i << ": ";
+		if (dist[i] == INF) {
+			cout << "-1 (unreachable)\n";
+		} else {
+			cout << dist[i] << ", Path: ";
+			print_path(i, parent);
+			cout << "\n";
+		}
+	}
+}
