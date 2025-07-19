@@ -40,6 +40,7 @@ template <typename K, typename V> class interval_map
 		// m_map.upper_bound
 		if (itLow == m_map.begin() || (--itLow)->second != val) {
 			// Insert the boundary with the value val
+			// Have no any key
 			m_map[keyBegin] = std::forward<V_forward>(val);
 		} else {
 			// If keyBegin is already associated with the same
@@ -49,9 +50,15 @@ template <typename K, typename V> class interval_map
 
 		// Handle the case where keyEnd is not in the map
 		auto itHigh = m_map.lower_bound(keyEnd);
-		if (itHigh == m_map.end() || itHigh->first != keyEnd) {
+		if (itHigh == m_map.end() ) {
 			// Insert keyEnd with the value to stop the interval
-			m_map[keyEnd] = itHigh == m_map.begin()
+			m_map[keyEnd] = (itHigh == m_map.begin())
+					    ? m_valBegin
+					    : (--itHigh)->second;
+		} else if (itHigh->first != keyEnd) {
+			auto tmp = itHigh->first;
+			// Insert keyEnd with the value to stop the interval
+			m_map[keyEnd] = (itHigh == m_map.begin())
 					    ? m_valBegin
 					    : (--itHigh)->second;
 		}
@@ -106,6 +113,7 @@ void IntervalMapTest() {
 	im.assign(7, 10, 'c');
 	val = im[8];
 	im.assign(1, 4, 'd');
+	im.assign(10, 20, 'D');
 
 	val = im[3];
 	fprintf(stdout, "val=%c.\n", val);
@@ -115,6 +123,7 @@ void IntervalMapTest() {
 		printf("\nval[%d]=%c\n", j, val);
 	}
 	auto rt = im.find(2);
+	rt = im.find(5);
 
 
 	/*	
@@ -229,5 +238,40 @@ main()
 | **Generic lambda (C++14+)**     | `auto f = [](auto a, auto b) { return a + b; };`                                                     |
 | **Constexpr lambda (C++17)**    | `constexpr auto add = [](int a, int b) { return a + b; };`                                           |
 | **Capturing `*this` (C++20)**   | `[*this] { return this->x; };`                                                                       |
+
+
+
+| STT | Lớp `std::`               | Chức năng chính                          | Có từ phiên bản |
+| --- | ------------------------- | ---------------------------------------- | --------------- |
+| 1   | `std::vector`             | Mảng động                                | C++98           |
+| 2   | `std::map`                | Cấu trúc ánh xạ key → value, sắp xếp     | C++98           |
+| 3   | `std::unordered_map`      | Ánh xạ key → value, không sắp xếp (hash) | C++11           |
+| 4   | `std::set`                | Tập hợp các phần tử duy nhất, có sắp xếp | C++98           |
+| 5   | `std::unordered_set`      | Tập hợp duy nhất, không sắp xếp          | C++11           |
+| 6   | `std::list`               | Danh sách liên kết đôi                   | C++98           |
+| 7   | `std::forward_list`       | Danh sách liên kết đơn                   | C++11           |
+| 8   | `std::array`              | Mảng có kích thước cố định               | C++11           |
+| 9   | `std::deque`              | Hàng đợi hai đầu                         | C++98           |
+| 10  | `std::string`             | Chuỗi ký tự                              | C++98           |
+| 11  | `std::wstring`            | Chuỗi Unicode (wide characters)          | C++98           |
+| 12  | `std::string_view`        | View không sở hữu dữ liệu chuỗi          | C++17           |
+| 13  | `std::optional`           | Đại diện giá trị có thể có hoặc không    | C++17           |
+| 14  | `std::variant`            | Union an toàn kiểu                       | C++17           |
+| 15  | `std::any`                | Chứa bất kỳ kiểu nào                     | C++17           |
+| 16  | `std::tuple`              | Bộ giá trị khác kiểu                     | C++11           |
+| 17  | `std::pair`               | Cặp giá trị                              | C++98           |
+| 18  | `std::bitset`             | Tập bit                                  | C++98           |
+| 19  | `std::span`               | View đa chiều cho mảng, hỗ trợ range     | C++20           |
+| 20  | `std::shared_ptr`         | Con trỏ thông minh chia sẻ               | C++11           |
+| 21  | `std::unique_ptr`         | Con trỏ thông minh độc quyền             | C++11           |
+| 22  | `std::weak_ptr`           | Con trỏ yếu (không giữ ownership)        | C++11           |
+| 23  | `std::mutex`              | Mutex cho lập trình đa luồng             | C++11           |
+| 24  | `std::shared_mutex`       | Mutex chia sẻ (đọc song song)            | C++17           |
+| 25  | `std::jthread`            | Thread tự dọn dẹp (joining thread)       | C++20           |
+| 26  | `std::thread`             | Đối tượng luồng                          | C++11           |
+| 27  | `std::condition_variable` | Biến điều kiện cho đồng bộ hóa           | C++11           |
+| 28  | `std::future`             | Cho kết quả không đồng bộ                | C++11           |
+| 29  | `std::promise`            | Tạo dữ liệu cho `std::future`            | C++11           |
+| 30  | `std::chrono::duration`   | Thời lượng/thời gian                     | C++11           |
 
 */
