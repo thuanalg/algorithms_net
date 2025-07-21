@@ -416,8 +416,10 @@ dijkstra(const Grid &grid, int s, vector<int> &parent)
 		visited[u] = true;
 
 		for (int v = 0; v < n; ++v) {
-			if (grid[u][v] != INF &&
-			    dist[v] > dist[u] + grid[u][v]) {
+			if (grid[u][v] == INF) {
+				continue;
+			}
+			if ( dist[v] > dist[u] + grid[u][v]) {
 				dist[v] = dist[u] + grid[u][v];
 				parent[v] = u; // save parent
 				pq.emplace(dist[v], v);
@@ -441,7 +443,7 @@ print_path(int v, const vector<int> &parent)
 }
 //http://www.webgraphviz.com/
 int
-main()
+main1()
 {
 //	Grid grid = {
 //		{0, 1, 4, INF, INF, 17}, //0
@@ -462,7 +464,7 @@ main()
 //	};
 
 	Grid grid = {
-	    {0, 1, 4, INF, INF, 17}, // 0
+	    {0, 1, 4, INF, INF, 1}, // 0
 	    {INF, 0, 1, INF, 1, INF}, // 1
 	    {INF, INF, 0, 1, 1, 12}, // 2
 	    {INF, INF, INF, 0, INF, 2}, // 3
@@ -481,8 +483,17 @@ main()
 //	};
 	vector<int> parent(grid.size(), -1);
 	vector<int> dist = dijkstra(grid, 0, parent);
-
+	int dest = dist.size() - 1;
+//	if (dist[dest] < INF) {
+//		cout << "Distance to " << dest << ": ";
+//		cout << dist[dest] << ", Path: ";
+//		print_path(dest, parent);
+//		cout << "\n";	
+//	}
 	for (int i = 0; i < dist.size(); ++i) {
+		//if (i < dist.size() - 1) {
+		//	continue;
+		//}
 		cout << "Distance to " << i << ": ";
 		if (dist[i] == INF) {
 			cout << "-1 (unreachable)\n";
@@ -492,4 +503,35 @@ main()
 			cout << "\n";
 		}
 	}
+	return 0;
 }
+
+#include <iostream>
+#include <queue>
+#include <vector>
+
+using namespace std;
+
+int
+main()
+{
+	// priority_queue với min-heap (ưu tiên phần tử nhỏ nhất)
+	priority_queue<pair<int, int>, vector<pair<int, int>>, greater<>> pq;
+	//priority_queue<pair<int, int>, vector<pair<int, int>>, less<>> pq;
+
+	// Thêm các phần tử (khoảng cách, đỉnh)
+	pq.emplace(10, 2);
+	pq.emplace(5, 0);
+	pq.emplace(7, 1);
+	pq.emplace(3, 3);
+
+	// In ra các phần tử theo thứ tự ưu tiên
+	while (!pq.empty()) {
+		auto [dist, node] = pq.top();
+		pq.pop();
+		cout << "Node: " << node << ", Distance: " << dist << '\n';
+	}
+
+	return 0;
+}
+// rankdir=LR;
