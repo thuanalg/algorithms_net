@@ -439,19 +439,46 @@ print_path(int v, const vector<int> &parent)
 	print_path(parent[v], parent);
 	cout << " -> " << v;
 }
-
+//http://www.webgraphviz.com/
 int
 main()
 {
+//	Grid grid = {
+//		{0, 1, 4, INF, INF, 17}, //0
+//		{INF, 0, 10, INF, 1, INF}, //1
+//		{INF, INF, 0, 1, 1, 12},//2
+//	    {INF, INF, INF, 0, INF, 2},//3
+//	    {INF, INF, INF, 10, 0, 5},//4
+//	    {INF, INF, INF, INF, INF, 0}, // 5
+//	};
+
+//	Grid grid = {
+//	    {0, 1, 4, INF, INF, 17}, // 0
+//	    {INF, 0, 10, INF, 1, INF}, // 1
+//	    {INF, INF, 0, 1, 1, 12}, // 2
+//	    {INF, INF, INF, 0, INF, 2}, // 3
+//	    {INF, INF, INF, 10, 0, 6}, // 4
+//	    {INF, INF, INF, INF, INF, 0}, // 5
+//	};
+
 	Grid grid = {
-		{0, 1, 4, INF, INF, 12}, 
-		{INF, 0, 10, INF, 1, INF}, 
-		{INF, INF, 0, 1, INF, 12},
-	    {INF, INF, INF, 0, INF, INF},
-	    {INF, INF, INF, 0, 2, 5},
-	    {INF, INF, INF, 0, INF, 1},
+	    {0, 1, 4, INF, INF, 17}, // 0
+	    {INF, 0, 1, INF, 1, INF}, // 1
+	    {INF, INF, 0, 1, 1, 12}, // 2
+	    {INF, INF, INF, 0, INF, 2}, // 3
+	    {INF, INF, INF, 10, 0, 6}, // 4
+	    {INF, INF, INF, INF, INF, 0}, // 5
 	};
 
+
+//	Grid grid = {
+//    {0, 1, 4, INF, INF, 1}, // 0
+//	    {INF, 0, 10, INF, 1, INF}, // 1
+//	    {INF, INF, 0, 1, 1, 12}, // 2
+//	    {INF, INF, INF, 0, INF, 2}, // 3
+//	    {INF, INF, INF, 10, 0, 5}, // 4
+//	    {INF, INF, INF, INF, INF, 0}, // 5
+//	};
 	vector<int> parent(grid.size(), -1);
 	vector<int> dist = dijkstra(grid, 0, parent);
 
