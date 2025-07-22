@@ -586,17 +586,20 @@ Kadane_Algorithm( std::vector<T> &data, mydataaa<T, myIndexPair<int>> &output)
 {
 	//C++20
 	int ret = 0;
-	int start_idx = 0;
-	int end_idx = 0;
 	int s = 0;
 	int i = 0;
 	output.clear();
-	//int arr[] = {-2, -3, 4, -1, -2, 1, 5, -3};
+	//int arr[] = {-2, -3, 4, -1, -2, 10, 5, -3};
 	do {
 		if (data.size() < 1) {
 			ret = -1;
 			break;
 		}
+		auto MyaddLamda = []<typename U>(U &a, U &b)
+			requires(std::is_same<std::remove_cvref_t<T>, U>::value)
+		{ 
+			a += b; 
+		};
 		T max_so_far = 0;
 		T max_ending_here = 0;
 		for (auto v : data) {
@@ -604,12 +607,12 @@ Kadane_Algorithm( std::vector<T> &data, mydataaa<T, myIndexPair<int>> &output)
 				max_ending_here = v;
 				s = i;
 			} else {
-				max_ending_here += v;
+				//max_ending_here += v;
+				MyaddLamda(max_ending_here, v);
+
 			}
 			if (max_ending_here > max_so_far) {
 				max_so_far = max_ending_here;
-				start_idx = s;
-				end_idx = i;
 				output[max_so_far] = std::make_pair(s, i);
 			}
 			++i;
@@ -621,8 +624,8 @@ Kadane_Algorithm( std::vector<T> &data, mydataaa<T, myIndexPair<int>> &output)
 int
 testKadane_Algorithm()
 {
-	//std::vector<double> dta = {-2, -3, 4, -1, -2, 1, 5.121, -3};
-	std::vector<double> dta = {100, -3, 4, -1, -2, 1, 5.121, -3};
+	std::vector<double> dta = {-2, -3, 4, -1, -2, 10, 5.121, -3, 4};
+	//std::vector<double> dta = {100, -3, 4, -1, -2, 1, 5.121, -3};
 	mydataaa<double, myIndexPair<int>> output;
 	int ret = Kadane_Algorithm(dta, output);
 	for (auto it : output) {
