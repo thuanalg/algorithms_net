@@ -272,6 +272,7 @@ main()
 | 28  | `std::future`             | Cho kết quả không đồng bộ                | C++11           |
 | 29  | `std::promise`            | Tạo dữ liệu cho `std::future`            | C++11           |
 | 30  | `std::chrono::duration`   | Thời lượng/thời gian                     | C++11           |
+| 31  | `std::remove_cvref_t`     | Bỏ cả const / volatile và reference khỏi T                     | C++20           |
 
 */
 
@@ -514,7 +515,7 @@ mycount();
 using namespace std;
 using myqueue = std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, greater<>>;
 int
-main()
+main12()
 {
 	// priority_queue với min-heap (ưu tiên phần tử nhỏ nhất)
 	myqueue pq;
@@ -546,7 +547,7 @@ mycount()
 	myqueue pq;
 	//using myqueue = std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, greater<>>;
 	std::unique_ptr<myqueue> ptr = std::make_unique<myqueue>();
-	std::unique_ptr<myqueue *> ptr1 = std::make_unique<myqueue *>(10);
+	//std::unique_ptr<myqueue *> ptr1 = std::make_unique<myqueue *>(10);
 	ptr->emplace(10, 2);
 	ptr->emplace(5, 0);
 	ptr->emplace(7, 1);
@@ -556,5 +557,85 @@ mycount()
 		ptr->pop();
 		cout << "---Node: " << node << ", Distance: " << dist << '\n';
 	}
+
+}
+/*
+## #1. *
+	*Dãy con liên tiếp có tổng lớn
+	nhất(Maximum Subarray Sum) *
+	*[*] -
+    **Mô tả : **Tìm dãy con liên tiếp có tổng lớn nhất trong một mảng số cho
+	      trước.Đây là bài toán cổ điển và được áp dụng trong phân tích lợi
+	      nhuận từ các chỉ số tài chính,
+    dự báo giá trị tài sản.-
+	**Ứng dụng : **Tính toán lợi nhuận tối đa trong các chiến lược đầu tư.-
+	**Thuật toán : **Kadane’s Algorithm(O(n)).
+*/
+
+template <typename T> 
+using myIndexPair = std::pair<int, int>;
+
+template <typename K, typename V>
+using mydataaa = std::map<K, V, less<>>;
+
+template <typename T>
+
+int
+Kadane_Algorithm( std::vector<T> &data, mydataaa<T, myIndexPair<int>> &output) 
+	requires std::is_arithmetic_v<T>
+{
+	//C++20
+	int ret = 0;
+	int start_idx = 0;
+	int end_idx = 0;
+	int s = 0;
+	int i = 0;
+	output.clear();
+	//int arr[] = {-2, -3, 4, -1, -2, 1, 5, -3};
+	do {
+		if (data.size() < 1) {
+			ret = -1;
+			break;
+		}
+		auto max_so_far = data[0];
+		auto max_ending_here = data[0];
+		for (auto v : data) {
+			if (max_ending_here < 0) {
+				max_ending_here = v;
+				s = i;
+			} else {
+				max_ending_here += v;
+			}
+			if (max_ending_here > max_so_far) {
+				max_so_far = max_ending_here;
+				start_idx = s;
+				end_idx = i;
+				output[max_so_far] = std::make_pair(s, i);
+			}
+			++i;
+		}
+	} while (0);
+	//int arr[] = {-2, -3, 4, -1, -2, 1, 5, -3};
+	return ret;
+}
+int
+testKadane_Algorithm()
+{
+	std::vector<double> dta = {-2, -3, 4, -1, -2, 1, 5.121, -3};
+	mydataaa<double, myIndexPair<int>> output;
+	int ret = Kadane_Algorithm(dta, output);
+	for (auto it : output) {
+		std::cout << "val: " << it.first << ", \tindex: ("
+			  << it.second.first << ", " << it.second.second
+			  << ")." << std::endl;
+	}
+
+	return 0;
+}
+
+int
+main()
+{
+	return testKadane_Algorithm();
 
 }
