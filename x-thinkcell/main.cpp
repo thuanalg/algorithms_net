@@ -339,10 +339,10 @@ listAllIslands(const Grid &grid)
 	return islands;
 }
 
-/*
+
 
 int
-main()
+main2()
 {
 	Grid grid = {
 	    {1, 1, 0, 0, 0},
@@ -383,7 +383,7 @@ main()
 
 	return 0;
 }
-*/
+
 
 #include <iostream>
 #include <vector>
@@ -509,15 +509,17 @@ main1()
 #include <iostream>
 #include <queue>
 #include <vector>
-
+void
+mycount();
 using namespace std;
-
+using myqueue = std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, greater<>>;
 int
 main()
 {
 	// priority_queue với min-heap (ưu tiên phần tử nhỏ nhất)
-	priority_queue<pair<int, int>, vector<pair<int, int>>, greater<>> pq;
-	//priority_queue<pair<int, int>, vector<pair<int, int>>, less<>> pq;
+	myqueue pq;
+	//priority_queue<pair<int, int>, vector<pair<int, int>>, greater<>> pq;
+	// priority_queue<pair<int, int>, vector<pair<int, int>>, less<>> pq;
 
 	// Thêm các phần tử (khoảng cách, đỉnh)
 	pq.emplace(10, 2);
@@ -531,7 +533,28 @@ main()
 		pq.pop();
 		cout << "Node: " << node << ", Distance: " << dist << '\n';
 	}
-
+	//mycount();
 	return 0;
+	// rankdir=LR;
 }
-// rankdir=LR;
+
+void
+mycount()
+{
+//	std::priority_queue<std::pair<int, int>,
+//	    std::vector<std::pair<int, int>>, greater<>> pq;
+	myqueue pq;
+	//using myqueue = std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, greater<>>;
+	std::unique_ptr<myqueue> ptr = std::make_unique<myqueue>();
+	std::unique_ptr<myqueue *> ptr1 = std::make_unique<myqueue *>(10);
+	ptr->emplace(10, 2);
+	ptr->emplace(5, 0);
+	ptr->emplace(7, 1);
+	ptr->emplace(3, 3);
+	while (!ptr->empty()) {
+		auto [dist, node] = ptr->top();
+		ptr->pop();
+		cout << "---Node: " << node << ", Distance: " << dist << '\n';
+	}
+
+}
