@@ -576,7 +576,7 @@ template <typename T>
 using myIndexPair = std::pair<int, int>;
 
 template <typename K, typename V>
-using mydataaa = std::map<K, V, less<>>;
+using mydataaa = std::map<K, V, std::greater<>>;
 
 template <typename T>
 
@@ -597,8 +597,8 @@ Kadane_Algorithm( std::vector<T> &data, mydataaa<T, myIndexPair<int>> &output)
 			ret = -1;
 			break;
 		}
-		auto max_so_far = data[0];
-		auto max_ending_here = data[0];
+		T max_so_far = 0;
+		T max_ending_here = 0;
 		for (auto v : data) {
 			if (max_ending_here < 0) {
 				max_ending_here = v;
@@ -621,7 +621,8 @@ Kadane_Algorithm( std::vector<T> &data, mydataaa<T, myIndexPair<int>> &output)
 int
 testKadane_Algorithm()
 {
-	std::vector<double> dta = {-2, -3, 4, -1, -2, 1, 5.121, -3};
+	//std::vector<double> dta = {-2, -3, 4, -1, -2, 1, 5.121, -3};
+	std::vector<double> dta = {100, -3, 4, -1, -2, 1, 5.121, -3};
 	mydataaa<double, myIndexPair<int>> output;
 	int ret = Kadane_Algorithm(dta, output);
 	for (auto it : output) {
