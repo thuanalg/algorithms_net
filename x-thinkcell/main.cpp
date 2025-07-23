@@ -778,8 +778,6 @@ longest_increasing_subsequence(const std::vector<T> &nums)
 					std::vector<T> copied(lis.begin(), it);
 					copied.push_back(num);
 					arrlis.push_back(std::move(copied));
-					//arrlis.push_back(copied);
-					//copied.clear();
 					arrlis.push_back(std::move(lis));
 				}
 				
@@ -808,9 +806,7 @@ longest_increasing_subsequence(const std::vector<T> &nums)
 						addedbegine = 1;
 						std::vector<T> copied;
 						copied.push_back(num);
-						arrlis.push_back(std::move(copied));
-						//arrlistmp.push_back(copied);
-						//copied.clear();
+						arrlistmp.push_back(std::move(copied));
 						continue;
 					}
 					it++;
@@ -821,8 +817,7 @@ longest_increasing_subsequence(const std::vector<T> &nums)
 						--it;
 						std::vector<T> copied(tmp.begin(), it);
 						copied.push_back(num);
-						arrlistmp.push_back(copied);
-						copied.clear();
+						arrlistmp.push_back(std::move(copied));
 					}
 					
 					if (shouldadd) {
@@ -832,14 +827,15 @@ longest_increasing_subsequence(const std::vector<T> &nums)
 				}
 			}
 		}
-		clean_trash(arrlistmp);
+		
 		if (arrlistmp.size()) {
+			clean_trash(arrlistmp);
 			std::copy(arrlistmp.begin(), arrlistmp.end(),
 			    std::back_inserter(arrlis));
 
 		}
 		clean_trash(arrlis);
-
+		int aaa = 0;
 	}
 	std::cout << std::endl;
 
@@ -864,6 +860,7 @@ main()
 {
 #if 1
 	std::vector<float> data = {10, 9, 2, 5, 2.5, 7, 101, 18, 101, 101, 15, 16, 17, 19, 20, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+	//std::vector<float> data = {10, 9, 2, 5, 2.5, 7, 101, 18, 101, 101, 15, 16, 17, 19, 20, 1, 2, 3, 4, 5, };
 #else
 	std::vector<int> data = {10, 9, 2, 5, 3, 7, 101, 18, 101, 101, 15};
 #endif
