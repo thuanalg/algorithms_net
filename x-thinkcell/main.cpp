@@ -701,6 +701,9 @@ longest_increasing_subsequence(const std::vector<T> &nums)
 	std::vector<std::vector<T>> arrlis; // lis[i] = phần tử nhỏ nhất kết thúc LIS dài i+1
 	int shouldadd = 0;
 	for (auto num : nums) {
+		if (num == 1) {
+			int count = 0;
+		}
 		if (arrlis.size() == 0) {
 			auto it = std::lower_bound(lis.begin(), lis.end(), num);
 			if (it == lis.end()) {
@@ -727,6 +730,7 @@ longest_increasing_subsequence(const std::vector<T> &nums)
 				}
 			}
 		} else {
+			int addedbegine = 0;
 			for (auto &tmp : arrlis) {
 				shouldadd = 0;
 				auto it = std::lower_bound(tmp.begin(), tmp.end(), num);
@@ -737,6 +741,17 @@ longest_increasing_subsequence(const std::vector<T> &nums)
 					tmp.push_back(num); // Expand list
 					shouldadd = 1;
 				} else {
+					if (it == tmp.begin()) {
+						if (addedbegine) {
+							continue;
+						}
+						addedbegine = 1;
+						std::vector<T> copied;
+						copied.push_back(num);
+						arrlis.push_back(copied);
+						copied.clear();
+						continue;
+					}
 					it++;
 					if (it == tmp.end()) {
 						shouldadd = 1;
@@ -760,19 +775,48 @@ longest_increasing_subsequence(const std::vector<T> &nums)
 			std::ranges::sort(arrlis, [](const auto &a, const auto &b) {
 				    return a.size() < b.size();
 			    });
-			for (auto &tmp : arrlis) {
-
+			for (int index = 0; index < arrlis.size() - 1; ++index) {
+				if (arrlis[index].size() == arrlis[index + 1].size()) {
+					int i = arrlis[index].size() - 1;
+					int j = arrlis[index - 1].size() - 1;
+					int fd = 0;
+					if (arrlis[index][i] < arrlis[index + 1][j]) {
+						fd = index + 1;
+					} else {
+						fd = index;
+					}
+					arrlis.erase(arrlis.begin() + fd);
+				}
 			}
 		}
 		int llll = 0;
 	}
 	std::cout << std::endl;
-	auto iii = arrlis.end();
-	iii--;
-	for (auto v : *iii) {
+	for (int index = 0; index < arrlis.size() - 1; ++index) {
+		if (arrlis[index].size() == arrlis[index + 1].size()) {
+			int i = arrlis[index].size() - 1;
+			int j = arrlis[index -1].size() - 1;
+			int fd = 0;
+			if (arrlis[index][i] < arrlis[index + 1][j]) {
+				fd = index + 1;
+			} else {
+				fd = index;
+			}
+			arrlis.erase(arrlis.begin() + fd);
+		}
+	}
+	if (arrlis.size()) {
+		lis.clear();
+		auto it = arrlis.end();
+		--it;
+		lis = *it;
+	}
+	std::cout << std::endl;
+	for (auto v : lis) {
 		std::cout << v << "\t";
 	}
 	std::cout << std::endl;
+
 	return lis.size();
 }
 //Nguyên lý là tạo dãy tăng mà phần tử cuối càng nhỏ càng tốt
@@ -781,7 +825,7 @@ int
 main()
 {
 #if 1
-	std::vector<int> data = {10, 9, 2, 5, 3, 7, 101, 18, 101, 101, 15, 16, 17};
+	std::vector<int> data = {10, 9, 2, 5, 3, 7, 101, 18, 101, 101, 15, 16, 17, 19, 20, 1};
 #else
 	std::vector<int> data = {10, 9, 2, 5, 3, 7, 101, 18, 101, 101, 15};
 #endif
