@@ -303,8 +303,8 @@ void
 dfs(int x, int y, const Grid &grid, vector<vector<bool>> &visited,
     vector<Coord> &island)
 {
-	int rows = grid.size();
-	int cols = grid[0].size();
+	size_t rows = grid.size();
+	size_t cols = grid[0].size();
 
 	if (x < 0 || y < 0 || x >= rows || y >= cols)
 		return;
@@ -323,8 +323,8 @@ dfs(int x, int y, const Grid &grid, vector<vector<bool>> &visited,
 vector<vector<Coord>>
 listAllIslands(const Grid &grid)
 {
-	int rows = grid.size();
-	int cols = grid[0].size();
+	size_t rows = grid.size();
+	size_t cols = grid[0].size();
 	vector<vector<bool>> visited(rows, vector<bool>(cols, false));
 	vector<vector<Coord>> islands;
 
@@ -400,7 +400,7 @@ const int INF = numeric_limits<int>::max();
 vector<int>
 dijkstra(const Grid &grid, int s, vector<int> &parent)
 {
-	int n = grid.size();
+	size_t n = grid.size();
 	vector<int> dist(n, INF);
 	vector<bool> visited(n, false);
 	priority_queue<pair<int, int>, vector<pair<int, int>>, greater<>> pq;
@@ -484,8 +484,8 @@ main1()
 //	};
 	vector<int> parent(grid.size(), -1);
 	vector<int> dist = dijkstra(grid, 0, parent);
-	int dest = dist.size() - 1;
-//	if (dist[dest] < INF) {
+	size_t dest = dist.size() - 1;
+	//	if (dist[dest] < INF) {
 //		cout << "Distance to " << dest << ": ";
 //		cout << dist[dest] << ", Path: ";
 //		print_path(dest, parent);
@@ -651,7 +651,7 @@ int LongestIncreasingSubsequence
 requires std::is_arithmetic_v<T>
 {
 	int ret = 0, i = 0, j = 0;
-	int n = data.size();
+	size_t n = data.size();
 
 
 
@@ -733,11 +733,11 @@ clean_trash(std::vector<std::vector<T>> &vec)
 	if (vec.size() < 1) {
 		return ret;
 	}
-	for (int index = 0; index < vec.size() - 1; ++index) {
+	for (size_t index = 0; index < vec.size() - 1; ++index) {
 		if (vec[index].size() == vec[index + 1].size()) {
-			int i = vec[index].size() - 1;
-			int j = vec[index + 1].size() - 1;
-			int fd = 0;
+			size_t i = vec[index].size() - 1;
+			size_t j = vec[index + 1].size() - 1;
+			size_t fd = 0;
 			if (vec[index][i] < vec[index + 1][j]) {
 				fd = index + 1;
 			} else {
@@ -759,7 +759,7 @@ longest_increasing_subsequence(const std::vector<T> &nums)
 	int shouldadd = 0;
 	for (auto num : nums) {
 		arrlistmp.clear();
-		if (num == 3) {
+		if (num == 1) {
 			int count = 0;
 			clean_trash(arrlis);
 		}
@@ -855,14 +855,14 @@ longest_increasing_subsequence(const std::vector<T> &nums)
 	}
 	std::cout << std::endl;
 
-	return lis.size();
+	return (int) lis.size();
 }
 //Nguyên lý là tạo dãy tăng mà phần tử cuối càng nhỏ càng tốt
 //2       3       7       18      101
 int
 main()
 {
-#if 0
+#if 1
 	std::vector<float> data = {10, 9, 2, 5, 2.5, 7, 101, 18, 101, 101, 15, 16, 17, 19, 20, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 #else
 	std::vector<int> data = {10, 9, 2, 5, 3, 7, 101, 18, 101, 101, 15};
