@@ -703,6 +703,9 @@ clean_trash(std::vector<std::vector<T>> &vec)
 	if (vec.size() < 1) {
 		return ret;
 	}
+	std::ranges::sort(vec, [](const auto &a, const auto &b) { 
+			return a.size() < b.size(); 
+		});
 	for (int i = 0; i < vec.size() - 1; ++i) {
 		if (vec[i].empty()) {
 			break;
@@ -715,11 +718,9 @@ clean_trash(std::vector<std::vector<T>> &vec)
 			if (vec[j].empty()) {
 				break;
 			}
-			
 			auto itj = vec[j].end();
 			itj--;
 			T b = *itj;
-
 			if (a == b) {
 				int fd = i;
 				if (vec[i].size() >= vec[j].size()) {
@@ -727,6 +728,22 @@ clean_trash(std::vector<std::vector<T>> &vec)
 				}
 				vec.erase(vec.begin() + fd);
 			}
+		}
+	}
+	if (vec.size() < 1) {
+		return ret;
+	}
+	for (int index = 0; index < vec.size() - 1; ++index) {
+		if (vec[index].size() == vec[index + 1].size()) {
+			int i = vec[index].size() - 1;
+			int j = vec[index + 1].size() - 1;
+			int fd = 0;
+			if (vec[index][i] < vec[index + 1][j]) {
+				fd = index + 1;
+			} else {
+				fd = index;
+			}
+			vec.erase(vec.begin() + fd);
 		}
 	}
 	return ret;
@@ -760,10 +777,10 @@ longest_increasing_subsequence(const std::vector<T> &nums)
 					--it;
 					std::vector<T> copied(lis.begin(), it);
 					copied.push_back(num);
-					arrlis.push_back(copied);
-					copied.clear();
+					arrlis.push_back(std::move(copied));
+					//arrlis.push_back(copied);
+					//copied.clear();
 					arrlis.push_back(std::move(lis));
-					int sdsds = 0;
 				}
 				
 				if (shouldadd) {
@@ -791,8 +808,9 @@ longest_increasing_subsequence(const std::vector<T> &nums)
 						addedbegine = 1;
 						std::vector<T> copied;
 						copied.push_back(num);
-						arrlistmp.push_back(copied);
-						copied.clear();
+						arrlis.push_back(std::move(copied));
+						//arrlistmp.push_back(copied);
+						//copied.clear();
 						continue;
 					}
 					it++;
@@ -814,69 +832,17 @@ longest_increasing_subsequence(const std::vector<T> &nums)
 				}
 			}
 		}
-		if (arrlistmp.size()) {
-			std::ranges::sort(
-			    arrlistmp, [](const auto &a, const auto &b) {
-				    return a.size() < b.size();
-			    });
-			for (int index = 0; index < arrlistmp.size() - 1;
-			     ++index) {
-				if (arrlistmp[index].size() ==
-				    arrlistmp[index + 1].size()) {
-					int i = arrlistmp[index].size() - 1;
-					int j = arrlistmp[index - 1].size() - 1;
-					int fd = 0;
-					if (arrlistmp[index][i] <
-					    arrlistmp[index + 1][j]) {
-						fd = index + 1;
-					} else {
-						fd = index;
-					}
-					arrlistmp.erase(arrlistmp.begin() + fd);
-				}
-			}
-		}
 		clean_trash(arrlistmp);
 		if (arrlistmp.size()) {
 			std::copy(arrlistmp.begin(), arrlistmp.end(),
 			    std::back_inserter(arrlis));
 
 		}
-		if (arrlis.size()) {
-			std::ranges::sort(arrlis, [](const auto &a, const auto &b) {
-				    return a.size() < b.size();
-			    });
-			for (int index = 0; index < arrlis.size() - 1; ++index) {
-				if (arrlis[index].size() == arrlis[index + 1].size()) {
-					int i = arrlis[index].size() - 1;
-					int j = arrlis[index + 1 ].size() - 1;
-					int fd = 0;
-					if (arrlis[index][i] < arrlis[index + 1][j]) {
-						fd = index + 1;
-					} else {
-						fd = index;
-					}
-					arrlis.erase(arrlis.begin() + fd);
-				}
-			}
-		}
 		clean_trash(arrlis);
-		int llll = 0;
+
 	}
 	std::cout << std::endl;
-	for (int index = 0; index < arrlis.size() - 1; ++index) {
-		if (arrlis[index].size() == arrlis[index + 1].size()) {
-			int i = arrlis[index].size() - 1;
-			int j = arrlis[index -1].size() - 1;
-			int fd = 0;
-			if (arrlis[index][i] < arrlis[index + 1][j]) {
-				fd = index + 1;
-			} else {
-				fd = index;
-			}
-			arrlis.erase(arrlis.begin() + fd);
-		}
-	}
+
 	if (arrlis.size()) {
 		lis.clear();
 		auto it = arrlis.end();
@@ -896,7 +862,7 @@ longest_increasing_subsequence(const std::vector<T> &nums)
 int
 main()
 {
-#if 1
+#if 0
 	std::vector<float> data = {10, 9, 2, 5, 2.5, 7, 101, 18, 101, 101, 15, 16, 17, 19, 20, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 #else
 	std::vector<int> data = {10, 9, 2, 5, 3, 7, 101, 18, 101, 101, 15};
