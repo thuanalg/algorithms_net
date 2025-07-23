@@ -624,7 +624,7 @@ Kadane_Algorithm( std::vector<T> &data, mydataaa<T, myIndexPair<int>> &output)
 int
 testKadane_Algorithm()
 {
-	std::vector<double> dta = {-2, -3, 4, -1, -2, 10, 5.121, -3, 4};
+	std::vector<double> dta = {-2, -3, 4, -1, -2, 10, 5.121, -3, 4, 0, -1, 2.0, -20, 100};
 	//std::vector<double> dta = {100, -3, 4, -1, -2, 1, 5.121, -3};
 	mydataaa<double, myIndexPair<int>> output;
 	int ret = Kadane_Algorithm(dta, output);
@@ -638,8 +638,154 @@ testKadane_Algorithm()
 }
 
 int
-main()
+mainsa()
 {
 	return testKadane_Algorithm();
 
+}
+
+
+template <typename T>
+int LongestIncreasingSubsequence
+(std::vector<T> &data, std::vector<std::vector<T>> &output) 
+requires std::is_arithmetic_v<T>
+{
+	int ret = 0, i = 0, j = 0;
+	int n = data.size();
+
+
+
+	for (auto v : data) {
+		std::vector<T> tmp;
+		tmp.push_back(v);
+		for (j = i + 1; j < n; ++j) {
+			if (tmp.size()) {
+				auto it = tmp.end();
+				--it;
+				if (*it <= data[j]) {
+					tmp.push_back(data[j]);
+				}
+			} 
+		}
+		++i;
+	}
+	return ret;
+}
+
+int
+test_longest_sub()
+{
+	int ret = 0;
+	std::vector<std::vector<double>> output;
+	std::vector<double> data = { -3, 4, -1, -2, 1, 5.121, -3};
+	ret = LongestIncreasingSubsequence(data, output);
+	return ret;
+}
+
+int
+main121()
+{
+	return test_longest_sub();
+}
+
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+template <typename T>
+int
+longest_increasing_subsequence(const std::vector<T> &nums)
+{
+	std::vector<T> lis; // lis[i] = phần tử nhỏ nhất kết thúc LIS dài i+1
+	std::vector<std::vector<T>> arrlis; // lis[i] = phần tử nhỏ nhất kết thúc LIS dài i+1
+	int shouldadd = 0;
+	for (auto num : nums) {
+		if (arrlis.size() == 0) {
+			auto it = std::lower_bound(lis.begin(), lis.end(), num);
+			if (it == lis.end()) {
+				lis.push_back(num); // Expand list
+			} else {
+				shouldadd = 0;
+				it++;
+				if (it == lis.end()) {
+					shouldadd = 1;
+				} else {
+					//////////////////////////
+					--it;
+					std::vector<T> copied(lis.begin(), it);
+					copied.push_back(num);
+					arrlis.push_back(copied);
+					copied.clear();
+					arrlis.push_back(std::move(lis));
+					int sdsds = 0;
+				}
+				
+				if (shouldadd) {
+					--it;
+					*it = num; // Update smallest element.
+				}
+			}
+		} else {
+			for (auto &tmp : arrlis) {
+				shouldadd = 0;
+				auto it = std::lower_bound(tmp.begin(), tmp.end(), num);
+				if (tmp.size() == 0) {
+					continue;
+				}
+				if (it == tmp.end()) {
+					tmp.push_back(num); // Expand list
+					shouldadd = 1;
+				} else {
+					it++;
+					if (it == tmp.end()) {
+						shouldadd = 1;
+					} else {
+						//////////////////////////
+						--it;
+						std::vector<T> copied(tmp.begin(), it);
+						copied.push_back(num);
+						arrlis.push_back(copied);
+						copied.clear();
+					}
+					
+					if (shouldadd) {
+						--it;
+						*it = num; // Update smallest element.
+					}
+				}
+			}
+		}
+		if (arrlis.size()) {
+			std::ranges::sort(arrlis, [](const auto &a, const auto &b) {
+				    return a.size() < b.size();
+			    });
+			for (auto &tmp : arrlis) {
+
+			}
+		}
+		int llll = 0;
+	}
+	std::cout << std::endl;
+	auto iii = arrlis.end();
+	iii--;
+	for (auto v : *iii) {
+		std::cout << v << "\t";
+	}
+	std::cout << std::endl;
+	return lis.size();
+}
+//Nguyên lý là tạo dãy tăng mà phần tử cuối càng nhỏ càng tốt
+//2       3       7       18      101
+int
+main()
+{
+#if 1
+	std::vector<int> data = {10, 9, 2, 5, 3, 7, 101, 18, 101, 101, 15, 16, 17};
+#else
+	std::vector<int> data = {10, 9, 2, 5, 3, 7, 101, 18, 101, 101, 15};
+#endif
+	std::cout << "Length of LIS: " << longest_increasing_subsequence(data)
+		  << '\n';
+	return 0;
 }
