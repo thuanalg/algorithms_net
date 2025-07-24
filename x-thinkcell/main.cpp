@@ -753,89 +753,40 @@ template <typename T>
 int
 longest_increasing_subsequence(const std::vector<T> &nums)
 {
-	std::vector<T> lis; // lis[i] = phần tử nhỏ nhất kết thúc LIS dài i+1
-	std::vector<std::vector<T>> arrlis; // lis[i] = phần tử nhỏ nhất kết thúc LIS dài i+1
-	std::vector<std::vector<T>> arrlistmp; // lis[i] = phần tử nhỏ nhất kết thúc LIS dài i+1
-	int shouldadd = 0;
-	for (auto num : nums) {
+	int ret = 0;
+	std::vector<T> lis; // 
+	std::vector<std::vector<T>> arrlis; // 
+	std::vector<std::vector<T>> arrlistmp; // 
+	if (nums.size() == 0) {
+		return ret;
+	}
+	arrlis.push_back(lis);
+
+	for (auto &num : nums) {
 		arrlistmp.clear();
-		if (num == 1) {
-			int count = 0;
-			clean_trash(arrlis);
-		}
-		if (arrlis.size() == 0) {
-			auto it = std::lower_bound(lis.begin(), lis.end(), num);
-			if (it == lis.end()) {
-				lis.push_back(num); // Expand list
-			} else {
-				shouldadd = 0;
-				it++;
-				if (it == lis.end()) {
-					shouldadd = 1;
+		for (auto &tmp : arrlis) {
+			auto it = std::lower_bound(tmp.begin(), tmp.end(), num);
+			if (it == tmp.end()) {
+				tmp.push_back(num); // Expand list
+			} 
+			else {
+				auto testit = tmp.end();
+				testit--;
+				if (*testit == num && 0) {
+					tmp.push_back(num); //Expand list
 				} else {
-					//////////////////////////
-					--it;
-					std::vector<T> copied(lis.begin(), it);
+					std::vector<T> copied(tmp.begin(), it);
 					copied.push_back(num);
-					arrlis.push_back(std::move(copied));
-					arrlis.push_back(std::move(lis));
-				}
-				
-				if (shouldadd) {
-					--it;
-					*it = num; // Update smallest element.
-				}
-			}
-		} else {
-			
-			int addedbegine = 0;
-			for (auto &tmp : arrlis) {
-				shouldadd = 0;
-				auto it = std::lower_bound(tmp.begin(), tmp.end(), num);
-				if (tmp.size() == 0) {
-					continue;
-				}
-				if (it == tmp.end()) {
-					tmp.push_back(num); // Expand list
-					shouldadd = 1;
-				} else {
-					if (it == tmp.begin()) {
-						if (addedbegine) {
-							continue;
-						}
-						addedbegine = 1;
-						std::vector<T> copied;
-						copied.push_back(num);
-						arrlistmp.push_back(std::move(copied));
-						continue;
-					}
-					it++;
-					if (it == tmp.end()) {
-						shouldadd = 1;
-					} else {
-						//////////////////////////
-						--it;
-						std::vector<T> copied(tmp.begin(), it);
-						copied.push_back(num);
-						arrlistmp.push_back(std::move(copied));
-					}
-					
-					if (shouldadd) {
-						--it;
-						*it = num; // Update smallest element.
-					}
+					arrlistmp.push_back(std::move(copied));
 				}
 			}
 		}
-		
 		if (arrlistmp.size()) {
 			clean_trash(arrlistmp);
 			std::copy(arrlistmp.begin(), arrlistmp.end(),
 			    std::back_inserter(arrlis));
-
 		}
 		clean_trash(arrlis);
-		int aaa = 0;
 	}
 	std::cout << std::endl;
 
@@ -853,13 +804,14 @@ longest_increasing_subsequence(const std::vector<T> &nums)
 
 	return (int) lis.size();
 }
-//Nguyên lý là tạo dãy tăng mà phần tử cuối càng nhỏ càng tốt
+//The principle is to make the last element of the list become smaller and length become larger
 //2       3       7       18      101
 int
 main()
 {
 #if 1
-	std::vector<float> data = {10, 9, 2, 5, 2.5, 7, 101, 18, 101, 101, 15, 16, 17, 19, 20, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+	std::vector<double> data = {-1, 10, 9, 2, 5, 2.5, 7, 101, 18, 101, 101, 101, 101, 101, 101, 
+		15, 16, 17, 19, 20, 1, 2, 3, 4, 5, 6, 7, 7.1, 7.2, 8, 9, 200.0};
 	//std::vector<float> data = {10, 9, 2, 5, 2.5, 7, 101, 18, 101, 101, 15, 16, 17, 19, 20, 1, 2, 3, 4, 5, };
 #else
 	std::vector<int> data = {10, 9, 2, 5, 3, 7, 101, 18, 101, 101, 15};
