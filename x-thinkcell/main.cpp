@@ -703,18 +703,18 @@ clean_trash(std::vector<std::vector<T>> &vec)
 	if (vec.size() < 1) {
 		return ret;
 	}
+	// C++20
 	std::ranges::sort(vec, [](const auto &a, const auto &b) { 
 			return a.size() < b.size(); 
 		});
 	for (int i = 0; i < vec.size() - 1; ++i) {
 		if (vec[i].empty()) {
-			break;
+			continue;
 		}
 		auto iti = vec[i].end();
 		iti--;
 		T a = *iti;
-		int j = 0;
-		for (j = i + 1; j < vec.size(); ++j) {
+		for (int j = i + 1; j < vec.size(); ++j) {
 			if (vec[j].empty()) {
 				break;
 			}
@@ -737,12 +737,10 @@ clean_trash(std::vector<std::vector<T>> &vec)
 		if (vec[index].size() == vec[index + 1].size()) {
 			size_t i = vec[index].size() - 1;
 			size_t j = vec[index + 1].size() - 1;
-			size_t fd = 0;
+			size_t fd = index;
 			if (vec[index][i] < vec[index + 1][j]) {
 				fd = index + 1;
-			} else {
-				fd = index;
-			}
+			} 
 			vec.erase(vec.begin() + fd);
 		}
 	}
@@ -773,8 +771,9 @@ longest_increasing_subsequence(const std::vector<T> &nums)
 				auto testit = tmp.end();
 				testit--;
 				if (*testit == num && 0) {
-					tmp.push_back(num); //Expand list
-				} else {
+					tmp.push_back(num); // Expand list
+				} 
+				else {
 					std::vector<T> copied(tmp.begin(), it);
 					copied.push_back(num);
 					arrlistmp.push_back(std::move(copied));
@@ -810,7 +809,7 @@ int
 main()
 {
 #if 1
-	std::vector<double> data = {-1, 10, 9, 2, 5, 2.5, 7, 101, 18, 101, 101, 101, 101, 101, 101, 
+	std::vector<double> data = { 10, 9, 2, 5, 2.5, 7, 101, 18, 101, 101, 101, 101, 101, 101, 
 		15, 16, 17, 19, 20, 1, 2, 3, 4, 5, 6, 7, 7.1, 7.2, 8, 9, 200.0};
 	//std::vector<float> data = {10, 9, 2, 5, 2.5, 7, 101, 18, 101, 101, 15, 16, 17, 19, 20, 1, 2, 3, 4, 5, };
 #else
