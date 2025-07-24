@@ -802,7 +802,7 @@ longest_increasing_subsequence(const std::vector<T> &nums)
 	}
 	std::cout << std::endl;
 
-	return (int) lis.size();
+	return (int)lis.size();
 }
 //The principle is to make the last element of the list become smaller and length become larger
 //2       3       7       18      101
@@ -810,14 +810,14 @@ int
 maindf()
 {
 #if 1
-	std::vector<double> data = { 10, 9, 2, 5, 2.5, 7, 101, 101, 101, 18, 101, 101, 101, 101, 101, 101, 
+	std::vector<double> data = { 10, 9, 2, 5, 2.5, 7, 101, 101, 101, 18, 101, 101, 101, 101, 101, 101,
 		15, 16, 17, 19, 20, 1, 2, 3, 4, 5, 6, 7, 7.1, 7.2, 8, 9.0 };
 	//std::vector<float> data = {10, 9, 2, 5, 2.5, 7, 101, 18, 101, 101, 15, 16, 17, 19, 20, 1, 2, 3, 4, 5, };
 #else
-	std::vector<int> data = {10, 9, 2, 5, 3, 7, 101, 18, 101, 101, 15};
+	std::vector<int> data = { 10, 9, 2, 5, 3, 7, 101, 18, 101, 101, 15 };
 #endif
 	std::cout << "Length of LIS: " << longest_increasing_subsequence(data)
-		  << '\n';
+		<< '\n';
 	return 0;
 }
 
@@ -831,13 +831,13 @@ using mycoord = std::pair<int, int>;
 template <typename T>
 
 int
-SubarraySumEqualsK(std::vector<T> &vec, T &k, std::vector <mycoord<int>> &output) 
+SubarraySumEqualsK(std::vector<T>& vec, T& k, std::vector <mycoord<int>>& output)
 	requires std::is_arithmetic_v<T>
 {
 	std::unordered_map<T, int> umap;
 	T sum = 0;
 	int i = 0;
-	for (auto &v : vec) {
+	for (auto& v : vec) {
 		sum += v;
 		if (sum == k) {
 			output.emplace_back(0, i);
@@ -863,13 +863,13 @@ int
 test_SubarraySumEqualsK()
 {
 #if 0
-	std::vector<double> data = {10, 9, 2, 5, 2.5, 7, 101, 101, 101, 18, 101,
-	    101, 101, 101, 101, 101, 15, 16, 17, 19, 20, 1, 2, 3, 4, 5, 6, 7,
-	    7.1, 7.2, 8, 9.0};
+	std::vector<double> data = { 10, 9, 2, 5, 2.5, 7, 101, 101, 101, 18, 101,
+		101, 101, 101, 101, 101, 15, 16, 17, 19, 20, 1, 2, 3, 4, 5, 6, 7,
+		7.1, 7.2, 8, 9.0 };
 	// std::vector<float> data = {10, 9, 2, 5, 2.5, 7, 101, 18, 101, 101,
 	// 15, 16, 17, 19, 20, 1, 2, 3, 4, 5, };
 #else
-	std::vector<int> data = {7, 0, -7, 7, 3, 7, 101, 18, 101, 101, 15};
+	std::vector<int> data = { 7, 0, -7, 7, 3, 7, 101, 18, 101, 101, 15 };
 #endif
 	std::vector<mycoord<int>> output;
 	int k = 7;
@@ -878,7 +878,54 @@ test_SubarraySumEqualsK()
 }
 
 int
-main()
+mainsdsds()
 {
 	return test_SubarraySumEqualsK();
+}
+
+template <typename T>
+int FindingMaximumProfitStockTrading( std::vector<T> &vec, T& output) requires std::is_arithmetic_v<T>
+{
+	T min_price = 100000, max_profit = -1;
+	int i = 0;
+	int i0 = 0;
+	int ii = 0;
+	for (auto v : vec) {
+		if (v < min_price) {
+			i0 = i;
+			min_price = v;
+		} else if (v - min_price > max_profit) {
+			max_profit = (v - min_price);
+			ii = i;
+		}
+		++i;
+	}
+	if (ii > i0 && max_profit > 0) {
+		output = max_profit;
+	}
+	return 0;
+}
+
+int
+test_FindingMaximumProfitStockTrading()
+{
+#if 0
+	std::vector<double> data = { 10, 9, 2, 5, 2.5, 7, 101, 101, 101, 18, 101,
+		101, 101, 101, 101, 101, 15, 16, 17, 19, 20, 1, 2, 3, 4, 5, 6, 7,
+		7.1, 7.2, 8, 9.0 };
+	// std::vector<float> data = {10, 9, 2, 5, 2.5, 7, 101, 18, 101, 101,
+	// 15, 16, 17, 19, 20, 1, 2, 3, 4, 5, };
+#else
+	std::vector<double> data = {7, 0, 7, 7, 3, 7, 101, 18, 101, 3, 101, 15};
+#endif
+	std::vector<mycoord<int>> output;
+	double k = 0;
+	int ret = FindingMaximumProfitStockTrading(data, k);
+	return ret;
+}
+
+int
+main()
+{
+	return test_FindingMaximumProfitStockTrading();
 }
