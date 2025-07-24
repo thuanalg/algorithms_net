@@ -758,6 +758,7 @@ longest_increasing_subsequence(const std::vector<T> &nums)
 	if (nums.size() == 0) {
 		return ret;
 	}
+	// https://en.wikipedia.org/wiki/Longest_increasing_subsequence
 	arrlis.push_back(lis);
 
 	for (auto &num : nums) {
@@ -770,7 +771,7 @@ longest_increasing_subsequence(const std::vector<T> &nums)
 			else {
 				auto testit = tmp.end();
 				testit--;
-				if (*testit == num && 0) {
+				if (*testit == num && 1) {
 					tmp.push_back(num); // Expand list
 				} 
 				else {
@@ -809,8 +810,8 @@ int
 main()
 {
 #if 1
-	std::vector<double> data = { 10, 9, 2, 5, 2.5, 7, 101, 18, 101, 101, 101, 101, 101, 101, 
-		15, 16, 17, 19, 20, 1, 2, 3, 4, 5, 6, 7, 7.1, 7.2, 8, 9, 200.0};
+	std::vector<double> data = { 10, 9, 2, 5, 2.5, 7, 101, 101, 101, 18, 101, 101, 101, 101, 101, 101, 
+		15, 16, 17, 19, 20, 1, 2, 3, 4, 5, 6, 7, 7.1, 7.2, 8, 9.0 };
 	//std::vector<float> data = {10, 9, 2, 5, 2.5, 7, 101, 18, 101, 101, 15, 16, 17, 19, 20, 1, 2, 3, 4, 5, };
 #else
 	std::vector<int> data = {10, 9, 2, 5, 3, 7, 101, 18, 101, 101, 15};
