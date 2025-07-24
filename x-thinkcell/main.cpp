@@ -882,27 +882,52 @@ mainsdsds()
 {
 	return test_SubarraySumEqualsK();
 }
-
+// Constraints:
+// 1. Buy first, sell late
+// 2. Time is shortest
 template <typename T>
 int FindingMaximumProfitStockTrading( std::vector<T> &vec, T& output) requires std::is_arithmetic_v<T>
 {
 	T min_price = 100000, max_profit = -1;
 	int i = 0;
-	int i0 = 0;
-	int ii = 0;
+	int start = -1;
+	int end = -1;
+	std::pair<int, int> prev(-1, -1), curr(-1, -1);
 	for (auto v : vec) {
 		if (v < min_price) {
-			i0 = i;
+			start = i;
 			min_price = v;
-		} else if (v - min_price > max_profit) {
+			if (prev.first < 0) {
+				prev.first = i;
+				curr.first = i;
+			} else if (curr.first == prev.first) {
+				curr.first = i;
+			} else if (curr.first > prev.first) {
+				//if ()
+				if (curr.first < curr.second) {
+					prev.first = curr.first;
+				}
+				curr.first = i;
+			}
+		}
+		else if (v - min_price > max_profit) {
 			max_profit = (v - min_price);
-			ii = i;
+			end = i;
+			if (prev.second < 0) {
+				prev.second = i;
+				curr.second = i;
+			}
+			else if (prev.second == curr.second) {
+				curr.second = i;
+			}	
+			else if (prev.second < curr.second) {
+				prev.second = curr.second;
+				curr.second = i;
+			}	
 		}
 		++i;
 	}
-	if (ii > i0 && max_profit > 0) {
-		output = max_profit;
-	}
+	output = max_profit;
 	return 0;
 }
 
@@ -916,7 +941,8 @@ test_FindingMaximumProfitStockTrading()
 	// std::vector<float> data = {10, 9, 2, 5, 2.5, 7, 101, 18, 101, 101,
 	// 15, 16, 17, 19, 20, 1, 2, 3, 4, 5, };
 #else
-	std::vector<double> data = {7, 0, 7, 7, 3, 7, 101, 18, 101, 3, 101, 15};
+	std::vector<double> data = {
+	    7, 0, 7, 7, 3, 7, 101, 18, 0, 0, 101, 0, 101, 101, 101, };
 #endif
 	std::vector<mycoord<int>> output;
 	double k = 0;
