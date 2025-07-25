@@ -705,8 +705,51 @@ clean_trash(std::vector<std::vector<T>> &vec)
 	}
 	// C++20
 	std::ranges::sort(vec, [](const auto &a, const auto &b) { 
-			return a.size() < b.size(); 
+			if (a.size() != b.size()) return a.size() < b.size(); 
+			int i = 0, n = a.size();
+			for (i = 0; i < n; ++i) {
+				if (a[i] != b[i]) {
+					return a[i] < b[i];
+				}
+			}
+			return !!0; 
 		});
+
+
+	//for (size_t index = 0; index < vec.size() - 1; ++index) {
+	//	if (vec[index].size() == vec[index + 1].size()) {
+	//		size_t i = vec[index].size() - 1;
+	//		size_t j = vec[index + 1].size() - 1;
+	//		size_t fd = index;
+	//		if (vec[index][i] < vec[index + 1][j]) {
+	//			fd = index + 1;
+	//		} 
+	//		vec.erase(vec.begin() + fd);
+	//	}
+	//}
+	for (size_t index = 0; index < vec.size() - 1; ++index) {
+		if (vec[index].size() == vec[index + 1].size()) {
+			int tryremove = 1;
+			size_t i = vec[index].size() - 1;
+			size_t j = vec[index + 1].size() - 1;
+			for (int k = 0; k < i; ++k) {
+				if (vec[index][k] != vec[index + 1][k]) {
+					tryremove = 0;
+					break;
+				}
+			}
+			if (!tryremove) {
+				continue;
+			}
+			size_t fd = index;
+			if (vec[index][i] < vec[index + 1][j]) {
+				fd = index + 1;
+			}
+			vec.erase(vec.begin() + fd);
+			index--;
+		}
+	}
+#if 1
 	for (int i = 0; i < vec.size() - 1; ++i) {
 		if (vec[i].empty()) {
 			continue;
@@ -730,20 +773,7 @@ clean_trash(std::vector<std::vector<T>> &vec)
 			}
 		}
 	}
-	if (vec.size() < 1) {
-		return ret;
-	}
-	for (size_t index = 0; index < vec.size() - 1; ++index) {
-		if (vec[index].size() == vec[index + 1].size()) {
-			size_t i = vec[index].size() - 1;
-			size_t j = vec[index + 1].size() - 1;
-			size_t fd = index;
-			if (vec[index][i] < vec[index + 1][j]) {
-				fd = index + 1;
-			} 
-			vec.erase(vec.begin() + fd);
-		}
-	}
+#endif
 	return ret;
 }
 
@@ -762,6 +792,9 @@ longest_increasing_subsequence(const std::vector<T> &nums)
 	arrlis.push_back(lis);
 
 	for (auto &num : nums) {
+		if (num == 11) {
+			int a = num;
+		}
 		arrlistmp.clear();
 		for (auto &tmp : arrlis) {
 			auto it = std::lower_bound(tmp.begin(), tmp.end(), num);
@@ -787,6 +820,7 @@ longest_increasing_subsequence(const std::vector<T> &nums)
 			    std::back_inserter(arrlis));
 		}
 		clean_trash(arrlis);
+		int sdsd = 0;
 	}
 	std::cout << std::endl;
 
@@ -807,14 +841,15 @@ longest_increasing_subsequence(const std::vector<T> &nums)
 //The principle is to make the last element of the list become smaller and length become larger
 //2       3       7       18      101
 int
-maindf()
+main()
 {
 #if 1
 	std::vector<double> data = { 10, 9, 2, 5, 2.5, 7, 101, 101, 101, 18, 101, 101, 101, 101, 101, 101,
-		15, 16, 17, 19, 20, 1, 2, 3, 4, 5, 6, 7, 7.1, 7.2, 8, 9.0 };
+		15, 16, 17, 19, 20, 1, -100, 2, 3, 4, 5, 6, 7, 7.1, 7.2, 8, 9.0,10,   };
 	//std::vector<float> data = {10, 9, 2, 5, 2.5, 7, 101, 18, 101, 101, 15, 16, 17, 19, 20, 1, 2, 3, 4, 5, };
 #else
-	std::vector<int> data = { 10, 9, 2, 5, 3, 7, 101, 18, 101, 101, 15 };
+	std::vector<int> data = {
+	    0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15};
 #endif
 	std::cout << "Length of LIS: " << longest_increasing_subsequence(data)
 		<< '\n';
@@ -951,7 +986,7 @@ test_FindingMaximumProfitStockTrading()
 }
 
 int
-main()
+maindsd54s()
 {
 	return test_FindingMaximumProfitStockTrading();
 }
