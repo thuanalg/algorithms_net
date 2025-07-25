@@ -23,31 +23,35 @@ class AAAAAAAAAAA
 		//std::cout << "~AAAAAAAAAAA\n";
 	};
 
-	bool operator==(const AAAAAAAAAAA &other) const
+	virtual bool operator==(const AAAAAAAAAAA &other) const
 	{
 		return x1 == other.x1 && x2 == other.x2;
 	}
 
-	bool operator!=(const AAAAAAAAAAA &other) const
+	virtual bool operator!=(const AAAAAAAAAAA &other) const
 	{
 		return !(*this == other);
 	}
 
-	bool operator<(const AAAAAAAAAAA &other) const
+	virtual bool operator<(const AAAAAAAAAAA &other) const
 	{
 		return (x1 < other.x1) || (x1 == other.x1 && x2 < other.x2);
 	}
-	bool operator<=(const AAAAAAAAAAA &other) const
+	virtual bool operator<=(const AAAAAAAAAAA &other) const
 	{
 		return (x1 <= other.x1) || (x1 == other.x1 && x2 <= other.x2);
 	}
-	bool operator>(const AAAAAAAAAAA &other) const
+	virtual bool operator>(const AAAAAAAAAAA &other) const
 	{
 		return other < *this;
 	}
-	bool operator>=(const AAAAAAAAAAA &other) const
+	virtual bool operator>=(const AAAAAAAAAAA &other) const
 	{
 		return (x1 >= other.x1) || (x1 == other.x1 && x2 >= other.x2);
+	}
+	virtual bool operator!() const
+	{
+		return !!x1  && !!x2;
 	}
 	AAAAAAAAAAA operator+(const AAAAAAAAAAA &other) const
 		requires std::is_arithmetic_v<T>

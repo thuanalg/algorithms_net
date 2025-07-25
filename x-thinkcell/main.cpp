@@ -855,13 +855,16 @@ main()
 #else
 	//std::vector<AAAAAAAAAAA<int>> data;
 	//std::vector<int> data = { 0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15};
-	std::vector<AAAAAAAAAAA<int>> data = {{0, 0}, {8, 0}, {4, 0}, {12, 0},
-	    {2, 0}, {10, 0}, {6, -1}, {6, 0}, {14, 0}, {1, 0}, {9, 0}, {5, 0},
+	std::vector<AAAAAAAAAAA<double>> data = {{0.0, 0.2}, {8, 0}, {4, 0}, {12, 0},
+	    {2, 0}, {10, 0}, {6, -1}, {6, -2.1}, {14, 0}, {1, -1.1}, {9, 0}, {5, 0},
 	    {13, 0},
 	    {3, 0}, {11, 0}, {7, 0}, {15, 0}};
 	//std::vector<AAAAAAAAAAA<int>> data = {{0, 1}, {0, 2}};
 	//data.push_back(AAAAAAAAAAA<int>(0, 0));
 	//data.push_back(AAAAAAAAAAA<int>(1, 1));
+	AAAAAAAAAAA<double> wqwq(1, 0);
+	bool k = !!wqwq;
+
 #endif
 	std::cout << "Length of LIS: " << longest_increasing_subsequence(data) << '\n';
 	return 0;
