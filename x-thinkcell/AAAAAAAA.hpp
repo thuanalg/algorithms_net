@@ -3,14 +3,14 @@
 #include <type_traits> //C++11
 #include <iostream>
 #include <concepts> //C++20
-class AAAAAAAAAAA_abstract
+class AAAAAAAAAAA_abstract_log
 {
       public:
-	AAAAAAAAAAA_abstract()
+	AAAAAAAAAAA_abstract_log()
 	{
 		//std::cout << "AAAAAAAAAAA_abstract-----------------\n";
 	}
-	virtual ~AAAAAAAAAAA_abstract()
+	virtual ~AAAAAAAAAAA_abstract_log()
 	{
 		//std::cout << "~AAAAAAAAAAA_abstract-----------------\n";
 	}
