@@ -793,7 +793,7 @@ longest_increasing_subsequence(const std::vector<T> &nums)
 
 	for (auto &num : nums) {
 		if (num == 11) {
-			int a = num;
+			//int a = num;
 		}
 		arrlistmp.clear();
 		for (auto &tmp : arrlis) {
@@ -841,7 +841,7 @@ longest_increasing_subsequence(const std::vector<T> &nums)
 //The principle is to make the last element of the list become smaller and length become larger
 //2       3       7       18      101
 int
-main()
+main123()
 {
 #if 1
 	std::vector<double> data = { 10, 9, 2, 5, 2.5, 7, 101, 101, 101, 18, 101, 101, 101, 101, 101, 101,
@@ -989,4 +989,136 @@ int
 maindsd54s()
 {
 	return test_FindingMaximumProfitStockTrading();
+}
+
+template<typename T>
+int KnapsackProblem(std::vector<T> &vec)
+{
+	int ret = 0;
+	return ret;
+}
+
+#include <type_traits>
+#include <iostream>
+
+template <typename T>
+	requires std::is_arithmetic_v<T>
+class AAAAAAAAAAA
+{
+      public:
+	AAAAAAAAAAA() : x1(0), x2(0)
+	{
+		int a = 0;
+		std::cout << "ssssssssss";
+	}
+	AAAAAAAAAAA(T a, T b) : x1(a), x2(b)
+	{
+		int bwew = 0;
+		std::cout << "dsds\n";
+	}
+	virtual ~AAAAAAAAAAA() = default;
+
+	// So sánh ==
+	bool operator==(const AAAAAAAAAAA &other) const
+	{
+		return x1 == other.x1 && x2 == other.x2;
+	}
+
+	bool operator!=(const AAAAAAAAAAA &other) const
+	{
+		return !(*this == other);
+	}
+
+	// So sánh <
+	bool operator<(const AAAAAAAAAAA &other) const
+	{
+		return (x1 < other.x1) || (x1 == other.x1 && x2 < other.x2);
+	}
+
+	// So sánh >
+	bool operator>(const AAAAAAAAAAA &other) const
+	{
+		return other < *this;
+	}
+
+	// Toán tử +
+	AAAAAAAAAAA operator+(const AAAAAAAAAAA &other) const
+		requires std::is_arithmetic_v<T>
+	{
+		return AAAAAAAAAAA(x1 + other.x1, x2 + other.x2);
+	}
+	// Toán tử +=
+	AAAAAAAAAAA &operator+=(const AAAAAAAAAAA &other)
+		requires std::is_arithmetic_v<T>
+	{
+		this->x1 += other.x1;
+		this->x2 += other.x2;
+		return *this;
+	}
+	// Toán tử -
+	AAAAAAAAAAA operator-(const AAAAAAAAAAA &other) const
+		requires std::is_arithmetic_v<T>
+	{
+		return AAAAAAAAAAA(x1 - other.x1, x2 - other.x2);
+	}
+
+		// Toán tử -=
+	AAAAAAAAAAA &operator-=(const AAAAAAAAAAA &other)
+		requires std::is_arithmetic_v<T>
+	{
+		this->x1 -= other.x1;
+		this->x2 -= other.x2;
+		return *this;
+	}
+
+	// Toán tử *
+	AAAAAAAAAAA operator*(const T &scalar) const
+		requires std::is_arithmetic_v<T>
+	{
+		return AAAAAAAAAAA(x1 * scalar, x2 * scalar);
+	}
+
+	// Toán tử *=
+	AAAAAAAAAAA &operator*=(const AAAAAAAAAAA &other)
+		requires std::is_arithmetic_v<T>
+	{
+		this->x1 *= other.x1;
+		this->x2 *= other.x2;
+		return *this;
+	}
+
+	// Toán tử /
+	AAAAAAAAAAA operator/(const T &scalar) const
+		requires std::is_arithmetic_v<T>
+	{
+		return AAAAAAAAAAA(x1 / scalar, x2 / scalar);
+	}
+	// Toán tử /=
+	AAAAAAAAAAA &operator/=(const AAAAAAAAAAA &other)
+		requires std::is_arithmetic_v<T>
+	{
+		this->x1 /= other.x1;
+		this->x2 /= other.x2;
+		return *this;
+	}
+	void print() const
+	{
+		std::cout << "(" << x1 << ", " << x2 << ")\n";
+	}
+
+      private:
+	T x1, x2;
+};
+
+int
+main()
+{
+	AAAAAAAAAAA<double> a(1.0, 2.0);
+	AAAAAAAAAAA<double> b(-1.0, 2.0);
+	AAAAAAAAAAA<double> c(-1.0, -2.0);
+	a += b;
+	a -= c;
+	a *= b;
+	a /= c;
+	return 0;
 }
