@@ -11,16 +11,16 @@ class AAAAAAAAAAA
 	AAAAAAAAAAA() : x1(0), x2(0)
 	{
 		int a = 0;
-		std::cout << "ssssssssss";
+		//std::cout << "ssssssssss";
 	}
 	AAAAAAAAAAA(T a, T b) : x1(a), x2(b)
 	{
 		int bwew = 0;
-		std::cout << "dsds\n";
+		//std::cout << "dsds\n";
 	}
 	virtual ~AAAAAAAAAAA()
 	{
-		std::cout << "~AAAAAAAAAAA\n";
+		//std::cout << "~AAAAAAAAAAA\n";
 	};
 
 	bool operator==(const AAAAAAAAAAA &other) const
@@ -37,12 +37,18 @@ class AAAAAAAAAAA
 	{
 		return (x1 < other.x1) || (x1 == other.x1 && x2 < other.x2);
 	}
-
+	bool operator<=(const AAAAAAAAAAA &other) const
+	{
+		return (x1 <= other.x1) || (x1 == other.x1 && x2 <= other.x2);
+	}
 	bool operator>(const AAAAAAAAAAA &other) const
 	{
 		return other < *this;
 	}
-
+	bool operator>=(const AAAAAAAAAAA &other) const
+	{
+		return (x1 >= other.x1) || (x1 == other.x1 && x2 >= other.x2);
+	}
 	AAAAAAAAAAA operator+(const AAAAAAAAAAA &other) const
 		requires std::is_arithmetic_v<T>
 	{
@@ -136,7 +142,7 @@ class AAAAAAAAAAA
 	friend std::ostream &operator<<(
 	    std::ostream &os, const AAAAAAAAAAA &obj)
 	{
-		os << "(x1, x2) = (" << obj.x1 << ", " << obj.x2 << ")\n";
+		os << "(" << obj.x1 << ", " << obj.x2 << ")";
 		return os;
 	}
 	virtual void print() const

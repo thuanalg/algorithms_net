@@ -4,6 +4,10 @@
 #include <cassert>
 #include <iostream>
 #include <utility>
+#include <concepts>
+#include <vector>
+#include "AAAAAAAA.hpp"
+
 void IntervalMapTest();
 template <typename K, typename V> class interval_map
 {
@@ -696,7 +700,7 @@ main121()
 template <typename T>
 int
 clean_trash(std::vector<std::vector<T>> &vec)
-	requires std::is_arithmetic_v<T>
+	requires(std::is_arithmetic_v<T> || std::totally_ordered<T>)
 {
 	int ret = 0;
 
@@ -779,7 +783,8 @@ clean_trash(std::vector<std::vector<T>> &vec)
 
 template <typename T>
 int
-longest_increasing_subsequence(const std::vector<T> &nums)
+longest_increasing_subsequence(const std::vector<T> &nums) 
+	requires (std::is_arithmetic_v<T> ||  std::totally_ordered<T>)
 {
 	int ret = 0;
 	std::vector<T> lis; // 
@@ -792,9 +797,9 @@ longest_increasing_subsequence(const std::vector<T> &nums)
 	arrlis.push_back(lis);
 
 	for (auto &num : nums) {
-		if (num == 11) {
-			//int a = num;
-		}
+		//if (num == 11) {
+		//	//int a = num;
+		//}
 		arrlistmp.clear();
 		for (auto &tmp : arrlis) {
 			auto it = std::lower_bound(tmp.begin(), tmp.end(), num);
@@ -832,7 +837,7 @@ longest_increasing_subsequence(const std::vector<T> &nums)
 	}
 	std::cout << std::endl;
 	for (auto v : lis) {
-		std::cout << v << "\t";
+		std::cout << v << "\t<-->\t";
 	}
 	std::cout << std::endl;
 
@@ -841,18 +846,24 @@ longest_increasing_subsequence(const std::vector<T> &nums)
 //The principle is to make the last element of the list become smaller and length become larger
 //2       3       7       18      101
 int
-main123()
+main()
 {
-#if 1
+#if 0
 	std::vector<double> data = { 10, 9, 2, 5, 2.5, 7, 101, 101, 101, 18, 101, 101, 101, 101, 101, 101,
 		15, 16, 17, 19, 20, 1, -100, 2, 3, 4, 5, 6, 7, 7.1, 7.2, 8, 9.0,10,   };
 	//std::vector<float> data = {10, 9, 2, 5, 2.5, 7, 101, 18, 101, 101, 15, 16, 17, 19, 20, 1, 2, 3, 4, 5, };
 #else
-	std::vector<int> data = {
-	    0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15};
+	//std::vector<AAAAAAAAAAA<int>> data;
+	//std::vector<int> data = { 0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15};
+	std::vector<AAAAAAAAAAA<int>> data = {{0, 0}, {8, 0}, {4, 0}, {12, 0},
+	    {2, 0}, {10, 0}, {6, -1}, {6, 0}, {14, 0}, {1, 0}, {9, 0}, {5, 0},
+	    {13, 0},
+	    {3, 0}, {11, 0}, {7, 0}, {15, 0}};
+	//std::vector<AAAAAAAAAAA<int>> data = {{0, 1}, {0, 2}};
+	//data.push_back(AAAAAAAAAAA<int>(0, 0));
+	//data.push_back(AAAAAAAAAAA<int>(1, 1));
 #endif
-	std::cout << "Length of LIS: " << longest_increasing_subsequence(data)
-		<< '\n';
+	std::cout << "Length of LIS: " << longest_increasing_subsequence(data) << '\n';
 	return 0;
 }
 
@@ -1001,7 +1012,7 @@ int KnapsackProblem(std::vector<T> &vec)
 #include "AAAAAAAA.hpp"
 
 int
-main()
+main1235()
 {
 	AAAAAAAAAAA<double> a(1.0, 2.0);
 	AAAAAAAAAAA<double> b(-1.0, 2.0);
