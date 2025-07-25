@@ -1,22 +1,30 @@
 #ifndef __AAAAAAAAAAA__
 #define __AAAAAAAAAAA__
-#include <type_traits>
+#include <type_traits> //C++11
 #include <iostream>
-
+#include <concepts> //C++20
+typedef struct __TTTTESSSS__ {
+	int b;
+} __TTTTESSSS__;
 template <typename T>
-	requires std::is_arithmetic_v<T>
+	requires std::totally_ordered<T> || std::same_as<T, double> ||
+		 std::same_as<T, __TTTTESSSS__>
 class AAAAAAAAAAA
 {
       public:
 	AAAAAAAAAAA() : x1(0), x2(0)
 	{
 		int a = 0;
-		//std::cout << "ssssssssss";
+		if (std::same_as<T, double>) {
+			std::cout << "-----------------\n";
+		}
 	}
 	AAAAAAAAAAA(T a, T b) : x1(a), x2(b)
 	{
 		int bwew = 0;
-		//std::cout << "dsds\n";
+		if (std::same_as<T, double>) {
+			std::cout << "-----------------\n";
+		} // std::cout << "dsds\n";
 	}
 	virtual ~AAAAAAAAAAA()
 	{
