@@ -3,13 +3,26 @@
 #include <type_traits> //C++11
 #include <iostream>
 #include <concepts> //C++20
+class AAAAAAAAAAA_abstract
+{
+      public:
+	AAAAAAAAAAA_abstract()
+	{
+		//std::cout << "AAAAAAAAAAA_abstract-----------------\n";
+	}
+	virtual ~AAAAAAAAAAA_abstract()
+	{
+		//std::cout << "~AAAAAAAAAAA_abstract-----------------\n";
+	}
+};
+
 typedef struct __TTTTESSSS__ {
 	int b;
 } __TTTTESSSS__;
 template <typename T>
 	requires std::totally_ordered<T> || std::same_as<T, double> ||
 		 std::same_as<T, __TTTTESSSS__>
-class AAAAAAAAAAA
+class AAAAAAAAAAA : public AAAAAAAAAAA_abstract
 {
       public:
 	AAAAAAAAAAA() : x1(0), x2(0)
@@ -24,7 +37,8 @@ class AAAAAAAAAAA
 		int bwew = 0;
 		if (std::same_as<T, double>) {
 			std::cout << "-----------------\n";
-		} // std::cout << "dsds\n";
+		} 
+		// std::cout << "dsds\n";
 	}
 	virtual ~AAAAAAAAAAA()
 	{
