@@ -1016,9 +1016,10 @@ class AAAAAAAAAAA
 		int bwew = 0;
 		std::cout << "dsds\n";
 	}
-	virtual ~AAAAAAAAAAA() = default;
+	virtual ~AAAAAAAAAAA(){
+		std::cout << "~AAAAAAAAAAA\n";
+	};
 
-	// So sánh ==
 	bool operator==(const AAAAAAAAAAA &other) const
 	{
 		return x1 == other.x1 && x2 == other.x2;
@@ -1029,25 +1030,21 @@ class AAAAAAAAAAA
 		return !(*this == other);
 	}
 
-	// So sánh <
 	bool operator<(const AAAAAAAAAAA &other) const
 	{
 		return (x1 < other.x1) || (x1 == other.x1 && x2 < other.x2);
 	}
 
-	// So sánh >
 	bool operator>(const AAAAAAAAAAA &other) const
 	{
 		return other < *this;
 	}
 
-	// Toán tử +
 	AAAAAAAAAAA operator+(const AAAAAAAAAAA &other) const
 		requires std::is_arithmetic_v<T>
 	{
 		return AAAAAAAAAAA(x1 + other.x1, x2 + other.x2);
 	}
-	// Toán tử +=
 	AAAAAAAAAAA &operator+=(const AAAAAAAAAAA &other)
 		requires std::is_arithmetic_v<T>
 	{
@@ -1055,14 +1052,12 @@ class AAAAAAAAAAA
 		this->x2 += other.x2;
 		return *this;
 	}
-	// Toán tử -
 	AAAAAAAAAAA operator-(const AAAAAAAAAAA &other) const
 		requires std::is_arithmetic_v<T>
 	{
 		return AAAAAAAAAAA(x1 - other.x1, x2 - other.x2);
 	}
 
-		// Toán tử -=
 	AAAAAAAAAAA &operator-=(const AAAAAAAAAAA &other)
 		requires std::is_arithmetic_v<T>
 	{
@@ -1071,14 +1066,12 @@ class AAAAAAAAAAA
 		return *this;
 	}
 
-	// Toán tử *
 	AAAAAAAAAAA operator*(const T &scalar) const
 		requires std::is_arithmetic_v<T>
 	{
 		return AAAAAAAAAAA(x1 * scalar, x2 * scalar);
 	}
 
-	// Toán tử *=
 	AAAAAAAAAAA &operator*=(const AAAAAAAAAAA &other)
 		requires std::is_arithmetic_v<T>
 	{
@@ -1087,13 +1080,11 @@ class AAAAAAAAAAA
 		return *this;
 	}
 
-	// Toán tử /
 	AAAAAAAAAAA operator/(const T &scalar) const
 		requires std::is_arithmetic_v<T>
 	{
 		return AAAAAAAAAAA(x1 / scalar, x2 / scalar);
 	}
-	// Toán tử /=
 	AAAAAAAAAAA &operator/=(const AAAAAAAAAAA &other)
 		requires std::is_arithmetic_v<T>
 	{
@@ -1101,9 +1092,53 @@ class AAAAAAAAAAA
 		this->x2 /= other.x2;
 		return *this;
 	}
-	void print() const
+	AAAAAAAAAAA &operator++() 
+		requires std::is_arithmetic_v<T>
 	{
-		std::cout << "(" << x1 << ", " << x2 << ")\n";
+		++this->x1;
+		++this->x2;
+		return *this;
+	}
+
+	AAAAAAAAAAA &operator--() 
+		requires std::is_arithmetic_v<T>
+	{
+		--this->x1;
+		--this->x2;
+		return *this;
+	}
+
+	AAAAAAAAAAA operator++(int) 
+		requires std::is_arithmetic_v<T>
+	{
+		AAAAAAAAAAA temp = *this;
+		++(*this); //
+		return temp;
+	}
+
+	AAAAAAAAAAA operator--(int) //
+		requires std::is_arithmetic_v<T>
+	{
+		AAAAAAAAAAA temp = *this;
+		--(*this); //
+		return temp;
+	}
+
+	AAAAAAAAAAA &operator=(const AAAAAAAAAAA &other)
+	{
+		this->x1 = other.x1;
+		this->x2 = other.x2;
+		return *this;
+	}
+	friend std::ostream &operator<<(
+	    std::ostream &os, const AAAAAAAAAAA &obj)
+	{
+		os << "(x1, x2) = (" << obj.x1 << ", " << obj.x2 << ")\n";
+		return os;
+	}
+	virtual void print() const
+	{
+		std::cout << "\n (" << x1 << ", " << x2 << ")\n";
 	}
 
       private:
@@ -1119,6 +1154,11 @@ main()
 	a += b;
 	a -= c;
 	a *= b;
-	a /= c;
+	a /= c; 
+	a + b;
+	++a;
+	std::cout << a;
+	a++;
+	std::cout << a;
 	return 0;
 }
