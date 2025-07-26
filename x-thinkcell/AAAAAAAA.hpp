@@ -22,9 +22,13 @@ typedef struct __TTTTESSSS__ {
 template <typename T>
 	requires std::totally_ordered<T> || std::same_as<T, double> ||
 		 std::same_as<T, __TTTTESSSS__>
-class AAAAAAAAAAA : public AAAAAAAAAAA_abstract
+class AAAAAAAAAAA : public AAAAAAAAAAA_abstract_log
 {
-      public:
+private:
+	T x1, x2;
+
+
+public:
 	AAAAAAAAAAA() : x1(0), x2(0)
 	{
 		int a = 0;
@@ -176,7 +180,10 @@ class AAAAAAAAAAA : public AAAAAAAAAAA_abstract
 		std::cout << "\n (" << x1 << ", " << x2 << ")\n";
 	}
 
-      private:
-	T x1, x2;
+      
+
+
+protected:
+
 };
 #endif // __AAAAAAAAAAA__

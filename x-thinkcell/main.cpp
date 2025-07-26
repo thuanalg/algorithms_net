@@ -588,6 +588,8 @@ int
 Kadane_Algorithm( std::vector<T> &data, mydataaa<T, myIndexPair<int>> &output) 
 	requires std::is_arithmetic_v<T>
 {
+	//https://en.wikipedia.org/wiki/Maximum_subarray_problem
+	// https://en.wikipedia.org/wiki/Maximum_subarray_problem#Kadane's_algorithm
 	//C++20
 	int ret = 0;
 	int s = 0;
@@ -617,6 +619,7 @@ Kadane_Algorithm( std::vector<T> &data, mydataaa<T, myIndexPair<int>> &output)
 			}
 			if (max_ending_here > max_so_far) {
 				max_so_far = max_ending_here;
+				//Memorize a pair
 				output[max_so_far] = std::make_pair(s, i);
 			}
 			++i;
@@ -1008,8 +1011,11 @@ maindsd54s()
 }
 
 template<typename T>
-int KnapsackProblem(std::vector<T> &vec)
+int
+KnapsackProblem(std::vector<T> &vec)
+	requires std::totally_ordered<T>
 {
+	//https://en.wikipedia.org/wiki/Knapsack_problem
 	int ret = 0;
 	return ret;
 }
