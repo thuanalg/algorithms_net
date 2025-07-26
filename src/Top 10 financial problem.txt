@@ -2,7 +2,7 @@ Top 10 thuật toán trong ngành tài chính, ngân hàng và chứng khoán.
 ==============================================================================================================================
 Trong ngành tài chính, ngân hàng và chứng khoán, các công ty thường yêu cầu những bài toán phỏng vấn C/C++ để kiểm tra khả năng xử lý dữ liệu lớn, tối ưu hóa hiệu suất, và giải quyết các vấn đề thuật toán phức tạp. Dưới đây là danh sách **Top 10 bài toán** thường gặp trong các buổi phỏng vấn C/C++ trong lĩnh vực này:
 
-### 1. **Dãy con liên tiếp có tổng lớn nhất (Maximum Subarray Sum)** [*]
+### 1. **Dãy con LIÊN TIẾP có tổng lớn nhất (Maximum Subarray Sum)** [*]
    - **Mô tả:** Tìm dãy con liên tiếp có tổng lớn nhất trong một mảng số cho trước. Đây là bài toán cổ điển và được áp dụng trong phân tích lợi nhuận từ các chỉ số tài chính, dự báo giá trị tài sản.
    - **Ứng dụng:** Tính toán lợi nhuận tối đa trong các chiến lược đầu tư.
    - **Thuật toán:** Kadane’s Algorithm (O(n)).
