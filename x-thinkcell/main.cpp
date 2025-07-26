@@ -849,7 +849,7 @@ longest_increasing_subsequence(const std::vector<T> &nums)
 //The principle is to make the last element of the list become smaller and length become larger
 //2       3       7       18      101
 int
-main()
+mainasa()
 {
 #if 0
 	std::vector<double> data = { 10, 9, 2, 5, 2.5, 7, 101, 101, 101, 18, 101, 101, 101, 101, 101, 101,
@@ -1037,5 +1037,16 @@ main1235()
 	std::cout << a;
 	a++;
 	std::cout << a;
+	return 0;
+}
+#pragma warning(disable : 4146)
+#include <gmp_example.h>
+int
+main()
+{
+	main_library();
+	mpz_t a;
+	wrap_mpz_init(a);
+	wrap_mpz_init(a);
 	return 0;
 }
