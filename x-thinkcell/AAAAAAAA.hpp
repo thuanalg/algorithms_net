@@ -27,7 +27,10 @@ class AAAAAAAAAAA : virtual public AAAAAAAAAAA_abstract_log
 private:
 	T x1, x2;
 
+protected:
 
+
+      
 public:
 	AAAAAAAAAAA() : x1(0), x2(0)
 	{
@@ -87,8 +90,8 @@ public:
 	AAAAAAAAAAA &operator+=(const AAAAAAAAAAA &other)
 		requires std::is_arithmetic_v<T>
 	{
-		this->x1 += other.x1;
-		this->x2 += other.x2;
+		x1 += other.x1;
+		x2 += other.x2;
 		return *this;
 	}
 	AAAAAAAAAAA operator-(const AAAAAAAAAAA &other) const
@@ -100,8 +103,8 @@ public:
 	AAAAAAAAAAA &operator-=(const AAAAAAAAAAA &other)
 		requires std::is_arithmetic_v<T>
 	{
-		this->x1 -= other.x1;
-		this->x2 -= other.x2;
+		x1 -= other.x1;
+		x2 -= other.x2;
 		return *this;
 	}
 
@@ -114,8 +117,8 @@ public:
 	AAAAAAAAAAA &operator*=(const AAAAAAAAAAA &other)
 		requires std::is_arithmetic_v<T>
 	{
-		this->x1 *= other.x1;
-		this->x2 *= other.x2;
+		x1 *= other.x1;
+		x2 *= other.x2;
 		return *this;
 	}
 
@@ -127,23 +130,23 @@ public:
 	AAAAAAAAAAA &operator/=(const AAAAAAAAAAA &other)
 		requires std::is_arithmetic_v<T>
 	{
-		this->x1 /= other.x1;
-		this->x2 /= other.x2;
+		x1 /= other.x1;
+		x2 /= other.x2;
 		return *this;
 	}
 	AAAAAAAAAAA &operator++()
 		requires std::is_arithmetic_v<T>
 	{
-		++this->x1;
-		++this->x2;
+		++x1;
+		++x2;
 		return *this;
 	}
 
 	AAAAAAAAAAA &operator--()
 		requires std::is_arithmetic_v<T>
 	{
-		--this->x1;
-		--this->x2;
+		--x1;
+		--x2;
 		return *this;
 	}
 
@@ -165,8 +168,8 @@ public:
 
 	AAAAAAAAAAA &operator=(const AAAAAAAAAAA &other)
 	{
-		this->x1 = other.x1;
-		this->x2 = other.x2;
+		x1 = other.x1;
+		x2 = other.x2;
 		return *this;
 	}
 	friend std::ostream &operator<<(
