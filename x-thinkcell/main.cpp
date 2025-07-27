@@ -1045,11 +1045,23 @@ int
 main()
 {
 	main_library();
-	mpz_t a, b;
+	mpz_t a, b, result;
 	wrap_mpz_init(a);
 	wrap_mpz_init(b);
-	
-	wrap_mpz_init(b);
-	wrap_mpz_init(a);
+	wrap_mpz_init(result);
+
+	wrap_mpz_ui_pow_ui(result, 2, 3000000);
+	char * data = (char*)malloc(1000000);
+	memset(data, 0, 1000000);
+	size_t ttt = wrap_gmp_snprintf(data, 1000000, "2^300 = %Zd\n", result);
+	FILE *fp = fopen("D:/x/result.txt", "w+");
+	if (fp) {
+		fwrite(data, ttt, 1, fp);
+		fclose(fp);
+	}
+	wrap_mpz_clear(result);
+	wrap_mpz_clear(b);
+	wrap_mpz_clear(a);
+	free(data);
 	return 0;
 }
