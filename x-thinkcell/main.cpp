@@ -1045,8 +1045,11 @@ int
 main()
 {
 	main_library();
-	mpz_t a;
+	mpz_t a, b;
 	wrap_mpz_init(a);
+	wrap_mpz_init(b);
+	
+	wrap_mpz_init(b);
 	wrap_mpz_init(a);
 	return 0;
 }

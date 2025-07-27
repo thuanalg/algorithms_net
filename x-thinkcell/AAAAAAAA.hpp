@@ -1,7 +1,7 @@
 #ifndef __AAAAAAAAAAA__
 #define __AAAAAAAAAAA__
 #include <type_traits> //C++11
-#include <iostream>
+#include <iostream> //C++98
 #include <concepts> //C++20
 class AAAAAAAAAAA_abstract_log
 {
@@ -22,7 +22,7 @@ typedef struct __TTTTESSSS__ {
 template <typename T>
 	requires std::totally_ordered<T> || std::same_as<T, double> ||
 		 std::same_as<T, __TTTTESSSS__>
-class AAAAAAAAAAA : public AAAAAAAAAAA_abstract_log
+class AAAAAAAAAAA : virtual public AAAAAAAAAAA_abstract_log
 {
 private:
 	T x1, x2;
