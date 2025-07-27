@@ -1044,20 +1044,21 @@ main1235()
 int
 main()
 {
+	printf("GMP version: %s\n", gmp_version);
 	mpz_t a, b, result;
 	mpz_init(a);
 	mpz_init(b);
 	mpz_init(result);
-#define EXPOMENT			10000000
+#define EXPOMENT			100000000
 	mpz_ui_pow_ui(result, 2, EXPOMENT);
-	FILE *fp = fopen("D:/x/result_01.txt", "w+");
+	FILE *fp = fopen("D:/x/result_02.txt", "w+");
 	char *data = (char *)malloc(EXPOMENT);
 	memset(data, 0, EXPOMENT);
 	if (fp) {
 		//fwrite(data, ttt, 1, fp);
 		size_t ttt =
-		    gmp_snprintf(data, EXPOMENT, "2^10000000:\n%Zd\n", result);
-		int n = fwrite(data, ttt, 1, fp);
+		    gmp_snprintf(data, EXPOMENT, "2^100000000:\n%Zd\n", result);
+		int n = fwrite(data, 1, ttt, fp);
 		fclose(fp);
 	}
 	mpz_clear(result);
