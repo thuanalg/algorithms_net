@@ -1040,7 +1040,7 @@ main1235()
 	return 0;
 }
 #pragma warning(disable : 4146)
-#include <gmp_example.h>
+#include <gmp.h>
 int
 main()
 {
@@ -1048,14 +1048,16 @@ main()
 	mpz_init(a);
 	mpz_init(b);
 	mpz_init(result);
-
-	mpz_ui_pow_ui(result, 2, 3000000);
-	char * data = (char*)malloc(1000000);
-	memset(data, 0, 1000000);
-	size_t ttt = gmp_snprintf(data, 1000000, "2^300 = %Zd\n", result);
-	FILE *fp = fopen("D:/x/result.txt", "w+");
+#define EXPOMENT			10000000
+	mpz_ui_pow_ui(result, 2, EXPOMENT);
+	FILE *fp = fopen("D:/x/result_01.txt", "w+");
+	char *data = (char *)malloc(EXPOMENT);
+	memset(data, 0, EXPOMENT);
 	if (fp) {
-		fwrite(data, ttt, 1, fp);
+		//fwrite(data, ttt, 1, fp);
+		size_t ttt =
+		    gmp_snprintf(data, EXPOMENT, "2^10000000:\n%Zd\n", result);
+		int n = fwrite(data, ttt, 1, fp);
 		fclose(fp);
 	}
 	mpz_clear(result);
