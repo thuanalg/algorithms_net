@@ -8,13 +8,15 @@ class SP_TRACKING_MEMORY
       public:
 	SP_TRACKING_MEMORY()
 	{
-#ifdef __DEBUG__
+//#ifdef __DEBUG__
+#if 1
 		std::cout << "SP_TRACKING_MEMORY(): 0x" << this << std::endl;
 #endif
 	}
 	virtual ~SP_TRACKING_MEMORY()
 	{
-#ifdef __DEBUG__
+//#ifdef __DEBUG__
+#if 1
 		std::cout << "~SP_TRACKING_MEMORY(): 0x" << this << std::endl;
 #endif
 	}

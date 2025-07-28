@@ -875,6 +875,20 @@ mainasa()
 	return 0;
 }
 
+int
+main()
+{
+	//sp_numberic<double> b(1, 0), a;
+	{
+		std::unique_ptr<sp_numberic<double>[]> ptr =
+		    std::make_unique<sp_numberic<double>[]>(2);
+
+
+	}
+	int a = 0;
+	return 0;
+}
+
 #include <iostream>
 #include <vector>
 #include <unordered_map>
@@ -1139,7 +1153,7 @@ equalPartition(vector<int> &arr)
 }
 
 int
-main()
+main4343()
 {
 	//vector<int> arr = {1, 2,  2, 5};
 	vector<int> arr = {5, 2, 1};
