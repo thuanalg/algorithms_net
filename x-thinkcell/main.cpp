@@ -6,7 +6,7 @@
 #include <utility>
 #include <concepts>
 #include <vector>
-#include "AAAAAAAA.hpp"
+#include "sp_numberic.hpp"
 
 void IntervalMapTest();
 template <typename K, typename V> class interval_map
@@ -856,18 +856,18 @@ mainasa()
 		15, 16, 17, 19, 20, 1, -100, 2, 3, 4, 5, 6, 7, 7.1, 7.2, 8, 9.0,10,   };
 	//std::vector<float> data = {10, 9, 2, 5, 2.5, 7, 101, 18, 101, 101, 15, 16, 17, 19, 20, 1, 2, 3, 4, 5, };
 #else
-	//std::vector<AAAAAAAAAAA<int>> data;
+	//std::vector<sp_numberic<int>> data;
 	//std::vector<int> data = { 0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15};
 	
-	std::vector<AAAAAAAAAAA<double>> data = {{0.0, 0.2}, {8, 0}, {4, 0}, {12, 0},
+	std::vector<sp_numberic<double>> data = {{0.0, 0.2}, {8, 0}, {4, 0}, {12, 0},
 	    {2, 0}, {10, 0}, {6, -1}, {6, -2.1}, {14, 0}, {1, -1.1}, {9, 0}, {5, 0},
 	    {13, 0},
 	    {3, 0}, {11, 0}, {7, 0}, {15, 0}};
 
-	//std::vector<AAAAAAAAAAA<int>> data = {{0, 1}, {0, 2}};
-	//data.push_back(AAAAAAAAAAA<int>(0, 0));
-	//data.push_back(AAAAAAAAAAA<int>(1, 1));
-	AAAAAAAAAAA<double> wqwq(1, 0);
+	//std::vector<sp_numberic<int>> data = {{0, 1}, {0, 2}};
+	//data.push_back(sp_numberic<int>(0, 0));
+	//data.push_back(sp_numberic<int>(1, 1));
+	sp_numberic<double> wqwq(1, 0);
 	bool k = !!wqwq;
 
 #endif
@@ -1025,9 +1025,9 @@ KnapsackProblem(std::vector<T> &vec)
 int
 main1235()
 {
-	AAAAAAAAAAA<double> a(1.0, 2.0);
-	AAAAAAAAAAA<double> b(-1.0, 2.0);
-	AAAAAAAAAAA<double> c(-1.0, -2.0);
+	sp_numberic<double> a(1.0, 2.0);
+	sp_numberic<double> b(-1.0, 2.0);
+	sp_numberic<double> c(-1.0, -2.0);
 	a += b;
 	a -= c;
 	a *= b;
@@ -1114,15 +1114,26 @@ equalPartition(vector<int> &arr)
 			if (j < arr[i - 1])
 				curr[j] = prev[j];
 			else {
+				int k = j - arr[i - 1];
 				curr[j] = (prev[j] || prev[j - arr[i - 1]]);
+				bool tmp = curr[j];
+				int a = 0;
 			}
+			std::cout << "i = " << i << ", a[" << i - 1
+				  << "] = " << arr[i - 1] << "\t\t";
 			for (auto v : curr) {
 				std::cout << (v ? "X" : "-") << "\t";
-				
 			}
 			std::cout << "\n";
 		}
+		//std::cout << "i = " << i << ", a[" << i-1 << "] = " << arr[i-1]
+		//	  << "\t\t";
+		//for (auto v : curr) {
+		//	std::cout << (v ? "X" : "-") << "\t";
+		//}
+		//std::cout << "\n";
 		prev = curr;
+
 	}
 	return prev[sum];
 }
@@ -1130,7 +1141,8 @@ equalPartition(vector<int> &arr)
 int
 main()
 {
-	vector<int> arr = {1, 2, 3, 2};
+	//vector<int> arr = {1, 2,  2, 5};
+	vector<int> arr = {5, 2, 1};
 	if (equalPartition(arr)) {
 		cout << "True" << endl;
 	} else {
