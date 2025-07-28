@@ -883,7 +883,9 @@ main()
 		std::unique_ptr<sp_numberic<double>[]> ptr =
 		    std::make_unique<sp_numberic<double>[]>(2);
 
+		sp_numberic<double> *p = &ptr[0];
 
+		int b = 0;
 	}
 	int a = 0;
 	return 0;
