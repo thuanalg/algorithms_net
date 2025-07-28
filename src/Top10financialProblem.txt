@@ -7,7 +7,8 @@ Trong ngành tài chính, ngân hàng và chứng khoán, các công ty thườn
    - **Ứng dụng:** Tính toán lợi nhuận tối đa trong các chiến lược đầu tư.
    - **Thuật toán:** Kadane’s Algorithm (O(n)).
 
-### 2. **Tìm chuỗi con tăng dần dài nhất (Longest Increasing Subsequence)** [*]
+### 2. **Tìm chuỗi con tăng dần dài nhất (Longest Increasing Subsequence) (LIS) ** [*] 
+	<--> LCS (Longest Common Subsequence) <--> Myers’ Algorithm
    - **Mô tả:** Tìm dãy con tăng dần dài nhất trong một dãy số. Đây là bài toán quan trọng trong phân tích dữ liệu thị trường tài chính và chứng khoán.
    - **Ứng dụng:** Phân tích xu hướng tăng giá của cổ phiếu trong một khoảng thời gian.
    - **Thuật toán:** DP (O(n²)) hoặc O(n log n) với nhị phân tìm kiếm.
@@ -37,7 +38,7 @@ Trong ngành tài chính, ngân hàng và chứng khoán, các công ty thườn
    - **Ứng dụng:** Ứng dụng trong mô hình tối ưu hóa việc giao dịch, hoặc trong các hệ thống mạng tài chính.
    - **Thuật toán:** Backtracking hoặc sử dụng các thuật toán đồ thị.
 
-### 8. **Tìm các số xuất hiện nhiều lần trong mảng (Find Duplicates in Array)**
+### 8. **Tìm các số xuất hiện nhiều lần trong mảng (Find Duplicates in Array)** -->> [250727] Sắp xếp rồi quét tìm số trùng.
    - **Mô tả:** Tìm các số xuất hiện nhiều lần trong mảng với bộ nhớ hạn chế.
    - **Ứng dụng:** Phân tích lỗi trong dữ liệu tài chính hoặc giao dịch, tìm kiếm các giao dịch trùng lặp trong hệ thống ngân hàng.
    - **Thuật toán:** Hashing hoặc sử dụng kỹ thuật XOR.
@@ -683,3 +684,227 @@ Các thuật toán này thường được sử dụng trong kết hợp với n
 ==============================================================================================================================
 Top 10 thuật toán trong ngành tài chính, ngân hàng và chứng khoán.
 Top 10 algorithms of finance, accountant, banking, stock.
+=======================================================================
+Dưới đây là những **bài toán kinh điển về chuỗi số (numeric sequences)** thường gặp trong **thuật toán**, **kỹ thuật phần mềm**, và có ứng dụng trong **kinh tế, tài chính, xử lý dữ liệu**:
+
+---
+
+### ⚙️ I. **Các bài toán chuỗi số kinh điển trong thuật toán**
+
+#### 1. **Maximum Subarray Sum (Kadane’s Algorithm)**
+
+* **Mô tả**: Tìm dãy con liên tục có tổng lớn nhất.
+* **Ứng dụng**: Tìm giai đoạn lời nhiều nhất (giá cổ phiếu), phân tích dữ liệu cảm biến.
+* **Độ phức tạp**: `O(n)`
+
+#### 2. **Longest Increasing Subsequence (LIS)**
+
+* **Mô tả**: Tìm chuỗi con tăng dài nhất không liên tục.
+* **Ứng dụng**: Phân tích xu hướng dài hạn trong dữ liệu tài chính.
+* **Độ phức tạp**: `O(n log n)`
+
+#### 3. **Stock Buy and Sell (Maximum Profit)**
+
+* **Mô tả**:
+
+  * **1 lần** mua & bán để lời nhiều nhất → giống bài toán Kadane.
+  * **Nhiều lần**, không được trùng thời gian → quy hoạch động.
+* **Ứng dụng**: Giao dịch chứng khoán, tối ưu hóa lợi nhuận.
+* **Biến thể**: Có giới hạn số lần giao dịch, có phí giao dịch.
+
+#### 4. **Arithmetic Subarrays**
+
+* **Mô tả**: Tìm các dãy con là cấp số cộng.
+* **Ứng dụng**: Nhận diện mẫu hình giá, kiểm tra quy luật ẩn.
+* **Độ phức tạp**: `O(n^2)` hoặc `O(n)` với kỹ thuật nâng cao.
+
+#### 5. **Partition Problem**
+
+* **Mô tả**: Chia dãy số thành 2 tập có tổng bằng nhau.
+* **Ứng dụng**: Cân bằng tài nguyên, đầu tư, scheduling.
+* **Là bài toán NP-complete**.
+
+#### 6. **Subset Sum**
+
+* **Mô tả**: Tìm tập con có tổng bằng giá trị cho trước.
+* **Ứng dụng**: Đầu tư, quản lý rủi ro (subset portfolios).
+* **Liên quan**: Partition Problem là một dạng đặc biệt.
+
+#### 7. **Sliding Window Maximum / Minimum**
+
+* **Mô tả**: Trong mỗi đoạn dài `k`, tìm max/min.
+* **Ứng dụng**: Phân tích thị trường theo khung thời gian, smoothing.
+* **Độ phức tạp**: `O(n)` với deque.
+
+#### 8. **Longest Arithmetic Subsequence**
+
+* **Mô tả**: Tìm chuỗi con dài nhất tạo thành cấp số cộng.
+* **Ứng dụng**: Phát hiện xu hướng tuyến tính ẩn.
+* **Độ phức tạp**: `O(n^2)`
+
+#### 9. **Maximum Product Subarray**
+
+* **Mô tả**: Giống như Maximum Sum, nhưng tính tích.
+* **Ứng dụng**: Tìm dãy nhân sinh lời cao nhất (lãi kép).
+* **Khó khăn**: Do số âm có thể đảo chiều tích.
+
+#### 10. **Zigzag / Peak-Valley Sequence**
+
+* **Mô tả**: Phân tích dãy số thành các điểm đỉnh/đáy (buy-sell points).
+* **Ứng dụng**: Đầu tư chứng khoán, dự báo kỹ thuật.
+
+---
+
+### 📈 II. **Ứng dụng trong kinh tế - tài chính**
+
+| Tên bài toán                       | Mục tiêu                      | Mô tả                               |
+| ---------------------------------- | ----------------------------- | ----------------------------------- |
+| **Mean-Variance Optimization**     | Phân bổ tài sản               | Dựa trên chuỗi lợi nhuận            |
+| **Sharpe Ratio Maximization**      | Tối ưu hóa lợi nhuận/rủi ro   | Tính toán trên chuỗi số lợi nhuận   |
+| **Drawdown Analysis**              | Tìm mức giảm sâu nhất từ đỉnh | Dựa trên chuỗi giá tài sản          |
+| **Moving Average Crossover**       | Tín hiệu giao dịch            | Trên chuỗi giá, dùng MA ngắn và dài |
+| **ARIMA / Time Series Prediction** | Dự báo chuỗi số               | Giá cổ phiếu, lạm phát, v.v.        |
+
+---
+
+### 🧠 III. **Kỹ thuật / công cụ hỗ trợ**
+
+* **Prefix Sum**, **Suffix Sum** → tăng tốc truy vấn tổng đoạn.
+* **Binary Search trên đáp án** (tìm độ dài tối ưu).
+* **Quy hoạch động (DP)** trên chuỗi số.
+* **Deque, Segment Tree, Sparse Table** → xử lý tối ưu sliding window.
+
+---
+
+### ❗Nếu bạn quan tâm các bài toán hiệu suất cao (như logging hoặc xử lý dữ liệu hàng triệu dòng/s), thì các bài toán như **Kadane**, **Sliding Window**, **Prefix Sum** là cốt lõi để xử lý thời gian thực.
+
+---
+
+Bạn muốn mình gửi code C/C++ cho bài toán cụ thể nào trong số trên?
+========================================================================================
+Dưới đây là **những bài toán kinh điển về ma trận (matrix problems)** thường gặp trong **thuật toán, kỹ thuật phần mềm, xử lý ảnh, AI, khoa học dữ liệu**, v.v:
+
+---
+
+## 🎯 I. **Bài toán ma trận kinh điển trong thuật toán**
+
+### 1. **Tìm đường đi ngắn nhất trong ma trận (Shortest Path in Grid)**
+
+* **Mô tả**: Ma trận `m x n` gồm các ô có chi phí hoặc chướng ngại vật, tìm đường đi ngắn nhất từ (0,0) đến (m-1,n-1).
+* **Giải pháp**: BFS, Dijkstra, A\*, hoặc DP nếu chỉ đi xuống/phải.
+
+### 2. **Tìm hình chữ nhật/lớn nhất chứa toàn số 1**
+
+* **Mô tả**: Ma trận nhị phân `0/1`, tìm hình chữ nhật chứa toàn số 1 có diện tích lớn nhất.
+* **Giải pháp**: Biến ma trận thành histogram → dùng stack.
+* **Độ phức tạp**: `O(m * n)`
+
+### 3. **Tìm hình vuông lớn nhất chứa toàn số 1**
+
+* **Mô tả**: Như trên, nhưng là hình vuông.
+* **Giải pháp**: Quy hoạch động `dp[i][j] = min(top, left, topleft) + 1`
+
+### 4. **Tìm tổng lớn nhất trong ma trận con (Maximum Submatrix Sum)**
+
+* **Mô tả**: Tìm ma trận con bất kỳ có tổng lớn nhất.
+* **Giải pháp**: Dùng prefix sum + Kadane’s trên mỗi cặp hàng.
+
+### 5. **Flood Fill (Tô màu vùng liên thông)**
+
+* **Mô tả**: Tô lại màu vùng có cùng màu bắt đầu từ 1 điểm.
+* **Giải pháp**: DFS/BFS
+* **Ứng dụng**: Paint tool, xử lý ảnh.
+
+### 6. **Đảo các vùng (Surrounded Regions)**
+
+* **Mô tả**: Trong ma trận `X` và `O`, đổi các vùng `O` bị bao bởi `X` thành `X`.
+* **Giải pháp**: DFS từ biên vào để đánh dấu `O` an toàn.
+
+### 7. **Tìm vùng đảo (Number of Islands)**
+
+* **Mô tả**: Ma trận 0/1, mỗi cụm 1 liên thông là 1 đảo.
+* **Giải pháp**: DFS/BFS/Union-Find.
+* **Ứng dụng**: Nhận dạng vùng trong bản đồ.
+
+### 8. **Search in a Sorted Matrix**
+
+* **Mô tả**: Tìm phần tử trong ma trận tăng dần theo hàng và cột.
+* **Giải pháp**: Bắt đầu từ góc phải trên → O(m + n)
+
+### 9. **Rotate Matrix (Xoay ma trận 90 độ)**
+
+* **Mô tả**: Xoay 1 ma trận `n x n` theo chiều kim đồng hồ.
+* **Giải pháp**: Transpose + đảo từng hàng.
+
+### 10. **Spiral Matrix (Duyệt theo hình xoắn ốc)**
+
+* **Mô tả**: Trả về các phần tử ma trận theo hình xoắn ốc.
+* **Ứng dụng**: Hiển thị đồ họa, UI layout.
+
+---
+
+## 📐 II. **Bài toán đại số tuyến tính kinh điển**
+
+(áp dụng nhiều trong AI, ML, vật lý, tài chính)
+
+### 11. **Matrix Multiplication**
+
+* **Mô tả**: Nhân hai ma trận A x B.
+* **Giải pháp**: Thường dùng Strassen nếu tối ưu.
+* **Độ phức tạp**: `O(n^2.81)` với Strassen, hoặc `O(n^3)` thường.
+
+### 12. **Matrix Inversion**
+
+* **Mô tả**: Tính nghịch đảo của ma trận.
+* **Giải pháp**: Dùng Gauss-Jordan hoặc LU decomposition.
+
+### 13. **Gaussian Elimination**
+
+* **Mô tả**: Giải hệ phương trình tuyến tính `Ax = b`.
+* **Ứng dụng**: Mô phỏng tài chính, vật lý, cơ học.
+
+### 14. **Eigenvalues & Eigenvectors**
+
+* **Mô tả**: Dùng trong PCA, xử lý dữ liệu, học máy.
+* **Giải pháp**: Power Iteration, QR Decomposition.
+
+---
+
+## 🧠 III. **Bài toán nâng cao / ứng dụng**
+
+### 15. **Path with Maximum/Minimum Score**
+
+* **Mô tả**: Di chuyển từ (0,0) đến (m-1,n-1), tối đa hóa tổng điểm (có thể rẽ trái/phải/xuống).
+* **Giải pháp**: DP
+
+### 16. **Unique Paths / Number of Paths**
+
+* **Mô tả**: Đếm số cách đi từ trái trên → phải dưới, chỉ đi xuống hoặc phải.
+* **Biến thể**: Có chướng ngại vật.
+* **Giải pháp**: DP
+
+### 17. **Knight’s Tour (Tướng sĩ đi tuần)**
+
+* **Mô tả**: Tìm đường đi của mã (quân ngựa) đi qua mọi ô.
+* **Giải pháp**: Backtracking hoặc Warnsdorff's Rule.
+
+### 18. **Sudoku Solver**
+
+* **Mô tả**: Điền số vào ma trận 9x9 thỏa điều kiện Sudoku.
+* **Giải pháp**: Backtracking
+
+---
+
+## ⚡ Kỹ thuật thường dùng
+
+| Kỹ thuật                   | Ứng dụng                           |
+| -------------------------- | ---------------------------------- |
+| Prefix Sum 2D              | Tính tổng ma trận con              |
+| Dynamic Programming        | Tối ưu hóa đường đi, hình chữ nhật |
+| DFS/BFS                    | Tô màu, tìm vùng, đếm đảo          |
+| Bitmask                    | Sudoku, đường đi với trạng thái    |
+| Sliding Window / Histogram | Phát hiện hình chữ nhật            |
+
+---
+
+Bạn cần **code C/C++** hoặc **minh họa thuật toán cụ thể** nào trong danh sách trên?
