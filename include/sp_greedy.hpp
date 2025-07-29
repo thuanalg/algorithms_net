@@ -85,8 +85,9 @@ sp_greedy(std::vector<std::vector<T>> &vec,
 }
 
 inline int
-sp_greedy_test(std::vector<std::vector<int>> &vec)
+sp_greedy_test()
 {
+	std::vector<std::vector<int>> vec(7, std::vector<int>(10));
 	std::srand(static_cast<unsigned>(std::time(nullptr)));
 
 	for (auto &row : vec)
@@ -104,6 +105,9 @@ sp_greedy_test(std::vector<std::vector<int>> &vec)
 	if (ouput.size() > 0) {
 		auto it = ouput.end();
 		--it;
+		for (auto &p : *it) {
+			std::cout << "(" << p.first << "," << p.second << ") \n";
+		}
 		std::cout << "Max size of Output = " << it->size() << "\n";
 	}
 	return 0;

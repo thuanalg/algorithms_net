@@ -1158,7 +1158,7 @@ main4343()
 int
 main()
 {
-	std::vector<std::vector<int>> vec(7, std::vector<int>(10));
-	sp_greedy_test(vec);
+	
+	sp_greedy_test();
 	return 0;
 }
