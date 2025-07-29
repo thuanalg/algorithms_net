@@ -28,12 +28,12 @@ sp_greedy_recursive(std::vector<std::vector<T>> &vec,
 			continue;
 		if (!vec[u][v])
 			continue;
-		if (!mtrace[u][v])
+		if (mtrace[u][v])
 			continue;
 		sp_numberic<int> pos(u, v);
 		island.emplace_back(pos);
 		mtrace[u][v] = true;
-		sp_greedy_recursive(vec, island, i, j, mtrace);
+		sp_greedy_recursive(vec, island, u, v, mtrace);
 	}
 	return ret;
 }
@@ -54,22 +54,47 @@ sp_greedy(std::vector<std::vector<T>> &vec,
 	std::vector<std::vector<bool>> mtrace( m, std::vector<bool>(n, false));
 	for (i = 0; i < m; ++i) {
 		
-		for (j = 0; i < n; ++j) {
-			if (!mtrace[i][j])
+		for (j = 0; j < n; ++j) {
+			if (mtrace[i][j])
 				continue;
-			if (!vec[i][j])
-				continue;
-			std::vector <sp_numberic<int>> island;
-			if (vec[i][j]) {
-				sp_numberic<int> pos(i, j);
+			if (!vec[i][j]) {
 				mtrace[i][j] = true;
-				island.emplace_back(pos);
-				sp_greedy_recursive(vec, island, i, j, mtrace);
-				ouput.emplace_back(std::move(island));
+				continue;
 			}
+			std::vector <sp_numberic<int>> island;
+			sp_numberic<int> pos(i, j);
 			mtrace[i][j] = true;
+			island.emplace_back(pos);
+			sp_greedy_recursive(vec, island, i, j, mtrace);
+			ouput.emplace_back(std::move(island));
+			
 		}
 	}
+	return ret;
+}
+#include <iostream>
+#include <vector>
+#include <cstdlib>
+#include <ctime>
+int
+sp_greedy_test(std::vector<std::vector<int>> &vec)
+{
+	int ret = 0;
+	for (int i = 0; i < vec.size(); ++i) {
+		for (int j = 0; j < vec[0].size(); ++j) {
+			int k = std::rand() % 3;
+			vec[i][j] = k ? 0 : 1;
+		}
+	}
+	for (int i = 0; i < vec.size(); ++i) {
+		std::cout << "\n";
+		for (int j = 0; j < vec[0].size(); ++j) {
+			std::cout << vec[i][j] << "\t";
+		}
+	}
+	std::cout << "\n";
+	std::vector<std::vector<sp_numberic<int>>> ouput;
+	sp_greedy(vec, ouput);
 	return ret;
 }
 #endif // __sp_greedy__

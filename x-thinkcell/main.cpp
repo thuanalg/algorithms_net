@@ -876,21 +876,7 @@ mainasa()
 	return 0;
 }
 
-int
-main()
-{
-	//sp_numberic<double> b(1, 0), a;
-	{
-		std::unique_ptr<sp_numberic<double>[]> ptr =
-		    std::make_unique<sp_numberic<double>[]>(2);
 
-		sp_numberic<double> *p = &ptr[0];
-		(*p)++;
-		int b = 0;
-	}
-	int a = 0;
-	return 0;
-}
 
 #include <iostream>
 #include <vector>
@@ -1165,5 +1151,13 @@ main4343()
 	} else {
 		cout << "False" << endl;
 	}
+	return 0;
+}
+
+int
+main()
+{
+	std::vector<std::vector<int>> vec(12, std::vector<int>(10));
+	sp_greedy_test(vec);
 	return 0;
 }
