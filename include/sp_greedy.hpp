@@ -1,7 +1,7 @@
 ﻿#ifndef __sp_greedy__
 #define __sp_greedy__
 
-#include "sp_numberic.hpp"
+//#include "sp_numberic.hpp"
 #include <type_traits> // C++11
 #include <concepts> // C++20
 #include <ranges> // C++20
@@ -14,7 +14,7 @@
 template <typename T>
 int
 sp_greedy_recursive(std::vector<std::vector<T>> &vec,
-    std::vector<sp_numberic<int>> &island, int i, int j,
+    std::vector < std::pair < int, int >> &island, int i, int j,
     std::vector<std::vector<bool>> &mtrace)
 	requires std::is_arithmetic_v<T>
 {
@@ -34,9 +34,10 @@ sp_greedy_recursive(std::vector<std::vector<T>> &vec,
 			continue;
 		if (mtrace[u][v])
 			continue;
-
-		sp_numberic<int> pos(u, v);
-		island.emplace_back(pos);
+		std::pair<int, int> s(u, v);
+		island.emplace_back(s);
+		//std::pair<int, int> pos(u, v);
+		//island.emplace_back(pos);
 		mtrace[u][v] = true;
 		sp_greedy_recursive(vec, island, u, v, mtrace);
 	}
@@ -46,7 +47,7 @@ sp_greedy_recursive(std::vector<std::vector<T>> &vec,
 template <typename T>
 int
 sp_greedy(std::vector<std::vector<T>> &vec,
-    std::vector<std::vector<sp_numberic<int>>> &ouput)
+    std::vector<std::vector<std::pair<int, int>>> &ouput)
 	requires std::is_arithmetic_v<T>
 {
 	int ret = 0;
@@ -66,8 +67,9 @@ sp_greedy(std::vector<std::vector<T>> &vec,
 				continue;
 			}
 
-			std::vector<sp_numberic<int>> island;
-			island.emplace_back(i, j);
+			std::vector<std::pair<int, int>> island;
+			std::pair<int, int> s(i, j);
+			island.emplace_back(s);
 			mtrace[i][j] = true;
 
 			sp_greedy_recursive(vec, island, i, j, mtrace);
@@ -89,7 +91,7 @@ sp_greedy_test(std::vector<std::vector<int>> &vec)
 
 	for (auto &row : vec)
 		for (auto &val : row)
-			val = std::rand() % 4 ? 0 : 1;
+			val = std::rand() % 3 ? 0 : 1;
 
 	for (const auto &row : vec) {
 		for (int v : row)
@@ -97,10 +99,13 @@ sp_greedy_test(std::vector<std::vector<int>> &vec)
 		std::cout << "\n";
 	}
 
-	std::vector<std::vector<sp_numberic<int>>> ouput;
+	std::vector<std::vector<std::pair<int, int>>> ouput;
 	sp_greedy(vec, ouput);
-
-	std::cout << "Output = " << ouput.size() << "\n";
+	if (ouput.size() > 0) {
+		auto it = ouput.end();
+		--it;
+		std::cout << "Max size of Output = " << it->size() << "\n";
+	}
 	return 0;
 }
 
