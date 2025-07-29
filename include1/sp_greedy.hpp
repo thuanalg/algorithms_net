@@ -5,7 +5,8 @@
 #include <type_traits> //C++11
 #include <iostream> //C++98
 #include <concepts> //C++20
-
+#include <ranges> //C++20
+#include <algorithm>
 template <typename T>
 int
 sp_greedy_recursive(std::vector<std::vector<T>> &vec,
@@ -66,10 +67,24 @@ sp_greedy(std::vector<std::vector<T>> &vec,
 			mtrace[i][j] = true;
 			island.emplace_back(pos);
 			sp_greedy_recursive(vec, island, i, j, mtrace);
+			// C++20
+			//td::ranges::sort(
+			//   island, [](const auto &a, const auto &b) {
+			//	    if (a.x1() < b.x1) {
+			//		    return a.x1() < b.x1;
+			//	    }
+			//	    else if (a.x1() > b.x1) {
+			//		    return a.x1() > b.x1;
+			//	    }
+			//	    return !!0;
+			//   });
 			ouput.emplace_back(std::move(island));
 			
 		}
 	}
+	// C++20
+	std::ranges::sort(ouput, [](const auto &a, const auto &b) { 
+		return a.size() < b.size(); });
 	return ret;
 }
 #include <iostream>

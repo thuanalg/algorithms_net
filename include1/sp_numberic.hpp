@@ -8,15 +8,15 @@ class SP_TRACKING_MEMORY
       public:
 	SP_TRACKING_MEMORY()
 	{
-//#ifdef __DEBUG__
-#if 1
+#ifdef __DEBUG__
+//#if 1
 		std::cout << "SP_TRACKING_MEMORY(): 0x" << this << std::endl;
 #endif
 	}
 	virtual ~SP_TRACKING_MEMORY()
 	{
-//#ifdef __DEBUG__
-#if 1
+#ifdef __DEBUG__
+//#if 1
 		std::cout << "~SP_TRACKING_MEMORY(): 0x" << this << std::endl;
 #endif
 	}
@@ -41,18 +41,11 @@ protected:
 public:
 	sp_numberic() : x1(0), x2(0)
 	{
-		int a = 0;
-		if (std::same_as<T, double>) {
-			std::cout << "-----------------\n";
-		}
+
 	}
 	sp_numberic(T a, T b) : x1(a), x2(b)
 	{
-		int bwew = 0;
-		if (std::same_as<T, double>) {
-			std::cout << "-----------------\n";
-		} 
-		// std::cout << "dsds\n";
+
 	}
 	virtual ~sp_numberic()
 	{
