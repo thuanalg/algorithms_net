@@ -8,6 +8,7 @@
 #include <vector>
 #include "sp_numberic.hpp"
 #include "sp_greedy.hpp"
+#include "sp_dijkstra.hpp"
 
 void IntervalMapTest();
 template <typename K, typename V> class interval_map
