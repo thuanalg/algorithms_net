@@ -89,26 +89,25 @@ public:
 	{
 		return !!x1  && !!x2;
 	}
-	sp_numberic operator+(const sp_numberic &other) const
-		requires std::is_arithmetic_v<T>
+	sp_numberic operator+(const sp_numberic &other) const		
 	{
 		return sp_numberic(x1 + other.x1, x2 + other.x2);
 	}
 	sp_numberic &operator+=(const sp_numberic &other)
-		requires std::is_arithmetic_v<T>
+		//requires std::is_arithmetic_v<T>
 	{
 		x1 += other.x1;
 		x2 += other.x2;
 		return *this;
 	}
 	sp_numberic operator-(const sp_numberic &other) const
-		requires std::is_arithmetic_v<T>
+		//requires std::is_arithmetic_v<T>
 	{
 		return sp_numberic(x1 - other.x1, x2 - other.x2);
 	}
 
 	sp_numberic &operator-=(const sp_numberic &other)
-		requires std::is_arithmetic_v<T>
+		//requires std::is_arithmetic_v<T>
 	{
 		x1 -= other.x1;
 		x2 -= other.x2;
@@ -116,13 +115,13 @@ public:
 	}
 
 	sp_numberic operator*(const T &scalar) const
-		requires std::is_arithmetic_v<T>
+		//requires std::is_arithmetic_v<T>
 	{
 		return sp_numberic(x1 * scalar, x2 * scalar);
 	}
 
 	sp_numberic &operator*=(const sp_numberic &other)
-		requires std::is_arithmetic_v<T>
+		//requires std::is_arithmetic_v<T>
 	{
 		x1 *= other.x1;
 		x2 *= other.x2;
@@ -142,7 +141,7 @@ public:
 		return *this;
 	}
 	sp_numberic &operator++()
-		requires std::is_arithmetic_v<T>
+		//requires std::is_arithmetic_v<T>
 	{
 		++x1;
 		++x2;
@@ -150,7 +149,7 @@ public:
 	}
 
 	sp_numberic &operator--()
-		requires std::is_arithmetic_v<T>
+		//requires std::is_arithmetic_v<T>
 	{
 		--x1;
 		--x2;

@@ -7,6 +7,7 @@
 #include <concepts>
 #include <vector>
 #include "sp_numberic.hpp"
+#include "sp_greedy.hpp"
 
 void IntervalMapTest();
 template <typename K, typename V> class interval_map
@@ -884,7 +885,7 @@ main()
 		    std::make_unique<sp_numberic<double>[]>(2);
 
 		sp_numberic<double> *p = &ptr[0];
-
+		(*p)++;
 		int b = 0;
 	}
 	int a = 0;
