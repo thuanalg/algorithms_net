@@ -33,18 +33,19 @@ sp_clean_trash(std::vector<std::vector<T>> &vec)
 		}
 		return !!0;
 	});
-
-	// for (size_t index = 0; index < vec.size() - 1; ++index) {
-	//	if (vec[index].size() == vec[index + 1].size()) {
-	//		size_t i = vec[index].size() - 1;
-	//		size_t j = vec[index + 1].size() - 1;
-	//		size_t fd = index;
-	//		if (vec[index][i] < vec[index + 1][j]) {
-	//			fd = index + 1;
-	//		}
-	//		vec.erase(vec.begin() + fd);
-	//	}
-	// }
+#if 0
+	for (size_t index = 0; index < vec.size() - 1; ++index) {
+		if (vec[index].size() == vec[index + 1].size()) {
+			size_t i = vec[index].size() - 1;
+			size_t j = vec[index + 1].size() - 1;
+			size_t fd = index;
+			if (vec[index][i] < vec[index + 1][j]) {
+				fd = index + 1;
+			}
+			vec.erase(vec.begin() + fd);
+		}
+	}
+#endif
 	for (size_t index = 0; index < vec.size() - 1; ++index) {
 		if (vec[index].size() == vec[index + 1].size()) {
 			int tryremove = 1;
