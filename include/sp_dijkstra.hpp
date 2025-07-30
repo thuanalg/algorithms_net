@@ -101,7 +101,7 @@ sp_dijkstra_test()
 	int ret = 0;
 	int INF = SP_INF_DIJKSTRA;
 	// http://www.webgraphviz.com/
-#if 1
+#if 0
 	Grid grid = {
 	    {0, 1, 4, INF, INF, 10}, // 0
 	    {INF, 0, 1, INF, 1, INF}, // 1
@@ -175,7 +175,7 @@ sp_dijkstra_test()
 		
 		std::vector<int> apath;
 		sp_print_path(i, parent, apath);
-		std::cout << "\nPath: ";
+		std::cout << "\n### distance: " << v << "          Path: ";
 
 		if (!!apath.size()) {
 			auto it = apath.begin();
@@ -184,7 +184,7 @@ sp_dijkstra_test()
 					std::cout << *it;
 					it++;
 				} else {
-					std::cout << " -->> " << *it;
+					std::cout << " -> " << *it;
 					it++;
 				}
 
@@ -198,7 +198,7 @@ sp_dijkstra_test()
 
 		pathsoutput.emplace_back(std::move(apath));
 		
-		std::cout << "\t\t### distance: " << v << "\n";
+		
 		++i;
 	}
 
