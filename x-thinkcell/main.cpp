@@ -1107,6 +1107,7 @@ equalPartition(vector<int> &arr)
 		return false;
 
 	sum = sum / 2;
+	//sum += 10;
 
 	int n = arr.size();
 	vector<bool> prev(sum + 1, false), curr(sum + 1);
@@ -1117,29 +1118,35 @@ equalPartition(vector<int> &arr)
 
 	// Fill the subset table in
 	// bottom up manner
+	
 	for (int i = 1; i <= n; i++) {
 		for (int j = 0; j <= sum; j++) {
-			if (j < arr[i - 1])
+			if (j < arr[i - 1]) {
 				curr[j] = prev[j];
+			}				
 			else {
 				int k = j - arr[i - 1];
 				curr[j] = (prev[j] || prev[j - arr[i - 1]]);
 				bool tmp = curr[j];
 				int a = 0;
 			}
+#if 0
 			std::cout << "i = " << i << ", a[" << i - 1
 				  << "] = " << arr[i - 1] << "\t\t";
 			for (auto v : curr) {
 				std::cout << (v ? "X" : "-") << "\t";
 			}
 			std::cout << "\n";
+#endif
 		}
-		//std::cout << "i = " << i << ", a[" << i-1 << "] = " << arr[i-1]
-		//	  << "\t\t";
-		//for (auto v : curr) {
-		//	std::cout << (v ? "X" : "-") << "\t";
-		//}
-		//std::cout << "\n";
+#if 1
+		std::cout << "i = " << i << ", a[" << i-1 << "] = " << arr[i-1]
+			  << "\t\t";
+		for (auto v : curr) {
+			std::cout << (v ? "X" : "-") << "\t";
+		}
+		std::cout << "\n";
+#endif
 		prev = curr;
 
 	}
@@ -1147,7 +1154,7 @@ equalPartition(vector<int> &arr)
 }
 
 int
-main4343()
+main()
 {
 	//vector<int> arr = {1, 2,  2, 5};
 	vector<int> arr = {5, 2, 1};
@@ -1160,7 +1167,7 @@ main4343()
 }
 
 int
-main()
+main_______()
 {
 	
 	//sp_greedy_test();
