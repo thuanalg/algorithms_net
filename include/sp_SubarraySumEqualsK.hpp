@@ -1,5 +1,5 @@
-﻿#ifndef __sp_SubarraySumEqualsKadane__
-#define __sp_SubarraySumEqualsKadane__
+﻿#ifndef __sp_SubarraySumEqualsK__
+#define __sp_SubarraySumEqualsK__
 
 #include <type_traits> // C++11
 #include <concepts> // C++20
@@ -20,7 +20,7 @@ template <typename T> using EqualKcoord = std::pair<int, int>;
 template <typename T>
 
 inline int
-sp_SubarraySumEqualsKadane(
+sp_SubarraySumEqualsK(
     std::vector<T> &vec, T &k, std::vector<EqualKcoord<int>> &output)
 	requires std::is_arithmetic_v<T>
 {
@@ -54,7 +54,7 @@ sp_SubarraySumEqualsKadane(
 
 
 inline int
-sp_SubarraySumEqualsKadane_test()
+sp_SubarraySumEqualsK_test()
 {
 	
 	std::vector<EqualKcoord<int>> output;
@@ -73,7 +73,7 @@ sp_SubarraySumEqualsKadane_test()
 #endif
 
 
-	int ret = sp_SubarraySumEqualsKadane(data, k, output);
+	int ret = sp_SubarraySumEqualsK(data, k, output);
 	for (auto [u, v] : output)
 	{
 		std::cout << "(" << u << "," << v << ")\t\t";
