@@ -138,7 +138,6 @@ sp_LongestIncreasingSubsequence(const std::vector<T> &nums, std::vector<T> &outp
 		}
 		sp_clean_trash(arrlis);
 	}
-	std::cout << std::endl;
 
 	if (arrlis.size()) {
 		//lis.clear();
@@ -156,8 +155,10 @@ sp_LongestIncreasingSubsequence_test()
 {
 #if 1
 	std::vector<double> output;
-	std::vector<double> data = { 10, 9, 2, 5, 2.5, 7, 101, 101, 101, 18, 101, 101, 101, 101, 101, 101,
-		15, 16, 17, 19, 20, 1, -100, 2, 3, 4, 5, 6, 7, 7.1, 7.2, 8, 9.0,10,   };
+	//std::vector<double> data = { 10, 9, 2, 5, 2.5, 7, 101, 101, 101, 18, 101, 101, 101, 101, 101, 101,
+	//	15, 16, 17, 19, 20, 1, -100, 2, 3, 4, 5, 6, 7, 7.1, 7.2, 8, 9.0,10,   };
+	std::vector<double> data = { 0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15};
+	// https://en.wikipedia.org/wiki/Longest_increasing_subsequence
 #else
 	std::vector<sp_numberic<double>> output;
 	std::vector<sp_numberic<double>> data = {{0.0, 0.2}, {8, 0}, {4, 0},
