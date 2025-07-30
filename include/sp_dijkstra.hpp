@@ -66,6 +66,7 @@ sp_dijkstra_test()
 {
 	int ret = 0;
 	int INF = SP_INF_DIJKSTRA;
+	// http://www.webgraphviz.com/
 	Grid grid = {
 	    {0, 1, 4, INF, INF, 1}, // 0
 	    {INF, 0, 1, INF, 1, INF}, // 1

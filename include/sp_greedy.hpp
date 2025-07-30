@@ -73,6 +73,13 @@ sp_greedy(std::vector<std::vector<T>> &vec,
 			mtrace[i][j] = true;
 
 			sp_greedy_recursive(vec, island, i, j, mtrace);
+			// C++20 sort -->> std::ranges
+			std::ranges::sort(
+			    island, [](const auto &a, const auto &b) {
+				    return (a.first < b.first) ||
+					   (a.first == b.first &&
+					       a.second < b.second);
+			    });
 			ouput.emplace_back(std::move(island));
 		}
 	}
