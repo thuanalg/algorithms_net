@@ -44,8 +44,9 @@ sp_KadaneMaximumSubarraySum(
 //			requires(std::is_same<std::remove_cvref_t<T>, U>::value)
 //			
 //		{ a += b; };
-		T max_so_far = data[0];
-		T max_ending_here = data[0];
+		auto it = data.begin();
+		T max_so_far = *it;
+		T max_ending_here = *it;
 		for (auto v : data) {
 			if (!i) {
 				++i;
