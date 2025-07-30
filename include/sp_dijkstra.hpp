@@ -111,7 +111,7 @@ sp_dijkstra_test()
 	T INF = numeric_limits<T>::max();
 	;
 	// http://www.webgraphviz.com/
-#if 1
+#if 0
 	Griggggd<T> grid = {
 	    {0, 1.2, 4, INF, INF, 10}, // 0
 	    {INF, 0, 1, INF, 1, INF}, // 1
@@ -124,7 +124,7 @@ sp_dijkstra_test()
 	Griggggd<T> grid = {
 	    // 0   1    2    3    4    5    6    7    8    9   10   11   12   13
 	    // 14   15   16   17   18   19
-	    {0, 4, INF, 7, INF, INF, INF, INF, 9, INF, INF, INF, INF, INF, INF,
+	    {0, 4.00, INF, 7, INF, INF, INF, INF, 9, INF, INF, INF, INF, INF, INF,
 		INF, INF, INF, INF, INF}, // 0
 	    {INF, 0, 3, INF, INF, 5, INF, INF, INF, INF, INF, 7, INF, INF,
 		INF, INF, INF, INF, INF, INF}, // 1
