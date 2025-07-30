@@ -164,7 +164,8 @@ sp_LongestIncreasingSubsequence_test()
 	    {12, 0}, {2, 0}, {10, 0}, {6, -1}, {6, -2.1}, {14, 0}, {1, -1.1},
 	    {9, 0}, {5, 0}, {13, 0}, {3, 0}, {11, 0}, {7, 0}, {15, 0}};
 #endif
-	std::cout << "Length of LIS: " << sp_LongestIncreasingSubsequence(data, output) << '\n';
+	int length = sp_LongestIncreasingSubsequence(data, output);
+	std::cout << "Length of LIS: " << length << '\n';
 	std::cout << std::endl;
 	int i = 0;
 	for (auto v : output) {
