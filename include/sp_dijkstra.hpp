@@ -161,7 +161,7 @@ sp_dijkstra_test()
 	    {INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF,
 		INF, INF, INF, INF, 0, INF, INF}, // 17
 	    {INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF,
-		INF, INF, INF, INF, INF, 0, 1}, // 18
+		INF, INF, INF, INF, INF, 0, 1.001}, // 18
 	    {INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF,
 		INF, INF, INF, INF, INF, INF, 0} // 19
 	};
