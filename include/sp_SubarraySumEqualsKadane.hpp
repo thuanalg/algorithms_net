@@ -61,10 +61,12 @@ sp_SubarraySumEqualsKadane_test()
 	
 
 #if 1
-	std::vector<double> data = { 10, 9, 2, 5, 2.5, 7, 101, 101, 101, 18, 101,
-		101, 101, 101, 101, 101, 15, 16, 17, 19, 20, 1, 2, 3, 4, 5, 6, 7,
-		7.1, 7.2, 8, 9.0 };
 	double k = 10;
+
+	std::vector<double> data = { 10, 9, 2, 5, 2.5, 7, 101, 101, 101, 18, 101,
+		101, 101, 101, 101, 101, 15, 16, 17, 19, 20, 1, 2, 3, 4, 5, 6, 3, 7,
+		7.1, 7.2, 8, 9.0 , 1, };
+	
 #else
 	int k = 10;
 	std::vector<int> data = {7, 0, -7, 7, 3, 7, 101, 18, 101, 101, 15};
@@ -74,7 +76,7 @@ sp_SubarraySumEqualsKadane_test()
 	int ret = sp_SubarraySumEqualsKadane(data, k, output);
 	for (auto [u, v] : output)
 	{
-		std::cout << "(" << u << "," << v << ")\t";
+		std::cout << "(" << u << "," << v << ")\t\t";
 	}
 	std::cout << std::endl;
 	return 0;
