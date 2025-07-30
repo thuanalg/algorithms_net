@@ -176,11 +176,26 @@ sp_dijkstra_test()
 		std::vector<int> apath;
 		sp_print_path(i, parent, apath);
 		std::cout << "\nPath: ";
-	
-		for (auto edge : apath) {
-			std::cout << edge << " -->> ";
+
+		if (!!apath.size()) {
+			auto it = apath.begin();
+			do {
+				if (it == apath.begin()) {
+					std::cout << *it;
+					it++;
+				} else {
+					std::cout << " -->> " << *it;
+					it++;
+				}
+
+				if (it == apath.end()) {
+					break;
+				}
+
+			} while (1);
 		}
-		std::cout << " End ";
+		
+
 		pathsoutput.emplace_back(std::move(apath));
 		
 		std::cout << "\t\t### distance: " << v << "\n";
