@@ -78,28 +78,16 @@ sp_dijkstra_test()
 	vector<int> parent(grid.size(), -1);
 	std::vector<int> output(grid.size(), SP_INF_DIJKSTRA);
 	ret = sp_dijkstra(grid, 0, parent, output);
-	//sp_print_path(0, parent);
-	//for (int i = 0; i < dist.size(); ++i) {
-	//	// if (i < dist.size() - 1) {
-	//	//	continue;
-	//	// }
-	//	cout << "Distance to " << i << ": ";
-	//	if (dist[i] == INF) {
-	//		cout << "-1 (unreachable)\n";
-	//	} else {
-	//		cout << dist[i] << ", Path: ";
-	//		sp_print_path(v, parent);
-	//		cout << "\n";
-	//	}
-	//} 
+
 	int i = 0;
 	for (auto v : output) {
 		if (v >= SP_INF_DIJKSTRA) {
 			++i;
 			continue;
 		}
-		std::cout << v << ", Path: ";
+		std::cout << "\nPath: ";
 		sp_print_path(i, parent);
+		std::cout << " ### distance: " << v << "\n";
 		++i;
 	}
 	return ret;

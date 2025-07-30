@@ -1159,6 +1159,7 @@ int
 main()
 {
 	
-	sp_greedy_test();
+	//sp_greedy_test();
+	sp_dijkstra_test();
 	return 0;
 }
