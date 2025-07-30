@@ -12,6 +12,7 @@
 #include "sp_SubarraySumEqualsK.hpp"
 #include "sp_KadaneMaximumSubarraySum.hpp"
 #include "sp_SubarraySumEqualsK.hpp"
+#include "sp_LongestIncreasingSubsequence.hpp"
 
 void IntervalMapTest();
 template <typename K, typename V> class interval_map
@@ -1165,6 +1166,7 @@ main()
 	//sp_greedy_test();
 	//sp_dijkstra_test<double>();
 	//sp_SubarraySumEqualsK_test();
-	sp_KadaneMaximumSubarraySum_test();
+	//sp_KadaneMaximumSubarraySum_test();
+	sp_LongestIncreasingSubsequence_test();
 	return 0;
 }
