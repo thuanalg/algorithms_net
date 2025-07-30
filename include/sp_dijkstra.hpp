@@ -205,9 +205,7 @@ sp_dijkstra_test()
 			} while (1);
 		}
 		
-
 		pathsoutput.emplace_back(std::move(apath));
-		
 		
 		++i;
 	}
