@@ -12,18 +12,23 @@
 #include <queue>
 
 using namespace std;
+template <typename T>
+using Griggggd = vector<vector<T>>;
 
-using Grid = vector<vector<int>>;
-const int SP_INF_DIJKSTRA = numeric_limits<int>::max();
+//template <typename T> 
+//const T SP_INF_DIJKSTRA = numeric_limits<T>::max();
 
+template <typename T>
 inline int
-sp_dijkstra(const Grid &grid, int s, vector<int> &parent, std::vector<int> &output)
+sp_dijkstra( const Griggggd<T> &grid, int s, vector<int> &parent, vector<T> &output)
+	requires std::is_arithmetic_v<T>
 {
 	int ret = 0;
 	size_t n = grid.size();
-	std::vector<int> dist(n, SP_INF_DIJKSTRA);
+	std::vector<T> dist(n, numeric_limits<T>::max());
 	std::vector<bool> visited(n, false);
-	std::priority_queue<pair<int, int>, vector<pair<int, int>>, greater<>> pq;
+	std::priority_queue<pair<int, int>, vector<pair<int, int>>, greater<>>
+	    pq;
 
 	dist[s] = 0;
 	parent[s] = -1; // root has no parent
@@ -37,7 +42,7 @@ sp_dijkstra(const Grid &grid, int s, vector<int> &parent, std::vector<int> &outp
 		visited[u] = true;
 
 		for (int v = 0; v < n; ++v) {
-			if (grid[u][v] == SP_INF_DIJKSTRA) {
+			if (grid[u][v] == numeric_limits<T>::max()) {
 				continue;
 			}
 			if (dist[v] > dist[u] + grid[u][v]) {
@@ -63,11 +68,13 @@ sp_print_path(int v, const vector<int> &parent,
 	sp_print_path(parent[v], parent, apath);
 	//cout << " -> " << v;
 }
+
+template <typename T>
 inline void
-exportToGraphviz(const Grid &grid, std::string &output)
+exportToGraphviz(const Griggggd<T> &grid, std::string &output)
 {
 	int n = grid.size();
-	int INF = SP_INF_DIJKSTRA;
+	T INF = numeric_limits<T>::max();
 	output += "digraph G {\n";
 	output += "    rankdir = LR;\n";
 	output += "    node [shape=circle];\n\n";
@@ -95,15 +102,18 @@ exportToGraphviz(const Grid &grid, std::string &output)
 	}
 	output += "}\n";
 }
+
+template <typename T>
 inline int
 sp_dijkstra_test()
 {
 	int ret = 0;
-	int INF = SP_INF_DIJKSTRA;
+	T INF = numeric_limits<T>::max();
+	;
 	// http://www.webgraphviz.com/
-#if 0
-	Grid grid = {
-	    {0, 1, 4, INF, INF, 10}, // 0
+#if 1
+	Griggggd<T> grid = {
+	    {0, 1.2, 4, INF, INF, 10}, // 0
 	    {INF, 0, 1, INF, 1, INF}, // 1
 	    {INF, INF, 0, 1, 1, 12}, // 2
 	    {INF, INF, INF, 0, INF, 2}, // 3
@@ -111,7 +121,7 @@ sp_dijkstra_test()
 	    {INF, INF, INF, INF, INF, 0}, // 5
 	};
 #else
-	Grid grid = {
+	Griggggd<T> grid = {
 	    // 0   1    2    3    4    5    6    7    8    9   10   11   12   13
 	    // 14   15   16   17   18   19
 	    {0, 4, INF, 7, INF, INF, INF, INF, 9, INF, INF, INF, INF, INF, INF,
@@ -163,12 +173,12 @@ sp_dijkstra_test()
 	std::vector<std::vector<int>> pathsoutput;
 
 	vector<int> parent(grid.size(), -1);
-	std::vector<int> output(grid.size(), SP_INF_DIJKSTRA);
+	std::vector<T> output(grid.size(), INF);
 	ret = sp_dijkstra(grid, 0, parent, output);
-
+#if 1
 	int i = 0;
 	for (auto v : output) {
-		if (v >= SP_INF_DIJKSTRA) {
+		if (v >= INF) {
 			++i;
 			continue;
 		}
@@ -187,11 +197,11 @@ sp_dijkstra_test()
 					std::cout << " -> " << *it;
 					it++;
 				}
-
+		
 				if (it == apath.end()) {
 					break;
 				}
-
+		
 			} while (1);
 		}
 		
@@ -201,7 +211,7 @@ sp_dijkstra_test()
 		
 		++i;
 	}
-
+#endif
 	return ret;
 }
 

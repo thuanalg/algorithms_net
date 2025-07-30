@@ -1160,6 +1160,6 @@ main()
 {
 	
 	//sp_greedy_test();
-	sp_dijkstra_test();
+	sp_dijkstra_test<double>();
 	return 0;
 }
