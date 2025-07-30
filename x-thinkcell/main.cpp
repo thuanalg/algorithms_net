@@ -10,6 +10,7 @@
 #include "sp_greedy.hpp"
 #include "sp_dijkstra.hpp"
 #include "sp_SubarraySumEqualsK.hpp"
+#include "sp_KadaneMaximumSubarraySum.hpp"
 
 void IntervalMapTest();
 template <typename K, typename V> class interval_map
