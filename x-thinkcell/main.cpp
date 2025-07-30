@@ -9,6 +9,7 @@
 #include "sp_numberic.hpp"
 #include "sp_greedy.hpp"
 #include "sp_dijkstra.hpp"
+#include "sp_SubarraySumEqualsK.hpp"
 
 void IntervalMapTest();
 template <typename K, typename V> class interval_map
@@ -1160,6 +1161,7 @@ main()
 {
 	
 	//sp_greedy_test();
-	sp_dijkstra_test<double>();
+	//sp_dijkstra_test<double>();
+	sp_SubarraySumEqualsK_test();
 	return 0;
 }
