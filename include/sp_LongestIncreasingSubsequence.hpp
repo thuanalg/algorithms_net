@@ -158,6 +158,27 @@ sp_LongestIncreasingSubsequence(const std::vector<T> &nums)
 int
 sp_LongestIncreasingSubsequence_test()
 {
+#if 0
+	std::vector<double> data = { 10, 9, 2, 5, 2.5, 7, 101, 101, 101, 18, 101, 101, 101, 101, 101, 101,
+		15, 16, 17, 19, 20, 1, -100, 2, 3, 4, 5, 6, 7, 7.1, 7.2, 8, 9.0,10,   };
+	//std::vector<float> data = {10, 9, 2, 5, 2.5, 7, 101, 18, 101, 101, 15, 16, 17, 19, 20, 1, 2, 3, 4, 5, };
+#else
+	// std::vector<sp_numberic<int>> data;
+	// std::vector<int> data = { 0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3,
+	// 11, 7, 15};
+
+	std::vector<sp_numberic<double>> data = {{0.0, 0.2}, {8, 0}, {4, 0},
+	    {12, 0}, {2, 0}, {10, 0}, {6, -1}, {6, -2.1}, {14, 0}, {1, -1.1},
+	    {9, 0}, {5, 0}, {13, 0}, {3, 0}, {11, 0}, {7, 0}, {15, 0}};
+
+	// std::vector<sp_numberic<int>> data = {{0, 1}, {0, 2}};
+	// data.push_back(sp_numberic<int>(0, 0));
+	// data.push_back(sp_numberic<int>(1, 1));
+	sp_numberic<double> wqwq(1, 0);
+	bool k = !!wqwq;
+
+#endif
+	std::cout << "Length of LIS: " << sp_LongestIncreasingSubsequence(data) << '\n';
 	return 0;
 }
 #endif // __sp_LongestIncreasingSubsequence__
