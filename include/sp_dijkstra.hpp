@@ -61,12 +61,45 @@ sp_print_path(int v, const vector<int> &parent)
 	sp_print_path(parent[v], parent);
 	cout << " -> " << v;
 }
+inline void
+exportToGraphviz(const Grid &grid, std::string &output)
+{
+	int n = grid.size();
+	int INF = SP_INF_DIJKSTRA;
+	output += "digraph G {\n";
+	output += "    rankdir = LR;\n";
+	output += "    node [shape=circle];\n\n";
+
+
+
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			if (i != j && grid[i][j] != INF) {
+				char data[8];
+				snprintf(data, 8, "%d", i);
+
+				output += "    ";
+				output += data;
+				output += " -> ";
+				snprintf(data, 8, "%d", j);
+				output += data;
+				output += " [label = \"";
+				snprintf(data, 8, "%d", grid[i][j]);
+				output += data;
+				output += "\"];\n";
+
+			}
+		}
+	}
+	output += "}\n";
+}
 inline int
 sp_dijkstra_test()
 {
 	int ret = 0;
 	int INF = SP_INF_DIJKSTRA;
 	// http://www.webgraphviz.com/
+#if 0
 	Grid grid = {
 	    {0, 1, 4, INF, INF, 10}, // 0
 	    {INF, 0, 1, INF, 1, INF}, // 1
@@ -75,6 +108,56 @@ sp_dijkstra_test()
 	    {INF, INF, INF, 10, 0, 6}, // 4
 	    {INF, INF, INF, INF, INF, 0}, // 5
 	};
+#else
+	Grid grid = {
+	    // 0   1    2    3    4    5    6    7    8    9   10   11   12   13
+	    // 14   15   16   17   18   19
+	    {0, 4, INF, 7, INF, INF, INF, INF, 9, INF, INF, INF, INF, INF, INF,
+		INF, INF, INF, INF, INF}, // 0
+	    {INF, 0, 3, INF, INF, 5, INF, INF, INF, INF, INF, 7, INF, INF,
+		INF, INF, INF, INF, INF, INF}, // 1
+	    {INF, INF, 0, INF, INF, INF, 2, INF, INF, INF, INF, INF, INF, INF,
+		INF, INF, INF, INF, INF, INF}, // 2
+	    {INF, INF, INF, 0, 6, INF, INF, 1, INF, INF, INF, INF, INF, INF,
+		INF, INF, INF, INF, INF, INF}, // 3
+	    {INF, INF, INF, INF, 0, INF, INF, INF, INF, 3, INF, INF, INF, INF,
+		INF, INF, INF, INF, INF, INF}, // 4
+	    {INF, INF, INF, INF, INF, 0, INF, INF, INF, INF, 8, INF, INF, INF,
+		INF, INF, INF, INF, INF, INF}, // 5
+	    {INF, INF, INF, INF, INF, INF, 0, INF, INF, INF, INF, INF, 4, INF,
+		INF, INF, INF, INF, INF, INF}, // 6
+	    {INF, INF, INF, INF, INF, INF, INF, 0, INF, INF, INF, INF, INF, 2,
+		INF, INF, INF, INF, INF, INF}, // 7
+	    {INF, INF, INF, INF, INF, INF, INF, INF, 0, INF, INF, INF, INF, INF,
+		6, INF, INF, INF, INF, INF}, // 8
+	    {INF, INF, INF, INF, INF, INF, INF, INF, INF, 0, INF, INF, INF, INF,
+		INF, 7, INF, INF, INF, INF}, // 9
+	    {INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, 0, INF, INF, INF,
+		INF, INF, 1, INF, INF, INF}, // 10
+	    {INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, 0, INF, INF,
+		INF, INF, INF, 5, INF, INF}, // 11
+	    {INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, 0, INF,
+		INF, INF, INF, INF, 2, INF}, // 12
+	    {INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, 0,
+		INF, INF, INF, INF, INF, 9}, // 13
+	    {INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF,
+		INF, 0, INF, INF, INF, INF, INF}, // 14
+	    {INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF,
+		INF, INF, 0, INF, INF, INF, INF}, // 15
+	    {INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF,
+		INF, INF, INF, 0, INF, INF, INF}, // 16
+	    {INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF,
+		INF, INF, INF, INF, 0, INF, INF}, // 17
+	    {INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF,
+		INF, INF, INF, INF, INF, 0, 1}, // 18
+	    {INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF, INF,
+		INF, INF, INF, INF, INF, INF, 0} // 19
+	};
+#endif
+	// Generate data for Graphviz like:
+	std::string str;
+	exportToGraphviz(grid, str);
+
 	vector<int> parent(grid.size(), -1);
 	std::vector<int> output(grid.size(), SP_INF_DIJKSTRA);
 	ret = sp_dijkstra(grid, 0, parent, output);
@@ -87,7 +170,7 @@ sp_dijkstra_test()
 		}
 		std::cout << "\nPath: ";
 		sp_print_path(i, parent);
-		std::cout << " ### distance: " << v << "\n";
+		std::cout << "\t\t### distance: " << v << "\n";
 		++i;
 	}
 	return ret;
