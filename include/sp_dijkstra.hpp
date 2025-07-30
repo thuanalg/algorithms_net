@@ -53,14 +53,15 @@ sp_dijkstra(const Grid &grid, int s, vector<int> &parent, std::vector<int> &outp
 //http://www.webgraphviz.com/
 inline void
 sp_print_path(int v, const vector<int> &parent,
-    std::vector<int> &apath, std::vector<std::vector<int>> &pathoutput)
+    std::vector<int> &apath)
 {
+	apath.insert(apath.begin(), v);
 	if (parent[v] == -1) {
-		cout << v;
+		//cout << v;
 		return;
 	}
-	sp_print_path(parent[v], parent, apath, pathoutput);
-	cout << " -> " << v;
+	sp_print_path(parent[v], parent, apath);
+	//cout << " -> " << v;
 }
 inline void
 exportToGraphviz(const Grid &grid, std::string &output)
@@ -100,7 +101,7 @@ sp_dijkstra_test()
 	int ret = 0;
 	int INF = SP_INF_DIJKSTRA;
 	// http://www.webgraphviz.com/
-#if 0
+#if 1
 	Grid grid = {
 	    {0, 1, 4, INF, INF, 10}, // 0
 	    {INF, 0, 1, INF, 1, INF}, // 1
@@ -159,7 +160,7 @@ sp_dijkstra_test()
 	// Generate data for Graphviz like:
 	std::string str;
 	exportToGraphviz(grid, str);
-	std::vector<std::vector<int>> pathoutput;
+	std::vector<std::vector<int>> pathsoutput;
 
 	vector<int> parent(grid.size(), -1);
 	std::vector<int> output(grid.size(), SP_INF_DIJKSTRA);
@@ -171,12 +172,21 @@ sp_dijkstra_test()
 			++i;
 			continue;
 		}
-		std::cout << "\nPath: ";
+		
 		std::vector<int> apath;
-		sp_print_path(i, parent, apath, pathoutput);
+		sp_print_path(i, parent, apath);
+		std::cout << "\nPath: ";
+	
+		for (auto edge : apath) {
+			std::cout << edge << " -->> ";
+		}
+		std::cout << " End ";
+		pathsoutput.emplace_back(std::move(apath));
+		
 		std::cout << "\t\t### distance: " << v << "\n";
 		++i;
 	}
+
 	return ret;
 }
 
