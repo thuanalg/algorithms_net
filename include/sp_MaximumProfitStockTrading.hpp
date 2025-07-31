@@ -86,6 +86,53 @@ sp_MaximumProfitStockTrading(
 	return 0;
 }
 
+template <typename T> using ProfitCoord = std::pair<int, int>;
+template <typename T>
+inline int
+sp_MaximumProfitStockTrading_1(
+    std::vector<T> &vec, T &output, ProfitCoord<int> &index)
+	requires std::is_arithmetic_v<T>
+{
+	if (vec.size() < 2) {
+		return 0;
+	}
+	T min_price = vec[0], max_profit = vec[0] - vec[0];
+	int i = 0;
+	ProfitCoord<int> prev(-1, -1), curr(-1, -1);
+	for (const auto &v : vec) {
+		if (i == 0) {
+
+			prev.first = i;
+			curr.first = i;
+
+			prev.second = i;
+			curr.second = i;
+
+			min_price = v;
+			max_profit = (v - v);
+			++i;
+			continue;
+		}
+		if (v < min_price) {
+			min_price = v;
+			if (curr.second > curr.first) {
+				prev = curr;
+			}
+			curr.first = curr.second = i;
+		} else if (v - min_price > max_profit) {
+			max_profit = (v - min_price);
+			curr.second = i;
+		}
+		++i;
+	}
+	output = max_profit;
+	if (curr.second > curr.first) {
+		index = curr;
+	} else {
+		index = prev;
+	}
+	return 0;
+}
 
 inline int
 sp_MaximumProfitStockTrading_test()
@@ -104,7 +151,7 @@ sp_MaximumProfitStockTrading_test()
 	    7, 0, 7, 7, 3, 7, 101, 18, 10, 101, 101, -1, 101, -2};
 #endif
 
-	int ret = sp_MaximumProfitStockTrading(data, k, index);
+	int ret = sp_MaximumProfitStockTrading_1(data, k, index);
 	return ret;
 }
 #endif // __sp_MaximumProfitStockTrading__
