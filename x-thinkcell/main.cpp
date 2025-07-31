@@ -1107,7 +1107,7 @@ equalPartition(vector<int> &arr)
 		return false;
 
 	sum = sum / 2;
-	//sum += 10;
+	sum += 10;
 
 	int n = arr.size();
 	vector<bool> prev(sum + 1, false), curr(sum + 1);
