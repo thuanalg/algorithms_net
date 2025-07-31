@@ -13,6 +13,7 @@
 #include "sp_KadaneMaximumSubarraySum.hpp"
 #include "sp_SubarraySumEqualsK.hpp"
 #include "sp_LongestIncreasingSubsequence.hpp"
+#include "sp_MaximumProfitStockTrading.hpp"
 
 void IntervalMapTest();
 template <typename K, typename V> class interval_map
@@ -1154,7 +1155,7 @@ equalPartition(vector<int> &arr)
 }
 
 int
-main()
+main___()
 {
 	//vector<int> arr = {1, 2,  2, 5};
 	vector<int> arr = {5, 2, 1};
@@ -1167,13 +1168,14 @@ main()
 }
 
 int
-main_______()
+main()
 {
 	
 	//sp_greedy_test();
 	//sp_dijkstra_test<double>();
 	//sp_SubarraySumEqualsK_test();
 	//sp_KadaneMaximumSubarraySum_test();
-	sp_LongestIncreasingSubsequence_test();
+	//sp_LongestIncreasingSubsequence_test();
+	sp_MaximumProfitStockTrading_test();
 	return 0;
 }
