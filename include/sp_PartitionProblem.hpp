@@ -22,6 +22,8 @@ using namespace std;
 inline int
 sp_PartitionProblem( std::vector<int> &arr, bool &result, int kVal)
 {
+	//https://www.geeksforgeeks.org/dsa/partition-problem-dp-18/
+	//https://en.wikipedia.org/wiki/Partition_problem
 	int ret = 0;
 	// Calculate sum of the elements in array
 	int sum = std::accumulate(arr.begin(), arr.end(), 0);
