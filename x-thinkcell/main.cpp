@@ -14,6 +14,7 @@
 #include "sp_SubarraySumEqualsK.hpp"
 #include "sp_LongestIncreasingSubsequence.hpp"
 #include "sp_MaximumProfitStockTrading.hpp"
+#include "sp_PartitionProblem.hpp"
 
 void IntervalMapTest();
 template <typename K, typename V> class interval_map
@@ -1176,6 +1177,7 @@ main()
 	//sp_SubarraySumEqualsK_test();
 	//sp_KadaneMaximumSubarraySum_test();
 	//sp_LongestIncreasingSubsequence_test();
-	sp_MaximumProfitStockTrading_test();
+	//sp_MaximumProfitStockTrading_test();
+	sp_PartitionProblem_test();
 	return 0;
 }
