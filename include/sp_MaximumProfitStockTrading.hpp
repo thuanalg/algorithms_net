@@ -27,7 +27,7 @@ sp_MaximumProfitStockTrading(
 	if (vec.size() < 2) {
 		return 0;
 	}
-	T min_price = vec[0], max_profit = vec[0];
+	T min_price = vec[0], max_profit = vec[0] - vec[0];
 	int i = 0;
 	int start = -1;
 	int end = -1;
@@ -35,7 +35,9 @@ sp_MaximumProfitStockTrading(
 	for (const auto &v : vec) {
 		if (i == 0) {
 			start = 0;
-			//end = 0;
+			end = 0;
+			prev.first = i;
+			curr.first = i;			
 			min_price = v;
 			max_profit = (v - v);
 			++i;
@@ -99,7 +101,7 @@ sp_MaximumProfitStockTrading_test()
 #else
 	double k = 0;
 	std::vector<double> data = {
-	    7, 0, 7, 7, 3, 7, 101, 18, 10, 101, 101, 101, 101, };
+	    7, 0, 7, 7, 3, 7, 101, 18, 10, 101, 101, -1, 101, -2};
 #endif
 
 	int ret = sp_MaximumProfitStockTrading(data, k, index);
