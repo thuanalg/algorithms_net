@@ -17,9 +17,8 @@
 #include <numeric>   // C++98 (ISO/IEC 14882:1998)
 using namespace std;
 
-
-//template <typename T> using ProfitCoord = std::pair<int, int>;
-//template <typename T>
+// arr[i] > 0 
+// arr[i], integer
 inline int
 sp_PartitionProblem( std::vector<int> &arr, bool &result, int kVal)
 {
@@ -34,9 +33,6 @@ sp_PartitionProblem( std::vector<int> &arr, bool &result, int kVal)
 		return ret;
 	}
 
-	//sum = sum / 2;
-	//sum += 10;
-
 	int n = arr.size();
 	vector<bool> prev(sum + 1, false), curr(sum + 1);
 
@@ -46,7 +42,11 @@ sp_PartitionProblem( std::vector<int> &arr, bool &result, int kVal)
 
 	// Fill the subset table in
 	// bottom up manner
-
+	std::cout << "\n\t\t\t";
+	for (int j = 0; j <= sum; j++) {
+		std::cout << j << "\t";
+	}
+	std::cout << "\n";
 	for (int i = 1; i <= n; i++) {
 		for (int j = 0; j <= sum; j++) {
 			if (j < arr[i - 1]) {
@@ -67,6 +67,7 @@ sp_PartitionProblem( std::vector<int> &arr, bool &result, int kVal)
 #endif
 		}
 #if 1
+
 		std::cout << "i = " << i << ", a[" << i - 1
 			  << "] = " << arr[i - 1] << "\t\t";
 		for (auto v : curr) {
@@ -84,9 +85,9 @@ inline int
 sp_PartitionProblem_test()
 {
 	bool result = false;
-	int kVal = 4;
+	int kVal = 7;
 	// vector<int> arr = {1, 2,  2, 5};
-	vector<int> vec = {5, 2, 1};
+	vector<int> vec = {2, 3, 3, 2, 1, 3};
 	sp_PartitionProblem(vec, result, kVal);
 
 	if (result) {
