@@ -10,11 +10,8 @@
 #include <cstdlib>
 #include <ctime>
 #include <queue>
-
-#include <iostream>
-#include <vector>
-#include <unordered_map>
 #include <numeric>   // C++98 (ISO/IEC 14882:1998)
+
 using namespace std;
 
 // arr[i] > 0 
