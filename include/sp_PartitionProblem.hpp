@@ -87,6 +87,7 @@ sp_PartitionProblem_test()
 	std::vector<int> output_track;
 	// vector<int> arr = {1, 2,  2, 5};
 	vector<int> vec = {2, 3, 3, 2, 1, 3};
+	//vector<int> vec = {4, 4};
 	sp_PartitionProblem(vec, result, kVal, output_track);
 
 	if (result) {
