@@ -3,6 +3,7 @@
 #pragma warning(disable : 4146)
 #include <gmp.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #define EXPONENT_BILLION	1000000000
 int sp_GMP_test()
@@ -14,6 +15,9 @@ int sp_GMP_test()
 	mpz_ui_pow_ui(result, 2, EXPONENT_BILLION);
 	FILE *fp = fopen("D:/x/result_03.txt", "w+");
 	char *data = (char *)malloc(EXPONENT_BILLION);
+	if (!data) {
+		return 0;
+	}
 	memset(data, 0, EXPONENT_BILLION);
 	if (fp) {
 		size_t ttt = gmp_snprintf(
