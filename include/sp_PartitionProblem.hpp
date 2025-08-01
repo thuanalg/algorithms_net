@@ -12,25 +12,25 @@
 #include <queue>
 #include <numeric>   // C++98 (ISO/IEC 14882:1998)
 
+//#pragma warning(disable : 4146)
+//#include <gmp.h>
+
 using namespace std;
 
 // arr[i] > 0 
 // arr[i], integer
+//template <typename T>
 inline int
-sp_PartitionProblem( std::vector<int> &arr, bool &result, int kVal)
+sp_PartitionProblem(std::vector<int> &arr, 
+	bool &result, int kVal, std::vector<int> &output_track)
+// requires std::is_arithmetic_v<T>  || 
+// std::is_same<std::remove_extent_t<mpz_t>, T>::value
 {
 	//https://www.geeksforgeeks.org/dsa/partition-problem-dp-18/
 	//https://en.wikipedia.org/wiki/Partition_problem
 	int ret = 0;
 	// Calculate sum of the elements in array
 	int sum = std::accumulate(arr.begin(), arr.end(), 0);
-
-	// If sum is odd, there cannot be two
-	// subsets with equal sum
-	if (sum % 2 != 0) {
-		result = false;
-		return ret;
-	}
 
 	int n = arr.size();
 	vector<bool> prev(sum + 1, false), curr(sum + 1);
@@ -51,10 +51,9 @@ sp_PartitionProblem( std::vector<int> &arr, bool &result, int kVal)
 			if (j < arr[i - 1]) {
 				curr[j] = prev[j];
 			} else {
-				int k = j - arr[i - 1];
+				// i = 3; a[3-1] = 5;
+				// J = 10; prev[10 - a[3-1]];
 				curr[j] = (prev[j] || prev[j - arr[i - 1]]);
-				bool tmp = curr[j];
-				int a = 0;
 			}
 #if 0
 			std::cout << "i = " << i << ", a[" << i - 1
@@ -85,9 +84,10 @@ sp_PartitionProblem_test()
 {
 	bool result = false;
 	int kVal = 7;
+	std::vector<int> output_track;
 	// vector<int> arr = {1, 2,  2, 5};
 	vector<int> vec = {2, 3, 3, 2, 1, 3};
-	sp_PartitionProblem(vec, result, kVal);
+	sp_PartitionProblem(vec, result, kVal, output_track);
 
 	if (result) {
 		cout << "True" << endl;
