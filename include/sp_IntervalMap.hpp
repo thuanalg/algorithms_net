@@ -111,6 +111,28 @@ public:
 };
 
 int sp_IntervalMap_test() {
+	char myval = 'A';
+	IntervalMap<int, char> im(myval);
+	char val = 0;
+	// Assign intervals
+	val = im[4];
+	myval = 'B';
+	im.assign(3, 5, myval);
+	val = im[4];
+	im.assign(7, 10, 'c');
+	val = im[8];
+	im.assign(1, 4, 'd');
+	im.assign(10, 20, 'D');
+
+	val = im[3];
+	fprintf(stdout, "val=%c.\n", val);
+	assert(val == 'd');
+	for (int j = 0; j < 20; j++) {
+		val = im[j];
+		printf("\nval[%d]=%c\n", j, val);
+	}
+	auto rt = im.find(2);
+	rt = im.find(5);
 	return 0;
 }
 
