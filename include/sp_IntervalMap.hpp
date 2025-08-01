@@ -30,7 +30,6 @@ public:
 	template <typename V_forward>
 	IntervalMap(V_forward &&val) : m_valBegin(std::forward<V_forward>(val))
 	{
-		int a = 0;
 	}
 
 	// Assign value val to interval [keyBegin, keyEnd).
