@@ -188,4 +188,23 @@ public:
 protected:
 
 };
+
+int
+sp_numberic_test()
+{
+	sp_numberic<double> a(1.0, 2.0);
+	sp_numberic<double> b(-1.0, 2.0);
+	sp_numberic<double> c(-1.0, -2.0);
+	a += b;
+	a -= c;
+	a *= b;
+	a /= c;
+	a + b;
+	++a;
+	std::cout << a << "\n";
+	a++;
+	std::cout << a << "\n";
+	return 0;
+	return 0;
+}
 #endif // __sp_numberic__

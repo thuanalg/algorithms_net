@@ -271,23 +271,7 @@ KnapsackProblem(std::vector<T> &vec)
 }
 
 
-int
-main1235()
-{
-	sp_numberic<double> a(1.0, 2.0);
-	sp_numberic<double> b(-1.0, 2.0);
-	sp_numberic<double> c(-1.0, -2.0);
-	a += b;
-	a -= c;
-	a *= b;
-	a /= c; 
-	a + b;
-	++a;
-	std::cout << a;
-	a++;
-	std::cout << a;
-	return 0;
-}
+
 #pragma warning(disable : 4146)
 #include <gmp.h>
 int
@@ -418,6 +402,7 @@ main()
 	//sp_LongestIncreasingSubsequence_test();
 	//sp_MaximumProfitStockTrading_test();
 	//sp_PartitionProblem_test();
-	sp_IntervalMap_test();
+	//sp_IntervalMap_test();
+	sp_numberic_test();
 	return 0;
 }
