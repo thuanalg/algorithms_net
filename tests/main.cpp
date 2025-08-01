@@ -9,6 +9,7 @@
 #include "sp_MaximumProfitStockTrading.hpp"
 #include "sp_PartitionProblem.hpp"
 #include "sp_IntervalMap.hpp"
+#include "sp_GMP.hpp"
 
 
 int
@@ -23,6 +24,7 @@ main()
 	//sp_MaximumProfitStockTrading_test();
 	//sp_PartitionProblem_test();
 	//sp_IntervalMap_test();
-	sp_numberic_test();
+	//sp_numberic_test();
+	sp_GMP_test();
 	return 0;
 }
