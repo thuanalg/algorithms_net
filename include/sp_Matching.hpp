@@ -73,6 +73,7 @@ sp_Matching_webgraphviz(vector<pair<int, int>> &edges, int u, int v)
     
 }})",
 	    buy_nodes, sell_nodes, edges_str);
+	std::string str = graph;
 	return 0;
 }
 
@@ -81,8 +82,8 @@ sp_Matching_test()
 {
 	srand(time(NULL));
 
-	int U = 10; // Number of Buying Orders
-	int V = 10; // Number of Selling Orders
+	int U = 12; // Number of Buying Orders
+	int V = 12; // Number of Selling Orders
 	int E = 30; // Number of generating edges.
 
 	vector<pair<int, int>> edges;
@@ -97,7 +98,7 @@ sp_Matching_test()
 			used.insert({u, v});
 		}
 	}
-	sp_Matching_webgraphviz(edges, 10, 10);
+	sp_Matching_webgraphviz(edges, U, V);
 	return 0;
 }
 #endif // __sp_Matching__
