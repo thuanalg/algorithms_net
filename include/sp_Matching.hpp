@@ -12,6 +12,7 @@
 #include <map>
 #include <vector>
 #include <unordered_map>
+#include <format>
 
 using namespace std;
 
@@ -30,6 +31,32 @@ sp_Matching(
 inline int
 sp_Matching_test()
 {
+
+    std::string buy_nodes = "U0; U1; U2;"; 
+    std::string sell_nodes = "V0; V1; V2;"; 
+    std::string edges = "\n\tU0 -- V1; \n\tU0 -- V2; \n\tU1 -- V0; \n\tU1 -- V2; \n\tU2 -- V2; \n\tU0 -- V0;; \n\tU1 -- V1"; 
+    std::string graph = std::format(R"(graph Bipartite {{
+    rankdir=LR;
+    node [shape=circle];
+
+    subgraph cluster_U {{
+        label = "Buy Orders";
+        color=lightblue;
+        {}
+    }}
+
+    subgraph cluster_V {{
+        label = "Sell Orders";
+        color=lightpink;
+        {}
+    }}
+
+    {}
+    
+}})",
+	buy_nodes, sell_nodes, edges);
+
+
 	return 0;
 }
 #endif // __sp_Matching__
@@ -57,5 +84,29 @@ graph Bipartite {
     U1 -- V2;
     U2 -- V2;
 }
+
+graph Bipartite {
+    rankdir=LR;
+    node [shape=circle];
+
+    subgraph cluster_U {
+	    label = "Buy Orders";
+	    color=lightblue;
+	    {}
+    }
+
+    subgraph cluster_V {
+	    label = "Sell Orders";
+	    color=lightpink;
+	    {}
+    }
+
+    U0 -- V1;
+    U0 -- V2;
+    U1 -- V0;
+    U1 -- V2;
+    U2 -- V2;
+}
+
 
 */
