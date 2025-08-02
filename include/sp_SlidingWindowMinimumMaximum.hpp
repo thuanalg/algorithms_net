@@ -67,7 +67,8 @@ sp_SlidingWindowMinimum(const std::vector<T> &vec, int k, vector<T> &output)
 inline int
 sp_SlidingWindowMinimumMaximum_test()
 {
-	std::vector<int> vec = { 5, 7, 1, 4, 3, 6, 2, 9, 2 };
+	//std::vector<int> vec = { 5, 7, 1, 4, 3, 6, 2, 9, 2 };
+	std::vector<int> vec = { 1, 2, 3, 4, 5, 6, 7 };
 	std::vector<int> output;
 	sp_SlidingWindowMaximum(vec, 3, output);
 	std::cout <<  "\n";

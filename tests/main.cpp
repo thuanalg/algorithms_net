@@ -12,6 +12,7 @@
 #include "sp_GMP.hpp"
 #include "sp_FindDuplicatesArray_Hash.hpp"
 #include "sp_SlidingWindowMinimumMaximum.hpp"
+#include "sp_Matching.hpp"
 
 
 int
@@ -29,6 +30,7 @@ main()
 	//sp_numberic_test();
 	//sp_GMP_test();
 	//sp_FindDuplicatesArray_Hash_test();
-	sp_SlidingWindowMinimumMaximum_test();
+	//sp_SlidingWindowMinimumMaximum_test();
+	sp_Matching_test();
 	return 0;
 }
