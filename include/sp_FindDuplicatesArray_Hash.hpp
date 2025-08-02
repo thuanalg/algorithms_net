@@ -37,7 +37,7 @@ sp_FindDuplicatesArray_Hash_test()
 {
 	std::vector<int> vec = { 10, 9, 2, 5, 2, 7, 101, 101, 101, 18, 101,
 		101, 101, 101, 101, 101, 15, 16, 17, 19, 20, 1, 2, 3, 4, 5, 6, 3, 7,
-		7, 7, 8, 9, 7, };
+		7, 7, 8, 9, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,};
 	std::map<int, int> freq;
 	sp_FindDuplicatesArray_Hash(vec, freq);
 	std::pair<int, int> max_freq;
