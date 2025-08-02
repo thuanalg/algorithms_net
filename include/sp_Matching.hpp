@@ -13,6 +13,8 @@
 #include <vector>
 #include <unordered_map>
 #include <format>
+#include <set>
+#include <utility>
 
 using namespace std;
 
@@ -27,23 +29,32 @@ sp_Matching(
 	return 0;
 }
 
-template <typename T>
 inline int
-sp_Matching_webgraphviz(std::vector<T> &left, std::vector<T> &right)
+sp_Matching_webgraphviz(vector<pair<int, int>> &edges, int u, int v)
 {
-
-	return 0;
-}
-
-inline int
-sp_Matching_test()
-{
-
-    std::string buy_nodes = "U0; U1; U2; U3;"; 
-    std::string sell_nodes = "V0; V1; V2; V3;"; 
-    std::string edges = "\n\tU0 -- V1; \n\tU0 -- V2; \n\tU1 -- V0; \n\tU1 -- V2; \n\tU2 -- V2; \n\tU0 -- V0; \n\tU1 -- V1; \n\tU3 -- V1; \n\tU3 -- V3;"; 
-    std::string graph = std::format(R"(graph Bipartite {{
-    rankdir=LR;
+	std::string buy_nodes = "U0; U1; U2; U3;";
+	std::string sell_nodes = "V0; V1; V2; V3;";
+	std::string edges_str = "\n\tU0 -- V1; \n\tU0 -- V2;";
+	buy_nodes.clear();
+	sell_nodes.clear();
+	edges_str.clear();
+	for (int i = 0; i < u; ++i) {
+		char tmp[100];
+		snprintf(tmp, 100, "U%d; ", i);
+		buy_nodes += tmp;
+	}
+	for (int i = 0; i < v; ++i) {
+		char tmp[100];
+		snprintf(tmp, 100, "V%d; ", i);
+		sell_nodes += tmp;
+	}
+	for (auto &[u, v] : edges) {
+		char tmp[100];
+		snprintf(tmp, 100, "\n\tU%d -- V%d;", u, v);
+		edges_str += tmp;
+	}
+	std::string graph = std::format(R"(graph Bipartite {{
+    rankdir=LR;ranksep=6.0;
     node [shape=circle];
 
     subgraph cluster_U {{
@@ -61,9 +72,32 @@ sp_Matching_test()
     {}
     
 }})",
-	buy_nodes, sell_nodes, edges);
+	    buy_nodes, sell_nodes, edges_str);
+	return 0;
+}
 
+inline int
+sp_Matching_test()
+{
+	srand(time(NULL));
 
+	int U = 10; // Number of Buying Orders
+	int V = 10; // Number of Selling Orders
+	int E = 40; // Number of generating edges.
+
+	vector<pair<int, int>> edges;
+
+	set<pair<int, int>> used; // Avoid duplicating
+
+	while ((int)edges.size() < E) {
+		int u = rand() % U;
+		int v = rand() % V;
+		if (!used.count({u, v})) {
+			edges.push_back({u, v});
+			used.insert({u, v});
+		}
+	}
+	sp_Matching_webgraphviz(edges, 10, 10);
 	return 0;
 }
 #endif // __sp_Matching__
