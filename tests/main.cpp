@@ -10,6 +10,7 @@
 #include "sp_PartitionProblem.hpp"
 #include "sp_IntervalMap.hpp"
 #include "sp_GMP.hpp"
+#include "sp_FindDuplicatesArray.hpp"
 
 
 int
@@ -25,6 +26,7 @@ main()
 	//sp_PartitionProblem_test();
 	//sp_IntervalMap_test();
 	//sp_numberic_test();
-	sp_GMP_test();
+	//sp_GMP_test();
+	sp_FindDuplicatesArray_test();
 	return 0;
 }

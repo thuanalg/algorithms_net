@@ -16,21 +16,21 @@
 #include <unordered_map>
 using namespace std;
 
-template <typename T> using EqualKcoord = std::pair<T, T>;
+template <typename T> using HashcCoord = std::pair<T, T>;
 
 template <typename T>
 inline int
-sp_FindDuplicatesArray( std::vector<T> &vec, T &k, std::vector<EqualKcoord<int>> &output)
+sp_FindDuplicatesArray(
+    std::vector<T> &vec, T &k, std::vector<HashcCoord<T>> &output)
 	requires std::is_arithmetic_v<T>
 {
-
 	return 0;
 }
-
 
 inline int
 sp_FindDuplicatesArray_test()
 {
 	return 0;
 }
+
 #endif // __sp_FindDuplicatesArray__
