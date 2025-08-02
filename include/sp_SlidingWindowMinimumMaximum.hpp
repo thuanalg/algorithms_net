@@ -37,7 +37,6 @@ sp_SlidingWindowMaximum(std::vector<T> &vec, int k, vector<T> &output)
 			output.push_back(vec[dq.front()]);
 	}
 
-	//return res;
 	return 0;
 }
 
