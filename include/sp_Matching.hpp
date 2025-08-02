@@ -33,3 +33,29 @@ sp_Matching_test()
 	return 0;
 }
 #endif // __sp_Matching__
+// http://www.webgraphviz.com/
+/*
+graph Bipartite {
+    rankdir=LR; 
+    node [shape=circle];
+
+    subgraph cluster_U {
+	    label = "Buy Orders";
+	    color=lightblue;
+	    U0; U1; U2;
+    }
+
+    subgraph cluster_V {
+	    label = "Sell Orders";
+	    color=lightpink;
+	    V0; V1; V2;
+    }
+
+    U0 -- V1;
+    U0 -- V2;
+    U1 -- V0;
+    U1 -- V2;
+    U2 -- V2;
+}
+
+*/
