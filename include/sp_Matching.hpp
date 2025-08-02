@@ -83,7 +83,7 @@ sp_Matching_test()
 
 	int U = 10; // Number of Buying Orders
 	int V = 10; // Number of Selling Orders
-	int E = 40; // Number of generating edges.
+	int E = 30; // Number of generating edges.
 
 	vector<pair<int, int>> edges;
 
