@@ -22,7 +22,7 @@ sp_SlidingWindowMaximum(const std::vector<T> &vec, int k, vector<T> &output)
 	requires std::is_arithmetic_v<T>
 {
 	int ret = 0;
-	std::deque<T> dq;
+	std::deque<int> dq;
 
 	for (int i = 0; i < vec.size(); ++i) {
 		if (!dq.empty() && dq.front() <= i - k)
@@ -46,7 +46,7 @@ sp_SlidingWindowMinimum(const std::vector<T> &vec, int k, vector<T> &output)
 	requires std::is_arithmetic_v<T>
 {
 	int ret = 0;
-	deque<T> dq;
+	deque<int> dq;
 	
 	for (int i = 0; i < vec.size(); ++i) {
 		if (!dq.empty() && dq.front() <= i - k)
