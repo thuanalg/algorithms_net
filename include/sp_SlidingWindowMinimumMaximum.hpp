@@ -18,7 +18,7 @@ using namespace std;
 
 template <typename T>
 inline int
-sp_SlidingWindowMaximum(std::vector<T> &vec, int k, vector<T> &output)
+sp_SlidingWindowMaximum(const std::vector<T> &vec, int k, vector<T> &output)
 	requires std::is_arithmetic_v<T>
 {
 	int ret = 0;
@@ -42,7 +42,7 @@ sp_SlidingWindowMaximum(std::vector<T> &vec, int k, vector<T> &output)
 
 template <typename T>
 inline int
-sp_SlidingWindowMinimum(std::vector<T> &vec, int k, vector<T> &output)
+sp_SlidingWindowMinimum(const std::vector<T> &vec, int k, vector<T> &output)
 	requires std::is_arithmetic_v<T>
 {
 	int ret = 0;
@@ -70,8 +70,18 @@ sp_SlidingWindowMinimumMaximum_test()
 	std::vector<int> vec = { 5, 7, 1, 4, 3, 6, 2, 9, 2 };
 	std::vector<int> output;
 	sp_SlidingWindowMaximum(vec, 3, output);
+	std::cout <<  "\n";
+	for (auto v : output) {
+		std::cout << v << "\t";
+	}
+	std::cout << "\n";
 	output.clear();
 	sp_SlidingWindowMinimum(vec, 3, output);
+	std::cout << "\n";
+	for (auto v : output) {
+		std::cout << v << "\t";
+	}
+	std::cout << "\n";
 	return 0;
 }
 #endif // __sp_SlidingWindowMinimumMaximum__
