@@ -9,16 +9,24 @@ def SubarraySumEqualsK(nums, k):
         prefix_sum += num
         if prefix_sum == k:
             pairs.append((0, i))  # push_back a pair
-            print(f"i = {i}")
+            #print(f"i = {i}")
             # continue
         # Check if there is a previous prefix that forms a subarray sum = k
         elif prefix_sum - k in freq:
             count += freq[prefix_sum - k]
-            print(f"i = {i}")
-            pairs.append((0, i))
+            #print(f"i = {i}")
+            j = i
+            sumj = 0
+            while j >= 0:
+                sumj += nums[j]
+                if sumj == k:
+                    pairs.append((j, i))
+                    break
+                j -= 1
         # Update the frequency of the current prefix sum
         freq[prefix_sum] = freq.get(prefix_sum, 0) + 1
         i += 1
+    print("Pairs (start, end):", pairs)
     return count
 
 nums = [1, 2, 3, -1, 1, 2]
