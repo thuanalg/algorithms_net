@@ -60,7 +60,7 @@ sp_SubarraySumEqualsK_test()
 	std::vector<EqualKcoord<int>> output;
 	
 
-#if 1
+#if 0
 	double k = 10;
 
 	std::vector<double> data = { 10, 9, 2, 5, 2.5, 7, 101, 101, 101, 18, 101,
