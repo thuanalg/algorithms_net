@@ -32,6 +32,7 @@ sp_Matching(
 inline int
 sp_Matching_webgraphviz(vector<pair<int, int>> &edges, int u, int v)
 {
+	char tmp[100];
 	std::string buy_nodes = "U0; U1; U2; U3;";
 	std::string sell_nodes = "V0; V1; V2; V3;";
 	std::string edges_str = "\n\tU0 -- V1; \n\tU0 -- V2;";
@@ -39,17 +40,14 @@ sp_Matching_webgraphviz(vector<pair<int, int>> &edges, int u, int v)
 	sell_nodes.clear();
 	edges_str.clear();
 	for (int i = 0; i < u; ++i) {
-		char tmp[100];
 		snprintf(tmp, 100, "U%d; ", i);
 		buy_nodes += tmp;
 	}
 	for (int i = 0; i < v; ++i) {
-		char tmp[100];
 		snprintf(tmp, 100, "V%d; ", i);
 		sell_nodes += tmp;
 	}
 	for (auto &[u, v] : edges) {
-		char tmp[100];
 		snprintf(tmp, 100, "\n\tU%d -- V%d;", u, v);
 		edges_str += tmp;
 	}
