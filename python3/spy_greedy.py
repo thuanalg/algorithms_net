@@ -1,4 +1,4 @@
-def sp_greedy_recursive(mat, island, i, j, mtrace):
+def spy_greedy_recursive(mat, island, i, j, mtrace):
     direction = [ [0, 1], [0, -1],  [1, 0], [-1, 0] ]
     print(direction)
     for x, y in direction:
@@ -14,9 +14,9 @@ def sp_greedy_recursive(mat, island, i, j, mtrace):
             continue        
         island.append((u,v))
         mtrace[u][v] = True
-        sp_greedy_recursive(mat, island, u, v, mtrace)
+        spy_greedy_recursive(mat, island, u, v, mtrace)
 
-def sp_greedy(mat, ouput):
+def spy_greedy(mat, ouput):
     m = len(mat)
     n = len(mat[0])
     mtrace = [[False for _ in range(n)] for _ in range(m)]
@@ -29,7 +29,7 @@ def sp_greedy(mat, ouput):
             mtrace[i][j] = True
             island = []
             island.append((i,j))
-            sp_greedy_recursive(mat, island, i, j, mtrace);
+            spy_greedy_recursive(mat, island, i, j, mtrace);
             output.append(island)
     sorted_output = sorted(output, key=len)
     for row in sorted_output:
@@ -46,7 +46,7 @@ mat = [
 
 #island = []
 output = []
-sp_greedy(mat, output)
+spy_greedy(mat, output)
 
 #for row in mat:
 #    print(row)
