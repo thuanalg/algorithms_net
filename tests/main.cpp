@@ -19,9 +19,9 @@ int
 main()
 {
 	
-	//sp_greedy_test();
+	sp_greedy_test();
 	//sp_dijkstra_test<double>();
-	sp_SubarraySumEqualsK_test();
+	//sp_SubarraySumEqualsK_test();
 	//sp_KadaneMaximumSubarraySum_test();
 	//sp_LongestIncreasingSubsequence_test();
 	//sp_MaximumProfitStockTrading_test();
