@@ -1,3 +1,10 @@
+def SubarraySumEqualsK_print(nums, pairs):
+    print("nums :", nums)
+    print("Pairs (start, end):", pairs)
+    for start, end in pairs:
+        subarray = nums[start:end+1]
+        print(f"From {start} to {end} => {subarray}")
+
 def SubarraySumEqualsK(nums, k):
     count = 0
     prefix_sum = 0
@@ -27,7 +34,9 @@ def SubarraySumEqualsK(nums, k):
         freq[prefix_sum] = freq.get(prefix_sum, 0) + 1
         i += 1
     print("Pairs (start, end):", pairs)
-    return count
+    print("freq (key, value):", freq)
+    SubarraySumEqualsK_print(nums, pairs)
+    return pairs
 
 nums = [1, 2, 3, -1, 1, 2]
 k = 3
