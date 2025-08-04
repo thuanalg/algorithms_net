@@ -39,5 +39,5 @@ def SubarraySumEqualsK(nums, k):
     return pairs
 
 nums = [1, 2, 3, -1, 1, 2]
-k = 3
+k = 6
 print(SubarraySumEqualsK(nums, k))  # Output: 4
