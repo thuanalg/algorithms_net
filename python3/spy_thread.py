@@ -13,7 +13,7 @@ def thread_routine(idd, delay):
         else:
             sem2.acquire()
         spy_count += 1
-        if spy_count > 60:
+        if spy_count > 10:
             iscontinue = False
         now = datetime.now()
         print(f"Thread ID = {threading.get_ident()}, \tspy_count = {spy_count},\tFormatted: {now.strftime('%Y-%m-%d %H:%M:%S')}")
@@ -29,6 +29,8 @@ def spy_thread():
     t2 = threading.Thread(target=thread_routine, args=(2, 2))
     t1.start()
     t2.start()
+    now = datetime.now()
+    print(f"Formatted: {now.strftime('%Y-%m-%d %H:%M:%S')}")
     time.sleep(10)
     sem1.release()
     t1.join()
