@@ -1,5 +1,6 @@
 import threading
 import time
+from datetime import datetime
 spy_count = 0
 sem1 = threading.Semaphore(0)
 sem2 = threading.Semaphore(0)
@@ -14,7 +15,8 @@ def thread_routine(idd, delay):
         spy_count += 1
         if spy_count > 60:
             iscontinue = False
-        print(f"Thread ID = {threading.get_ident()}, \tspy_count = {spy_count}")
+        now = datetime.now()
+        print(f"Thread ID = {threading.get_ident()}, \tspy_count = {spy_count},\tFormatted: {now.strftime('%Y-%m-%d %H:%M:%S')}")
         time.sleep(delay)
         if idd == 1:
             sem2.release()
@@ -27,6 +29,7 @@ def spy_thread():
     t2 = threading.Thread(target=thread_routine, args=(2, 2))
     t1.start()
     t2.start()
+    time.sleep(10)
     sem1.release()
     t1.join()
     t2.join()    
