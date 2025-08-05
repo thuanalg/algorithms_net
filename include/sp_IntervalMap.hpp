@@ -19,7 +19,7 @@
 using namespace std;
 
 int sp_IntervalMap_test();
-template <typename K, typename V> class IntervalMap
+template <typename K, typename V> class sp_IntervalMap
 {
 	friend int sp_IntervalMap_test();
 	V m_valBegin;
@@ -28,7 +28,7 @@ template <typename K, typename V> class IntervalMap
 public:
 	// constructor associates whole range of K with val
 	template <typename V_forward>
-	IntervalMap(V_forward &&val) : m_valBegin(std::forward<V_forward>(val))
+	sp_IntervalMap(V_forward &&val) : m_valBegin(std::forward<V_forward>(val))
 	{
 	}
 
@@ -112,7 +112,7 @@ public:
 
 int sp_IntervalMap_test() {
 	char myval = 'A';
-	IntervalMap<int, char> im(myval);
+	sp_IntervalMap<int, char> im(myval);
 	char val = 0;
 	// Assign intervals
 	val = im[4];

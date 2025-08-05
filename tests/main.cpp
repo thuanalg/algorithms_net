@@ -19,14 +19,14 @@ int
 main()
 {
 	
-	sp_greedy_test();
+	//sp_greedy_test();
 	//sp_dijkstra_test<double>();
 	//sp_SubarraySumEqualsK_test();
 	//sp_KadaneMaximumSubarraySum_test();
 	//sp_LongestIncreasingSubsequence_test();
 	//sp_MaximumProfitStockTrading_test();
 	//sp_PartitionProblem_test();
-	//sp_IntervalMap_test();
+	sp_IntervalMap_test();
 	//sp_numberic_test();
 	//sp_GMP_test();
 	//sp_FindDuplicatesArray_Hash_test();
