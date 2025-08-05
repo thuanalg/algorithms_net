@@ -1,12 +1,21 @@
 ﻿import sys
 import heapq
+from queue import PriorityQueue
 
 INF = sys.maxsize
-def spy_dijkstra(grid, i, parent, output):
+def spy_dijkstra(grid, s, parent, output):
     print("--")
     n = len(grid)
     dist = [INF] * n
-    pq = []
+    pq = PriorityQueue()
+    dist[s] = 0
+    parent[s] = -1
+    pq.put((0, s)) 
+    while not pq.empty():
+        d, u = pq.get()
+        print(d, u)
+
+
 
 def spy_dijkstra_test():
     grid = [
@@ -20,8 +29,8 @@ def spy_dijkstra_test():
     
     for row in grid:
         print(row)
-    parent = []
-    output = []
+    parent = [-1] * len(grid)
+    output = [INF] * len(grid)
     spy_dijkstra(grid, 0, parent, output)
 
 spy_dijkstra_test()
