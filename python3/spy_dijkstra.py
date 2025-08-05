@@ -27,6 +27,7 @@ def spy_dijkstra(grid, s, parent, output):
                 pq.put((dist[v], v))
     output = dist
     print(parent)
+    print(output)
 
 def spy_dijkstra_test():
     grid = [
