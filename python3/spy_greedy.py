@@ -46,7 +46,10 @@ mat = [
 
 #island = []
 output = []
-spy_greedy(mat, output)
+
 
 #for row in mat:
 #    print(row)
+def spy_greedy_test():
+    spy_greedy(mat, output)
+spy_greedy_test()
