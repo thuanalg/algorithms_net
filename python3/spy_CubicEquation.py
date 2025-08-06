@@ -19,7 +19,7 @@ plt.figure(figsize=(8, 5))
 plt.plot(x, y, label=r'$y = x^3 + cx $')
 
 # Highlight the roots
-plt.scatter(real_roots, cubic(real_roots, a), color='red', zorder=5, label='Roots')
+plt.scatter(real_roots, cubic(real_roots, c), color='red', zorder=5, label='Roots')
 
 # Draw X and Y axes
 plt.axhline(0, color='black', linewidth=1)
