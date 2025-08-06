@@ -8,7 +8,7 @@ def spy_SubarraySumEqualsK_print(nums, pairs):
 def spy_SubarraySumEqualsK(nums, k):
     count = 0
     prefix_sum = 0
-    freq = {0: 1}  # prefix sum 0 appears once
+    freq = {}  # prefix sum 0 appears once
     pairs = []
     i = 0
 
