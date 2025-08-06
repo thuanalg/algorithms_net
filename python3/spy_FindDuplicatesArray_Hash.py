@@ -5,5 +5,5 @@ def spy_FindDuplicatesArray_Hash(vec):
         spy_freq[v] = spy_freq.get(v, 0) + 1
     print(spy_freq)
 
-vec = [10, 20, 30, 40, 10, 1, 0]
+vec = [10, 20, 30, 40, 10, 1, 0, 0, 1, 1, 1]
 spy_FindDuplicatesArray_Hash(vec)
