@@ -233,5 +233,16 @@ Input keys: [10, 20, 5, 15, 7, 35]
 | **Chỉ lưu dữ liệu ở lá** | Dữ liệu (key/value) chỉ nằm ở các **leaf nodes**         |
 | **Liên kết lá**          | Các leaf nodes được nối với nhau → hỗ trợ **range scan** |
 https://www.youtube.com/watch?v=K1a2Bk8NrYQ
+http://www.webgraphviz.com/
+digraph BTree {
+  node1 [label="10|20"];
+  node2 [label="5"];
+  node3 [label="15"];
+  node4 [label="25"];
+  node1 -> node2;
+  node1 -> node3;
+  node1 -> node4;
+}
+V Advanced Data Structures -->> Page 484
 */
 
