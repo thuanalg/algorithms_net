@@ -1,0 +1,520 @@
+[17athena@Owl9]
+​to delay doing something that you should do, usually because you do not want to do it
+
+    People were dying of starvation while governments procrastinated.
+    [17athena@Owl9]
+git commit -m "Test  with Ubutun 24 LTS. And clean code."
+--------------------------------------------------------------------------------------------------------------
+git remote add upstream git@github.com:yoctoproject/poky.git 
+git checkout -b dunfell upstream/dunfell
+#include <linux/serial.h>
+#include <sys/ioctl.h>
+#include <fcntl.h>
+
+int fd = open("/dev/ttyS1", O_RDWR);
+struct serial_rs485 rs485conf;
+
+// Đọc cấu hình hiện tại
+ioctl(fd, TIOCGRS485, &rs485conf);
+
+// Thiết lập cấu hình mới
+rs485conf.flags |= SER_RS485_ENABLED;
+rs485conf.flags |= SER_RS485_RTS_ON_SEND; // hoặc OFF tùy loại thiết bị
+
+ioctl(fd, TIOCSRS485, &rs485conf);
+--------------------------------------------------------------------------------------------------------------
+25-06-11
+Build Yocto for Raspberry PI 3
+1. Determine "poky" branch -->> What  is the "Poky/Yocto" branch to build image for Raspberry PI 3?
+| Yocto Release | Branch Name  | Release Date | Notes                                                |
+| ------------- | ------------ | ------------ | ---------------------------------------------------- |
+| **Yocto 4.3** | `mickledore` | April 2023   | Very stable and well-supported for RPi3              |
+| **Yocto 4.4** | `nanbield`   | April 2024   | Latest official LTS; still stabilizing for some BSPs |
+| **Yocto 4.2** | `kirkstone`  | April 2022   | LTS version; widely used in production               |
+
+# Clone Yocto (poky) and use the 'mickledore' branch
+git clone -b mickledore git://git.yoctoproject.org/poky
+
+# Clone meta-raspberrypi with the same branch
+git clone -b mickledore https://git.yoctoproject.org/meta-raspberrypi
+
+# (Optional) meta-openembedded
+git clone -b mickledore https://git.openembedded.org/meta-openembedded
+
+Result: mickledore -->> DONE
+	git checkout -b mickledore upstream/mickledore
+2. Determine "meta-openembedded" branch
+# Clone Yocto (poky) and use the 'mickledore' branch
+git clone -b mickledore git://git.yoctoproject.org/poky
+
+# Clone meta-raspberrypi with the same branch
+git clone -b mickledore https://git.yoctoproject.org/meta-raspberrypi
+git clone  https://git.yoctoproject.org/meta-raspberrypi
+
+# (Optional) meta-openembedded
+git clone -b mickledore https://git.openembedded.org/meta-openembedded
+git clone  https://git.openembedded.org/meta-openembedded
+
+3. Config:
+- 
+MACHINE = "raspberrypi3"
+283 CONF_VERSION = "2"
+284 DISTRO ?= "poky"
+285 PACKAGE_CLASSES ?= "package_rpm"
+286 EXTRA_IMAGE_FEATURES ?= "debug-tweaks"
+287 IMAGE_INSTALL:append = " python3 nano"
+288 #LICENSE_FLAGS_WHITELIST = "commercial"
+289 LICENSE_FLAGS_ACCEPTED = "commercial"
+290 
+291 # Tăng tốc build
+292 BB_NUMBER_THREADS = "4"
+293 PARALLEL_MAKE = "-j4"
+294 
+295 # Tạo image có thể flash vào thẻ SD
+296 ENABLE_UART = "1"
+297 GPU_MEM = "16"
+298 
+configure: error: bad value 'all' for --enable-hashes + libxcrypt_4.4.33.bb + mickledore
+
+sudo umount /dev/sdd*
+sudo bmaptool copy core-image-minimal-raspberrypi3.rootfs.wic.bz2 /dev/sdd
+sudo eject /dev/sdd
+
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2025-06-11 19:17 +07
+Nmap scan report for _gateway (192.168.1.1)
+Host is up (0.00089s latency).
+Nmap scan report for 192.168.1.2
+Host is up (0.011s latency).
+Nmap scan report for 192.168.1.4
+Host is up (0.039s latency).
+Nmap scan report for 192.168.1.5
+Host is up (0.011s latency).
+Nmap scan report for 192.168.1.10
+Host is up (0.021s latency).
+Nmap scan report for 192.168.1.17
+Host is up (0.094s latency).
+Nmap scan report for 192.168.1.22
+Host is up (0.047s latency).
+Nmap scan report for thuannt-Z87M-D3H (192.168.1.42)
+Host is up (0.000074s latency).
+Nmap scan report for 192.168.1.52
+Host is up (0.016s latency).
+Nmap done: 256 IP addresses (9 hosts up) scanned in 2.86 seconds
+
+
+sudo nmap -sn 192.168.1.0/24
+ssh root@192.168.1.54
+
+----------------------------------------------------------------------------------------------------------------------------------
+250612
+- IMAGE_INSTALL:append = " kernel-module-ch341"
+- Add Example "simplelog-topic"
+sdd      8:48   1  14.8G  0 disk 
+├─sdd1   8:49   1  51.6M  0 part /media/thuannt/boot
+└─sdd2   8:50   1   156M  0 part /media/thuannt/root
+
+sudo umount /dev/sdd[1,2]
+sudo umount /dev/sdd1; sudo umount /dev/sdd2
+sudo bmaptool copy core-image-minimal-raspberrypi3.rootfs.wic.bz2 /dev/sdd
+
+
+sdd      8:48   1  14.8G  0 disk 
+├─sdd1   8:49   1  51.6M  0 part 
+└─sdd2   8:50   1   156M  0 part 
+sudo eject /dev/sdd
+sudo nmap -sn 192.168.1.0/24
+ssh root@192.168.1.54
+
+scp /home/thuannt/x/poky/rpi-build/tmp/work/cortexa7t2hf-neon-vfpv4-poky-linux-gnueabi/libserialmodule/1.0.8/image/usr/bin/test_serial_module root@192.168.1.54:/tmp/x/
+
+test_modbus_rs485
+Owner avatar
+libModbusAsync
+
+
+devtool add libModbusAsync git@github.com/thuanalg/libModbusAsync.git;branch
+
+scp ./libModbusAsync.so.1.0.0 root@192.168.1.54:/usr/lib/
+scp ./libModbusAsync.so.1 root@192.168.1.54:/usr/lib/
+
+
+
+file ./tmp/work/cortexa7t2hf-neon-vfpv4-poky-linux-gnueabi/libmodbusasync/1.0.0/build/test_ModbusAsync
+
+
+scp ./trigger_serial.txt root@192.168.1.54:/tmp/x/
+scp ./zrun.sh root@192.168.1.54:/tmp/x/
+scp ./zstop.sh root@192.168.1.54:/tmp/x/
+scp ./zstop.sh root@192.168.1.54:/tmp/x/
+scp ./modbus.cfg root@192.168.1.54:/tmp/x/
+scp ./tmp/work/cortexa7t2hf-neon-vfpv4-poky-linux-gnueabi/libmodbusasync/1.0.0/build/test_ModbusAsync root@192.168.1.54:/tmp/x/
+scp ./tmp/work/cortexa7t2hf-neon-vfpv4-poky-linux-gnueabi/libmodbusasync/1.0.0/build/test_ModbusAsync root@192.168.1.54:/tmp/x/
+
+bitbake core-image-minimal
+
+
+Nmap scan report for 192.168.1.54
+Host is up (0.00052s latency).
+MAC Address: B8:27:EB:F6:EA:F7 (Raspberry Pi Foundation)
+
+lsblk
+
+sdd      8:48   1  14.8G  0 disk 
+├─sdd1   8:49   1  51.6M  0 part 
+└─sdd2   8:50   1   156M  0 part 
+sudo eject /dev/sdd
+sudo nmap -sn 192.168.1.0/24
+ssh root@192.168.1.54
+
+IMAGE_INSTALL:append = " u-boot-fw-utils u-boot-env"
+
+----------------------------------------------------------------------------------------------------
+25-06-14,
+git commit -m "Fix daily/monthly/yearly error."
+
+git tag -a v1.0.8 -m "Fix daily/monthly/yearly error."
+git push --tags
+git mv libsimplelog_1.0.7.bb libsimplelog_1.0.8.bb
+
+git tag -a v1.0.5 -m "Fix daily/monthly/yearly error."
+
+
+git config --global sendemail.smtppass 'nrfv rgqz bnip eoqg'
+----------------------------------------------------------------------------------------------------
+https://www.etechnophiles.com/raspberry-pi-3-b-pinout-with-gpio-functions-schematic-and-specs-in-detail/
+Pin Connections
+USB to TTL Cable Pin	Raspberry Pi GPIO Pin	Function
+Red (5V)	Not connected	Not used
+Black (GND)	Pin 6 (GND)	Ground
+White (RXD)	Pin 10 (TXD)	Receive
+Green (TXD)	Pin 8 (RXD)	Transmit
+Note: The red (5V) wire is not used in this setup to prevent potential damage to the Raspberry Pi.
+
+-->> Image: https://www.etechnophiles.com/wp-content/uploads/2020/12/R-Pi-3-B-Pinout.jpg
+
+sudo bmaptool copy core-image-minimal-raspberrypi3.rootfs.wic.bz2 /dev/sdc
+
+
+sudo cp -f /home/thuannt/x/poky/rpi-build/tmp/work/raspberrypi3-poky-linux-gnueabi/u-boot/2023.10/image/boot/u-boot-raspberrypi3-2023.10-r0.bin /media/thuannt/boot/u-boot.bin
+
+
+
+
+
+=====================================
+mmc dev 0
+fatload mmc 0:1 0x01000000 Image
+fatload mmc 0:1 0x02000000 bcm2710-rpi-3-b-plus.dtb
+setenv bootargs "dwc_otg.lpm_enable=0 console=serial0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rootwait"
+booti 0x01000000 - 0x02000000
+
+usb start
+fatload usb 0:1 0x01000000 kernel7.img
+fatload usb 0:1 0x01000000 kernel7.img
+fatload usb 0:1 0x01000000 uImage
+fatload usb 0:1 0x02000000 bcm2710-rpi-3-b-plus.dtb
+setenv bootargs "console=serial0,115200 root=/dev/sda2 rootfstype=ext4 rootwait"
+setenv bootargs "console=ttyAMA0,115200 root=/dev/sda2 rootfstype=ext4 rootwait"
+setenv bootargs "8250.nr_uarts=1 root=/dev/sda2 rootwait console=ttyS0,115200n8"
+
+booti 0x01000000 - 0x02000000
+bootz 0x01000000 - 0x02000000
+
+bootm 0x01000000 - 0x02000000
+
+=====================================
+Cáp chuyển USB UART TTL FT232RL
+https://nshopvn.com/product/cap-chuyen-usb-uart-ttl-ft232rl/?gad_source=1&gad_campaignid=20552387406&gclid=CjwKCAjw3rnCBhBxEiwArN0QE1SlAduL2YDmT35rMV9EcIKD3RB7gcTFxcj9rTchVHc7MQ-F2zkA5BoCU7sQAvD_BwE
+=====================================
+Chắc rồi! Dưới đây là quá trình boot của Raspberry Pi khi bạn sử dụng **U-Boot** làm bootloader, step-by-step:
+
+---
+
+# Quá trình Boot Raspberry Pi với U-Boot
+
+---
+
+### 1. **Cấp nguồn và CPU khởi động**
+
+* Raspberry Pi được cấp nguồn, CPU ARM trong SoC bắt đầu chạy.
+* Boot ROM bên trong SoC (Bootcode cố định) bắt đầu chạy và tìm thiết bị lưu trữ boot (thẻ SD).
+
+### 2. **Bootcode.bin được load**
+
+* Boot ROM đọc file `bootcode.bin` từ phân vùng boot (FAT32) trên SD card.
+* `bootcode.bin` khởi tạo phần cứng cơ bản (SD card, RAM), và load tiếp file `start.elf`.
+
+### 3. **start.elf (Firmware GPU) chạy**
+
+* `start.elf` chạy trên GPU, cấu hình hệ thống, đọc `config.txt`.
+* Thay vì load trực tiếp kernel Linux, `start.elf` load **U-Boot** (ví dụ `u-boot.bin` hoặc `u-boot.img`) từ phân vùng boot vào RAM.
+
+---
+
+### 4. **U-Boot được nạp và chạy**
+
+* GPU chuyển quyền cho U-Boot, tức là U-Boot bắt đầu chạy trên CPU ARM.
+* U-Boot khởi tạo phần cứng ở mức thấp hơn (RAM, UART, MMC, mạng...).
+* Hiển thị prompt U-Boot trên console UART (serial terminal).
+
+---
+
+### 5. **U-Boot thực hiện các lệnh boot**
+
+* Tại prompt U-Boot, bạn có thể thực hiện các lệnh như:
+
+  * `mmc dev 0` để chọn thẻ SD.
+  * `fatload mmc 0:1 0x01000000 kernel7.img` để load kernel vào RAM.
+  * `fatload mmc 0:1 0x02000000 bcm2710-rpi-3-b-plus.dtb` để load device tree blob.
+  * Thiết lập `bootargs` (kernel command line).
+  * Chạy lệnh `booti` hoặc `bootz` để khởi động kernel.
+
+Ví dụ lệnh boot trong U-Boot:
+
+```bash
+mmc dev 0
+fatload mmc 0:1 0x01000000 kernel7.img
+fatload mmc 0:1 0x02000000 bcm2710-rpi-3-b-plus.dtb
+setenv bootargs "console=serial0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rootwait"
+booti 0x01000000 - 0x02000000
+```
+
+---
+
+### 6. **Kernel Linux bắt đầu chạy**
+
+* Kernel được load từ RAM bởi U-Boot.
+* Kernel sử dụng Device Tree Blob được tải để biết phần cứng.
+* Kernel khởi tạo các driver, mount phân vùng root filesystem.
+* Khởi động init/systemd và các dịch vụ.
+
+---
+
+### 7. **Hệ điều hành sẵn sàng**
+
+* Hệ thống Linux chạy đầy đủ, bạn có thể truy cập shell hoặc giao diện đồ họa.
+
+---
+
+# Tóm tắt:
+
+| Bước | Thành phần                          | Chức năng                                           |
+| ---- | ----------------------------------- | --------------------------------------------------- |
+| 1-3  | Boot ROM → bootcode.bin → start.elf | Khởi tạo phần cứng, load U-Boot                     |
+| 4    | U-Boot                              | Bootloader, hiển thị prompt, load kernel            |
+| 5    | U-Boot                              | Load kernel, device tree, set bootargs, boot kernel |
+| 6-7  | Kernel Linux + init                 | Khởi tạo hệ điều hành                               |
+
+---
+
+Nếu bạn muốn, mình có thể giúp bạn viết file `boot.scr` để tự động boot kernel bằng U-Boot hoặc cách compile U-Boot cho Raspberry Pi nhé!
+==============================================================================================================================================
+
+/tmp/x # /usr/sbin/sshd
+sshd: no hostkeys available -- exiting.
+/tmp/x # ssh-keygen -A
+ssh-keygen: generating new host keys: RSA ECDSA ED25519 
+/tmp/x # /usr/sbin/sshd
+Missing privilege separation directory: /var/run/sshd
+/tmp/x # mkdir -p /var/run/sshd; ssh-keygen -A;/usr/sbin/sshd
+/tmp/x # /usr/sbin/sshd
+/tmp/x # 
+
+
+usb start
+fatload usb 0:1 0x01000000 uImage
+fatload usb 0:1 0x02000000 bcm2710-rpi-3-b-plus.dtb
+setenv bootargs "8250.nr_uarts=1 root=/dev/sda2 rootwait console=ttyS0,115200n8"
+bootm 0x01000000 - 0x02000000
+
+sudo minicom -b 115200 -D /dev/ttyUSB0
+
+#include <sys/ioctl.h>
+#include <linux/serial.h>
+#include <linux/tty.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdio.h>
+
+void set_rts_dtr(int fd)
+{
+    int status;
+
+    // Lấy trạng thái hiện tại của dòng điều khiển
+    if (ioctl(fd, TIOCMGET, &status) == -1) {
+        perror("ioctl TIOCMGET");
+        return;
+    }
+
+    // Bật RTS và DTR
+    status |= TIOCM_RTS;  // Bật RTS
+    status |= TIOCM_DTR;  // Bật DTR
+
+    if (ioctl(fd, TIOCMSET, &status) == -1) {
+        perror("ioctl TIOCMSET");
+        return;
+    }
+
+    printf("RTS và DTR đã được bật\n");
+}
+
+
+Dear Hiring Manager,
+
+I am excited to apply for the Senior Embedded Systems Engineer position you raised. With over 15 years of experience in ANSI C programming on many flatforms: Linux development for ARM/x86, I am confident in my ability to contribute to the project of porting your hypervisor software from Intel to ARM.
+
+In my previous role at FPT, I worked on software development and optimization for ARM processors, as well as multi-core programming and virtualization tasks. My expertise includes assembly programming (x86_64, aarch64), driver development, and creating clear technical documentation.
+
+I am highly skilled in following established development processes and collaborating with cross-functional teams to meet project milestones. I am eager to bring my technical experience and problem-solving abilities to your team and contribute to the success of your project.
+
+Thank you for considering my application. I look forward to discussing how I can add value to your team.
+
+Sincerely,
+Thuan Nguyen Thai
+
+
+usb start
+fatload usb 0:1 0x01000000 uImage
+fatload usb 0:1 0x02000000 bcm2710-rpi-3-b-plus.dtb
+setenv bootargs "8250.nr_uarts=1 root=/dev/sda2 rootwait console=ttyS0,115200n8"
+bootm 0x01000000 - 0x02000000
+
+/tmp/x # /usr/sbin/sshd
+sshd: no hostkeys available -- exiting.
+/tmp/x # ssh-keygen -A
+ssh-keygen: generating new host keys: RSA ECDSA ED25519 
+/tmp/x # /usr/sbin/sshd
+Missing privilege separation directory: /var/run/sshd
+/tmp/x # mkdir -p /var/run/sshd; ssh-keygen -A;/usr/sbin/sshd
+/tmp/x # /usr/sbin/sshd
+/tmp/x # 
+
+sudo minicom -b 115200 -D /dev/ttyUSB0
+
+ [EMC] Android Automotive
+ ---------------------------------------------------------------------------------------------
+git commit -m "Add rts/dtr for UNIX_LINUX."
+
+Tien Nguyen Minh , Yes, it is my own tool of serial/COM: https://github.com/thuanalg/libserialmodule . How different is it to minicom/screen? It is a GUI app to test "libserialmodule", and by the way I tried to alter minicom for debugging through UART/Raspberry PI3 B+.
+
+Top 100 questions of C++ interview for senior/architect?
+Top 100 coding exercises of C++ interview for senior/architect? Give me solutions.
+
+[EMC - ] Android Automotive Expert/senior/leader position, the question for this position. Which preparation must I do?
+Understand Android Automotive OS (AAOS) architecture:
+
+1. APP -->> 
+2. Car library -->> AIDL interface (ICarlmpl) -->> 
+3. Car service -->> HIDL/AIDL Interface (Ivehicle) -->> 
+4. Vehicle HAL -->> CAN Bus -->> 
+5. Vehicle ECU - Electronic Control Unit
+
+=================================
+sudo modprobe vcan
+sudo ip link add dev vcan0 type vcan
+sudo ip link set up vcan0
+
+Is theare any relation AOSP (Android Open-Source Project) and Yocto?
+
+
+Use C language, write a function to convert long binary string 100000111000110101010100101010100101 to decimal string
+
+
+How to build AAOS + ubuntu 24 + arm64
+
+
+ 1996  sudo apt update
+ 1997  sudo apt install git-core gnupg flex bison build-essential zip curl zlib1g-dev   gcc-multilib g++-multilib libc6-dev-i386 libncurses5 libncurses5-dev   x11proto-core-dev libx11-dev lib32z-dev libgl1-mesa-dev libxml2-utils   xsltproc unzip fontconfig
+ 1998  mkdir -p ~/bin
+ 1999  curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+ 2000  chmod a+x ~/bin/repo
+ 2001  export PATH=~/bin:$PATH
+ 2002  vim ~/.bashrc 
+ 2003  mkdir aosp
+ 2004  cd aosp
+ 2005  repo init -u https://android.googlesource.com/platform/manifest -b branch-name
+ 2006  ll ~/bin/
+ 2007  repo sync -c -j$(nproc)
+ 2008  cd ..
+ 2009  cd aosp/
+ 2010  repo init -u https://android.googlesource.com/platform/manifest -b android-14.0.0_r1
+ 2011  repo sync -c -j$(nproc)
+ 2012  source build/envsetup.sh
+lunch aosp_car_x86_64-userdebug
+lunch aosp_car_arm64-userdebug
+m
+make -j$(nproc)
+make -j2
+ 
+ 
+ sudo fallocate -l 32G /swapfile
+ sudo chmod 600 /swapfile
+ sudo mkswap /swapfile
+sudo swapon /swapfile
+thuannt@thuannt-Z87M-D3H:~/aosp$ sudo swapon /swapfile
+thuannt@thuannt-Z87M-D3H:~/aosp$ swapon --show
+ 2005  sudo ln -s /lib/x86_64-linux-gnu/libncurses.so.6 /lib/x86_64-linux-gnu/libncurses.so.5
+ 2006  sudo ln -s /lib/x86_64-linux-gnu/libtinfo.so.6 /lib/x86_64-linux-gnu/libtinfo.so.5
+
+
+
+ 
+ ============================================
+PLATFORM_VERSION_CODENAME=REL
+PLATFORM_VERSION=14
+PRODUCT_INCLUDE_TAGS=com.android.mainline
+TARGET_PRODUCT=aosp_car_arm64
+TARGET_BUILD_VARIANT=userdebug
+TARGET_ARCH=arm64
+TARGET_ARCH_VARIANT=armv8-a
+TARGET_CPU_VARIANT=generic
+TARGET_2ND_ARCH=arm
+TARGET_2ND_ARCH_VARIANT=armv8-a
+TARGET_2ND_CPU_VARIANT=generic
+HOST_OS=linux
+HOST_OS_EXTRA=Linux-6.11.0-29-generic-x86_64-Ubuntu-24.04.2-LTS
+HOST_CROSS_OS=windows
+BUILD_ID=UP1A.231005.007
+OUT_DIR=out
+============================================
+48030
+
+#250810
+
+usb start
+fatload usb 0:1 0x01000000 uImage
+fatload usb 0:1 0x02000000 bcm2710-rpi-3-b-plus.dtb
+setenv bootargs "8250.nr_uarts=1 root=/dev/sda2 rootwait console=ttyS0,115200n8"
+bootm 0x01000000 - 0x02000000
+
+
+https://github.com/raspberrypi/firmware/tree/master/boot
+uImage là file kernel image dùng cho bootloader như U-Boot.
+
+.dtb (Device Tree Blob) là file mô tả phần cứng cho kernel Linux.
+
+Firmware gốc của nhà sản xuất thường gồm các file như:
+
+bootcode.bin
+
+start.elf, start4.elf, start_cd.elf, v.v.
+
+fixup.dat, fixup4.dat, v.v.
+
+Các .dtb tương ứng với từng board (ví dụ: bcm2710-rpi-3-b-plus.dtb)
+
+kernel.img, kernel7.img, kernel8.img, hoặc uImage (nếu dùng U-Boot)
+
+MYDISK="c"
+sudo umount /dev/sd${MYDISK}1; 
+sudo umount /dev/sd${MYDISK}2; 
+sudo umount /dev/sd${MYDISK}3; 
+sudo umount /dev/sd${MYDISK}4; 
+sudo bmaptool copy core-image-minimal-raspberrypi3.rootfs.wic.bz2 /dev/sd${MYDISK}
+echo "sleep 1================="
+sleep 1
+echo "sync"
+sync
+echo "sleep 10================"
+sleep 10
+sudo eject /dev/sd${MYDISK}
