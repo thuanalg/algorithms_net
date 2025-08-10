@@ -116,7 +116,20 @@ int insert_key(BTree *tree, int key, void *data, int len_data) {
 			} while(0);
 			root->num_keys++;
 			break;
-		}		
+		}	
+#if 0	
+		if(root->is_leaf) {
+			BTreeNode* internal = 0;
+			size_t sz  = sizeof(BTreeNode) + len_data + 1;
+			internal = (BTreeNode*) malloc(sz);
+			if(!internal) {
+				ret = BTREE_MEM_NULL;
+				break;
+			}
+			memset(internal, 0, sz);
+			internal->keys[0] = key;
+		}	
+#endif
 	} while(0);
 	return ret;
 }
