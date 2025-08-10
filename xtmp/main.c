@@ -29,6 +29,11 @@ typedef struct BTreeNode{
     struct BTreeNode *children[M_DEGREE]; // Array of child pointers
     int is_leaf; // True if node is a leaf	
 } BTreeNode;
+
+typedef struct BTree {
+	BTreeNode *root;
+} BTree;
+BTree test_tree;
 int main(int argc, char *argv[])
 {
 	int a = 0;
