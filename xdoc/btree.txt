@@ -1,0 +1,86 @@
+
+B+Tree:
+https://www.geeksforgeeks.org/c/implementation-of-b-plus-tree-in-c/
+B Tree:
+https://www.geeksforgeeks.org/c/implementation-of-b-tree-in-c/
+
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10 , 11, 12, 13, 14, 15, 16
+
+
+Đây là hai khái niệm **cốt lõi** trong cấu trúc **B-Tree** – dùng rất nhiều trong hệ thống cơ sở dữ liệu, hệ điều hành, file system, v.v.
+
+---
+
+## ✅ 1. **Bậc của B-Tree (Order / Degree)**
+
+* Ký hiệu: `t`
+* Là tham số xác định **khả năng chứa của node**
+
+### 💡 B-Tree bậc `t` có các đặc điểm:
+
+| Thuộc tính                      | Giá trị            |
+| ------------------------------- | ------------------ |
+| Số lượng **key tối thiểu**/node | `t - 1` (trừ root) |
+| Số lượng **key tối đa**/node    | `2t - 1`           |
+| Số lượng **con tối đa**/node    | `2t`               |
+| Số lượng **con tối thiểu**      | `t` (trừ root)     |
+
+> 👉 **Root** có thể có ít hơn `t - 1` key.
+
+---
+
+### 📌 Ví dụ:
+
+* **B-Tree bậc 2**:
+
+  * Mỗi node có **1 → 3 keys**
+  * Có **2 → 4 con**
+
+* **B-Tree bậc 3**:
+
+  * Mỗi node có **2 → 5 keys**
+  * Có **3 → 6 con**
+
+---
+
+## ✅ 2. **Chiều cao của B-Tree (Height)**
+
+* Là số **cấp (levels)** từ **gốc (root)** đến **lá (leaf)**
+* Ký hiệu: `h`
+* Root ở cấp `0`, lá ở cấp `h`
+
+---
+
+### 📌 Tính chất của chiều cao:
+
+* B-Tree càng nhiều **bậc (`t`)**, thì **chiều cao (`h`) càng thấp** – giúp tăng tốc tìm kiếm
+* Vì mỗi node có thể chứa nhiều keys, nên **chiều cao của B-Tree tăng chậm hơn Binary Tree**
+
+---
+
+### 📌 Ví dụ:
+
+Giả sử bạn có 1 triệu keys:
+
+* Nếu dùng **Binary Search Tree**: chiều cao có thể lên đến \~20
+* Nếu dùng **B-Tree bậc 50** (t = 50), chiều cao có thể chỉ khoảng **3–4 cấp**
+
+---
+
+## ✅ Tóm tắt so sánh:
+
+| Thuật ngữ         | Ý nghĩa                                                                               |
+| ----------------- | ------------------------------------------------------------------------------------- |
+| **Bậc (t)**       | Số lượng **tối thiểu key/con** mà node có thể chứa. Càng lớn thì node chứa càng nhiều |
+| **Chiều cao (h)** | Số cấp từ root → leaf. Ảnh hưởng đến hiệu năng tìm kiếm (log n theo cơ số lớn hơn)    |
+
+---
+
+## 🚀 Kết luận:
+
+* **Bậc** là thuộc tính thiết kế → ảnh hưởng đến dung lượng mỗi node
+* **Chiều cao** là kết quả thực tế → ảnh hưởng đến tốc độ truy cập
+
+---
+
+Bạn có muốn mình giúp **tính chiều cao tối đa hoặc tối thiểu của B-Tree** nếu biết số key và bậc? Hoặc so sánh với AVL/Red-Black Tree?
