@@ -521,3 +521,5 @@ sudo eject /dev/sd${MYDISK}
 
 B+Tree:
 https://www.geeksforgeeks.org/c/implementation-of-b-plus-tree-in-c/
+B Tree:
+https://www.geeksforgeeks.org/c/implementation-of-b-tree-in-c/
