@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #define M_DEGREE 2
 /*
 
@@ -45,6 +46,10 @@ int main(int argc, char *argv[])
 {
 	int a = 0;
 	fprintf(stdout, "0x%p.\n", &a);
+	insert_key(&test_tree, 1, 0, 0);
+	insert_key(&test_tree, 3, 0, 0);
+	insert_key(&test_tree, 2, 0, 0);	
+	int adsds  = 0;
 	return 0;
 }
 typedef enum BTREE_ERR{
@@ -56,14 +61,14 @@ typedef enum BTREE_ERR{
 	BTREE_ERR_END,
 } BTREE_ERR;
 int insert_key(BTree *tree, int key, void *data, int len_data) {
-	int ret = 0;
+ 	int ret = 0;
+	BTreeNode *root = 0;
 	do {
 		if(!tree) {
 			ret = BTREE_ERR_NULL;
 			break;
 		}
 		if(!tree->root) {
-			BTreeNode *root = 0;
 			size_t sz  = sizeof(BTreeNode) + len_data + 1;
 			root = (BTreeNode*) malloc(sz);
 			if(!root) {
@@ -72,10 +77,44 @@ int insert_key(BTree *tree, int key, void *data, int len_data) {
 			}
 			memset(root, 0, sz);
 			root->keys[0] = key;
+			root->is_leaf = 1;
 			root->num_keys++;
-			if(len_data > 0) {
+			if(len_data > 0 && data) {
 				memcpy(root->data, data, len_data);
 			}
+			tree->root = root;
+			break;
+		}
+		root = tree->root;
+		if(root->is_leaf && root->num_keys < (2 * M_DEGREE-1)) {
+			do {
+				int i = 0, j = 0;
+				if(key > root->keys[root->num_keys - 1]) {
+					root->keys[root->num_keys] = key;
+					break;
+				}
+				if(key < root->keys[0]) {
+					i = root->num_keys;
+					for( ; i > 0; --i) {
+						root->keys[i] = root->keys[i - 1];
+					}
+					root->keys[0] = key;
+					break;
+				}
+
+				for(i = 0; i < root->num_keys; ++i) {
+					if(root->keys[i] > key) {
+						break;
+					}
+				}
+				j = root->num_keys;
+				for( ;j > i; --j) {
+					root->keys[j] = root->keys[j-1];
+				}
+				root->keys[i] = key;
+
+			} while(0);
+			root->num_keys++;
 			break;
 		}		
 	} while(0);
