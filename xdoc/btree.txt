@@ -5,7 +5,7 @@ https://www.geeksforgeeks.org/c/implementation-of-b-tree-in-c/
 
 B+Tree:
 https://www.geeksforgeeks.org/c/implementation-of-b-plus-tree-in-c/
-Insert 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 , 11, 12, 13, 14, 15, 16 cho B+tree
+Insert 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 , 11, 12, 13, 14, 15, 16 cho B-tree step by step, t = 2
 
 
 Đây là hai khái niệm **cốt lõi** trong cấu trúc **B-Tree** – dùng rất nhiều trong hệ thống cơ sở dữ liệu, hệ điều hành, file system, v.v.
