@@ -97,9 +97,33 @@ Bạn muốn mình mô phỏng một buổi **phỏng vấn mock** không? Hoặ
 
 Renesas: https://www.alldatasheet.com/datasheet-pdf/pdf/313570/RENESAS/M16C5LD.html
 https://github.com/renesas-rz/meta-renesas
+MACHINE ??= "h3ulcb"   # hoặc board Renesas bạn đang dùng
+
+# Enable serial console on UART
+SERIAL_CONSOLE = "115200 ttySC0"
+
+# Dùng U-Boot làm bootloader
+RPI_USE_U_BOOT = "1"
+PREFERRED_PROVIDER_virtual/bootloader = "u-boot"
+
+# Tùy chọn debug
+EXTRA_IMAGE_FEATURES += "debug-tweaks"
+
+# Tùy chọn thêm (tùy board/platform)
+UBOOT_CONFIG = "sd"   # hoặc "spi", tùy theo thiết bị
 
 
 
+
+
+
+MACHINE ??= "smarc-rzg2lc"
+
+PREFERRED_PROVIDER_virtual/bootloader = "u-boot-renesas"
+UBOOT_MACHINE = "smarc-rzg2lc"
+UBOOT_CONFIG = "smarc-rzg2lc"
+
+EXTRA_IMAGE_FEATURES += "debug-tweaks"
 
 
 
