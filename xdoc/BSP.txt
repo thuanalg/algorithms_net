@@ -126,6 +126,28 @@ UBOOT_CONFIG = "smarc-rzg2lc"
 EXTRA_IMAGE_FEATURES += "debug-tweaks"
 
 
+uild Configuration:
+BB_VERSION           = "2.8.0"
+BUILD_SYS            = "x86_64-linux"
+NATIVELSBSTRING      = "ubuntu-24.04"
+TARGET_SYS           = "aarch64-poky-linux"
+MACHINE              = "smarc-rzg2lc"
+DISTRO               = "poky"
+DISTRO_VERSION       = "5.0.8"
+TUNE_FEATURES        = "aarch64 crypto cortexa55"
+TARGET_FPU           = ""
+meta                 
+meta-poky            
+meta-yocto-bsp       = "HEAD:dc4827b3660bc1a03a2bc3b0672615b50e9137ff"
+meta-oe              
+meta-python          
+meta-networking      
+meta-filesystems     = "HEAD:67ad83dd7c2485dae0c90eac345007af6195b84d"
+meta-virtualization  = "HEAD:9287a355b338361e42027ce371444111a791d64f"
+meta-rz-bsp          
+meta-rz-distro       = "scarthgap/rz:ff4725b027cb1297a2173e6134a010f47265bcb4"
+meta-arm-toolchain   
+meta-arm             = "HEAD:950a4afce46a359def2958bd9ae33fc08ff9bb0d"
 
 
 =========================================================================================================================================
