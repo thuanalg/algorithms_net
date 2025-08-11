@@ -1,4 +1,83 @@
 =========================================================================================================================================
+Dưới đây là danh sách những **câu hỏi phỏng vấn phổ biến liên quan đến U-Boot và Renesas BSP**, được phân loại theo cấp độ — từ cơ bản đến nâng cao. Những câu hỏi này thường dùng để đánh giá kiến thức về **bootloader**, **hardware bring-up**, và khả năng làm việc với **SoC Renesas**.
+
+---
+
+## 🎯 **Phần 1: Câu hỏi chung về U-Boot**
+
+### 🟢 Cơ bản:
+
+1. **U-Boot là gì? Vai trò của nó trong quá trình boot?**
+2. **So sánh U-Boot và GRUB?**
+3. **Các bước chính trong quá trình khởi động của U-Boot là gì?** -->> SPL (Secondary Program Loader)
+4. **Cấu trúc phân vùng của U-Boot nằm ở đâu trong flash?**
+5. **U-Boot hỗ trợ các loại bộ nhớ nào (NAND/NOR/eMMC/SD)?**
+6. **U-Boot environment là gì? Nằm ở đâu? Làm sao để lưu lại thay đổi?**
+
+### 🟡 Trung bình:
+
+7. **Làm thế nào để debug U-Boot qua UART?**
+8. **Làm sao để tạo hoặc thêm lệnh mới vào U-Boot (command)?**
+9. **Bạn đã từng port U-Boot cho board mới chưa? Các bước thực hiện là gì?**
+10. **Sự khác nhau giữa SPL và U-Boot chính là gì?**
+11. **Bạn đã làm việc với U-Boot script chưa? Cú pháp của script như thế nào?**
+
+---
+
+## 🎯 **Phần 2: Câu hỏi chuyên sâu về U-Boot + Renesas BSP**
+
+### 🟡 Trung bình:
+
+12. **Renesas BSP sử dụng U-Boot như thế nào? Có tùy biến gì so với bản gốc?**
+13. **Cấu trúc thư mục hỗ trợ SoC của Renesas trong U-Boot như thế nào? (Ví dụ: `board/renesas/<board>/`)**
+14. **Device Tree có vai trò gì trong U-Boot với BSP của Renesas?**
+15. **Làm sao để build U-Boot cho Renesas SoC?**
+
+```bash
+make rcar3_defconfig
+make CROSS_COMPILE=arm-linux-gnueabihf-
+```
+
+### 🔴 Nâng cao:
+
+16. **Làm sao để enable boot từ SPI flash trên board Renesas?**
+17. **Giải thích quá trình handoff từ U-Boot sang kernel trên Renesas R-Car.**
+18. **Làm sao để xử lý secure boot / trusted boot trên SoC của Renesas?**
+19. **Bạn đã từng sửa lỗi DRAM init trên SPL cho Renesas chưa? Kinh nghiệm là gì?**
+20. **Làm sao để add hỗ trợ cho peripheral (I2C/SPI/USB) trong U-Boot cho board Renesas?**
+
+---
+
+## 🎯 **Phần 3: Câu hỏi thực hành / Debug**
+
+21. **U-Boot đang dừng ở đâu đó, làm sao để debug?**
+22. **Bạn sẽ làm gì nếu U-Boot không nhận USB hoặc Ethernet?**
+23. **Làm sao để đưa một file từ PC vào U-Boot (qua TFTP, USB, SD)?**
+24. **Làm sao để flash image từ U-Boot vào eMMC/NAND?**
+25. **Bạn có thể explain cấu trúc của một image khởi động (FIT image)?**
+
+---
+
+## 🎯 **Phần 4: Yocto + Renesas BSP + U-Boot**
+
+26. **Làm sao để override U-Boot config trong Yocto?**
+27. **U-Boot trong meta-renesas khác gì với mainline U-Boot?**
+28. **Làm sao để tích hợp một patch cho U-Boot vào Yocto?**
+29. **U-Boot và kernel dùng chung Device Tree hay riêng?**
+30. **Bạn đã từng viết bbappend để sửa U-Boot recipe chưa?**
+
+---
+
+## 🧠 Mẹo khi trả lời:
+
+* Với U-Boot, người phỏng vấn muốn biết bạn có hiểu sâu cấu trúc code không (SPL, drivers, cmd, board, arch...).
+* Với Renesas BSP, họ sẽ kiểm tra bạn có biết cấu trúc và cách cấu hình cho SoC R-Car, Gen3, v.v.
+* Luôn nhấn mạnh bạn có thể debug boot log, sửa device tree, cross-compile, patch BSP, hiểu luồng boot.
+
+---
+
+## ✅ Gợi ý chuẩn bị
+
 | Chủ đề       | Nên chuẩn bị                            |
 | ------------ | --------------------------------------- |
 | Build U-Boot | Build từ source + config board cụ thể   |
@@ -6,6 +85,10 @@
 | Device Tree  | Cách cấu hình DT trong U-Boot và kernel |
 | Yocto BSP    | Cách sửa recipe và add overlay          |
 | Storage boot | SD/eMMC/SPI/NAND boot flow trên Renesas |
+
+---
+
+Bạn muốn mình mô phỏng một buổi **phỏng vấn mock** không? Hoặc bạn cần **câu trả lời mẫu** cho một số câu hỏi trên?
 
 
 
