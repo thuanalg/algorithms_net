@@ -95,9 +95,8 @@ Bạn muốn mình mô phỏng một buổi **phỏng vấn mock** không? Hoặ
 
 =========================================================================================================================================
 
-
-
-
+Renesas: https://www.alldatasheet.com/datasheet-pdf/pdf/313570/RENESAS/M16C5LD.html
+https://github.com/renesas-rz/meta-renesas
 
 
 
