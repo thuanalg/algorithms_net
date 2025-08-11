@@ -518,3 +518,11 @@ sync
 echo "sleep 10================"
 sleep 10
 sudo eject /dev/sd${MYDISK}
+
+thuannt@thuannt-Z87M-D3H:~/x/poky/build-renesas/tmp/deploy/images/smarc-rzg2lc$ ll | grep wic
+-rw-r--r-- 2 thuannt thuannt     3147 Aug 11 18:29 core-image-minimal-smarc-rzg2lc.rootfs-20250811083334.wic.bmap
+-rw-r--r-- 2 thuannt thuannt  7398347 Aug 11 18:29 core-image-minimal-smarc-rzg2lc.rootfs-20250811083334.wic.gz
+lrwxrwxrwx 2 thuannt thuannt       62 Aug 11 18:29 core-image-minimal-smarc-rzg2lc.rootfs.wic.bmap -> core-image-minimal-smarc-rzg2lc.rootfs-20250811083334.wic.bmap
+lrwxrwxrwx 2 thuannt thuannt       60 Aug 11 18:29 core-image-minimal-smarc-rzg2lc.rootfs.wic.gz -> core-image-minimal-smarc-rzg2lc.rootfs-20250811083334.wic.gz
+thuannt@thuannt-Z87M-D3H:~/x/poky/build-renesas/tmp/deploy/images/smarc-rzg2lc$ 
+
