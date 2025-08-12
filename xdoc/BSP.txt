@@ -126,7 +126,7 @@ UBOOT_CONFIG = "smarc-rzg2lc"
 EXTRA_IMAGE_FEATURES += "debug-tweaks"
 
 
-uild Configuration:
+Build Configuration:
 BB_VERSION           = "2.8.0"
 BUILD_SYS            = "x86_64-linux"
 NATIVELSBSTRING      = "ubuntu-24.04"
@@ -152,6 +152,46 @@ meta-arm             = "HEAD:950a4afce46a359def2958bd9ae33fc08ff9bb0d"
 
 =========================================================================================================================================
 
+thuannt@thuannt-Z87M-D3H:~/x/poky/meta-renesas$ find . -name  machine
+./meta-rz-bsp/conf/machine
+thuannt@thuannt-Z87M-D3H:~/x/poky/meta-renesas$ ll ./meta-rz-bsp/conf/machine
+total 32
+drwxrwxr-x 3 thuannt thuannt 4096 Aug 12 08:49 ./
+drwxrwxr-x 3 thuannt thuannt 4096 Aug 11 13:01 ../
+drwxrwxr-x 2 thuannt thuannt 4096 Aug 11 13:01 include/
+-rw-rw-r-- 1 thuannt thuannt 1092 Aug 11 13:01 rzg3e-dev.conf
+-rw-rw-r-- 1 thuannt thuannt 1127 Aug 11 13:01 smarc-rzg2lc.conf
+-rw-rw-r-- 1 thuannt thuannt 1713 Aug 11 13:01 smarc-rzg2l.conf
+-rw-rw-r-- 1 thuannt thuannt 1123 Aug 11 13:01 smarc-rzg2ul.conf
+-rw-rw-r-- 1 thuannt thuannt 1144 Aug 11 13:01 smarc-rzg3e.conf
+thuannt@thuannt-Z87M-D3H:~/x/poky/meta-renesas$ 
+
+
+---------------
+
+
+thuannt@thuannt-Z87M-D3H:~/x/poky/meta-raspberrypi$ find . -name machine
+./conf/machine
+thuannt@thuannt-Z87M-D3H:~/x/poky/meta-raspberrypi$ ll conf/machine/
+total 68
+drwxrwxr-x 3 thuannt thuannt 4096 Aug 12 08:51 ./
+drwxrwxr-x 3 thuannt thuannt 4096 Jun 11 13:09 ../
+drwxrwxr-x 2 thuannt thuannt 4096 Jun 11 13:09 include/
+-rw-rw-r-- 1 thuannt thuannt  461 Jun 11 10:33 raspberrypi0-2w-64.conf
+-rw-rw-r-- 1 thuannt thuannt  382 Jun 11 10:33 raspberrypi0-2w.conf
+-rw-rw-r-- 1 thuannt thuannt  291 Jun 11 10:33 raspberrypi0.conf
+-rw-rw-r-- 1 thuannt thuannt  585 Jun 11 10:33 raspberrypi0-wifi.conf
+-rw-rw-r-- 1 thuannt thuannt  387 Jun 11 10:33 raspberrypi2.conf
+-rw-rw-r-- 1 thuannt thuannt 1096 Jun 11 10:33 raspberrypi3-64.conf
+-rw-rw-r-- 1 thuannt thuannt  644 Jun 11 10:33 raspberrypi3.conf
+-rw-rw-r-- 1 thuannt thuannt 1127 Jun 11 10:33 raspberrypi4-64.conf
+-rw-rw-r-- 1 thuannt thuannt  690 Jun 11 10:33 raspberrypi4.conf
+-rw-rw-r-- 1 thuannt thuannt 1417 Jun 11 10:33 raspberrypi-armv7.conf
+-rw-rw-r-- 1 thuannt thuannt 1373 Jun 11 10:44 raspberrypi-armv8.conf
+-rw-rw-r-- 1 thuannt thuannt  413 Jun 11 10:33 raspberrypi-cm3.conf
+-rw-rw-r-- 1 thuannt thuannt  235 Jun 11 10:33 raspberrypi-cm.conf
+-rw-rw-r-- 1 thuannt thuannt  398 Jun 11 10:33 raspberrypi.conf
+thuannt@thuannt-Z87M-D3H:~/x/poky/meta-raspberrypi$ 
 
 
 
