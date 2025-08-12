@@ -480,12 +480,18 @@ OUT_DIR=out
 48030
 
 #250810
-
+[*]============================================================
 usb start
 fatload usb 0:1 0x01000000 uImage
 fatload usb 0:1 0x02000000 bcm2710-rpi-3-b-plus.dtb
 setenv bootargs "8250.nr_uarts=1 root=/dev/sda2 rootwait console=ttyS0,115200n8"
 bootm 0x01000000 - 0x02000000
+[*]====================================
+mmc dev 0
+fatload mmc 0:1 0x01000000 Image
+fatload mmc 0:1 0x02000000 bcm2710-rpi-3-b-plus.dtb
+setenv bootargs "dwc_otg.lpm_enable=0 console=serial0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rootwait"
+booti 0x01000000 - 0x02000000
 
 
 https://github.com/raspberrypi/firmware/tree/master/boot
@@ -526,3 +532,36 @@ lrwxrwxrwx 2 thuannt thuannt       62 Aug 11 18:29 core-image-minimal-smarc-rzg2
 lrwxrwxrwx 2 thuannt thuannt       60 Aug 11 18:29 core-image-minimal-smarc-rzg2lc.rootfs.wic.gz -> core-image-minimal-smarc-rzg2lc.rootfs-20250811083334.wic.gz
 thuannt@thuannt-Z87M-D3H:~/x/poky/build-renesas/tmp/deploy/images/smarc-rzg2lc$ 
 
+
+About the job
+Are you passionate about embedded systems and excited about building the future of autonomous vehicles?
+
+Join Kaii Soft, a dynamic software company partnering with top-tier Korean firms to develop cutting-edge embedded systems for self-driving cars.
+We’re looking for experienced Embedded Software Engineers who love problem-solving, working close to hardware, and growing in a global tech environment.🌟 What You’ll Do
+Develop Linux BSP (Board Support Package) based on Renesas ARM CPU
+Perform hardware bring-up, Linux porting, and bootloader setup (e.g., U-Boot)
+Develop Linux device drivers and integrate/test on real hardware
+Support documentation and collaborate cross-functionally
+Handle additional embedded tasks as assigned
+🎯 What We Expect
+Bachelor's degree in Computer Science, Information Technology, or related fields
+5+ years of experience in embedded Linux, BSP, bootloaders, and driver developmentLinux, BSP,
+Strong skills in C/C++ and Python
+Experience with Yocto or Buildroot
+Solid debugging, hardware testing, and problem-solving capabilities
+Good communication and teamwork skills
+Nice to have:
+
+Familiarity with Renesas SoCs/chips or automotive-grade hardware
+💼 Why You’ll Love Working With Us
+🚀 Work on autonomous driving technology in collaboration with Korean partners
+💰 Competitive salary + 13th-month pay + performance bonus
+🌍 Opportunity for training & onsite in Korea
+⏰ Flexible 40-hour work week (Mon–Fri)
+🧾 Full social, health, and unemployment insurance per Vietnam Labor Law
+🎁 Allowances: parking, gasoline, and more
+
+#Apply for U-Boot
+ROOTFS_POSTPROCESS_COMMAND += "cp -f /home/thuannt/x/poky/rpi-build/tmp/work/raspberrypi3-poky-linux-gnueabi/u-boot/2023.10/image/boot/u-boot-raspberrypi3-2023.10-r0.bin ${IMAGE_ROOTFS}/boot/u-boot.bin"
+
+mkdir -p ../meta-custom/recipes-core/images
