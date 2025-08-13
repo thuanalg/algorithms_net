@@ -123,5 +123,3 @@ Một số board dùng U-Boot thay cho bootloader mặc định.
 ---
 
 Nếu bạn muốn mình **vẽ sơ đồ boot đầy đủ**, hoặc phân tích thêm từng recipe Yocto tạo ra cái gì, cứ nói nhé.
-
-https://github.com/Vishal-Mutha/ch340-ubuntu-22.04-fix/blob/main/ch34x.c
