@@ -11,6 +11,7 @@
 //
 
 //https://github.com/Vishal-Mutha/ch340-ubuntu-22.04-fix/blob/main/ch34x.c
+// 250814
 
 #include <linux/version.h>
 #ifndef KERNEL_VERSION
