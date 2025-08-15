@@ -20,7 +20,7 @@ int main()
 {
 	auto tid = 1000;
 	int i = 0;
-	int myrange = TEST_NUMBER * 10;
+	int myrange = TEST_NUMBER * 1;
 	auto now0 = system_clock::now();
 	while (i < myrange) {
 		__spl_log_buf_level_cpp20__(
