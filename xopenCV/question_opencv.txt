@@ -1,0 +1,44 @@
+Here are **5 basic OpenCV questions** in English (rewritten from my earlier answer):
+
+---
+
+### 1. What is OpenCV and what is it used for?
+
+* OpenCV (Open Source Computer Vision Library) is an open-source library written mainly in C/C++, with bindings for Python, Java, and others.
+* It is used for image processing, computer vision, and machine learning tasks such as face recognition, object detection, video analysis, augmented reality, and robotics.
+
+---
+
+### 2. How do you read and display an image in OpenCV?
+
+* Use **`cv::imread()`** in C++ or **`cv2.imread()`** in Python to read an image.
+* Use **`cv::imshow()`** in C++ or **`cv2.imshow()`** in Python to display an image.
+* Interviewers may check if you know the read flags: `cv::IMREAD_COLOR`, `IMREAD_GRAYSCALE`, `IMREAD_UNCHANGED`.
+
+---
+
+### 3. What is the difference between a grayscale image and a color image in OpenCV?
+
+* Color images are stored in **BGR format** in OpenCV (not RGB).
+* Grayscale images have a single channel (values 0–255), while color images have 3 channels (Blue, Green, Red).
+* You can convert color to grayscale using `cv::cvtColor(src, dst, cv::COLOR_BGR2GRAY)`.
+
+---
+
+### 4. Does OpenCV support GPU acceleration?
+
+* Yes. OpenCV supports **CUDA** (for NVIDIA GPUs) and **OpenCL** (depending on platform).
+* Some functions like filtering, image processing, and deep learning inference can run much faster with GPU acceleration.
+* However, not all OpenCV functions have CUDA/OpenCL implementations.
+
+---
+
+### 5. What is the difference between Haar Cascade and HOG + SVM for object detection?
+
+* **Haar Cascade Classifier**: Based on Haar-like features, very fast, commonly used for classic face detection.
+* **HOG + SVM (Histogram of Oriented Gradients + Support Vector Machine)**: More robust for pedestrian detection, works better under varying lighting conditions.
+* Nowadays, deep learning (using the OpenCV DNN module) often outperforms both methods.
+
+---
+
+Would you like me to expand this into a **list of 10–20 interview questions** (basic → advanced) with **sample code in C++/Python** so you can prepare for interviews more effectively?
