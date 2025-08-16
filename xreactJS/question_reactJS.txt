@@ -1,0 +1,68 @@
+Got it 👍 You’re asking about **React.js interview prep**.
+Here are the **Top 5 React.js interview questions** (commonly asked in 2024–2025):
+
+---
+
+### 1. **What is React, and what are its key features?**
+
+* React is a **JavaScript library** for building **user interfaces**, mainly for single-page applications (SPA).
+* Key features:
+
+  * **Virtual DOM** (efficient UI updates).
+  * **Component-based architecture**.
+  * **Unidirectional data flow (props → children)**.
+  * **JSX** syntax for templating.
+
+---
+
+### 2. **What is the difference between functional and class components?**
+
+* **Class Components**: Use `extends React.Component`, have lifecycle methods (`componentDidMount`, etc.), and use `this.state`.
+* **Functional Components**: Plain JS functions, use **hooks** (e.g., `useState`, `useEffect`) to manage state and lifecycle.
+* Modern React prefers **functional components with hooks**.
+
+---
+
+### 3. **What are React Hooks, and why are they important?**
+
+* Hooks let you use **state** and **lifecycle features** in functional components.
+* Common hooks:
+
+  * `useState` → state management
+  * `useEffect` → side effects (API calls, subscriptions)
+  * `useContext` → context API for global state
+  * `useMemo` / `useCallback` → performance optimization
+* They eliminate the need for class components.
+
+---
+
+### 4. **What is the difference between controlled and uncontrolled components in React?**
+
+* **Controlled components**: Form inputs controlled by React state (`value` bound to state + `onChange`).
+* **Uncontrolled components**: Form inputs handled by the DOM, accessed with `ref`.
+* Controlled components are more common in React apps.
+
+---
+
+### 5. **How does React handle reconciliation and Virtual DOM?**
+
+* React uses a **Virtual DOM** to minimize real DOM updates.
+* On state/prop changes:
+
+  * React creates a new Virtual DOM tree.
+  * It **diffs** the new vs old tree.
+  * Only the changed nodes are updated in the real DOM.
+* This makes React very efficient.
+
+---
+
+👉 **Bonus Advanced Questions**:
+
+* What is React Fiber?
+* How do you optimize performance in React?
+* What are higher-order components (HOC) and render props?
+* What is Context API vs Redux?
+
+---
+
+Do you want me to expand with a **cheat sheet including mini code snippets** for each question (so you can revise quickly before interview), like I did for Node.js?

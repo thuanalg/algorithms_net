@@ -1,0 +1,54 @@
+Here are the **Top 5 common Node.js interview questions** (from beginner to intermediate/advanced):
+
+---
+
+### 1. **What is Node.js and how is it different from traditional web servers?**
+
+* Node.js is a runtime built on Chrome’s V8 JavaScript engine.
+* Uses an **event-driven, non-blocking I/O model**.
+* Unlike traditional web servers (e.g., Apache), Node.js is **single-threaded** but handles concurrency via an **event loop** and **async callbacks**.
+
+---
+
+### 2. **How does the Event Loop work in Node.js?**
+
+* The event loop is the core mechanism that allows Node.js to perform **non-blocking I/O**.
+* It processes events in phases: timers, pending callbacks, idle/prepare, poll, check, and close callbacks.
+* Allows Node.js to scale and handle thousands of requests concurrently.
+
+---
+
+### 3. **What is the difference between `process.nextTick()` and `setImmediate()`?**
+
+* `process.nextTick()` queues a callback to run **before** the event loop continues to the next phase (higher priority).
+* `setImmediate()` queues a callback to run **after** the current poll phase is completed.
+* This is often asked to test understanding of the event loop timing.
+
+---
+
+### 4. **What are Streams in Node.js?**
+
+* Streams are used to handle **large data efficiently** (I/O operations).
+* Types of streams: **Readable, Writable, Duplex, and Transform**.
+* Example: Reading a file line by line instead of loading the entire file into memory.
+
+---
+
+### 5. **What is the difference between CommonJS (`require`) and ES6 Modules (`import`)?**
+
+* CommonJS: synchronous, `require()`, default in older Node.js.
+* ES6 Modules: asynchronous, `import/export`, requires `"type": "module"` in package.json or `.mjs` extension.
+* Interviewers may ask which one you’d use in a modern Node.js app.
+
+---
+
+👉 **Bonus Advanced Questions**:
+
+* How do you handle concurrency and clustering in Node.js?
+* What are worker threads and when should you use them?
+* How do you manage memory leaks in Node.js applications?
+* How does async/await differ from promises in Node.js?
+
+---
+
+Do you want me to also make a **short cheat sheet with example code snippets** for each question (so you can quickly review before interview), or keep it as a Q\&A style?

@@ -1,0 +1,71 @@
+Here are **Top 5 common Vulkan interview questions** that candidates are often asked, ranging from fundamentals to practical usage:
+
+---
+
+### 1. **What are the main differences between Vulkan and OpenGL?**
+
+* Interviewers want to see if you understand why Vulkan exists.
+* Key points:
+
+  * Vulkan is low-level, explicit, closer to the hardware.
+  * Better multi-threading support.
+  * No implicit global state (unlike OpenGL).
+  * More verbose API, but higher performance and predictability.
+
+---
+
+### 2. **What is a Vulkan Instance and why is it required?**
+
+* Expected answer:
+
+  * A **Vulkan Instance** represents the connection between your application and the Vulkan library/driver.
+  * It is the first object you create in a Vulkan app.
+  * Used to query extensions, layers, and available physical devices (GPUs).
+
+---
+
+### 3. **Can you explain the Vulkan memory model and how resource allocation works?**
+
+* Vulkan requires explicit memory management.
+* Expected points:
+
+  * Buffers and images are not automatically backed by memory.
+  * You must query memory types with `vkGetPhysicalDeviceMemoryProperties`.
+  * Allocate memory with `vkAllocateMemory` and bind it with `vkBindBufferMemory` / `vkBindImageMemory`.
+  * Different memory types: device-local, host-visible, coherent, cached, etc.
+
+---
+
+### 4. **What are command buffers and why are they important in Vulkan?**
+
+* Command buffers record rendering and compute commands.
+* They are later submitted to **queues** for execution by the GPU.
+* Benefits:
+
+  * Efficient multi-threading (multiple threads can build command buffers).
+  * Reduces CPU overhead compared to immediate mode APIs.
+* Interviewers may ask the difference between **primary** and **secondary** command buffers.
+
+---
+
+### 5. **What are Descriptor Sets in Vulkan?**
+
+* Descriptor sets describe how shaders access buffers and images.
+* Interviewers want to check if you know how Vulkan manages resources.
+* Key points:
+
+  * They are allocated from a **Descriptor Pool**.
+  * They bind resources (uniform buffers, storage buffers, samplers, images) to shaders.
+  * Binding is explicit at draw/dispatch time via `vkCmdBindDescriptorSets`.
+
+---
+
+👉 Bonus advanced questions you might also encounter:
+
+* How does Vulkan handle synchronization (fences, semaphores, barriers)?
+* What is the difference between SPIR-V and GLSL?
+* How does Vulkan achieve multi-GPU support?
+
+---
+
+Do you want me to also prepare **short sample answers** for each question (like a quick cheat sheet), or do you prefer **detailed explanations with diagrams/code snippets** for deeper prep?

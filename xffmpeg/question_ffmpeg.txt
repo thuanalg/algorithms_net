@@ -1,0 +1,69 @@
+Here are **5 common FFmpeg interview questions** (both conceptual and practical) that often come up in software / multimedia / system programming interviews:
+
+---
+
+### **1. What is FFmpeg and what are its main components?**
+
+* Explain what FFmpeg is (open-source multimedia framework).
+* Mention core libraries:
+
+  * `libavcodec` (encoding/decoding)
+  * `libavformat` (muxing/demuxing)
+  * `libavfilter` (filtering/processing)
+  * `libswscale` (image scaling/conversion)
+  * `libswresample` (audio resampling).
+
+---
+
+### **2. How does FFmpeg handle containers and codecs differently?**
+
+* Containers (MP4, MKV, AVI…) just define how streams are stored.
+* Codecs (H.264, VP9, AAC, MP3…) define how video/audio is compressed.
+* FFmpeg can **remux** (change container without re-encoding) or **transcode** (re-encode streams).
+
+---
+
+### **3. How would you use FFmpeg to extract frames or audio from a video?**
+
+* Example commands:
+
+  * Extract frames:
+
+    ```bash
+    ffmpeg -i input.mp4 -vf fps=1 frame_%04d.png
+    ```
+  * Extract audio:
+
+    ```bash
+    ffmpeg -i input.mp4 -vn -acodec copy output.aac
+    ```
+
+---
+
+### **4. How do you optimize FFmpeg for performance (low latency / multi-threading)?**
+
+* Use hardware acceleration (`-hwaccel cuda`, `-hwaccel vaapi`).
+* Control threading: `-threads N`.
+* Reduce latency: `-tune zerolatency` (for x264), `-fflags nobuffer`.
+* Choose fast presets: `-preset ultrafast`.
+
+---
+
+### **5. Can you describe the basic steps to decode a video with FFmpeg libraries in C/C++?**
+
+Typical pipeline:
+
+1. Initialize `AVFormatContext` with `avformat_open_input()`.
+2. Find stream info with `avformat_find_stream_info()`.
+3. Find decoder with `avcodec_find_decoder()`.
+4. Allocate and open `AVCodecContext`.
+5. Read packets (`av_read_frame()`).
+6. Send packets to decoder (`avcodec_send_packet()`).
+7. Receive frames (`avcodec_receive_frame()`).
+8. Convert/sync frames using `sws_scale()` (for video) or `swr_convert()` (for audio).
+
+---
+
+👉 If you want, I can also prepare **C/C++ sample code** for one of these interview-style questions (like decoding frames with FFmpeg API), since many interviews will ask for *both command-line and API knowledge*.
+
+Bạn có muốn mình viết **code mẫu C với FFmpeg API** (ví dụ decode video → raw frames) để chuẩn bị cho interview không?
