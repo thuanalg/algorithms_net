@@ -24,3 +24,4 @@ clean:
 #-lopencv_photo -lopencv_stitching -lopencv_video 
 #-lopencv_calib3d -lopencv_features2d -lopencv_dnn 
 #-lopencv_flann -lopencv_videoio -lopencv_imgcodecs -lopencv_imgproc -lopencv_core
+#export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
