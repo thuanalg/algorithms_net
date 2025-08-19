@@ -74,11 +74,13 @@ int main(int argc, char* argv[]) {
         if (pkt->stream_index == video_index) {
             if (avcodec_send_packet(codec_ctx, pkt) == 0) {
                 while (avcodec_receive_frame(codec_ctx, frame) == 0) {
+                #if 0
                     printf("Frame %d: type=%c, size=%d bytes\n",
                            codec_ctx->frame_number,
                            av_get_picture_type_char(frame->pict_type),
                            frame->pkt_size);
                     av_frame_unref(frame);
+                #endif
                 }
             }
         }
