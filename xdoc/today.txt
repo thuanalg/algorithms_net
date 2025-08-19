@@ -565,3 +565,5 @@ Familiarity with Renesas SoCs/chips or automotive-grade hardware
 ROOTFS_POSTPROCESS_COMMAND += "cp -f /home/thuannt/x/poky/rpi-build/tmp/work/raspberrypi3-poky-linux-gnueabi/u-boot/2023.10/image/boot/u-boot-raspberrypi3-2023.10-r0.bin ${IMAGE_ROOTFS}/boot/u-boot.bin"
 
 mkdir -p ../meta-custom/recipes-core/images
+
+sudo minicom -b 115200 -D /dev/ttyUSB0
