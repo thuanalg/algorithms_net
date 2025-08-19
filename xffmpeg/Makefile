@@ -10,3 +10,4 @@ clean:
 
 #export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:"/home/thuannt/x/FFmpeg/zffmpeg"
 #git config --global user.name "Thuận Nguyễn-Thái"
+
