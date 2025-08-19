@@ -5,35 +5,44 @@
 #include <opencv2/objdetect.hpp>
 #include <iostream>
 
-int main() {
-    cv::VideoCapture cap(0); // Mở webcam (camera 0)
+#include <opencv2/opencv.hpp>
+#include <iostream>
 
+int main() {
+    // Mở camera
+    cv::VideoCapture cap(0);
     if (!cap.isOpened()) {
-        std::cerr << "❌ Không thể mở camera!" << std::endl;
+        std::cerr << "Không thể mở camera!" << std::endl;
         return -1;
     }
 
-    // Khởi tạo bộ phát hiện người với HOG + SVM đã huấn luyện
-    cv::HOGDescriptor hog;
-    hog.setSVMDetector(cv::HOGDescriptor::getDefaultPeopleDetector());
+    // Load mô hình phát hiện mặt
+    cv::CascadeClassifier face_cascade;
+    if (!face_cascade.load("/home/thuannt/x/opencv/data/haarcascades/haarcascade_frontalface_default.xml")) {
+        std::cerr << "Không thể load haarcascade!" << std::endl;
+        return -1;
+    }
 
-    cv::Mat frame;
+    cv::Mat frame, gray;
+    std::vector<cv::Rect> faces;
 
     while (true) {
-        cap >> frame; // Đọc frame từ webcam
+        cap >> frame;
         if (frame.empty()) break;
 
-        std::vector<cv::Rect> people;
-        hog.detectMultiScale(frame, people, 0, cv::Size(8,8), cv::Size(32,32), 1.05, 2);
+        cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY);
+        cv::equalizeHist(gray, gray);  // tăng tương phản
 
-        // Vẽ hình chữ nhật quanh người phát hiện được
-        for (const auto& person : people) {
-            cv::rectangle(frame, person, cv::Scalar(0, 255, 0), 2);
+        // Detect mặt
+        face_cascade.detectMultiScale(gray, faces, 1.1, 4, 0, cv::Size(30, 30));
+
+        // Vẽ khung quanh mặt
+        for (const auto& face : faces) {
+            cv::rectangle(frame, face, cv::Scalar(0, 255, 0), 2);
         }
 
-        cv::imshow("Human Detection", frame);
+        cv::imshow("Face Detection", frame);
 
-        // Nhấn 'q' để thoát
         if (cv::waitKey(10) == 'q') break;
     }
 
@@ -41,3 +50,4 @@ int main() {
     cv::destroyAllWindows();
     return 0;
 }
+
