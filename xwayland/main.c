@@ -276,7 +276,7 @@ int main() {
 
 
 
-
+#if 0
 
 #include <gtk/gtk.h>
 #include <epoxy/gl.h>
@@ -311,3 +311,109 @@ int main(int argc, char *argv[]) {
     gtk_main();
     return 0;
 }
+
+#else
+
+#include <gtk/gtk.h>
+#include <vulkan/vulkan.h>
+#include <vulkan/vulkan_wayland.h>
+#include <gdk/wayland/gdkwayland.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+static VkInstance instance;
+static VkSurfaceKHR surface;
+
+static void create_vulkan_instance() {
+    VkApplicationInfo app_info = {0};
+    app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    app_info.pApplicationName = "GTK4 Vulkan Wayland Example";
+    app_info.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+    app_info.pEngineName = "No Engine";
+    app_info.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+    app_info.apiVersion = VK_API_VERSION_1_0;
+
+    const char *extensions[] = {
+        VK_KHR_SURFACE_EXTENSION_NAME,
+        VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME,
+    };
+
+    VkInstanceCreateInfo create_info = {0};
+    create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+    create_info.pApplicationInfo = &app_info;
+    create_info.enabledExtensionCount = 2;
+    create_info.ppEnabledExtensionNames = extensions;
+
+    VkResult res = vkCreateInstance(&create_info, NULL, &instance);
+    if (res != VK_SUCCESS) {
+        fprintf(stderr, "Failed to create Vulkan instance\n");
+        exit(1);
+    }
+}
+
+static void create_vulkan_surface(GtkWidget *widget) {
+    // Lấy GtkWindow từ widget
+    GtkWindow *window = GTK_WINDOW(gtk_widget_get_root(widget));
+    if (!GTK_IS_WINDOW(window)) {
+        fprintf(stderr, "Root widget is not a GtkWindow\n");
+        exit(1);
+    }
+
+    GdkSurface *gdk_surface = gtk_native_get_surface(GTK_NATIVE(window));
+    if (!gdk_surface) {
+        fprintf(stderr, "Failed to get GdkSurface from GtkWindow\n");
+        exit(1);
+    }
+
+    struct wl_display *wl_display = gdk_wayland_display_get_wl_display(gdk_surface_get_display(gdk_surface));
+    struct wl_surface *wl_surface = gdk_wayland_surface_get_wl_surface(gdk_surface);
+
+    if (!wl_display || !wl_surface) {
+        fprintf(stderr, "Failed to get wl_display or wl_surface\n");
+        exit(1);
+    }
+
+    VkWaylandSurfaceCreateInfoKHR create_info = {0};
+    create_info.sType = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
+    create_info.display = wl_display;
+    create_info.surface = wl_surface;
+
+    VkResult res = vkCreateWaylandSurfaceKHR(instance, &create_info, NULL, &surface);
+    if (res != VK_SUCCESS) {
+        fprintf(stderr, "Failed to create Vulkan Wayland surface\n");
+        exit(1);
+    }
+}
+
+static void activate(GtkApplication *app, gpointer user_data) {
+    GtkWidget *window = gtk_application_window_new(app);
+    gtk_window_set_title(GTK_WINDOW(window), "GTK4 Vulkan Wayland Example");
+    gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
+
+    GtkWidget *drawing_area = gtk_drawing_area_new();
+    gtk_window_set_child(GTK_WINDOW(window), drawing_area);
+
+    // Đảm bảo widget đã được realize (cần để surface native có thể lấy được)
+    gtk_widget_realize(window);
+
+    create_vulkan_instance();
+    create_vulkan_surface(window);
+
+    gtk_window_present(GTK_WINDOW(window));
+}
+
+int main(int argc, char **argv) {
+    GtkApplication *app = gtk_application_new("org.example.GtkVulkanWayland", 0);
+    g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
+
+    int status = g_application_run(G_APPLICATION(app), argc, argv);
+    g_object_unref(app);
+
+    if (surface)
+        vkDestroySurfaceKHR(instance, surface, NULL);
+    if (instance)
+        vkDestroyInstance(instance, NULL);
+
+    return status;
+}
+#endif
