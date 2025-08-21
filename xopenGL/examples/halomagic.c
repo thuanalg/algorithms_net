@@ -43,7 +43,7 @@
 #include <string.h>
 #include <math.h>       /* for cos(), sin(), and sqrt() */
 #include <GL/glut.h>    /* OpenGL Utility Toolkit header */
-
+#include <GL/gl.h>
 /* Some <math.h> files do not define M_PI... */
 #ifndef M_PI
 #define M_PI 3.14159265
