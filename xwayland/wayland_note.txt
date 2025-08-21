@@ -1,4 +1,9 @@
 Keywords: Wayland, openGL, EGL, libwayland-client, WSI (Vulkan), Mesa
 1. What are relation Wayland, openGL, Vulkan?
 
-gcc -g wayland_sine_opengl.c -o wayland_sine   -lwayland-client -lEGL -lGLESv2 -lm -lwayland-client -lwayland-egl -lEGL -lGLESv2 -lm
+gcc -g wayland_sine_opengl.c -o wayland_sine   
+-lwayland-client -lEGL -lGLESv2 -lm -lwayland-client -lwayland-egl -lEGL -lGLESv2 -lm
+
+https://github.com/lennyerik
+https://github.com/lennyerik/uwindow
+- pkg-config --cflags --libs gtk+-3.0 epoxy
