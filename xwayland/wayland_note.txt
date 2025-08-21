@@ -1,1 +1,2 @@
+Keywords: Wayland, openGL, EGL, libwayland-client, WSI (Vulkan), Mesa
 1. What are relation Wayland, openGL, Vulkan?
