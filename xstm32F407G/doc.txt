@@ -1,0 +1,25 @@
+Nhận diện MCU trên board
+
+STM32F407G-DISC1 dùng MCU STM32F407IGH6
+
+I → Industrial grade
+
+G → 1 MB Flash
+
+H6 → package LQFP100, 100 chân
+
+Vì vậy, khi IDE không có “STM32F407G-DISC1”, bạn chọn MCU STM32F407IGH6 là đúng.
+
+Tạo project trong STM32CubeIDE
+
+File → New → STM32 Project
+
+Chọn MCU Selector tab
+
+Nhập STM32F407IGH6 → IDE nhận MCU → Next
+
+Đặt tên project → Finish
+
+IDE tự sinh code khởi tạo HAL + CubeMX setup
+
+Bạn có thể debug/flash như bình thường.
