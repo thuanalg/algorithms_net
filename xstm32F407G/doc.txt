@@ -23,3 +23,20 @@ Nhập STM32F407IGH6 → IDE nhận MCU → Next
 IDE tự sinh code khởi tạo HAL + CubeMX setup
 
 Bạn có thể debug/flash như bình thường.
+
+===========================================================================
+source code: https://github.com/PaxInstruments/STM32CubeF4
+🔧 Cách để có UART ra PC
+===========================================================================
+USB-to-UART converter (ví dụ CP2102, CH340, FT232…).
+Cách nối dây:
+STM32 PA9 (USART1_TX) → USB-UART 
+STM32 PA10 (USART1_RX) → USB-UART TX (nếu muốn cả chiều nhận, có thể bỏ nếu chỉ test gửi)
+STM32 GND → USB-UART GND
+
+Cấu hình trong CubeMX (.ioc)
+Peripherals → USART2 → Asynchronous
+PA2 = USART2_TX, PA3 = USART2_RX (AF7).
+Baud: 115200, 8-N-1, Oversampling 16.
+Clock: giữ mặc định (USART2 chạy trên APB1).
+Project → Generate Code.
