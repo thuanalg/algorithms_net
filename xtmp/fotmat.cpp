@@ -1,3 +1,4 @@
+#if 0
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -31,3 +32,4 @@ int main()
 	auto elapsed = now1 - now0;
 	return 0;
 }
+#endif
