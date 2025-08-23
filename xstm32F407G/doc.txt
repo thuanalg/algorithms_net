@@ -40,3 +40,25 @@ PA2 = USART2_TX, PA3 = USART2_RX (AF7).
 Baud: 115200, 8-N-1, Oversampling 16.
 Clock: giữ mặc định (USART2 chạy trên APB1).
 Project → Generate Code.
+======================================================================
+Thông số kỹ thuật:
+
+Vi điều khiển chính: STM32F407VGT6 microcontroller featuring 32-bit ARM Cortex-M4F core, 1 MB Flash, 192 KB RAM in an LQFP100 package.
+Tích hợp sẵn mạch nạp và Debug ST-LINK/V2 with selection mode switch to use the kit as a standalone ST-LINK/V2 (with SWD connector for programming and debugging).
+Nguồn cấp từ cổng Mini USB qua các IC nguồn chuyển thành 3v3 để cấp cho MCU.
+Có sẵn các chân nguồn: 3 V and 5 V.
+Có sẵn cảm biến gia tốc: LIS302DL, ST MEMS motion sensor, 3-axis
+Có sẵn bộ xử lý âm thanh: MP45DT02, ST MEMS audio sensor, omni-directional digital microphone.
+Có sẵn bộ: CS43L22, audio DAC with integrated class D speaker driver.
+Có sẵn 8 Led.
+Có Led thông báo trạng thái nguồn
+Có nút nhấn và nút Reset tích hợp.
+Có cổng Micro USB OTG
+DSP Application.
+================================================================
+Datasheet:
+- https://www.alldatasheet.com/datasheet-pdf/pdf/792967/ETC2/STM32F407G-DISC1.html
+- https://www.alldatasheet.com/datasheet-pdf/view/792967/ETC2/STM32F407G-DISC1.html
+- https://www.alldatasheet.com/datasheet-pdf/view/163157/STMICROELECTRONICS/LIS302DL.html
+    + WHO_AM_I (page 19)
+    + ...
