@@ -1,0 +1,2 @@
+250825
+- https://gstreamer.freedesktop.org/documentation/installing/on-windows.html?gi-language=c
