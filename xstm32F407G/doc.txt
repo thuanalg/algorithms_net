@@ -62,3 +62,9 @@ Datasheet:
 - https://www.alldatasheet.com/datasheet-pdf/view/163157/STMICROELECTRONICS/LIS302DL.html
     + WHO_AM_I (page 19)
     + ...
+https://www.youtube.com/watch?v=byjGT2XEeFg
+https://www.youtube.com/watch?v=esIyBaXr_HE
+https://www.youtube.com/watch?v=dEQwSl8mCFs&t=198s
+https://www.st.com/resource/en/user_manual/um1472-discovery-kit-with-stm32f407vg-mcu-stmicroelectronics.pdf
+https://www.youtube.com/watch?v=bKfW9uSx5YA
+https://www.youtube.com/watch?v=bKfW9uSx5YA [*]
