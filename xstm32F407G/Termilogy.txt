@@ -5,9 +5,13 @@ CNx: Connector x, Chỉ cổng kết nối (connector), ví dụ:
     CN2: SWD/JTAG connector.
     CN3: Arduino-compatible header, v.v…
 
+CS/SS (Chip Select / Slave Select): Master chọn thiết bị Slave nào để giao tiếp.
+
+
 JP = Jumper (cầu nối/nhảy).
 
 LD: Led light, đèn Led
+
 
 MISO = Master In Slave Out
     👉 Đường dữ liệu từ Slave → Master.
@@ -16,7 +20,9 @@ MISO = Master In Slave Out
     MISO (Master In Slave Out): Slave gửi dữ liệu ngược lại Master.
     SCK (Serial Clock): Xung clock do Master phát ra.
 
-CS/SS (Chip Select / Slave Select): Master chọn thiết bị Slave nào để giao tiếp.
+
+NRST = Negative Reset (active-low reset). Đây là chân reset phần cứng của vi điều khiển.
+
 
 OSC: oscillator (mạch dao động / tạo xung clock).
     HSE (High Speed External oscillator)
@@ -26,6 +32,7 @@ OSC: oscillator (mạch dao động / tạo xung clock).
     LSE (Low Speed External oscillator)
         Thạch anh 32.768 kHz, nối vào chân OSC32_IN / OSC32_OUT.
         Dùng cho RTC (Real Time Clock), tiêu thụ điện rất thấp.
+
 SB: Solder Bridge = một cầu hàn nhỏ (pad hàn) trên PCB, 
     được thiết kế để bạn có thể ngắt hoặc nối mạch bằng cách hàn hoặc tháo hàn.
 
@@ -35,4 +42,4 @@ VDD:Voltage Drain Drain, chân nguồn cấp chính cho vi điều khiển, thư
 
 VIN: Voltage Input
 
-VSS: Voltage Source Supply Nguồn âm / mass (0V).
+VSS: Voltage Source Supply Nguồn âm / mass (0V). Like GND
