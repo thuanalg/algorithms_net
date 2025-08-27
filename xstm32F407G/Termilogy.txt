@@ -43,3 +43,6 @@ VDD:Voltage Drain Drain, chân nguồn cấp chính cho vi điều khiển, thư
 VIN: Voltage Input
 
 VSS: Voltage Source Supply Nguồn âm / mass (0V). Like GND
+
+X1 = Thạch anh 8 MHz (HSE) dùng làm High Speed External oscillator, cấp clock chính cho STM32F407.
+X2 = Thạch anh 32.768 kHz (LSE) dùng cho RTC (Real Time Clock).
