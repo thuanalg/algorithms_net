@@ -61,3 +61,17 @@ RTS: Request To Send
 DSR: Data Set Ready
 DCD: Data Carrier Detect
 SUS: Suspend
+
+
+====================================================================
+SPI: Serial Peripheral Interface
+U = Integrated Circuit (IC)
+J: Jumper / Jack / Connector
+https://khuenguyencreator.com/lap-trinh-stm32-voi-giao-thuc-spi/
+https://hshop.vn/cam-bien-accelerometer-3-truc-adxl345
+
+====================================================================
+
+I2C:
+- VL53L0X Laser Distance ToF Sensor
+- https://hshop.vn/cam-bien-accelerometer-3-truc-adxl345

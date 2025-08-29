@@ -665,3 +665,27 @@ Như đề cập ở trên C++ cũng có không gian riêng rất mạnh mẽ c�
 OVERLAPPED::InternalHigh 
 
 WriteFile + GetOverlappedResult example
+
+
+char *msg = "Hello World\n";
+HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
+HAL_Delay(3000);
+
+250828, 
+D:\reserach\serialmodule\build\Debug\simplelog.cfg
+COM4
+
+Experienced in analyzing, designing, and implementing high-quality software.
+
+Passionate about programming, both theory and practice.
+
+Willing to learn and share. Self-study.
+
+	  char cc[32];
+	  memset(cc, 0, sizeof(cc));
+	  HAL_StatusTypeDef ok = HAL_UART_Receive(&huart2, cc, 1, 1000);
+	  if(ok == HAL_OK) {
+		  char msg[32];
+		  snprintf(msg, 32, "Back %s\n", cc);
+		  HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
+	  }
