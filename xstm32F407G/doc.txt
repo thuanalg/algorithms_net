@@ -68,3 +68,6 @@ https://www.youtube.com/watch?v=dEQwSl8mCFs&t=198s
 https://www.st.com/resource/en/user_manual/um1472-discovery-kit-with-stm32f407vg-mcu-stmicroelectronics.pdf
 https://www.youtube.com/watch?v=bKfW9uSx5YA
 https://www.youtube.com/watch?v=bKfW9uSx5YA [*]
+
+STM32F407 SPI: 
+- https://tapit.vn/chuan-giao-tiep-spi-tren-stm32f4/
