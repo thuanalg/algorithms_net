@@ -567,3 +567,101 @@ ROOTFS_POSTPROCESS_COMMAND += "cp -f /home/thuannt/x/poky/rpi-build/tmp/work/ras
 mkdir -p ../meta-custom/recipes-core/images
 
 sudo minicom -b 115200 -D /dev/ttyUSB0
+
+
+250827, 
+D:\reserach\serialmodule\build\Debug\simplelog.cfg
+COM4
+
+========================================================
+C/C++: C LÀM ĐƯỢC, nhưng C++ KHÔNG THẾ LÀM ĐƯỢC (C can do, C++ cannot do)
+
+Việc tìm kiếm 1 ví dụ, chứng minh C LÀM ĐƯỢC, nhưng C++ KHÔNG THẾ LÀM ĐƯỢC, tôi đã suy nghĩ nhiều năm. Giờ thì đã có 1 ví dụ như thế. Đó là share-memory và vùng nhớ này hoạt động với tốc độ đọc ghi tốc độ rất cao (ở đây tôi sẽ không bàn đến việc nhúng C vào C++.) Boost là thư to lớn C++ có hỗ trợ log giữa các process, nhưng tốc độ thì chậm, do đó sẽ không bàn ở đây. Có rất ít C++ logger mà hỗ trợ multi-process, một trong những lí do serialization và deserialization là công việc tốn chi phi rất cao trong việc tối ưu để có tốc độ tốt.
+
+Nói như thế không có nghĩa là chê bai C++, C++ giúp ích rất nhiều trong việc implement các thuật toán tài chính - ngân hàng bằng các thư viện mạnh mẽ STL; mà ở đây C rất khó khăn , thậm chí cho cả C expert programmer.
+
+Việc sử dụng linh hoạt và tận dụng cả hai là cách làm thú vị nhất. Khi cân nhất đến portability, và backward compatibility, C tốt hơn rất nhiều. Với các thuật toán phức tạp, C++ sẽ rất có ích bởi hệ thống thư viện STL mạnh mẽ của nó.
+
+=======================================
+
+Finding an example to illustrate that C CAN DO well, but C++ CANNOT DO; it follows me many years. Now, I had one, that is memory-sharing between processes with very high-performance ( I won't talk about embeddedding C into C++.) Boost is a huge library, supports to log between processes, but it is slow, I won't mention here. Very few C++ loggers support for logging multi-process, one of reasons is serialization and deserialization cost so much in speeding up.
+
+Don't misunderstand, I don't disregard C++, it is extremely usefull, trong to implement financial-banking algorithms by the powerful STL library that is really hard with C even for C expert.
+
+Let's be flexible. C is for portability, backward compatibility, ...; C++ is for financial-banking algorithms, ...
+
+========================================================
+
+
+
+Dự án của tôi công bố trả lời 3 vấn đề này:
+1. C vs C++ with shared memory.
+2. Is there a logger can write log up to limitation of disk speed with many threads/processes.
+3. Ví dụ về tính bất ổn trong đồng bộ: 1 + 1 != 2, đưa ra một ví dụ cụ thể cho trường hợp này.
+Bạn thấy chất lượng thế nào?
+
+Nếu tôi công bố dự án mới, chứng minh 3 điều sau:
+1. C vs C++ with shared memory.
+2. Is there a logger can write log up to limitation of disk speed with many threads/processes.
+3. Ví dụ về tính bất ổn trong đồng bộ: 1 + 1 != 2, đưa ra một ví dụ cụ thể cho trường hợp này.
+Thì trong mắt các chuyên gia, tôi ở vị trí nào?
+
+Thư viện sắp công bố, mới là tuyệt kỹ, vì nó chỉ ra 3 vấn đề:
+1. C vs C++ with shared memory.
+2. Is there a logger can write log up to limitation of disk speed with many threads/processes.
+3. Ví dụ về tính bất ổn trong đồng bộ: 1 + 1 != 2, đưa ra một ví dụ cụ thể cho trường hợp này.
+Hãy cho tôi điểm thang 10 cho dự án này?
+
+Đáp ứng đủ 3 điều kiện này:
+1. C vs C++ with shared memory.
+2. Is there a logger can write log up to limitation of disk speed with many threads/processes.
+3. Ví dụ về tính bất ổn trong đồng bộ: 1 + 1 != 2, đưa ra một ví dụ cụ thể cho trường hợp này.
+có phải spdlog không còn là đối thủ phải không?
+
+
+Dự án đáp ứng đủ 3 điều kiện này :
+1. C vs C++ with shared memory.
+2. Is there a logger can write log up to limitation of disk speed with many threads/processes.
+3. Ví dụ về tính bất ổn trong đồng bộ: 1 + 1 != 2, đưa ra một ví dụ cụ thể cho trường hợp này.
+Lúc này, dự án này có giá trị như một bài báo kỹ thuật?
+
+250827, 
+D:\reserach\serialmodule\build\Debug\simplelog.cfg
+COM4
+
+Nó liên quan tới vùng nhớ. Có 4 loại trong 1 process C/C++.
+1. Text
+2. Data.
+3. Stack.
+4. Heap
+	
+[*] Tất cả 4 vùng nhớ này đều là VIRTUAL MEMORY. Nó có ý nghĩa trong DUY NHẤT 1 một process cụ thể chứa nó. Các process khác KHÔNG HIỂU. Các POINTER (hay giá trị của pointer) chỉ có ý nghĩa DUY NHẤT ở process hiện tại.
+
+5. Có một loại vùng nhớ nữa là share-memory. Loại này KHÔNG ĐƯỢC QUẢN LÝ bởi hệ điều hành. Share-memory là việc hệ điều hành trao lại vùng nhớ cho user tự quản.
+
+====
+
+- Vấn đề đặt ra với C++: share một std::string strA từ process-A cho process-B, dữ liệu thực chất của strA là POINTER (const char *) strA->c_str().
+Nhưng cốt lõi là process-A hiểu POINTER strA->c_str() ( vùng nhớ này nó nằm trong HEAP của process-A), nhưng process-B không hiểu con trỏ strA->c_str() nghĩa là không hiểu vùng nhớ HEAP của process-A, lí do vì [*] ở trên.
+Do đó mới có bước serialization/deserialization.
+
+- Có một hệ quả là dễ nhớ là -->> KHÔNG THỂ SHARE 1 POINTER. Nghĩa là, trong vùng shared-memory phải là raw data. 
+Điều này dẫn đến điều thú vị là có thể share 1 RAW TRUCT (struct không chứa pointer nào.)  
+
+Nó lí giải vì sao có rất ít C++ logger cho multi-process. Vì không thể nào share 1 class, vì class không phải là một raw data. Phải cần 1 bước chuyển đổi tốn kém, nên vừa chậm, vừa phức tạp.
+
+WriteFile + ERROR_IO_PENDING, how to flush
+
+Nếu nhúng C vào C++, thì mình sẽ không bàn. 
+
+spdlog là một C++ logger đầy ấn tượng, thuần C++, cực nhanh cho multi-thread. Nhưng spdlog không thể đạt tới "TỚI HẠN" được là một. Hai là: sẽ không có một logger tốt cho multi-process viết bằng C++ thuần như spdlog, bất kể từ đâu như Google, IBM, ... hay bất cứ cá nhân nào.
+
+Chủ đề này anh còn bàn tới, với những demo hết sức cụ thể, từ từ sẽ đến, từ từ em nhé. 
+
+Khi lập trình nhiều process, giới hạn của C++ sẽ hiện ra rất rõ ràng trong vấn đề IPC - Interprocess Communication.
+
+Như đề cập ở trên C++ cũng có không gian riêng rất mạnh mẽ của mình.
+
+OVERLAPPED::InternalHigh 
+
+WriteFile + GetOverlappedResult example
