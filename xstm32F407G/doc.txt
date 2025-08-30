@@ -60,11 +60,16 @@ https://www.youtube.com/watch?v=w8KWZ_Dwt2w
 
 ==================================================================================================================
 LIS302DL
+LIS = Linear Inertial Sensor
+DL = Device Line (hoặc version code)
 - https://www.alldatasheet.com/datasheet-pdf/view/163157/STMICROELECTRONICS/LIS302DL.html
 FF_WU_CFG: Free-Fall / Wake-Up Configuration Register
 FF_WU_THS: Threshold register
 FF_WU_DURATION: time
 F_WU_SRC: source register
+
+https://www.youtube.com/watch?v=niiPsfB30VE
+https://www.youtube.com/watch?v=dnfuNT1dPiM
 
 ==================================================================================================================
 Datasheet:
