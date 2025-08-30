@@ -689,3 +689,14 @@ Willing to learn and share. Self-study.
 		  snprintf(msg, 32, "Back %s\n", cc);
 		  HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
 	  }
+Major achievements:
+Open Source Contributor:
+Author of 2 libraries contributed to Google, openBMC/Linux Foundation, meta-openembedded/Yocto: libsimplelog and libserialmodule.
+
+Experienced in: 
+       Analyzing, designing, and implementing high-quality software.
+
+Senior Developer / Technical Assistant 
+The best performer of the FPT team 2024. Ever been member of FPT Delta Force.
+
+Viết trong CV thế này ổn không?
