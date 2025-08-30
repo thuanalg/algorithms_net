@@ -56,8 +56,15 @@ Có nút nhấn và nút Reset tích hợp.
 Có cổng Micro USB OTG
 DSP Application.
 
+https://www.youtube.com/watch?v=w8KWZ_Dwt2w
 
-
+==================================================================================================================
+LIS302DL
+- https://www.alldatasheet.com/datasheet-pdf/view/163157/STMICROELECTRONICS/LIS302DL.html
+FF_WU_CFG: Free-Fall / Wake-Up Configuration Register
+FF_WU_THS: Threshold register
+FF_WU_DURATION: time
+F_WU_SRC: source register
 
 ==================================================================================================================
 Datasheet:
