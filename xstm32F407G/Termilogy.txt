@@ -58,6 +58,8 @@ CPHA: (Clock Phase – Pha xung clock)
     CPHA = 0: dữ liệu được lấy mẫu tại cạnh đầu tiên của xung clock.
     CPHA = 1: dữ liệu được lấy mẫu tại cạnh thứ hai của xung clock.
 
+RCC: Reset and Clock Control
+
 ====================================================================
 UART: Universal Asynchronous Receiver/Transmitter
 DTR: Data Terminal Ready

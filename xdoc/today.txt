@@ -704,3 +704,97 @@ Viết trong CV thế này ổn không?
 Passionate about programming, both theory and practice. Willing to learn and share. Self-study.
 
 CPOL , CPHA 
+
+SPI + LIS302DL + read WhoAmI register + code sample.
+
+
+#define LIS_CS_PORT   GPIOE
+#define LIS_CS_PIN    GPIO_PIN_3
+
+// Macro điều khiển CS
+#define LIS_CS_LOW()   HAL_GPIO_WritePin(LIS_CS_PORT, LIS_CS_PIN, GPIO_PIN_RESET)
+#define LIS_CS_HIGH()  HAL_GPIO_WritePin(LIS_CS_PORT, LIS_CS_PIN, GPIO_PIN_SET)
+
+
+
+GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+__HAL_RCC_GPIOE_CLK_ENABLE();
+
+GPIO_InitStruct.Pin = GPIO_PIN_3;
+GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+GPIO_InitStruct.Pull = GPIO_NOPULL;
+GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+// CS mặc định ở HIGH (không chọn slave)
+HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_SET);
+
+
+
+
+LIS_CS_LOW();
+HAL_GPIO_WritePin(LIS_CS_PORT, LIS_CS_PIN, GPIO_PIN_RESET); // kéo LOW
+if (HAL_GPIO_ReadPin(LIS_CS_PORT, LIS_CS_PIN) == GPIO_PIN_RESET) {
+    // Thành công
+}
+
+LIS_CS_HIGH();
+HAL_GPIO_WritePin(LIS_CS_PORT, LIS_CS_PIN, GPIO_PIN_SET); // kéo HIGH
+if (HAL_GPIO_ReadPin(LIS_CS_PORT, LIS_CS_PIN) == GPIO_PIN_SET) {
+    // Thành công
+}
+
+HAL_Delay(1000);
+
+
+
+#include "stm32f4xx_hal.h"
+
+extern SPI_HandleTypeDef hspi1; // SPI1 đã init trong CubeMX
+
+#define LIS_CS_PORT   GPIOE
+#define LIS_CS_PIN    GPIO_PIN_3
+
+#define LIS_CS_LOW()   HAL_GPIO_WritePin(LIS_CS_PORT, LIS_CS_PIN, GPIO_PIN_RESET)
+#define LIS_CS_HIGH()  HAL_GPIO_WritePin(LIS_CS_PORT, LIS_CS_PIN, GPIO_PIN_SET)
+
+uint8_t lis302dl_read_reg(uint8_t reg)
+{
+    uint8_t tx = reg | 0x80;   // bit7=1 => Read
+    uint8_t rx = 0;
+
+    LIS_CS_LOW();
+    HAL_SPI_Transmit(&hspi1, &tx, 1, HAL_MAX_DELAY);
+    HAL_SPI_Receive(&hspi1, &rx, 1, HAL_MAX_DELAY);
+    LIS_CS_HIGH();
+
+    return rx;
+}
+
+uint8_t lis302dl_read_reg(uint8_t reg)
+{
+    uint8_t tx[2];
+    uint8_t rx[2];
+
+    tx[0] = reg | 0x80;  // set bit7 = Read
+    tx[1] = 0x00;        // dummy byte
+
+    LIS_CS_LOW();
+    HAL_SPI_TransmitReceive(&hspi1, tx, rx, 2, HAL_MAX_DELAY);
+    LIS_CS_HIGH();
+
+    return rx[1]; // byte thứ 2 là dữ liệu từ LIS302DL
+}
+
+
+
+uint8_t lis302dl_whoami_check(void)
+{
+    uint8_t whoami = lis302dl_read_reg(0x0F);
+    if (whoami == 0x3B) {
+        return 1; // OK
+    } else {
+        return 0; // Fail
+    }
+}
