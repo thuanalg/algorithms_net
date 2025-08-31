@@ -47,8 +47,16 @@ VSS: Voltage Source Supply Nguồn âm / mass (0V). Like GND
 X1 = Thạch anh 8 MHz (HSE) dùng làm High Speed External oscillator, cấp clock chính cho STM32F407.
 X2 = Thạch anh 32.768 kHz (LSE) dùng cho RTC (Real Time Clock).
 
+DMA: Direct Memory Access
 
-
+CPOL: (Clock Polarity – Cực tính xung clock)
+    Quy định mức nhàn rỗi (idle) của tín hiệu SCK (Serial Clock).
+    CPOL = 0 → SCK ở mức thấp (0) khi nhàn rỗi.
+    CPOL = 1 → SCK ở mức cao (1) khi nhàn rỗi.
+CPHA: (Clock Phase – Pha xung clock)
+    Quy định tại cạnh nào của xung clock dữ liệu sẽ được chốt (sample) và thay đổi (shift).
+    CPHA = 0: dữ liệu được lấy mẫu tại cạnh đầu tiên của xung clock.
+    CPHA = 1: dữ liệu được lấy mẫu tại cạnh thứ hai của xung clock.
 
 ====================================================================
 UART: Universal Asynchronous Receiver/Transmitter
@@ -67,6 +75,12 @@ SUS: Suspend
 SPI: Serial Peripheral Interface
 U = Integrated Circuit (IC)
 J: Jumper / Jack / Connector
+SS: Slave Select
+CS (Chip Select, đôi khi gọi SCS)
+SPC (Serial Port Clock = SPI SCK)
+SDI (Serial Data Input = MOSI)
+SDO (Serial Data Output = MISO)
+
 https://khuenguyencreator.com/lap-trinh-stm32-voi-giao-thuc-spi/
 https://hshop.vn/cam-bien-accelerometer-3-truc-adxl345
 

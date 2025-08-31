@@ -93,7 +93,7 @@ STM32F407 SPI:
 - https://khuenguyencreator.com/lap-trinh-stm32-voi-giao-thuc-spi/
 - https://www.youtube.com/watch?v=eZf9K0rcLuY, STM32F4 Discovery -  Điều khiển LED từ PC qua giao tiếp UART
 - https://www.youtube.com/watch?v=DaN36fbr95U Chuẩn SPI Master: không hiểu
-https://www.youtube.com/watch?v=tn7SRAOBp7g, Chuẩn SPI Slave, không hiểu
+- https://www.youtube.com/watch?v=tn7SRAOBp7g, Chuẩn SPI Slave, không hiểu
 
 ================================================================================================================
 
