@@ -21,6 +21,12 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#define LIS_CS_PORT   GPIOE
+#define LIS_CS_PIN    GPIO_PIN_3
+
+// Macro điều khiển CS
+#define LIS_CS_LOW()   HAL_GPIO_WritePin(LIS_CS_PORT, LIS_CS_PIN, GPIO_PIN_RESET)
+#define LIS_CS_HIGH()  HAL_GPIO_WritePin(LIS_CS_PORT, LIS_CS_PIN, GPIO_PIN_SET)
 
 /* USER CODE END Includes */
 
@@ -40,15 +46,100 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+SPI_HandleTypeDef hspi1;
+
+UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
+void spi1_flush_rx(void)
+{
+    volatile uint8_t tmp;
+
+    // Đọc liên tục khi cờ RXNE = 1 (có dữ liệu trong RX buffer)
+    while (__HAL_SPI_GET_FLAG(&hspi1, SPI_FLAG_RXNE))
+    {
+        tmp = SPI1->DR;
+    }
+
+    // Clear lỗi Overrun nếu có
+    __HAL_SPI_CLEAR_OVRFLAG(&hspi1);
+
+    (void)tmp; // tránh warning "unused variable"
+}
+#if 0
+uint8_t lis302dl_read_reg(uint8_t reg)
+{
+    uint8_t tx = reg | 0x80 ;   // bit7=1 => Read
+    uint8_t rx = 0;
+#if 0
+    spi1_flush_rx();
+#else
+#endif
+    LIS_CS_LOW();
+    HAL_SPI_Transmit(&hspi1, &tx, 1, HAL_MAX_DELAY);
+    //HAL_Delay(5);
+    HAL_SPI_Receive(&hspi1, &rx, 1, HAL_MAX_DELAY);
+    HAL_Delay(5);
+    LIS_CS_HIGH();
+
+    return rx;
+}
+#else
+
+
+uint8_t lis302dl_read_reg(uint8_t reg)
+{
+    uint8_t tx[2] = {0};
+    uint8_t tx_init[2] = {0};
+    uint8_t rx[2] = {0};
+    HAL_StatusTypeDef ret;
+    GPIO_PinState pin_state;
+
+    tx[0] = reg | 0x80;  // set bit7 = Read
+#if 1
+    tx[1] = 0x00;        // dummy byte
+    spi1_flush_rx();
+#else
+    tx[1] = 0xff;
+#endif
+
+    LIS_CS_LOW();
+    pin_state = HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_3);
+    if(pin_state != GPIO_PIN_RESET) {
+    	HAL_UART_Transmit(&huart2, "Err RESET\r\n", strlen("Err RESET\r\n"), HAL_MAX_DELAY);
+    }
+    do {
+    	//HAL_Delay(500);
+    	ret = HAL_SPI_TransmitReceive(&hspi1, tx, rx, 2, HAL_MAX_DELAY);
+    	if(ret == HAL_OK) {
+    		break;
+    	}
+    	//HAL_Delay(100);
+    } while(1);
+    LIS_CS_HIGH();
+    pin_state = HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_3);
+    if(pin_state != GPIO_PIN_SET) {
+    	HAL_UART_Transmit(&huart2, "Err SET\r\n", strlen("Err SET\r\n"), HAL_MAX_DELAY);
+    }
+    return rx[1]; // byte thứ 2 là dữ liệu từ LIS302DL
+}
+#endif
+uint8_t lis302dl_whoami_check(void)
+{
+    return lis302dl_read_reg(0x0F);
+
+}
 
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+static void MX_GPIO_Init(void);
+static void MX_USART2_UART_Init(void);
+static void MX_SPI1_Init(void);
 /* USER CODE BEGIN PFP */
-
+#define MSG_ME "Hello back!\n"
+static void showled(uint8_t);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -84,8 +175,14 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_USART2_UART_Init();
+  MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
-
+  uint8_t ch;
+  int count = 0;
+  uint8_t str[32];
+  HAL_StatusTypeDef err;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -95,6 +192,38 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+#if 0
+	  LIS_CS_LOW();
+	  HAL_GPIO_WritePin(LIS_CS_PORT, LIS_CS_PIN, GPIO_PIN_RESET); // kéo LOW
+	  GPIO_PinState stt = HAL_GPIO_ReadPin(LIS_CS_PORT, LIS_CS_PIN);
+	  if (stt == GPIO_PIN_RESET) {
+	      printf("OK");
+	  }
+	  HAL_Delay(1000);
+	  LIS_CS_HIGH();
+
+	  HAL_GPIO_WritePin(LIS_CS_PORT, LIS_CS_PIN, GPIO_PIN_SET); // kéo HIGH
+	  stt = HAL_GPIO_ReadPin(LIS_CS_PORT, LIS_CS_PIN);
+	  if (stt == GPIO_PIN_SET) {
+		  printf("OK");
+	  }
+	  HAL_Delay(1000);
+#else
+
+	  err = HAL_UART_Receive(&huart2, &ch, 1, HAL_MAX_DELAY);
+	  if(err) {
+		  HAL_Delay(1000);
+		  continue;
+	  }
+	  ch = lis302dl_whoami_check();
+	  snprintf(str, 32, "SPI1 whoami: 0x%X\r\n", (int)ch);
+	  HAL_UART_Transmit(&huart2, str, strlen(str), HAL_MAX_DELAY);
+	  //HAL_UART_Transmit(&huart2, MSG_ME, sizeof(MSG_ME), HAL_MAX_DELAY);
+	  //HAL_Delay(1000);
+	  //HAL_UART_Transmit(&huart2, MSG_ME, sizeof(MSG_ME), HAL_MAX_DELAY);
+	  //HAL_Delay(1000);
+	  showled(count++);
+#endif
   }
   /* USER CODE END 3 */
 }
@@ -140,8 +269,155 @@ void SystemClock_Config(void)
   }
 }
 
-/* USER CODE BEGIN 4 */
+/**
+  * @brief SPI1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_SPI1_Init(void)
+{
 
+  /* USER CODE BEGIN SPI1_Init 0 */
+
+  /* USER CODE END SPI1_Init 0 */
+
+  /* USER CODE BEGIN SPI1_Init 1 */
+
+  /* USER CODE END SPI1_Init 1 */
+  /* SPI1 parameter configuration*/
+  hspi1.Instance = SPI1;
+  hspi1.Init.Mode = SPI_MODE_MASTER;
+  hspi1.Init.Direction = SPI_DIRECTION_2LINES;
+  hspi1.Init.DataSize = SPI_DATASIZE_16BIT;
+  hspi1.Init.CLKPolarity = SPI_POLARITY_HIGH;
+  hspi1.Init.CLKPhase = SPI_PHASE_2EDGE;
+  hspi1.Init.NSS = SPI_NSS_SOFT;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
+  hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
+  hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
+  hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+  hspi1.Init.CRCPolynomial = 10;
+  if (HAL_SPI_Init(&hspi1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN SPI1_Init 2 */
+
+  /* USER CODE END SPI1_Init 2 */
+
+}
+
+/**
+  * @brief USART2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART2_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART2_Init 0 */
+
+  /* USER CODE END USART2_Init 0 */
+
+  /* USER CODE BEGIN USART2_Init 1 */
+
+  /* USER CODE END USART2_Init 1 */
+  huart2.Instance = USART2;
+  huart2.Init.BaudRate = 115200;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_RTS_CTS;
+  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART2_Init 2 */
+
+  /* USER CODE END USART2_Init 2 */
+
+}
+
+/**
+  * @brief GPIO Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_GPIO_Init(void)
+{
+  /* USER CODE BEGIN MX_GPIO_Init_1 */
+
+  /* USER CODE END MX_GPIO_Init_1 */
+
+  /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOD_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
+  __HAL_RCC_GPIOH_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+
+  /* USER CODE BEGIN MX_GPIO_Init_2 */
+
+#if 1
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+  __HAL_RCC_GPIOE_CLK_ENABLE();
+
+  GPIO_InitStruct.Pin = GPIO_PIN_3;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;   // phải là OUTPUT_PP
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_SET); // mặc định HIGH
+
+  // ---- Cấu hình LED3–6 (PD12,13,14,15) ----
+  __HAL_RCC_GPIOD_CLK_ENABLE();
+
+  GPIO_InitStruct.Pin = GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+  // Bật tất cả LED (set HIGH)
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15, GPIO_PIN_SET);
+#endif
+
+#if 0
+  GPIO_InitStruct.Pin = GPIO_PIN_3;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;   // phải là OUTPUT_PP
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_SET); // mặc định HIGH
+#endif
+
+  /* USER CODE END MX_GPIO_Init_2 */
+}
+
+/* USER CODE BEGIN 4 */
+void showled(uint8_t i) {
+	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15, GPIO_PIN_RESET);
+	switch (i%4) {
+		case 0:
+			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET);
+			break;
+		case 1:
+			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
+			break;
+		case 2:
+			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
+			break;
+		case 3:
+			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
+			break;
+		default:
+			break;
+	}
+}
 /* USER CODE END 4 */
 
 /**
