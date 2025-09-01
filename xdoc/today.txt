@@ -798,3 +798,12 @@ uint8_t lis302dl_whoami_check(void)
         return 0; // Fail
     }
 }
+
+
+cơ chế tỵ nạn, tỵ nạn
+
+WhoAmI + SPI1 is 0xFF
+
+250901, 
+D:\reserach\serialmodule\build\Debug\simplelog.cfg
+COM4
