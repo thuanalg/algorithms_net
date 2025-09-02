@@ -810,3 +810,7 @@ COM4
 
 The best performers at FPT in 2024. Former member of FPT Delta Force.
 425
+
+Với CubeIDE
+Làm sao set PE1 làm MEMS_INT2?
+Làm sao set PE0 làm MEMS_INT1?
