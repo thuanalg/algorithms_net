@@ -60,6 +60,8 @@ CPHA: (Clock Phase – Pha xung clock)
 
 RCC: Reset and Clock Control
 
+Prescaler:
+
 ====================================================================
 UART: Universal Asynchronous Receiver/Transmitter
 DTR: Data Terminal Ready
