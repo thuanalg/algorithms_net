@@ -204,6 +204,8 @@ int main(void)
   HAL_StatusTypeDef err;
   uint8_t ReadAddr = 0x0F;
 
+  LIS3DSH_Init(0xF0);
+
   ACCELERO_IO_Init();
   ch[0] = ch[1] = 0;
   if(cmd == 'F') {
