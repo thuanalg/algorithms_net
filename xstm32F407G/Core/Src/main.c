@@ -15,19 +15,32 @@
   *
   ******************************************************************************
   */
+  
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+//#include "stm32f4_discovery.h"
+#include <string.h>
+#include "stm32f4xx_hal.h"
+#include "stm32f4_discovery.h"
+#include "lis3dsh.h"
 #define LIS_CS_PORT   GPIOE
 #define LIS_CS_PIN    GPIO_PIN_3
-
+/* Read/Write command */
+#define READWRITE_CMD_THUANNT                     ((uint8_t)0x80)
+/* Multiple byte read/write command */
+#define MULTIPLEBYTE_CMD_THUANNT                  ((uint8_t)0x40)
+/* Dummy Byte Send by the SPI Master device in order to generate the Clock to the Slave device */
+#define DUMMY_BYTE_THUANNT                        ((uint8_t)0x00)
+//thuannt
 // Macro điều khiển CS
 #define LIS_CS_LOW()   HAL_GPIO_WritePin(LIS_CS_PORT, LIS_CS_PIN, GPIO_PIN_RESET)
 #define LIS_CS_HIGH()  HAL_GPIO_WritePin(LIS_CS_PORT, LIS_CS_PIN, GPIO_PIN_SET)
-
+static uint8_t SPIme_WriteRead(uint8_t Byte);
+void ACCELERO_me_IO_Read(uint8_t *pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead);
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -179,10 +192,37 @@ int main(void)
   MX_USART2_UART_Init();
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
-  uint8_t ch;
+#if 0
+  MX_SPI1_Init();
+#else
+  SPIx_Init_ext(&hspi1);
+#endif
+  uint8_t ch[8] = {0};
+  uint8_t cmd = 0;
   int count = 0;
-  uint8_t str[32];
+  uint8_t str[64];
   HAL_StatusTypeDef err;
+  uint8_t ReadAddr = 0x0F;
+
+  ACCELERO_IO_Init();
+  ch[0] = ch[1] = 0;
+  if(cmd == 'F') {
+	  ACCELERO_IO_Read(ch, 0x0F, 1);
+  }
+  if(cmd == 'D') {
+	  ACCELERO_IO_Read(ch, 0x0D, 1);
+  }
+  if(cmd == 'E') {
+	  ACCELERO_IO_Read(ch, 0x0E, 1);
+  }
+  else {
+	  ACCELERO_IO_Read(ch, 0x0F, 1);
+  }
+  ch[7] = 0x67;
+  ACCELERO_IO_Write(ch + 7, 0x20, 1);
+  //ACCELERO_IO_Write(ch + 7, 0x22, 1);
+  ch[7] = 0x10;
+  ACCELERO_IO_Write(ch + 7, 0x24, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -209,20 +249,42 @@ int main(void)
 	  }
 	  HAL_Delay(1000);
 #else
-
-	  err = HAL_UART_Receive(&huart2, &ch, 1, HAL_MAX_DELAY);
+#if 0
+	  err = HAL_UART_Receive(&huart2, &cmd, 1, HAL_MAX_DELAY);
 	  if(err) {
 		  HAL_Delay(1000);
 		  continue;
 	  }
-	  ch = lis302dl_whoami_check();
-	  snprintf(str, 32, "SPI1 whoami: 0x%X\r\n", (int)ch);
+#endif
+	  //ch = lis302dl_whoami_check();
+
+#if 0
+	  ACCELERO_IO_Init();
+	  ACCELERO_me_IO_Read(&ch, ReadAddr, 1);
+#else
+
+
+
+	  //ch[7] = 0x00;
+	  //ACCELERO_IO_Read(ch + 7, 0x24, 1);
+
+	  ACCELERO_IO_Read(ch + 1, 0x28, 1);
+	  ACCELERO_IO_Read(ch + 2, 0x29, 1);
+	  ACCELERO_IO_Read(ch + 3, 0x2A, 1);
+	  ACCELERO_IO_Read(ch + 4, 0x2B, 1);
+	  ACCELERO_IO_Read(ch + 5, 0x2C, 1);
+	  ACCELERO_IO_Read(ch + 6, 0x2D, 1);
+
+#endif
+	  memset(str, 0, sizeof(str));
+	  snprintf(str, 64,
+			  "SPI1 whoami: 0x%X/0x%X, (0x%X, 0x%X, 0x%X, 0x%X, 0x%X, 0x%X,)\r\n",
+			  (int)ch[0], (int)ch[7], (int)ch[1], (int)ch[2],
+			  (int)ch[3], (int)ch[4], (int)ch[5], (int)ch[6]);
 	  HAL_UART_Transmit(&huart2, str, strlen(str), HAL_MAX_DELAY);
-	  //HAL_UART_Transmit(&huart2, MSG_ME, sizeof(MSG_ME), HAL_MAX_DELAY);
-	  //HAL_Delay(1000);
-	  //HAL_UART_Transmit(&huart2, MSG_ME, sizeof(MSG_ME), HAL_MAX_DELAY);
-	  //HAL_Delay(1000);
 	  showled(count++);
+	  HAL_Delay(200);
+
 #endif
   }
   /* USER CODE END 3 */
@@ -288,9 +350,9 @@ static void MX_SPI1_Init(void)
   hspi1.Instance = SPI1;
   hspi1.Init.Mode = SPI_MODE_MASTER;
   hspi1.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi1.Init.DataSize = SPI_DATASIZE_16BIT;
-  hspi1.Init.CLKPolarity = SPI_POLARITY_HIGH;
-  hspi1.Init.CLKPhase = SPI_PHASE_2EDGE;
+  hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
+  hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
+  hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
   hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
@@ -353,32 +415,32 @@ static void MX_GPIO_Init(void)
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOD_CLK_ENABLE();
-  __HAL_RCC_GPIOC_CLK_ENABLE();
-  __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 
 #if 1
-  GPIO_InitTypeDef GPIO_InitStruct = {0};
 
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+#if 1
   __HAL_RCC_GPIOE_CLK_ENABLE();
+  ACCELERO_CS_GPIO_CLK_ENABLE();
 
   GPIO_InitStruct.Pin = GPIO_PIN_3;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;   // phải là OUTPUT_PP
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_MEDIUM;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
   HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_SET); // mặc định HIGH
-
+#endif
   // ---- Cấu hình LED3–6 (PD12,13,14,15) ----
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
-  GPIO_InitStruct.Pin = GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15;
+  GPIO_InitStruct.Pin = GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15 ;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Speed = GPIO_SPEED_MEDIUM;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
   // Bật tất cả LED (set HIGH)
@@ -399,6 +461,47 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+static uint8_t SPIme_WriteRead(uint8_t Byte)
+{
+  uint8_t receivedbyte = 0;
+
+  /* Send a Byte through the SPI peripheral */
+  /* Read byte from the SPI bus */
+  if(HAL_SPI_TransmitReceive(&hspi1, (uint8_t*) &Byte, (uint8_t*) &receivedbyte, 1, 100) != HAL_OK)
+  {
+    //SPIx_Error();
+  }
+
+  return receivedbyte;
+}
+void ACCELERO_me_IO_Read(uint8_t *pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead)
+{
+  if(NumByteToRead > 0x01)
+  {
+    ReadAddr |= (uint8_t)(READWRITE_CMD_THUANNT | MULTIPLEBYTE_CMD_THUANNT);
+  }
+  else
+  {
+    ReadAddr |= (uint8_t)READWRITE_CMD_THUANNT;
+  }
+  /* Set chip select Low at the start of the transmission */
+  LIS_CS_LOW();
+
+  /* Send the Address of the indexed register */
+  SPIme_WriteRead(ReadAddr);
+
+  /* Receive the data that will be read from the device (MSB First) */
+  while(NumByteToRead > 0x00)
+  {
+    /* Send dummy byte (0x00) to generate the SPI clock to ACCELEROMETER (Slave device) */
+    *pBuffer = SPIme_WriteRead(DUMMY_BYTE_THUANNT);
+    NumByteToRead--;
+    pBuffer++;
+  }
+
+  /* Set chip select High at the end of the transmission */
+  LIS_CS_HIGH();
+}
 void showled(uint8_t i) {
 	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15, GPIO_PIN_RESET);
 	switch (i%4) {

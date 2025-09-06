@@ -15,6 +15,7 @@
   *
   ******************************************************************************
   */
+  
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
@@ -25,6 +26,7 @@
 #include <string.h>
 #include "stm32f4xx_hal.h"
 #include "stm32f4_discovery.h"
+#include "lis3dsh.h"
 #define LIS_CS_PORT   GPIOE
 #define LIS_CS_PIN    GPIO_PIN_3
 /* Read/Write command */
@@ -33,7 +35,7 @@
 #define MULTIPLEBYTE_CMD_THUANNT                  ((uint8_t)0x40)
 /* Dummy Byte Send by the SPI Master device in order to generate the Clock to the Slave device */
 #define DUMMY_BYTE_THUANNT                        ((uint8_t)0x00)
-
+//thuannt
 // Macro điều khiển CS
 #define LIS_CS_LOW()   HAL_GPIO_WritePin(LIS_CS_PORT, LIS_CS_PIN, GPIO_PIN_RESET)
 #define LIS_CS_HIGH()  HAL_GPIO_WritePin(LIS_CS_PORT, LIS_CS_PIN, GPIO_PIN_SET)
@@ -195,12 +197,32 @@ int main(void)
 #else
   SPIx_Init_ext(&hspi1);
 #endif
-  uint8_t ch[2] = {0};
+  uint8_t ch[8] = {0};
   uint8_t cmd = 0;
   int count = 0;
-  uint8_t str[32];
+  uint8_t str[64];
   HAL_StatusTypeDef err;
   uint8_t ReadAddr = 0x0F;
+
+  ACCELERO_IO_Init();
+  ch[0] = ch[1] = 0;
+  if(cmd == 'F') {
+	  ACCELERO_IO_Read(ch, 0x0F, 1);
+  }
+  if(cmd == 'D') {
+	  ACCELERO_IO_Read(ch, 0x0D, 1);
+  }
+  if(cmd == 'E') {
+	  ACCELERO_IO_Read(ch, 0x0E, 1);
+  }
+  else {
+	  ACCELERO_IO_Read(ch, 0x0F, 1);
+  }
+  ch[7] = 0x67;
+  ACCELERO_IO_Write(ch + 7, 0x20, 1);
+  //ACCELERO_IO_Write(ch + 7, 0x22, 1);
+  ch[7] = 0x10;
+  ACCELERO_IO_Write(ch + 7, 0x24, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -227,12 +249,13 @@ int main(void)
 	  }
 	  HAL_Delay(1000);
 #else
-
+#if 0
 	  err = HAL_UART_Receive(&huart2, &cmd, 1, HAL_MAX_DELAY);
 	  if(err) {
 		  HAL_Delay(1000);
 		  continue;
 	  }
+#endif
 	  //ch = lis302dl_whoami_check();
 
 #if 0
@@ -240,29 +263,28 @@ int main(void)
 	  ACCELERO_me_IO_Read(&ch, ReadAddr, 1);
 #else
 
-	  ACCELERO_IO_Init();
-	  ch[0] = ch[1] = 0;
-	  if(cmd == 'F') {
-		  ACCELERO_IO_Read(ch, 0x0F, 1);
-	  }
-	  if(cmd == 'D') {
-		  ACCELERO_IO_Read(ch, 0x0D, 1);
-	  }
-	  if(cmd == 'E') {
-		  ACCELERO_IO_Read(ch, 0x0E, 1);
-	  }
-	  else {
-		  ACCELERO_IO_Read(ch, 0x0F, 1);
-	  }
+
+
+	  //ch[7] = 0x00;
+	  //ACCELERO_IO_Read(ch + 7, 0x24, 1);
+
+	  ACCELERO_IO_Read(ch + 1, 0x28, 1);
+	  ACCELERO_IO_Read(ch + 2, 0x29, 1);
+	  ACCELERO_IO_Read(ch + 3, 0x2A, 1);
+	  ACCELERO_IO_Read(ch + 4, 0x2B, 1);
+	  ACCELERO_IO_Read(ch + 5, 0x2C, 1);
+	  ACCELERO_IO_Read(ch + 6, 0x2D, 1);
+
 #endif
 	  memset(str, 0, sizeof(str));
-	  snprintf(str, 32, "SPI1 whoami: 0x%X\r\n", (int)ch[0]);
+	  snprintf(str, 64,
+			  "SPI1 whoami: 0x%X/0x%X, (0x%X, 0x%X, 0x%X, 0x%X, 0x%X, 0x%X,)\r\n",
+			  (int)ch[0], (int)ch[7], (int)ch[1], (int)ch[2],
+			  (int)ch[3], (int)ch[4], (int)ch[5], (int)ch[6]);
 	  HAL_UART_Transmit(&huart2, str, strlen(str), HAL_MAX_DELAY);
-	  //HAL_UART_Transmit(&huart2, MSG_ME, sizeof(MSG_ME), HAL_MAX_DELAY);
-	  //HAL_Delay(1000);
-	  //HAL_UART_Transmit(&huart2, MSG_ME, sizeof(MSG_ME), HAL_MAX_DELAY);
-	  //HAL_Delay(1000);
 	  showled(count++);
+	  HAL_Delay(200);
+
 #endif
   }
   /* USER CODE END 3 */
