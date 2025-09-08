@@ -91,6 +91,7 @@ https://hshop.vn/cam-bien-accelerometer-3-truc-adxl345
 ====================================================================
 
 I2C: (4 Lines, 2 data, 2 for power)
+- https://controllerstech.com/stm32-as-i2c-slave-part-1/
 SDA: Serial Data
 SCL: (Serial Clock)
 - VL53L0X Laser Distance ToF Sensor
