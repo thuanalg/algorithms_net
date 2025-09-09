@@ -113,3 +113,4 @@ STM32F407 I2C:
 Ebook:
 - Mastering STM32 - Second Edition by Carmine Noviello
 - https://github.com/cnoviello
+- https://www.youtube.com/watch?v=HjneAhCy2N4
