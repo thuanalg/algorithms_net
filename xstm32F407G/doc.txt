@@ -114,3 +114,4 @@ Ebook:
 - Mastering STM32 - Second Edition by Carmine Noviello
 - https://github.com/cnoviello
 - https://www.youtube.com/watch?v=HjneAhCy2N4
+- HOW TRANSISTORS REMEMBER DATA: https://www.youtube.com/watch?v=rM9BjciBLmg
