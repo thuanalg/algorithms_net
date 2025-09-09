@@ -107,7 +107,8 @@ STM32F407 I2C:
 - https://tapit.vn/chuan-giao-tiep-spi-tren-stm32f4/
 - https://khuenguyencreator.com/lap-trinh-stm32-voi-giao-thuc-spi/
 - https://controllerstech.com/stm32-as-i2c-slave-part-1/
-
+- https://www.youtube.com/watch?v=usvAIEdp_I8, 
+- Module 3 trục ADXL 345
 
 ================================================================================================================
 Ebook:
