@@ -1,0 +1,72 @@
+Khi làm việc với **OpenCV**, thường sẽ xoay quanh một số nhóm công việc chính (tùy lĩnh vực: xử lý ảnh, thị giác máy tính, AI/ML, robotics, …). Mình tóm gọn các mảng chính như sau:
+
+---
+
+### 🔹 1. Xử lý ảnh cơ bản (Image Processing)
+
+* Đọc, ghi, hiển thị ảnh (`cv::imread`, `cv::imshow`, `cv::imwrite`).
+* Biến đổi màu sắc (RGB ↔ Gray ↔ HSV).
+* Thay đổi kích thước, cắt, xoay, lật ảnh.
+* Lọc ảnh: Gaussian, Median, Bilateral filtering (giảm nhiễu).
+* Phép toán hình thái học: erosion, dilation, opening, closing.
+
+---
+
+### 🔹 2. Xử lý video & camera
+
+* Đọc video từ file hoặc camera (`cv::VideoCapture`).
+* Hiển thị video theo từng frame.
+* Ghi video ra file (`cv::VideoWriter`).
+* Tách khung hình (frame extraction).
+
+---
+
+### 🔹 3. Phát hiện đặc trưng (Feature Detection & Matching)
+
+* Edge detection (Canny, Sobel, Laplacian).
+* Corner detection (Harris, Shi-Tomasi).
+* Feature descriptors (SIFT, SURF, ORB).
+* Matching (BFMatcher, FLANN).
+
+---
+
+### 🔹 4. Xử lý hình dạng & đối tượng (Object/Shape Processing)
+
+* Ngưỡng (thresholding) & Adaptive thresholding.
+* Phân đoạn ảnh (segmentation).
+* Contour detection & shape analysis.
+* Phát hiện đường thẳng (Hough Transform).
+* Phát hiện hình tròn, ellipse, polygon.
+
+---
+
+### 🔹 5. Machine Learning & Deep Learning
+
+* Nhận diện khuôn mặt (Haar Cascade, DNN).
+* Nhận diện vật thể (YOLO, SSD, Faster R-CNN tích hợp qua OpenCV DNN).
+* OCR (nhận diện chữ với Tesseract + OpenCV preprocessing).
+* Phân loại ảnh bằng model ML (SVM, KNN, DNN).
+
+---
+
+### 🔹 6. Xử lý hình học & Camera
+
+* Hiệu chỉnh méo ống kính (camera calibration).
+* Biến đổi hình học (Affine, Perspective).
+* Stereo vision (tính độ sâu từ 2 camera).
+* Estimation (Fundamental matrix, Homography).
+
+---
+
+### 🔹 7. Ứng dụng nâng cao
+
+* Tracking (KCF, MOSSE, MedianFlow, CSRT).
+* Motion detection (background subtraction).
+* AR (Augmented Reality) – overlay 3D objects lên video.
+* Robotics: Navigation, SLAM (kết hợp với ROS).
+
+---
+
+👉 Tóm gọn: **OpenCV** cho phép làm từ mức **xử lý ảnh cơ bản → phân tích đặc trưng → nhận diện đối tượng → thị giác máy tính nâng cao**.
+
+Bạn muốn mình làm bảng **roadmap học OpenCV từ cơ bản → nâng cao** để dễ theo dõi không?
