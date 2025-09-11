@@ -109,6 +109,7 @@ STM32F407 I2C:
 - https://controllerstech.com/stm32-as-i2c-slave-part-1/
 - https://www.youtube.com/watch?v=usvAIEdp_I8, 
 - Module 3 trục ADXL 345
+- https://sourcevu.sysprogs.com/stm32/HAL/symbols/HAL_I2C_IsDeviceReady
 
 ================================================================================================================
 Ebook:
