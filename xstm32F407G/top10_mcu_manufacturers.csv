@@ -1,0 +1,11 @@
+﻿#,Nhà sản xuất,Quốc gia,Phân khúc chính,Kiến trúc/Họ MCU,Độ phổ biến,Chất lượng,Điểm mạnh chính
+1,STMicroelectronics (STM32),Thụy Sĩ (Pháp–Ý),"Công nghiệp, ô tô, IoT, consumer","ARM Cortex-M (STM32 family), STM8",Rất cao,Rất tốt,"Đa dạng STM32, ecosystem mạnh"
+2,NXP Semiconductors,Hà Lan / Mỹ,"Ô tô, công nghiệp, secure MCUs, connectivity",ARM Cortex-M / i.MX,Rất cao,Rất tốt,"Mạnh ở automotive, bảo mật"
+3,Microchip Technology (Atmel),Mỹ,"Embedded general, industrial, consumer","8-bit (AVR), 16/32-bit (PIC, SAM/ARM)",Rất phổ biến,Ổn định,"Rộng sản phẩm, AVR/PIC/SAM"
+4,Renesas Electronics,Nhật Bản,"Ô tô, công nghiệp, consumer","32-bit (RA, RX, RH850), 8/16-bit",Rất mạnh ô tô,Rất cao,Nổi bật ở automotive/real-time
+5,Texas Instruments (TI),Mỹ,"Industrial, automotive, analog + MCU combos","ARM Cortex-M, MSP430",Cao,Rất tốt,"Mạnh về analog+MCU, industrial"
+6,Infineon Technologies,Đức,"Automotive, power, industrial, security","ARM Cortex-M (XMC), Cypress PSoC",Mạnh automotive,Rất tốt,"Mua Cypress, mạnh power/secure"
+7,Espressif Systems,Trung Quốc,"IoT, consumer, Wi-Fi/BLE devices",Xtensa (ESP32 family),Rất phổ biến IoT,Tốt,"Ưu thế: Wi-Fi+BT tích hợp, giá thấp"
+8,Silicon Labs,Mỹ,"IoT, wireless (Zigbee, Thread), low-power",ARM Cortex-M (EFM32) + wireless SoCs,Ổn định IoT,Rất tốt,"Mạnh wireless stacks, low-power"
+9,Toshiba Electronic Devices,Nhật Bản,"Consumer, industrial, appliance",8/16/32-bit MCUs,Ổn định,Ổn định,"MCU cho appliance, motor control"
+10,Analog Devices / Others,Mỹ / khác,"Industrial, niche, legacy",ARM/Proprietary/legacy,Thấp hơn,Tốt,"Niche markets, signal processing"
