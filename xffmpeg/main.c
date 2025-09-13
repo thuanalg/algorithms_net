@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // Tìm stream video đầu tiên
+    // Find the first stream video
     int video_index = -1;
     for (unsigned i = 0; i < fmt_ctx->nb_streams; i++) {
         if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
@@ -53,7 +53,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // Chuẩn bị codec để decode
+    //Prepare codec to decode
     AVCodecParameters *codecpar = fmt_ctx->streams[video_index]->codecpar;
     AVCodec *codec = avcodec_find_decoder(codecpar->codec_id);
     if (!codec) {
