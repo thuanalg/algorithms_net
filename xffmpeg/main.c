@@ -7,9 +7,13 @@
 #include <libswscale/swscale.h>
 
 int main(int argc, char* argv[]) {
-    const char *device_name = "/dev/video0"; // Linux: /dev/video0
+#ifndef UNIX_LINUX	
+    const char *device_name = "video=Integrated Camera"; // Linux: /dev/video0
     const char *input_format_name = "video4linux2"; // Windows có thể dùng "dshow", macOS "avfoundation"
-
+#else
+    const char *device_name = "/dev/video0"; // Linux: /dev/video0
+    const char *input_format_name = "dshow"; // Windows có thể dùng "dshow", macOS "avfoundation"
+#endif
     avdevice_register_all();
     avformat_network_init();
 
