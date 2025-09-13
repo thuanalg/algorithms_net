@@ -7,6 +7,7 @@
 #include <libswscale/swscale.h>
 
 int main(int argc, char* argv[]) {
+	int ret = 0;
 #ifndef UNIX_LINUX	
     const char *device_name = "video=Integrated Webcam"; 
     const char *input_format_name = "dshow"; 
@@ -76,8 +77,10 @@ int main(int argc, char* argv[]) {
 
     while (av_read_frame(fmt_ctx, pkt) >= 0) {
         if (pkt->stream_index == video_index) {
-            if (avcodec_send_packet(codec_ctx, pkt) == 0) {
-                while (avcodec_receive_frame(codec_ctx, frame) == 0) {
+            if (avcodec_send_packet(codec_ctx, pkt) == 0) 
+            {
+			    ret = avcodec_receive_frame(codec_ctx, frame);
+                while (ret == 0) {
                 #if 0
                     printf("Frame %d: type=%c, size=%d bytes\n",
                            codec_ctx->frame_number,
