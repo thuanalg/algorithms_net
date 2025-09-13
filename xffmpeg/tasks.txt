@@ -1,0 +1,52 @@
+Here’s a **Top 30 list of common requirements when working with FFmpeg in real-world projects** (covering multimedia apps, video servers, streaming services, and embedded systems):
+
+---
+
+### **Core Video & Audio Processing**
+
+1. Video encoding (e.g., H.264, HEVC, VP9, AV1).
+2. Video decoding for playback.
+3. Audio encoding (AAC, MP3, Opus, Vorbis).
+4. Audio decoding.
+5. Format/container muxing (MP4, MKV, TS, FLV).
+6. Format/container demuxing.
+7. Transcoding (convert video+audio formats).
+8. Remuxing (change container without re-encoding).
+9. Hardware acceleration (NVENC, QuickSync, VAAPI, CUDA).
+10. Subtitle encoding/decoding (SRT, ASS, DVB, closed captions).
+
+---
+
+### **Streaming & Networking**
+
+11. RTMP live streaming (input/output).
+12. HLS (HTTP Live Streaming) packaging and serving.
+13. MPEG-DASH packaging.
+14. RTP/RTSP streaming.
+15. WebRTC integration (low-latency streaming).
+16. Adaptive bitrate (ABR) streaming.
+17. Network protocol handling (HTTP, UDP, TCP, SRT).
+18. CDN integration (prepare video for distribution).
+
+---
+
+### **Editing & Processing Features**
+
+19. Video filters (scale, crop, rotate, overlay, blur, sharpen).
+20. Audio filters (volume, equalizer, mixing).
+21. Concatenation of multiple media files.
+22. Trimming/splitting video/audio clips.
+23. Adding/removing watermarks or logos.
+24. Generating thumbnails & preview images.
+25. Frame extraction (e.g., JPEG/PNG sequences).
+26. Audio waveform/spectrogram generation.
+27. Color space conversion (YUV ↔ RGB, HDR → SDR).
+28. Subtitle hardcoding (burn-in) or soft muxing.
+29. Metadata editing (title, artist, codec info).
+30. Bitrate/resolution optimization for storage or streaming.
+
+---
+
+👉 In short, if you’re hired for an FFmpeg project, you’ll likely deal with **encoding/decoding, streaming protocols, filtering/editing, and API-level integration** into larger systems (servers, cloud platforms, or embedded devices).
+
+Do you want me to also add **what skills/libraries to learn for each of these 30 items** (like `libavcodec`, `libavformat`, `libavfilter` mapping)? That could be a good **roadmap for FFmpeg development**.
