@@ -8,11 +8,11 @@
 
 int main(int argc, char* argv[]) {
 #ifndef UNIX_LINUX	
-    const char *device_name = "video=Integrated Camera"; // Linux: /dev/video0
-    const char *input_format_name = "video4linux2"; // Windows có thể dùng "dshow", macOS "avfoundation"
+    const char *device_name = "video=Integrated Webcam"; 
+    const char *input_format_name = "dshow"; 
 #else
-    const char *device_name = "/dev/video0"; // Linux: /dev/video0
-    const char *input_format_name = "dshow"; // Windows có thể dùng "dshow", macOS "avfoundation"
+    const char *device_name = "/dev/video0"; 
+    const char *input_format_name = "dshow"; 
 #endif
     avdevice_register_all();
     avformat_network_init();
