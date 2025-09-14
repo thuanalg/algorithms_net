@@ -1,0 +1,4 @@
+- av_codec_iterate
+- av_codec_is_encoder
+https://ffmpeg.org/doxygen/6.0/group__lavc__core.html#ga7cd040fcc147340186deb0c54dc996b0
+
