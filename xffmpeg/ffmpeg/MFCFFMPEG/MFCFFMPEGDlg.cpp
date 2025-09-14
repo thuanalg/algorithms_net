@@ -65,7 +65,9 @@ BEGIN_MESSAGE_MAP(CMFCFFMPEGDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-END_MESSAGE_MAP()
+	ON_NOTIFY(
+	    LVN_ITEMCHANGED, IDC_LIST1, &CMFCFFMPEGDlg::OnLvnItemchangedList1)
+	END_MESSAGE_MAP()
 
 
 // CMFCFFMPEGDlg message handlers
@@ -153,3 +155,11 @@ HCURSOR CMFCFFMPEGDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+void
+CMFCFFMPEGDlg::OnLvnItemchangedList1(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+	// TODO: Add your control notification handler code here
+	*pResult = 0;
+}
