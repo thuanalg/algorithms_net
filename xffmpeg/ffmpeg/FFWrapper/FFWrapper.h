@@ -35,10 +35,7 @@
 extern "C" {
 #endif
 
-#include <libavdevice/avdevice.h>
-#include <libavformat/avformat.h>
-#include <libavcodec/avcodec.h>
-#include <libswscale/swscale.h>
+
 
 #ifndef UNIX_LINUX
 #ifndef __STATIC_FF_WRAPPER__

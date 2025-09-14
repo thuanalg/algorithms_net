@@ -1,7 +1,11 @@
 #include "FFWrapper.h"
+#include <libavdevice/avdevice.h>
+#include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
+#include <libswscale/swscale.h>
 
 int
-ffwr_all_codecs()
+ffwr_all_codecs(FFWR_CODEC **lst)
 {
 	int ret = 0;
 	const AVCodec *codec = NULL;
