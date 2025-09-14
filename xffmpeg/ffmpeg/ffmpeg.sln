@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36327.8 d17.14
+VisualStudioVersion = 17.14.36327.8
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ffmpeg", "ffmpeg\ffmpeg.vcxproj", "{58D7ADC1-991D-47AB-BE48-2EB96537717C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ffmpegWin64", "ffmpeg\ffmpeg.vcxproj", "{58D7ADC1-991D-47AB-BE48-2EB96537717C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MFCFFMPEG", "MFCFFMPEG\MFCFFMPEG.vcxproj", "{BEBCBBAC-4E3C-9C6F-286E-EE07BB390DFA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,14 @@ Global
 		{58D7ADC1-991D-47AB-BE48-2EB96537717C}.Release|x64.Build.0 = Release|x64
 		{58D7ADC1-991D-47AB-BE48-2EB96537717C}.Release|x86.ActiveCfg = Release|Win32
 		{58D7ADC1-991D-47AB-BE48-2EB96537717C}.Release|x86.Build.0 = Release|Win32
+		{BEBCBBAC-4E3C-9C6F-286E-EE07BB390DFA}.Debug|x64.ActiveCfg = Debug|x64
+		{BEBCBBAC-4E3C-9C6F-286E-EE07BB390DFA}.Debug|x64.Build.0 = Debug|x64
+		{BEBCBBAC-4E3C-9C6F-286E-EE07BB390DFA}.Debug|x86.ActiveCfg = Debug|Win32
+		{BEBCBBAC-4E3C-9C6F-286E-EE07BB390DFA}.Debug|x86.Build.0 = Debug|Win32
+		{BEBCBBAC-4E3C-9C6F-286E-EE07BB390DFA}.Release|x64.ActiveCfg = Release|x64
+		{BEBCBBAC-4E3C-9C6F-286E-EE07BB390DFA}.Release|x64.Build.0 = Release|x64
+		{BEBCBBAC-4E3C-9C6F-286E-EE07BB390DFA}.Release|x86.ActiveCfg = Release|Win32
+		{BEBCBBAC-4E3C-9C6F-286E-EE07BB390DFA}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
