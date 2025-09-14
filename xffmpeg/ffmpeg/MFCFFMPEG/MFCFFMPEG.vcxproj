@@ -97,8 +97,8 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>$(SolutionDir)\lib\static</AdditionalLibraryDirectories>
-      <AdditionalDependencies>avcodec.lib;avformat.lib;swscale.lib;avfilter.lib;avdevice.lib;avutil.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)\lib\static</AdditionalLibraryDirectories>
+      <AdditionalDependencies>avcodec.lib;avformat.lib;swscale.lib;avfilter.lib;avdevice.lib;avutil.lib;FFWrapper.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -186,6 +186,8 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="FF_ListCtrl.h" />
+    <ClInclude Include="FF_MemDetect.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="MFCFFMPEG.h" />
     <ClInclude Include="MFCFFMPEGDlg.h" />
@@ -194,6 +196,8 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="FF_ListCtrl.cpp" />
+    <ClCompile Include="FF_MemDetect.cpp" />
     <ClCompile Include="MFCFFMPEG.cpp" />
     <ClCompile Include="MFCFFMPEGDlg.cpp" />
     <ClCompile Include="pch.cpp">

@@ -3,7 +3,7 @@
 //
 
 #pragma once
-
+#include "FF_ListCtrl.h"
 
 // CMFCFFMPEGDlg dialog
 class CMFCFFMPEGDlg : public CDialogEx
@@ -19,7 +19,7 @@ public:
 
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
-	  CListCtrl *lst_ff_codec;
+	  FF_ListCtrl *lst_ff_codec;
 
 
 // Implementation
