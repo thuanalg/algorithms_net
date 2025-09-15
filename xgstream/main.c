@@ -30,16 +30,28 @@ void handle_sigint(int sig) {
     g_print("Stopping pipeline...\n");
     gst_element_send_event(pipeline, gst_event_new_eos());
 }
-
-int main(int argc, char *argv[]) {
+#if 0
+int main1(int argc, char *argv[]) {
     gst_init(&argc, &argv);
 
     // Pipeline quay video từ camera và âm thanh từ mic, ghi ra MP4
-const char *pipeline_description =
+#ifndef UNIX_LINUX
+    const char *pipeline_description =
+	"dshowvideosrc device-name=\"Integrated Webcam\" ! videoconvert ! "
+	"video/x-raw,format=I420 ! "
+	"x264enc tune=zerolatency bitrate=2048 speed-preset=superfast ! queue "
+	"! mux. "
+	"dshowaudiosrc device-name=\"Microphone (Realtek(R) Audio)\" ! "
+	"audioconvert ! audioresample ! "
+	"audio/x-raw,rate=44100,channels=2 ! avenc_aac bitrate=128000 ! queue "
+	"! mux. "
+	"mp4mux name=mux ! filesink location=output.mp4";
+#else
+    const char *pipeline_description =
     "v4l2src device=/dev/video0 ! videoconvert ! video/x-raw,format=I420 ! x264enc tune=zerolatency bitrate=2048 speed-preset=superfast ! queue ! mux. "
     "pulsesrc ! audioconvert ! audioresample ! audio/x-raw,rate=44100,channels=2 ! avenc_aac bitrate=128000 ! queue ! mux. "
     "mp4mux name=mux ! filesink location=output.mp4";
-
+#endif
     GError *error = NULL;
     pipeline = gst_parse_launch(pipeline_description, &error);
 
@@ -69,3 +81,45 @@ const char *pipeline_description =
 
     return 0;
 }
+#else
+#include <gst/gst.h>
+//#include <gst/device/device.h>
+// <gst/device/devicemonitor.h>
+
+int
+main(int argc, char *argv[])
+{
+	gst_init(&argc, &argv);
+
+	GstDeviceMonitor *monitor = gst_device_monitor_new();
+	GstCaps *caps_video = gst_caps_new_empty_simple("video/x-raw");
+	gst_device_monitor_add_filter(monitor, "Video/Source", caps_video);
+	gst_caps_unref(caps_video);
+
+	GstCaps *caps_audio = gst_caps_new_empty_simple("audio/x-raw");
+	gst_device_monitor_add_filter(monitor, "Audio/Source", caps_audio);
+	gst_caps_unref(caps_audio);
+
+	if (!gst_device_monitor_start(monitor)) {
+		g_printerr("Failed to start device monitor\n");
+		return -1;
+	}
+
+	GList *devices = gst_device_monitor_get_devices(monitor);
+	if (!devices) {
+		g_printerr("No devices found!\n");
+	} else {
+		for (GList *l = devices; l; l = l->next) {
+			GstDevice *dev = GST_DEVICE(l->data);
+			g_print("Device: %s (%s)\n",
+			    gst_device_get_display_name(dev),
+			    gst_device_get_device_class(dev));
+		}
+		g_list_free_full(devices, (GDestroyNotify)gst_object_unref);
+	}
+
+	gst_device_monitor_stop(monitor);
+	gst_object_unref(monitor);
+	return 0;
+}
+#endif
