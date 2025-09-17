@@ -3,6 +3,7 @@
 #include <libavutil/opt.h>
 #include <stdio.h>
 #include <libavformat/avformat.h>
+#include <libavformat/avio.h>
 
 
 void list_devices(const char *device_type) {
@@ -10,6 +11,8 @@ void list_devices(const char *device_type) {
     AVOutputFormat *output_format = NULL;
     AVDeviceInfoList *dev_list = NULL;
     AVDeviceInfo **devices = 0; 
+    AVDeviceInfo *dev = 0; 
+    //AVMediaType *ptype ;
 
     // Initialize FFmpeg device library
     avdevice_register_all();
@@ -22,10 +25,13 @@ void list_devices(const char *device_type) {
             int ret = avdevice_list_input_sources(input_format, NULL, NULL, &dev_list);
             if (ret >= 0 && dev_list) {
                 for (int i = 0; i < dev_list->nb_devices; i++) {
-                    devices = dev_list->devices;
-                    if(devices) {
-                        char *name = devices[i]->device_name;
-                        printf("Audio Device %d: %s\n", i, name);
+                    dev = dev_list->devices[i];
+                    if(dev) {
+                        char *name = dev->device_name;
+                        char *device_description = dev->device_description;
+                        //AVMediaType *ptype = devices[i]->media_types;
+                        printf("Audio Device %d: %s, nb_media_types: %d, device_description: %s\n", 
+                            i, name, dev->nb_media_types, device_description);
                     }
                 }
                 //av_device_list_free(&dev_list);
@@ -42,10 +48,13 @@ void list_devices(const char *device_type) {
             int ret = avdevice_list_input_sources(input_format, NULL, NULL, &dev_list);
             if (ret >= 0 && dev_list) {
                 for (int i = 0; i < dev_list->nb_devices; i++) {
-                    devices = dev_list->devices;
-                    if(devices) {
-                        char *name = devices[i]->device_name;
-                        printf("Audio Device %d: %s\n", i, name);
+                    dev = dev_list->devices[i];
+                    if(dev) {
+                        char *name = dev->device_name;
+                        char *device_description = dev->device_description;
+                        //AVMediaType *ptype = devices[i]->media_types;
+                        printf("Audio Device %d: %s, nb_media_types: %d, device_description: %s\n", 
+                            i, name, dev->nb_media_types, device_description);
                     }
                 }
                 //av_device_list_free(&dev_list);
