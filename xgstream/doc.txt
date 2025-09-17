@@ -1,2 +1,10 @@
 250825
 - https://gstreamer.freedesktop.org/documentation/installing/on-windows.html?gi-language=c
+https://gstreamer.freedesktop.org/documentation/gstreamer/gstpluginfeature.html?gi-language=c
+0. hello
+    - https://gstreamer.freedesktop.org/documentation/application-development/basics/helloworld.html?gi-language=c
+    
+1. list codecs
+
+2. list au/av devices
+3. record by camera
