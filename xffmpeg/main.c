@@ -158,6 +158,8 @@ int save_frame_to_mp4(AVFrame *frame, const char *filename) {
     codec_ctx->gop_size = 10;
     codec_ctx->max_b_frames = 1;
     codec_ctx->pix_fmt = AV_PIX_FMT_YUV420P;
+    //avio_alloc_context
+    //init_push_encoder
 
     if (fmt_ctx->oformat->flags & AVFMT_GLOBALHEADER)
         codec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
@@ -212,3 +214,166 @@ int save_frame_to_mp4(AVFrame *frame, const char *filename) {
 
     return 0;
 }
+
+#if 0
+#include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
+#include <libavutil/opt.h>
+#include <libavutil/imgutils.h>
+
+// Global static context (only for demo, thread-unsafe)
+static AVFormatContext *format_ctx = NULL;
+static AVCodecContext  *codec_ctx = NULL;
+static AVStream        *video_stream = NULL;
+static AVIOContext     *avio_ctx = NULL;
+static uint8_t         *avio_buffer = NULL;
+static FILE            *output_file = NULL;
+static int64_t         frame_pts = 0;
+
+static int write_packet(void *opaque, uint8_t *buf, int buf_size) {
+    FILE *f = (FILE *)opaque;
+    return fwrite(buf, 1, buf_size, f);
+}
+
+int init_push_encoder(FILE *f, int width, int height) {
+    output_file = f;
+
+    // Allocate format context
+    avformat_alloc_output_context2(&format_ctx, NULL, "mp4", NULL);
+    if (!format_ctx) {
+        fprintf(stderr, "Could not create format context\n");
+        return -1;
+    }
+
+    // Allocate AVIOContext to write to FILE*
+    avio_buffer = av_malloc(4096);
+    avio_ctx = avio_alloc_context(avio_buffer, 4096, 1, f, NULL, write_packet, NULL);
+    format_ctx->pb = avio_ctx;
+    format_ctx->flags |= AVFMT_FLAG_CUSTOM_IO;
+
+    // Find encoder
+    const AVCodec *codec = avcodec_find_encoder(AV_CODEC_ID_H264);
+    if (!codec) {
+        fprintf(stderr, "H264 codec not found\n");
+        return -1;
+    }
+
+    // Create new video stream
+    video_stream = avformat_new_stream(format_ctx, NULL);
+    if (!video_stream) {
+        fprintf(stderr, "Could not create stream\n");
+        return -1;
+    }
+
+    codec_ctx = avcodec_alloc_context3(codec);
+    codec_ctx->codec_id = AV_CODEC_ID_H264;
+    codec_ctx->bit_rate = 400000;
+    codec_ctx->width = width;
+    codec_ctx->height = height;
+    codec_ctx->time_base = (AVRational){1, 25};
+    codec_ctx->framerate = (AVRational){25, 1};
+    codec_ctx->gop_size = 10;
+    codec_ctx->max_b_frames = 1;
+    codec_ctx->pix_fmt = AV_PIX_FMT_YUV420P;
+
+    if (format_ctx->oformat->flags & AVFMT_GLOBALHEADER)
+        codec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+
+    if (avcodec_open2(codec_ctx, codec, NULL) < 0) {
+        fprintf(stderr, "Could not open codec\n");
+        return -1;
+    }
+
+    avcodec_parameters_from_context(video_stream->codecpar, codec_ctx);
+    video_stream->time_base = codec_ctx->time_base;
+
+    // Write MP4 header
+    if (avformat_write_header(format_ctx, NULL) < 0) {
+        fprintf(stderr, "Error writing header\n");
+        return -1;
+    }
+
+    return 0;
+}
+
+int push_avframe(AVFrame *frame, FILE *f) {
+    if (!format_ctx || !codec_ctx) {
+        fprintf(stderr, "Encoder not initialized. Call init_push_encoder() first.\n");
+        return -1;
+    }
+
+    // Set proper PTS
+    frame->pts = frame_pts++;
+
+    // Send frame to encoder
+    int ret = avcodec_send_frame(codec_ctx, frame);
+    if (ret < 0) {
+        fprintf(stderr, "Error sending frame to encoder\n");
+        return -1;
+    }
+
+    // Receive packet(s)
+    AVPacket pkt;
+    av_init_packet(&pkt);
+    pkt.data = NULL;
+    pkt.size = 0;
+
+    while (avcodec_receive_packet(codec_ctx, &pkt) == 0) {
+        pkt.stream_index = video_stream->index;
+        av_interleaved_write_frame(format_ctx, &pkt);
+        av_packet_unref(&pkt);
+    }
+
+    return 0;
+}
+
+void flush_and_close_encoder() {
+    if (!codec_ctx || !format_ctx) return;
+
+    // Flush encoder
+    avcodec_send_frame(codec_ctx, NULL);
+    AVPacket pkt;
+    av_init_packet(&pkt);
+    pkt.data = NULL;
+    pkt.size = 0;
+    while (avcodec_receive_packet(codec_ctx, &pkt) == 0) {
+        pkt.stream_index = video_stream->index;
+        av_interleaved_write_frame(format_ctx, &pkt);
+        av_packet_unref(&pkt);
+    }
+
+    // Write trailer
+    av_write_trailer(format_ctx);
+
+    // Cleanup
+    avcodec_free_context(&codec_ctx);
+    avformat_free_context(format_ctx);
+    av_free(avio_buffer);
+    avio_context_free(&avio_ctx);
+
+    codec_ctx = NULL;
+    format_ctx = NULL;
+    video_stream = NULL;
+    avio_ctx = NULL;
+    avio_buffer = NULL;
+    frame_pts = 0;
+}
+    //Cách sử dụng
+FILE *f = fopen("output.mp4", "wb");
+
+// Gọi 1 lần đầu
+init_push_encoder(f, width, height);
+
+// Lặp cho nhiều AVFrame
+for (int i = 0; i < N; i++) {
+    AVFrame *frame = create_frame_somehow(...);
+    push_avframe(frame, f);
+    av_frame_free(&frame);
+}
+
+// Gọi 1 lần cuối
+flush_and_close_encoder();
+fclose(f);
+
+
+#endif
