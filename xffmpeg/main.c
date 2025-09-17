@@ -19,7 +19,10 @@ int main(int argc, char* argv[]) {
     const char *device_name = "/dev/video0"; 
     const char *input_format_name = "v4l2"; 
 #endif
-    
+    const AVInputFormat *ifmt = NULL;
+    while ((ifmt = av_input_video_device_next(ifmt))) {
+        printf("Input format: %s (%s)\n", ifmt->name, ifmt->long_name);
+    }    
     avdevice_register_all();
     avformat_network_init();
     //get_all_encoders();
@@ -375,5 +378,9 @@ for (int i = 0; i < N; i++) {
 flush_and_close_encoder();
 fclose(f);
 
-
+Input format: fbdev (Linux framebuffer)
+Input format: kmsgrab (KMS screen capture)
+Input format: lavfi (Libavfilter virtual input device)
+Input format: video4linux2,v4l2 (Video4Linux2 device grab)
+Input format: x11grab (X11 screen capture, using XCB)
 #endif
