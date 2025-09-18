@@ -51,25 +51,52 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    AVFormatContext *audio_ctx = NULL;
+    AVInputFormat *audio_input_fmt = av_find_input_format("alsa");
+    const char *audio_device = "default";
+
+    if (avformat_open_input(&audio_ctx, audio_device, audio_input_fmt, NULL) < 0) {
+        fprintf(stderr, "Cannot open audio device\n");
+        return -1;
+    }
+ 
+    if (avformat_find_stream_info(audio_ctx, NULL) < 0) {
+        fprintf(stderr, "Cannot get info of the audio stream\n");
+        avformat_close_input(&audio_ctx);
+        return 1;
+    }
+       
     // Find the first stream video
     int video_index = -1;
+    int audio_index = -1;
     for (unsigned i = 0; i < fmt_ctx->nb_streams; i++) {
         if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
             video_index = i;
             break;
-        }
+        }     
     }
+    for (unsigned i = 0; i < audio_ctx->nb_streams; i++) {
+
+        if (audio_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+            audio_index = i;
+            break;
+        }        
+    }    
     if (video_index < 0) {
-        fprintf(stderr, "Cannnot find the stream\n");
+        fprintf(stderr, "Cannnot find the video stream\n");
         avformat_close_input(&fmt_ctx);
         return 1;
     }
-
+    if (audio_index < 0) {
+        fprintf(stderr, "Cannnot find the audio stream\n");
+        avformat_close_input(&fmt_ctx);
+        return 1;
+    }
     //Prepare codec to decode
     AVCodecParameters *codecpar = fmt_ctx->streams[video_index]->codecpar;
     AVCodec *codec = avcodec_find_decoder(codecpar->codec_id);
     if (!codec) {
-        fprintf(stderr, "Không tìm thấy codec phù hợp\n");
+        fprintf(stderr, "Not found\n");
         avformat_close_input(&fmt_ctx);
         return 1;
     }
@@ -77,7 +104,7 @@ int main(int argc, char* argv[]) {
     AVCodecContext *codec_ctx = avcodec_alloc_context3(codec);
     avcodec_parameters_to_context(codec_ctx, codecpar);
     if (avcodec_open2(codec_ctx, codec, NULL) < 0) {
-        fprintf(stderr, "Không thể mở codec\n");
+        fprintf(stderr, "Cannot open codec\n");
         avcodec_free_context(&codec_ctx);
         avformat_close_input(&fmt_ctx);
         return 1;
@@ -99,7 +126,13 @@ int main(int argc, char* argv[]) {
                            frame->pkt_size);
                     av_frame_unref(frame);
                 #else
-                    fprintf(stdout, "nb_side_data: %d\n", frame->nb_side_data);
+                    //AVSampleFormat a = -1; //unknown
+                    int fmt = frame->format;
+                    int nb_samples = frame->nb_samples;
+                    int mytype = 0;
+                    mytype = codec_ctx->codec_type;
+                    fprintf(stdout, "nb_side_data: %d, fm: %d, nb_samples: %d, mytype: %d\n", 
+                        frame->nb_side_data, fmt, nb_samples, mytype);
                     av_frame_unref(frame);
                 #endif
                 }
