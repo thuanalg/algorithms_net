@@ -627,5 +627,133 @@ void mp4_writer_close(MP4Writer *w) {
     av_free(w->avio_buffer);
     avio_context_free(&w->avio_ctx);
 }
++-------------+        +------------------+         +------------------+
+| Camera/Mic  |  --->  | FFmpeg Encoder   |  --->   | WebRTC Publisher |
++-------------+        +------------------+         +------------------+
+                                                    |
+                                      +-------------------------------+
+                                      | Signaling Server (WebSocket) |
+                                      +-------------------------------+
+                                                    |
+                                          +------------------+
+                                          | Web Browser      |
+                                          | (WebRTC Peer)    |
+                                          +------------------+
+1. Khởi tạo codec và format
+2. Tạo và mở output file (MP4)
+3. Tạo video stream (H.264), audio stream (AAC)
+4. Ghi header vào file
+5. Ghi từng frame (encode -> write packet)
+6. Ghi trailer (kết thúc file)
+[Raw Frames] → [Encode bằng libavcodec] → [Gói vào format bằng libavformat] → [Ghi file .mp4]
+#include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
+#include <libavutil/opt.h>
+#include <libavutil/imgutils.h>
+
+int main() {
+    avformat_network_init();
+
+    const char* filename = "test.mp4";
+    AVFormatContext* fmt_ctx = NULL;
+    AVOutputFormat* out_fmt = NULL;
+    AVStream* video_stream = NULL;
+    AVCodecContext* codec_ctx = NULL;
+    AVCodec* codec = NULL;
+
+    // Allocate output context
+    avformat_alloc_output_context2(&fmt_ctx, NULL, NULL, filename);
+    out_fmt = fmt_ctx->oformat;
+
+    // Find encoder
+    codec = avcodec_find_encoder(AV_CODEC_ID_H264);
+    if (!codec) {
+        printf("Codec not found\n");
+        return -1;
+    }
+
+    // Create video stream
+    video_stream = avformat_new_stream(fmt_ctx, NULL);
+    codec_ctx = avcodec_alloc_context3(codec);
+    codec_ctx->codec_id = AV_CODEC_ID_H264;
+    codec_ctx->bit_rate = 400000;
+    codec_ctx->width = 640;
+    codec_ctx->height = 480;
+    codec_ctx->time_base = (AVRational){1, 25};
+    codec_ctx->framerate = (AVRational){25, 1};
+    codec_ctx->gop_size = 10;
+    codec_ctx->max_b_frames = 1;
+    codec_ctx->pix_fmt = AV_PIX_FMT_YUV420P;
+
+    if (fmt_ctx->oformat->flags & AVFMT_GLOBALHEADER)
+        codec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+
+    avcodec_open2(codec_ctx, codec, NULL);
+    avcodec_parameters_from_context(video_stream->codecpar, codec_ctx);
+
+    // Open output file
+    if (!(out_fmt->flags & AVFMT_NOFILE))
+        avio_open(&fmt_ctx->pb, filename, AVIO_FLAG_WRITE);
+
+    // Write file header
+    avformat_write_header(fmt_ctx, NULL);
+
+    // Allocate frame
+    AVFrame* frame = av_frame_alloc();
+    frame->format = codec_ctx->pix_fmt;
+    frame->width = codec_ctx->width;
+    frame->height = codec_ctx->height;
+    av_frame_get_buffer(frame, 32);
+
+    AVPacket pkt;
+    for (int i = 0; i < 50; i++) {
+        av_frame_make_writable(frame);
+        frame->pts = i;
+
+        // Fill fake data (xanh đỏ)
+        for (int y = 0; y < frame->height; y++)
+            for (int x = 0; x < frame->width; x++)
+                frame->data[0][y * frame->linesize[0] + x] = x + y + i * 3;
+
+        for (int y = 0; y < frame->height / 2; y++) {
+            for (int x = 0; x < frame->width / 2; x++) {
+                frame->data[1][y * frame->linesize[1] + x] = 128;
+                frame->data[2][y * frame->linesize[2] + x] = 64;
+            }
+        }
+
+        // Encode
+        av_init_packet(&pkt);
+        pkt.data = NULL;
+        pkt.size = 0;
+
+        int ret = avcodec_send_frame(codec_ctx, frame);
+        if (ret >= 0) {
+            ret = avcodec_receive_packet(codec_ctx, &pkt);
+            if (ret == 0) {
+                av_interleaved_write_frame(fmt_ctx, &pkt);
+                av_packet_unref(&pkt);
+            }
+        }
+    }
+
+    // Flush encoder
+    avcodec_send_frame(codec_ctx, NULL);
+    while (avcodec_receive_packet(codec_ctx, &pkt) == 0) {
+        av_interleaved_write_frame(fmt_ctx, &pkt);
+        av_packet_unref(&pkt);
+    }
+
+    // Write file trailer
+    av_write_trailer(fmt_ctx);
+
+    // Clean up
+    avcodec_free_context(&codec_ctx);
+    av_frame_free(&frame);
+    avio_close(fmt_ctx->pb);
+    avformat_free_context(fmt_ctx);
+
+    return 0;
+}
 
 #endif

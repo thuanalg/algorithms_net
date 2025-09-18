@@ -3,6 +3,22 @@
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 #include <libswscale/swscale.h>
+#include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
+#include <libavutil/opt.h>
+#include <libavutil/imgutils.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct {
+    AVFormatContext *fmt_ctx;
+    AVStream *stream;
+    AVCodecContext *codec_ctx;
+    AVIOContext *avio_ctx;
+    uint8_t *avio_buffer;
+    FILE *file;
+    int64_t pts;
+} MP4Writer;
 
 int
 ffwr_all_codecs(FFWR_CODEC **lst, int *count)

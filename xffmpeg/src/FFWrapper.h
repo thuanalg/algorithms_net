@@ -72,7 +72,7 @@ typedef struct __FFWR_AUDIO_VIDEO_RECV__{
     char *name;
     char *detail;
     
-    FFWR_AUDIO_RECV *v;
+    FFWR_AUDIO_RECV *au;
     FFWR_VIDEO_RECV *v;
     void *out;
 } FFWR_AUDIO_VIDEO_RECV;
