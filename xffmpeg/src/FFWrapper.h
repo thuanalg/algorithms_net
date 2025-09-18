@@ -53,10 +53,34 @@ extern "C" {
 
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+typedef struct __FFWR_CODEC__{
+    char *name;
+    char *detail;
+} FFWR_CODEC;
+
+typedef struct __FFWR_VIDEO_RECV__{
+    char *name;
+    char *detail;
+} FFWR_VIDEO_RECV;
+
+typedef struct __FFWR_AUDIO_RECV__{
+    char *name;
+    char *detail;
+} FFWR_AUDIO_RECV;
+
+typedef struct __FFWR_AUDIO_VIDEO_RECV__{
+    char *name;
+    char *detail;
+    
+    FFWR_AUDIO_RECV *v;
+    FFWR_VIDEO_RECV *v;
+    void *out;
+} FFWR_AUDIO_VIDEO_RECV;
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 /* DLL_API_FF_WRAPPER */
 DLL_API_FF_WRAPPER int
-ffwr_all_codecs();
+ffwr_all_codecs(FFWR_CODEC **, int *count);
 #ifdef __cplusplus
 }
 #endif

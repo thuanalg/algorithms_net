@@ -5,6 +5,7 @@ https://ffmpeg.org/documentation.html
 1. list codecs: OK
 2. list au/av devices: OK
 3. record by camera
+4. record by Micro
 
 ----------------------
 1. Detect audio output
