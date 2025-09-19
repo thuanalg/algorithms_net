@@ -1,4 +1,5 @@
-/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+
 
 /* Email:
  *		<nguyenthaithuanalg@gmail.com> - Nguyễn Thái Thuận
@@ -13,20 +14,21 @@
  *		
 */
 
-/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+
 #ifndef ___FF_WRAPPER__
 #define ___FF_WRAPPER__
 
 
-#if 0
+#if 1
 #ifndef UNIX_LINUX
-#define UNIX_LINUX                      
+    #define UNIX_LINUX                      
 #endif
 #endif
 
 #if 0
 #ifndef __MACH__
-#define __MACH__                        
+    #define __MACH__                        
 #endif
 #endif
 
@@ -38,25 +40,41 @@ extern "C" {
 
 
 #ifndef UNIX_LINUX
-#ifndef __STATIC_FF_WRAPPER__
-#ifdef EXPORT_DLL_API_FF_WRAPPER
-#define DLL_API_FF_WRAPPER              __declspec(dllexport)
+    #ifndef __STATIC_FF_WRAPPER__
+        #ifdef EXPORT_DLL_API_FF_WRAPPER
+            #define DLL_API_FF_WRAPPER              __declspec(dllexport)
+        #else
+            #define DLL_API_FF_WRAPPER              __declspec(dllimport)
+        #endif
+    #else
+        #define DLL_API_FF_WRAPPER              
+    #endif
 #else
-#define DLL_API_FF_WRAPPER              __declspec(dllimport)
-#endif
-#else
-#define DLL_API_FF_WRAPPER              
-#endif
-#else
-#define DLL_API_FF_WRAPPER              
+    #define DLL_API_FF_WRAPPER              
 #endif /*! UNIX_LINUX */
 
 
-/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+
+#ifndef FFLLU
+    #define FFLLU                           unsigned long long
+#endif
+
+#ifndef FFLL
+    #define FFLL                           long long
+#endif
+
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+
 typedef struct __FFWR_CODEC__{
     char *name;
     char *detail;
 } FFWR_CODEC;
+
+typedef struct __FFWR_DEVICE__{
+    char *name;
+    char *detail;
+} FFWR_DEVICE;
 
 typedef struct __FFWR_VIDEO_RECV__{
     char *name;
@@ -76,11 +94,23 @@ typedef struct __FFWR_AUDIO_VIDEO_RECV__{
     FFWR_VIDEO_RECV *v;
     void *out;
 } FFWR_AUDIO_VIDEO_RECV;
-/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
-/* DLL_API_FF_WRAPPER */
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+
+/* Find all codecs. */
 DLL_API_FF_WRAPPER int
 ffwr_all_codecs(FFWR_CODEC **, int *count);
+
+/* Find a codec. */
+DLL_API_FF_WRAPPER int
+ffwr_find_codec(char *name, int *outout);
+
+/* Find all audio/video devices. */
+DLL_API_FF_WRAPPER int
+ffwr_all_devices(FFWR_DEVICE **, int *count);
+
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+
 #ifdef __cplusplus
 }
 #endif
