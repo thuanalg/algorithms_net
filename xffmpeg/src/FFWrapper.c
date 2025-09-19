@@ -93,7 +93,7 @@ ffwr_all_codecs(FFWR_CODEC **lst, int *count)
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 int
-ffwr_clear_all_codecs(FFWR_CODEC **lst, int *count) {
+ffwr_clear_all_codecs(FFWR_CODEC **lst, int count) {
     int ret = 0;
     int i = 0;
     FFWR_CODEC *p = 0;
@@ -141,16 +141,6 @@ ffwr_find_codec(char *name, int *outout)
 
 int
 ffwr_all_devices(FFWR_DEVICE **lst, int *count) {
-#if 0
-    const AVInputFormat *ifmt = NULL;
-    while ((ifmt = av_input_video_device_next(ifmt))) {
-        printf("Video Input format: %s (%s)\n", ifmt->name, ifmt->long_name);
-    }    
-    fprintf(stdout , "\n\n");
-    while ((ifmt = av_input_audio_device_next(ifmt))) {
-        printf("Audio Input format: %s (%s)\n", ifmt->name, ifmt->long_name);
-    }    
-#endif   
 	int ret = 0;
 	void *iter = 0;
     FFWR_DEVICE *p = 0;
@@ -183,9 +173,10 @@ ffwr_all_devices(FFWR_DEVICE **lst, int *count) {
             ffwr_clone_str(&p[i].detail, codec->long_name);    
             p[i].av = FFWR_VIDEO;        
             ++i;
-            printf("Video Input format: %s (%s)\n", ifmt->name, ifmt->long_name);
+            printf("Video Input format: %s (%s)\n", 
+                ifmt->name, ifmt->long_name);
         }    
-        
+        ifmt = 0;
         while (1) {
             ifmt = av_input_audio_device_next(ifmt);
             if(!ifmt) {
@@ -195,7 +186,8 @@ ffwr_all_devices(FFWR_DEVICE **lst, int *count) {
             ffwr_clone_str(&p[i].detail, codec->long_name);   
             p[i].av = FFWR_AUDIO;
             ++i;
-            printf("Video Input format: %s (%s)\n", ifmt->name, ifmt->long_name);
+            printf("Video Input format: %s (%s)\n", 
+                ifmt->name, ifmt->long_name);
         } 
         *lst = p;           
     } while(0);
@@ -203,6 +195,34 @@ ffwr_all_devices(FFWR_DEVICE **lst, int *count) {
 
     }
 	return 0;
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+int
+ffwr_clear_all_devices(FFWR_DEVICE **devs, int count) {
+    int ret = 0;
+    int i = 0;
+    FFWR_DEVICE *p = 0;
+    do {
+        if(!devs) {
+            ret = FFWR_NULL_ARG;
+            break;
+        }
+        p = *devs;
+        if(!(p)) {
+            ret = FFWR_NULL_ARG;
+            break;
+        }
+        for(i = 0; i < count; ++i) {
+            ffwr_free(p[i].name);
+            ffwr_free(p[i].detail);
+        }
+        ffwr_free(p);
+        *devs = 0;
+
+    } while(0);
+    return ret;
+}
+    return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 int ffwr_clone_str(char **dst, char *src) {

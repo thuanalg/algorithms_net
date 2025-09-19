@@ -18,6 +18,8 @@ int main(int argc, char* argv[]) {
 #else
     const char *device_name = "/dev/video0"; 
     const char *input_format_name = "v4l2"; 
+    //const char *device_name = "hw:0";               // ALSA device name (card 0)
+    //const char *input_format_name = "alsa";         // Input format    
 #endif
     const AVInputFormat *ifmt = NULL;
     while ((ifmt = av_input_video_device_next(ifmt))) {
@@ -32,7 +34,7 @@ int main(int argc, char* argv[]) {
     avformat_network_init();
     //get_all_encoders();
     //get_encoder("pus");
-    
+    //av_demuxer_iterate
 
     AVInputFormat *input_fmt = av_find_input_format(input_format_name);
     if (!input_fmt) {
@@ -755,5 +757,23 @@ int main() {
 
     return 0;
 }
+#include <libavformat/avformat.h>
+#include <stdio.h>
 
+int main() {
+    const AVInputFormat *ifmt = NULL;
+
+    // Register all formats (not needed in FFmpeg >= 4.0)
+    av_register_all();
+
+    printf("Available input formats:\n");
+
+    // Iterate through all input formats
+    void *opaque = NULL;
+    while ((ifmt = av_demuxer_iterate(&opaque))) {
+        printf("Name: %-10s | Long name: %s\n", ifmt->name, ifmt->long_name);
+    }
+
+    return 0;
+}
 #endif
