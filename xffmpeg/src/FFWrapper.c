@@ -91,7 +91,32 @@ ffwr_all_codecs(FFWR_CODEC **lst, int *count)
     }
 	return ret;
 }
-/*dfjdgfjsd:wgkjfghf:*/
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+int
+ffwr_clear_all_codecs(FFWR_CODEC **lst, int *count) {
+    int ret = 0;
+    int i = 0;
+    FFWR_CODEC *p = 0;
+    do {
+        if(!lst) {
+            ret = FFWR_NULL_ARG;
+            break;
+        }
+        if(!(*lst)) {
+            ret = FFWR_NULL_ARG;
+            break;
+        }
+        p = *lst;
+        for(i = 0; i < count; ++i) {
+            ffwr_free(p[i].name);
+            ffwr_free(p[i].detail);
+        }
+        ffwr_free(p);
+        *lst = 0;
+
+    } while(0);
+    return ret;
+}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 
 int
