@@ -776,4 +776,43 @@ int main() {
 
     return 0;
 }
+#include <libavformat/avformat.h>
+#include <libavdevice/avdevice.h>
+#include <stdio.h>
+
+int main() {
+    avdevice_register_all();
+
+    AVInputFormat *iformat = av_find_input_format("dshow");
+    AVDeviceInfoList *dev_list = NULL;
+
+    if (avdevice_list_input_sources(iformat, NULL, NULL, &dev_list) < 0) {
+        fprintf(stderr, "Cannot list devices.\n");
+        return -1;
+    }
+
+    for (int i = 0; i < dev_list->nb_devices; i++) {
+        AVDeviceInfo *dev = dev_list->devices[i];
+        printf("Device %d: %s (%s)\n", i, dev->device_name, dev->device_description);
+    }
+
+    avdevice_free_list_devices(&dev_list);
+    return 0;
+}
+AVFormatContext *video_ctx = NULL;
+AVFormatContext *audio_ctx = NULL;
+AVInputFormat *iformat = av_find_input_format("dshow");
+
+// Open video device
+if (avformat_open_input(&video_ctx, video_device, iformat, NULL) < 0) {
+    fprintf(stderr, "Cannot open video device\n");
+    return -1;
+}
+
+// Open audio device
+if (avformat_open_input(&audio_ctx, audio_device, iformat, NULL) < 0) {
+    fprintf(stderr, "Cannot open audio device\n");
+    return -1;
+}
+
 #endif
