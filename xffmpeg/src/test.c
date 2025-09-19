@@ -4,6 +4,8 @@ int
 main()
 {
 	FFWR_CODEC *lst = 0;
+	FFWR_DEVICE *devs = 0;
+	FFWR_INPUT_FMT *fmts = 0;
 	int count = 0;
 	int ret = 0;
 	char cfgpath[1024];
@@ -11,8 +13,21 @@ main()
 	snprintf(cfgpath, 1024, "D:/x/algorithms_net/xffmpeg/ffmpeg/x64/z.cfg");
 	snprintf(input.folder, SPL_PATH_FOLDER, "%s", cfgpath);
 	ret = spl_init_log_ext(&input);
+#if 0
 	ffwr_all_codecs(&lst, &count);
 	ffwr_clear_all_codecs(&lst, count);
+	ffwr_all_devices(&devs, &count);
+	ffwr_clear_all_devices(&devs, count);
+DLL_API_FF_WRAPPER int
+ffwr_all_formats(FFWR_INPUT_FMT **, int *count);
+
+DLL_API_FF_WRAPPER int
+ffwr_clear_all_formats(FFWR_INPUT_FMT **, int count);
+#endif
+
+	ffwr_all_formats(&fmts, &count);
+	ffwr_clear_all_formats(&fmts, count);
+
 	spl_finish_log();
 	return 0;
 }

@@ -168,12 +168,23 @@ ffwr_all_devices(FFWR_DEVICE **lst, int *count) {
             if(!ifmt) {
                 break;
             }
-	    ffwr_clone_str(&p[i].name, ifmt->name);
-	    ffwr_clone_str(&p[i].detail, ifmt->long_name);    
+	        ffwr_clone_str(&p[i].name, ifmt->name);
+	        ffwr_clone_str(&p[i].detail, ifmt->long_name);    
             p[i].av = FFWR_VIDEO;        
             ++i;
-            printf("Video Input format: %s (%s)\n", 
+            spllog(2, "Video dev Input format: (%s, %s).", 
                 ifmt->name, ifmt->long_name);
+	        if (i < step) {
+		        continue;
+	        }
+	        step += FFWR_STEP;
+	        size = (step + 1) * sizeof(FFWR_CODEC);
+	        ffwr_realloc(size, p, FFWR_CODEC);
+	        if (p) {
+		        continue;
+	        }
+	        ret = FFWR_REALLOC;
+	        break;
         }    
         ifmt = 0;
         while (1) {
@@ -183,13 +194,25 @@ ffwr_all_devices(FFWR_DEVICE **lst, int *count) {
             }
             
             ffwr_clone_str(&p[i].name, ifmt->name);
-	    ffwr_clone_str(&p[i].detail, ifmt->long_name);   
+	        ffwr_clone_str(&p[i].detail, ifmt->long_name);   
             p[i].av = FFWR_AUDIO;
             ++i;
-            printf("Video Input format: %s (%s)\n", 
+	        spllog(2, "Audio dev Input format: (%s, %s).", 
                 ifmt->name, ifmt->long_name);
+	        if (i < step) {
+		        continue;
+	        }
+	        step += FFWR_STEP;
+	        size = (step + 1) * sizeof(FFWR_CODEC);
+	        ffwr_realloc(size, p, FFWR_CODEC);
+	        if (p) {
+		        continue;
+	        }
+	        ret = FFWR_REALLOC;
+	        break;
         } 
-        *lst = p;           
+        *lst = p; 
+        *count = i;
     } while(0);
     if(ret) {
         ffwr_clear_all_devices(&p, i);
@@ -228,7 +251,7 @@ ffwr_clear_all_devices(FFWR_DEVICE **devs, int count) {
 int
 ffwr_all_formats(FFWR_INPUT_FMT **fmts, int *count) {
 	int ret = 0;
-	void *iter = 0;
+	void *opaque = 0;
     FFWR_INPUT_FMT *p = 0;
     int size = 0;
     int i = 0;
@@ -253,7 +276,7 @@ ffwr_all_formats(FFWR_INPUT_FMT **fmts, int *count) {
             break;
         }
         while (1) {
-            ifmt = av_demuxer_iterate(ifmt);
+		ifmt = av_demuxer_iterate(&opaque);
             if(!ifmt) {
                 break;
             }
@@ -261,10 +284,22 @@ ffwr_all_formats(FFWR_INPUT_FMT **fmts, int *count) {
 	        ffwr_clone_str(&p[i].detail, ifmt->long_name);    
                
             ++i;
-            printf("Video Input format: %s (%s)\n", 
+		    spllog(2, "Demuxer: (%s, %s).", 
                 ifmt->name, ifmt->long_name);
+	        if (i < step) {
+		        continue;
+	        }
+	        step += FFWR_STEP;
+	        size = (step + 1) * sizeof(FFWR_CODEC);
+	        ffwr_realloc(size, p, FFWR_CODEC);
+	        if (p) {
+		        continue;
+	        }
+	        ret = FFWR_REALLOC;
+	        break;
         }   
-        *fmts = p;           
+        *fmts = p;     
+        *count = i;
     } while(0);
     if(ret) {
         ffwr_clear_all_formats(&p, i);
