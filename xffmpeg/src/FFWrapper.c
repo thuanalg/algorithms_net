@@ -102,11 +102,11 @@ ffwr_clear_all_codecs(FFWR_CODEC **lst, int *count) {
             ret = FFWR_NULL_ARG;
             break;
         }
-        if(!(*lst)) {
+        p = *lst;
+        if(!(p)) {
             ret = FFWR_NULL_ARG;
             break;
         }
-        p = *lst;
         for(i = 0; i < count; ++i) {
             ffwr_free(p[i].name);
             ffwr_free(p[i].detail);
