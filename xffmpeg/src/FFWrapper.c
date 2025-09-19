@@ -248,7 +248,7 @@ ffwr_all_formats(FFWR_INPUT_FMT **fmts, int *count) {
             ret = FFWR_NULL_ARG;
             break;
         }        
-        ffwr_malloc(size, p, FFWR_DEVICE);
+        ffwr_malloc(size, p, FFWR_INPUT_FMT);
         if(!p) {
             ret = FFWR_MALLOC;
             break;
@@ -265,21 +265,6 @@ ffwr_all_formats(FFWR_INPUT_FMT **fmts, int *count) {
             printf("Video Input format: %s (%s)\n", 
                 ifmt->name, ifmt->long_name);
         }   
-#if 0         
-        ifmt = 0;
-        while (1) {
-            ifmt = av_input_audio_device_next(ifmt);
-            if(!ifmt) {
-                break;
-            }
-            ffwr_clone_str(&p[i].name, codec->name);
-            ffwr_clone_str(&p[i].detail, codec->long_name);   
-            p[i].av = FFWR_AUDIO;
-            ++i;
-            printf("Video Input format: %s (%s)\n", 
-                ifmt->name, ifmt->long_name);
-        } 
-#endif
         *fmts = p;           
     } while(0);
     if(ret) {
