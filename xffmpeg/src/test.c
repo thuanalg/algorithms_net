@@ -25,8 +25,8 @@ DLL_API_FF_WRAPPER int
 ffwr_clear_all_formats(FFWR_INPUT_FMT **, int count);
 #endif
 
-	ffwr_all_formats(&fmts, &count);
-	ffwr_clear_all_formats(&fmts, count);
+	//ffwr_all_formats(&fmts, &count);
+	//ffwr_clear_all_formats(&fmts, count);
 
 	spl_finish_log();
 	return 0;

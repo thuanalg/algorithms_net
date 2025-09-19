@@ -249,7 +249,8 @@ ffwr_clear_all_devices(FFWR_DEVICE **devs, int count) {
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 /* Find all input format. */
 int
-ffwr_all_formats(FFWR_INPUT_FMT **fmts, int *count) {
+ffwr_all_demuxers(FFWR_INPUT_FMT **fmts, int *count)
+{
 	int ret = 0;
 	void *opaque = 0;
     FFWR_INPUT_FMT *p = 0;
@@ -307,7 +308,8 @@ ffwr_all_formats(FFWR_INPUT_FMT **fmts, int *count) {
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 DLL_API_FF_WRAPPER int
-ffwr_clear_all_formats(FFWR_INPUT_FMT **fmts, int count) {
+ffwr_clear_all_demuxers(FFWR_INPUT_FMT **fmts, int count)
+{
     int ret = 0;
     int i = 0;
     FFWR_INPUT_FMT *p = 0;
