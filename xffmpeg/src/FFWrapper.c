@@ -61,7 +61,7 @@ ffwr_all_codecs(FFWR_CODEC **lst, int *count)
             if (!av_codec_is_encoder(codec)) {
                 continue;
             }
-	    	spllog(2, "Encoder: (%s, %s).", codec->name,
+	    	spllog(2, "codec : (%s, %s).", codec->name,
 	    	    codec->long_name ? codec->long_name
 	    			     : "no long name");
             ffwr_clone_str(&p[i].name, codec->name);
@@ -172,7 +172,7 @@ ffwr_all_devices(FFWR_DEVICE **lst, int *count) {
 	        ffwr_clone_str(&p[i].detail, ifmt->long_name);    
             p[i].av = FFWR_VIDEO;        
             ++i;
-            spllog(2, "Video dev Input format: (%s, %s).", 
+            spllog(2, "Video dev Input : (%s, %s).", 
                 ifmt->name, ifmt->long_name);
 	        if (i < step) {
 		        continue;
@@ -197,7 +197,7 @@ ffwr_all_devices(FFWR_DEVICE **lst, int *count) {
 	        ffwr_clone_str(&p[i].detail, ifmt->long_name);   
             p[i].av = FFWR_AUDIO;
             ++i;
-	        spllog(2, "Audio dev Input format: (%s, %s).", 
+	        spllog(2, "Audio dev Input : (%s, %s).", 
                 ifmt->name, ifmt->long_name);
 	        if (i < step) {
 		        continue;
