@@ -19,7 +19,7 @@ typedef struct {
     FILE *file;
     int64_t pts;
 } MP4Writer;
-
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int
 ffwr_all_codecs(FFWR_CODEC **lst, int *count)
 {
@@ -29,20 +29,29 @@ ffwr_all_codecs(FFWR_CODEC **lst, int *count)
 
 	while ((codec = av_codec_iterate(&iter))) {
 		if (av_codec_is_encoder(codec)) {
-#if 0
 			printf("Encoder: %-15s | %s\n", codec->name,
 			    codec->long_name ? codec->long_name
 					     : "no long name");
 
-#else
-			if (strstr(codec->name, "26") ||
-			    strstr(codec->long_name, "26")) {
-				printf("Encoder: %-15s | %s\n", codec->name,
-				    codec->long_name ? codec->long_name
-						     : "no long name");
-			}
-#endif
 		}
 	}
 	return ret;
 }
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int
+ffwr_all_devices(FFWR_CODEC **, int *count) {
+	return 0;
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+
+#if 0
+    const AVInputFormat *ifmt = NULL;
+    while ((ifmt = av_input_video_device_next(ifmt))) {
+        printf("Video Input format: %s (%s)\n", ifmt->name, ifmt->long_name);
+    }    
+    fprintf(stdout , "\n\n");
+    while ((ifmt = av_input_audio_device_next(ifmt))) {
+        printf("Audio Input format: %s (%s)\n", ifmt->name, ifmt->long_name);
+    }    
+#endif
