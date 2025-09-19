@@ -105,7 +105,7 @@ ffwr_all_codecs(FFWR_CODEC **, int *count);
 DLL_API_FF_WRAPPER int
 ffwr_find_codec(char *name, int *outout);
 
-/* Find all audio/video devices. dfnd:*/
+/* Find all audio/video devices. */
 DLL_API_FF_WRAPPER int
 ffwr_all_devices(FFWR_DEVICE **, int *count);
 
