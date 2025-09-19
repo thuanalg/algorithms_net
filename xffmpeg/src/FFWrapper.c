@@ -87,7 +87,7 @@ ffwr_all_codecs(FFWR_CODEC **lst, int *count)
         *count = i;
     } while(0);
     if(ret) {
-        ffwr_free(p);
+        ffwr_clear_all_codecs(&p, i);
     }
 	return ret;
 }
@@ -150,12 +150,77 @@ ffwr_all_devices(FFWR_DEVICE **, int *count) {
     while ((ifmt = av_input_audio_device_next(ifmt))) {
         printf("Audio Input format: %s (%s)\n", ifmt->name, ifmt->long_name);
     }    
-#endif    
+#endif   
+	int ret = 0;
+	void *iter = 0;
+    FFWR_DEVICE *p = 0;
+    int size = 0;
+    int i = 0;
+    const AVInputFormat *ifmt = 0;
+    int step = FFWR_STEP;
+    size = (step + 1) * sizeof(FFWR_DEVICE); 
+    
+    do {
+        if(!count) {
+            ret = FFWR_NULL_ARG;
+            break;
+        }
+        if(!lst) {
+            ret = FFWR_NULL_ARG;
+            break;
+        }        
+        ffwr_malloc(size, p, FFWR_DEVICE);
+        if(!p) {
+            ret = FFWR_MALLOC;
+            break;
+        }
+        while (1) {
+            ifmt = av_input_video_device_next(ifmt);
+            if(!ifmt) {
+                break;
+            }
+            ffwr_clone_str(&p[i].name, codec->name);
+            ffwr_clone_str(&p[i].detail, codec->long_name);    
+            p[i].av = FFWR_VIDEO;        
+            ++i;
+            printf("Video Input format: %s (%s)\n", ifmt->name, ifmt->long_name);
+        }    
+        while (1) {
+            ifmt = av_input_audio_device_next(ifmt);
+            if(!ifmt) {
+                break;
+            }
+            ffwr_clone_str(&p[i].name, codec->name);
+            ffwr_clone_str(&p[i].detail, codec->long_name);   
+            p[i].av = FFWR_AUDIO;
+            ++i;
+            printf("Video Input format: %s (%s)\n", ifmt->name, ifmt->long_name);
+        }            
+    } while(0);
 	return 0;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
-int ffwr_clone_str(char **dst, char *str) {
+int ffwr_clone_str(char **dst, char *src) {
     int ret = 0;
+    char *p = 0;
+    int n = 0;
+    do {
+        if(!src) {
+            break;
+        }
+        n =- strlen(src) + 1;
+        if(!dst) {
+            ret = FFWR_NULL_ARG;
+            break;
+        }
+        ffwr_malloc(n, p, char);
+        if(!p) {
+            ret = FFWR_MALLOC;
+            break;
+        }
+        memcpy(p, src, n);
+        *dst = p;
+    } while(0);
     return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
