@@ -24,23 +24,65 @@ typedef struct {
 } MP4Writer;
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
-
+static int ffwr_clone_str(char **dst, char *str);
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+#define FFWR_STEP           50
 int
 ffwr_all_codecs(FFWR_CODEC **lst, int *count)
 {
 	int ret = 0;
 	const AVCodec *codec = NULL;
 	void *iter = NULL;
-
-	while ((codec = av_codec_iterate(&iter))) 
-    {
-		if (av_codec_is_encoder(codec)) {
-			printf("Encoder: %-15s | %s\n", codec->name,
-			    codec->long_name ? codec->long_name
-					     : "no long name");
-
-		}
-	}
+    FFWR_CODEC *p = 0;
+    int size = 0;
+    int i = 0;
+    int step = FFWR_STEP;
+    size = (step + 1) * sizeof(FFWR_CODEC);
+    do {
+        if(!count) {
+            ret = FFWR_NULL_ARG;
+            break;
+        }
+        if(!lst) {
+            ret = FFWR_NULL_ARG;
+            break;
+        }        
+        ffwr_malloc(size, p, FFWR_CODEC);
+        if(!p) {
+            ret = FFWR_MALLOC;
+            break;
+        }
+        
+	    while ((codec = av_codec_iterate(&iter))) 
+        {
+	    	if (av_codec_is_encoder(codec)) {
+	    		printf("Encoder: %-15s | %s\n", codec->name,
+	    		    codec->long_name ? codec->long_name
+	    				     : "no long name");
+                ffwr_clone_str(&p[i].name, codec->name);
+                ffwr_clone_str(&p[i].detail, codec->long_name);
+                ++i;
+                if(i >= step ) {
+                    step += FFWR_STEP;
+                    size = (step + 1) * sizeof(FFWR_CODEC);
+                    ffwr_realloc(size, p, FFWR_CODEC);
+                    if(!p) {
+                        ret = FFWR_REALLOC;
+                        break;
+                    }
+                }
+	    	}
+            
+	    }
+        if(ret) {
+            break;
+        }
+        *lst = p;
+        *count = i;
+    } while(0);
+    if(ret) {
+        ffwr_free(p);
+    }
 	return ret;
 }
 /*dfjdgfjsd:wgkjfghf:*/
@@ -81,7 +123,18 @@ ffwr_all_devices(FFWR_DEVICE **, int *count) {
 	return 0;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
-
+int ffwr_clone_str(char **dst, char *str) {
+    int ret = 0;
+    return ret;
+}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+
 
 

@@ -19,6 +19,8 @@
 #ifndef ___FF_WRAPPER__
 #define ___FF_WRAPPER__
 
+#include <stdlib.h>
+#include <simplelog.h>
 
 #if 1
 #ifndef UNIX_LINUX
@@ -65,6 +67,16 @@ extern "C" {
 #endif
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+typedef enum {
+    FFWR_OK,
+    FFWR_MALLOC,
+    FFWR_REALLOC, 
+    FFWR_NULL_ARG, 
+
+    
+    
+    FFWR_ERR_END
+} FFWR_ERR_CODE;
 
 typedef struct __FFWR_CODEC__{
     char *name;
@@ -94,6 +106,36 @@ typedef struct __FFWR_AUDIO_VIDEO_RECV__{
     FFWR_VIDEO_RECV *v;
     void *out;
 } FFWR_AUDIO_VIDEO_RECV;
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+#define ffwr_malloc(__nn__, __obj__, __type__)                                 \
+	{                                                                      \
+		(__obj__) = (__type__ *)malloc(__nn__);                        \
+		if (__obj__) {                                                 \
+			spllog(0, "Malloc [MEM-FFWR] : 0x%p.", (__obj__));           \
+			memset((__obj__), 0, (__nn__));                        \
+		} else {                                                       \
+			spllog(4, "Malloc: error.");                           \
+		}                                                              \
+	}
+#define ffwr_realloc(__nn__, __obj__, __type__)                                 \
+	{                                                                      \
+		(__obj__) = (__type__ *)realloc((__obj__) , (__nn__));                        \
+		if (__obj__) {                                                 \
+			spllog(0, "Realloc [MEM-FFWR] : 0x%p.", (__obj__));           \
+		} else {                                                       \
+			spllog(4, "Realloc: error.");                           \
+		}                                                              \
+	}
+
+
+#define ffwr_free(__obj__)                                                     \
+	{                                                                      \
+		if (__obj__) {                                                 \
+			spllog(0, "Free [MEM-FFWR] : 0x%p.", (__obj__));             \
+			free(__obj__);                                         \
+			(__obj__) = 0;                                         \
+		}                                                              \
+	}
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 
