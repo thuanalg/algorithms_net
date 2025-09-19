@@ -140,7 +140,7 @@ ffwr_find_codec(char *name, int *outout)
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 
 int
-ffwr_all_devices(FFWR_DEVICE **, int *count) {
+ffwr_all_devices(FFWR_DEVICE **lst, int *count) {
 #if 0
     const AVInputFormat *ifmt = NULL;
     while ((ifmt = av_input_video_device_next(ifmt))) {
@@ -185,6 +185,7 @@ ffwr_all_devices(FFWR_DEVICE **, int *count) {
             ++i;
             printf("Video Input format: %s (%s)\n", ifmt->name, ifmt->long_name);
         }    
+        
         while (1) {
             ifmt = av_input_audio_device_next(ifmt);
             if(!ifmt) {
@@ -195,8 +196,12 @@ ffwr_all_devices(FFWR_DEVICE **, int *count) {
             p[i].av = FFWR_AUDIO;
             ++i;
             printf("Video Input format: %s (%s)\n", ifmt->name, ifmt->long_name);
-        }            
+        } 
+        *lst = p;           
     } while(0);
+    if(ret) {
+
+    }
 	return 0;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
