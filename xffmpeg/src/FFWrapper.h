@@ -100,6 +100,9 @@ typedef struct __FFWR_AUDIO_VIDEO_RECV__{
 /* Find all codecs. */
 DLL_API_FF_WRAPPER int
 ffwr_all_codecs(FFWR_CODEC **, int *count);
+/* Find all codecs. */
+DLL_API_FF_WRAPPER int
+ffwr_clear_all_codecs(FFWR_CODEC **, int *count);
 
 /* Find a codec. */
 DLL_API_FF_WRAPPER int
@@ -108,6 +111,9 @@ ffwr_find_codec(char *name, int *outout);
 /* Find all audio/video devices. */
 DLL_API_FF_WRAPPER int
 ffwr_all_devices(FFWR_DEVICE **, int *count);
+
+DLL_API_FF_WRAPPER int
+ffwr_clear_all_devices(FFWR_DEVICE **, int *count);
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 
