@@ -304,9 +304,10 @@ int ffwr_clone_str(char **dst, char *src) {
     int n = 0;
     do {
         if(!src) {
+            ret = FFWR_NULL_ARG;
             break;
         }
-        n =- strlen(src) + 1;
+        n = strlen(src) + 1;
         if(!dst) {
             ret = FFWR_NULL_ARG;
             break;
