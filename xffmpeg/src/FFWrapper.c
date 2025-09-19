@@ -301,7 +301,7 @@ ffwr_all_demuxers(FFWR_INPUT_FMT **fmts, int *count)
         }   
         *fmts = p;     
         *count = i;
-    } while(0);
+    } while (0);
     if(ret) {
 	    ffwr_clear_all_demuxers(&p, i);
     }
