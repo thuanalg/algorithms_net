@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <simplelog.h>
 
-#if 1
+#if 0
 #ifndef UNIX_LINUX
     #define UNIX_LINUX                      
 #endif

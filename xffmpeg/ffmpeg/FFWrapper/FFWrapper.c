@@ -5,7 +5,7 @@
 #include <libswscale/swscale.h>
 
 int
-ffwr_all_codecs(FFWR_CODEC **lst)
+ffwr_all_codecs()
 {
 	int ret = 0;
 	const AVCodec *codec = NULL;

@@ -96,9 +96,9 @@ main(int argc, char *argv[])
 	gst_device_monitor_add_filter(monitor, "Video/Source", caps_video);
 	gst_caps_unref(caps_video);
 
-	GstCaps *caps_audio = gst_caps_new_empty_simple("audio/x-raw");
-	gst_device_monitor_add_filter(monitor, "Audio/Source", caps_audio);
-	gst_caps_unref(caps_audio);
+	//GstCaps *caps_audio = gst_caps_new_empty_simple("audio/x-raw");
+	//gst_device_monitor_add_filter(monitor, "Audio/Source", caps_audio);
+	//gst_caps_unref(caps_audio);
 
 	if (!gst_device_monitor_start(monitor)) {
 		g_printerr("Failed to start device monitor\n");

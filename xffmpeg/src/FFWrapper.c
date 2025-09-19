@@ -3,8 +3,6 @@
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 #include <libswscale/swscale.h>
-#include <libavformat/avformat.h>
-#include <libavcodec/avcodec.h>
 #include <libavutil/opt.h>
 #include <libavutil/imgutils.h>
 #include <stdio.h>
@@ -169,8 +167,8 @@ ffwr_all_devices(FFWR_DEVICE **lst, int *count) {
             if(!ifmt) {
                 break;
             }
-            ffwr_clone_str(&p[i].name, codec->name);
-            ffwr_clone_str(&p[i].detail, codec->long_name);    
+	    ffwr_clone_str(&p[i].name, ifmt->name);
+	    ffwr_clone_str(&p[i].detail, ifmt->long_name);    
             p[i].av = FFWR_VIDEO;        
             ++i;
             printf("Video Input format: %s (%s)\n", 
@@ -183,8 +181,8 @@ ffwr_all_devices(FFWR_DEVICE **lst, int *count) {
                 break;
             }
             
-            ffwr_clone_str(&p[i].name, codec->name);
-            ffwr_clone_str(&p[i].detail, codec->long_name);   
+            ffwr_clone_str(&p[i].name, ifmt->name);
+	    ffwr_clone_str(&p[i].detail, ifmt->long_name);   
             p[i].av = FFWR_AUDIO;
             ++i;
             printf("Video Input format: %s (%s)\n", 
@@ -258,9 +256,9 @@ ffwr_all_formats(FFWR_INPUT_FMT **fmts, int *count) {
             if(!ifmt) {
                 break;
             }
-            ffwr_clone_str(&p[i].name, codec->name);
-            ffwr_clone_str(&p[i].detail, codec->long_name);    
-            p[i].av = FFWR_VIDEO;        
+	        ffwr_clone_str(&p[i].name, ifmt->name);
+	        ffwr_clone_str(&p[i].detail, ifmt->long_name);    
+               
             ++i;
             printf("Video Input format: %s (%s)\n", 
                 ifmt->name, ifmt->long_name);
