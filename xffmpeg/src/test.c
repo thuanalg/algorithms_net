@@ -18,11 +18,6 @@ main()
 	ffwr_clear_all_codecs(&lst, count);
 	ffwr_all_devices(&devs, &count);
 	ffwr_clear_all_devices(&devs, count);
-DLL_API_FF_WRAPPER int
-ffwr_all_formats(FFWR_INPUT_FMT **, int *count);
-
-DLL_API_FF_WRAPPER int
-ffwr_clear_all_formats(FFWR_INPUT_FMT **, int count);
 #endif
 
 	//ffwr_all_formats(&fmts, &count);

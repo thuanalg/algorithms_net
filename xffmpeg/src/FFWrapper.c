@@ -303,7 +303,7 @@ ffwr_all_demuxers(FFWR_INPUT_FMT **fmts, int *count)
         *count = i;
     } while(0);
     if(ret) {
-        ffwr_clear_all_formats(&p, i);
+	    ffwr_clear_all_demuxers(&p, i);
     }
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
