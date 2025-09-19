@@ -1,3 +1,4 @@
+#include <simplelog.h>
 #include "FFWrapper.h"
 #include <libavdevice/avdevice.h>
 #include <libavformat/avformat.h>
@@ -24,7 +25,7 @@ typedef struct {
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 static int ffwr_clone_str(char **dst, char *str);
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
-#define FFWR_STEP           20
+#define FFWR_STEP           200
 int
 ffwr_all_codecs(FFWR_CODEC **lst, int *count)
 {
@@ -60,7 +61,7 @@ ffwr_all_codecs(FFWR_CODEC **lst, int *count)
             if (!av_codec_is_encoder(codec)) {
                 continue;
             }
-	    	spllog(0, "Encoder: %-15s | %s\n", codec->name,
+	    	spllog(2, "Encoder: (%s, %s).", codec->name,
 	    	    codec->long_name ? codec->long_name
 	    			     : "no long name");
             ffwr_clone_str(&p[i].name, codec->name);

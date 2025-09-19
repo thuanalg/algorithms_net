@@ -18,6 +18,9 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\test.c" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -103,13 +106,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\ProgramFiles\msys64\usr\local\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\ProgramFiles\msys64\usr\local\include;D:\x\algorithms_net\xffmpeg\ffmpeg\x64\Debug;D:\reserach\simplelog-topic\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)\lib\static</AdditionalLibraryDirectories>
-      <AdditionalDependencies>avcodec.lib;avformat.lib;swscale.lib;avfilter.lib;avdevice.lib;avutil.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\lib\static;D:\x\algorithms_net\xffmpeg\ffmpeg\x64\Debug;D:\reserach\simplelog-topic\build64\Debug</AdditionalLibraryDirectories>
+      <AdditionalDependencies>avcodec.lib;avformat.lib;swscale.lib;avfilter.lib;avdevice.lib;avutil.lib;FFWrapper.lib;simplelog.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -126,9 +129,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\main.c" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

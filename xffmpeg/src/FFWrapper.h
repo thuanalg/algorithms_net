@@ -20,7 +20,7 @@
 #define ___FF_WRAPPER__
 
 #include <stdlib.h>
-#include <simplelog.h>
+
 
 #if 0
 #ifndef UNIX_LINUX
