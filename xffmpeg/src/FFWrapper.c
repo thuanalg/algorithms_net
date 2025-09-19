@@ -26,7 +26,7 @@ typedef struct {
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 static int ffwr_clone_str(char **dst, char *str);
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
-#define FFWR_STEP           50
+#define FFWR_STEP           20
 int
 ffwr_all_codecs(FFWR_CODEC **lst, int *count)
 {
@@ -53,26 +53,32 @@ ffwr_all_codecs(FFWR_CODEC **lst, int *count)
             break;
         }
         
-	    while ((codec = av_codec_iterate(&iter))) 
+	    while (1)
         {
-	    	if (av_codec_is_encoder(codec)) {
-	    		printf("Encoder: %-15s | %s\n", codec->name,
-	    		    codec->long_name ? codec->long_name
-	    				     : "no long name");
-                ffwr_clone_str(&p[i].name, codec->name);
-                ffwr_clone_str(&p[i].detail, codec->long_name);
-                ++i;
-                if(i >= step ) {
-                    step += FFWR_STEP;
-                    size = (step + 1) * sizeof(FFWR_CODEC);
-                    ffwr_realloc(size, p, FFWR_CODEC);
-                    if(!p) {
-                        ret = FFWR_REALLOC;
-                        break;
-                    }
-                }
-	    	}
-            
+            codec = av_codec_iterate(&iter);
+            if(!codec) {
+                break;
+            }
+            if (!av_codec_is_encoder(codec)) {
+                continue;
+            }
+	    	spllog(0, "Encoder: %-15s | %s\n", codec->name,
+	    	    codec->long_name ? codec->long_name
+	    			     : "no long name");
+            ffwr_clone_str(&p[i].name, codec->name);
+            ffwr_clone_str(&p[i].detail, codec->long_name);
+            ++i;
+            if(i < step) {
+                continue;
+            }
+            step += FFWR_STEP;
+            size = (step + 1) * sizeof(FFWR_CODEC);
+            ffwr_realloc(size, p, FFWR_CODEC);
+            if(p) {
+                continue;
+            }
+            ret = FFWR_REALLOC;
+            break;
 	    }
         if(ret) {
             break;
