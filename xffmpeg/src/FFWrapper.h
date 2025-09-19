@@ -171,6 +171,13 @@ ffwr_all_devices(FFWR_DEVICE **, int *count);
 DLL_API_FF_WRAPPER int
 ffwr_clear_all_devices(FFWR_DEVICE **, int count);
 
+/* Find all input format. */
+DLL_API_FF_WRAPPER int
+ffwr_all_formats(FFWR_INPUT_FMT **, int *count);
+
+DLL_API_FF_WRAPPER int
+ffwr_clear_all_formats(FFWR_INPUT_FMT **, int count);
+
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 
 #ifdef __cplusplus

@@ -192,7 +192,7 @@ ffwr_all_devices(FFWR_DEVICE **lst, int *count) {
         *lst = p;           
     } while(0);
     if(ret) {
-
+        ffwr_clear_all_devices(&p, i);
     }
 	return 0;
 }
@@ -222,7 +222,108 @@ ffwr_clear_all_devices(FFWR_DEVICE **devs, int count) {
     } while(0);
     return ret;
 }
-    return ret;
+
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+/* Find all input format. */
+int
+ffwr_all_formats(FFWR_INPUT_FMT **fmts, int *count) {
+#if 0    
+    const AVInputFormat *ifmt = NULL;
+
+    // Register all formats (not needed in FFmpeg >= 4.0)
+    av_register_all();
+
+    printf("Available input formats:\n");
+
+    // Iterate through all input formats
+    void *opaque = NULL;
+    while ((ifmt = av_demuxer_iterate(&opaque))) {
+        printf("Name: %-10s | Long name: %s\n", ifmt->name, ifmt->long_name);
+    }
+
+    return 0;
+#endif
+	int ret = 0;
+	void *iter = 0;
+    FFWR_INPUT_FMT *p = 0;
+    int size = 0;
+    int i = 0;
+    const AVInputFormat *ifmt = 0;
+    int step = FFWR_STEP;
+    size = (step + 1) * sizeof(FFWR_INPUT_FMT); 
+    
+    do {
+        if(!count) {
+            ret = FFWR_NULL_ARG;
+            break;
+        }
+        if(!fmts) {
+            ret = FFWR_NULL_ARG;
+            break;
+        }        
+        ffwr_malloc(size, p, FFWR_DEVICE);
+        if(!p) {
+            ret = FFWR_MALLOC;
+            break;
+        }
+        while (1) {
+            ifmt = av_demuxer_iterate(ifmt);
+            if(!ifmt) {
+                break;
+            }
+            ffwr_clone_str(&p[i].name, codec->name);
+            ffwr_clone_str(&p[i].detail, codec->long_name);    
+            p[i].av = FFWR_VIDEO;        
+            ++i;
+            printf("Video Input format: %s (%s)\n", 
+                ifmt->name, ifmt->long_name);
+        }   
+#if 0         
+        ifmt = 0;
+        while (1) {
+            ifmt = av_input_audio_device_next(ifmt);
+            if(!ifmt) {
+                break;
+            }
+            ffwr_clone_str(&p[i].name, codec->name);
+            ffwr_clone_str(&p[i].detail, codec->long_name);   
+            p[i].av = FFWR_AUDIO;
+            ++i;
+            printf("Video Input format: %s (%s)\n", 
+                ifmt->name, ifmt->long_name);
+        } 
+#endif
+        *fmts = p;           
+    } while(0);
+    if(ret) {
+        ffwr_clear_all_formats(&p, i);
+    }
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+DLL_API_FF_WRAPPER int
+ffwr_clear_all_formats(FFWR_INPUT_FMT **fmts, int count) {
+    int ret = 0;
+    int i = 0;
+    FFWR_INPUT_FMT *p = 0;
+    do {
+        if(!fmts) {
+            ret = FFWR_NULL_ARG;
+            break;
+        }
+        p = *fmts;
+        if(!(p)) {
+            ret = FFWR_NULL_ARG;
+            break;
+        }
+        for(i = 0; i < count; ++i) {
+            ffwr_free(p[i].name);
+            ffwr_free(p[i].detail);
+        }
+        ffwr_free(p);
+        *fmts = 0;
+
+    } while(0);
+    return ret;    
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 int ffwr_clone_str(char **dst, char *src) {
