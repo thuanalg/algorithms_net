@@ -182,6 +182,7 @@ ffwr_all_devices(FFWR_DEVICE **lst, int *count) {
             if(!ifmt) {
                 break;
             }
+            
             ffwr_clone_str(&p[i].name, codec->name);
             ffwr_clone_str(&p[i].detail, codec->long_name);   
             p[i].av = FFWR_AUDIO;
@@ -227,22 +228,6 @@ ffwr_clear_all_devices(FFWR_DEVICE **devs, int count) {
 /* Find all input format. */
 int
 ffwr_all_formats(FFWR_INPUT_FMT **fmts, int *count) {
-#if 0    
-    const AVInputFormat *ifmt = NULL;
-
-    // Register all formats (not needed in FFmpeg >= 4.0)
-    av_register_all();
-
-    printf("Available input formats:\n");
-
-    // Iterate through all input formats
-    void *opaque = NULL;
-    while ((ifmt = av_demuxer_iterate(&opaque))) {
-        printf("Name: %-10s | Long name: %s\n", ifmt->name, ifmt->long_name);
-    }
-
-    return 0;
-#endif
 	int ret = 0;
 	void *iter = 0;
     FFWR_INPUT_FMT *p = 0;
@@ -251,7 +236,9 @@ ffwr_all_formats(FFWR_INPUT_FMT **fmts, int *count) {
     const AVInputFormat *ifmt = 0;
     int step = FFWR_STEP;
     size = (step + 1) * sizeof(FFWR_INPUT_FMT); 
-    
+#if LIBAVFORMAT_VERSION_MAJOR < 58    
+    av_register_all();
+#endif    
     do {
         if(!count) {
             ret = FFWR_NULL_ARG;
