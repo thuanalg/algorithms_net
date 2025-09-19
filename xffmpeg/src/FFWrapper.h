@@ -78,14 +78,22 @@ typedef enum {
     FFWR_ERR_END
 } FFWR_ERR_CODE;
 
+typedef enum {
+    FFWR_AUDIO, 
+    FFWR_VIDEO,
+} FFWR_AUDIO_VIDEO;
+
+
 typedef struct __FFWR_CODEC__{
     char *name;
     char *detail;
 } FFWR_CODEC;
 
+
 typedef struct __FFWR_DEVICE__{
     char *name;
     char *detail;
+    FFWR_AUDIO_VIDEO av;
 } FFWR_DEVICE;
 
 typedef struct __FFWR_VIDEO_RECV__{
