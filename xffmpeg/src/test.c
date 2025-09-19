@@ -20,8 +20,8 @@ main()
 	ffwr_clear_all_devices(&devs, count);
 #endif
 
-	//ffwr_all_formats(&fmts, &count);
-	//ffwr_clear_all_formats(&fmts, count);
+	ffwr_all_demuxers(&fmts, &count);
+	ffwr_clear_all_demuxers(&fmts, count);
 
 	spl_finish_log();
 	return 0;
