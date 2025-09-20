@@ -79,6 +79,7 @@ ffwr_all_codecs(FFWR_CODEC **lst, int *count)
             ret = FFWR_REALLOC;
             break;
 	    }
+	    
         if(ret) {
             break;
         }
@@ -521,6 +522,34 @@ int ffwr_clone_str(char **dst, char *src) {
     return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+int
+ffwr_open_devices(FFWR_DEVICE *devs, int count, char *name)
+{
+	int ret = 0;
+	int i = 0;
+	int result = 0;
+	AVInputFormat *iformat = 0; 
+	AVFormatContext *video_ctx = 0;
+	AVFormatContext *audio_ctx = 0;
+	do {
+		iformat = av_find_input_format(name);
+#ifndef UNIX_LINUX
+		for (; i < count; ++i) {
+			if (devs[i].av == FFWR_VIDEO) {
+				/*Open Video context.*/
+				result = avformat_open_input(
+				    &video_ctx, "video=Integrated Webcam", iformat, 0);
+			} else {
+				// Open audio device
+				result = avformat_open_input(
+				    &audio_ctx, "audio=Microphone (2- Realtek(R) Audio)", iformat, 0);
+			}
+		}
+#else
+#endif
+	} while (0);
+	return ret;
+}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
