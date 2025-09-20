@@ -247,7 +247,7 @@ ffwr_clear_all_devices(FFWR_DEVICE **devs, int count) {
 }
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
-/* Find all input format. */
+/* Find all demuxer format. */
 int
 ffwr_all_demuxers(FFWR_DEMUXER_FMT **fmts, int *count)
 {
@@ -277,7 +277,7 @@ ffwr_all_demuxers(FFWR_DEMUXER_FMT **fmts, int *count)
             break;
         }
         while (1) {
-		ifmt = av_demuxer_iterate(&opaque);
+		    ifmt = av_demuxer_iterate(&opaque);
             if(!ifmt) {
                 break;
             }
@@ -291,8 +291,8 @@ ffwr_all_demuxers(FFWR_DEMUXER_FMT **fmts, int *count)
 		        continue;
 	        }
 	        step += FFWR_STEP;
-	        size = (step + 1) * sizeof(FFWR_CODEC);
-	        ffwr_realloc(size, p, FFWR_CODEC);
+		    size = (step + 1) * sizeof(FFWR_DEMUXER_FMT);
+		    ffwr_realloc(size, p, FFWR_DEMUXER_FMT);
 	        if (p) {
 		        continue;
 	        }
@@ -332,6 +332,93 @@ ffwr_clear_all_demuxers(FFWR_DEMUXER_FMT **fmts, int count)
 
     } while(0);
     return ret;    
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+/* Find all demuxer format. */
+int
+ffwr_all_muxers(FFWR_MUXER_FMT **fmts, int *count)
+{
+	int ret = 0;
+	void *opaque = 0;
+	FFWR_MUXER_FMT *p = 0;
+	int size = 0;
+	int i = 0;
+	const AVInputFormat *ifmt = 0;
+	int step = FFWR_STEP;
+	size = (step + 1) * sizeof(FFWR_MUXER_FMT);
+#if LIBAVFORMAT_VERSION_MAJOR < 58
+	av_register_all();
+#endif
+	do {
+		if (!count) {
+			ret = FFWR_NULL_ARG;
+			break;
+		}
+		if (!fmts) {
+			ret = FFWR_NULL_ARG;
+			break;
+		}
+		ffwr_malloc(size, p, FFWR_MUXER_FMT);
+		if (!p) {
+			ret = FFWR_MALLOC;
+			break;
+		}
+		while (1) {
+			ifmt = av_muxer_iterate(&opaque);
+			if (!ifmt) {
+				break;
+			}
+			ffwr_clone_str(&p[i].name, ifmt->name);
+			ffwr_clone_str(&p[i].detail, ifmt->long_name);
+
+			++i;
+			spllog(2, "Muxer: (%s, %s).", ifmt->name,
+			    ifmt->long_name);
+			if (i < step) {
+				continue;
+			}
+			step += FFWR_STEP;
+			size = (step + 1) * sizeof(FFWR_MUXER_FMT);
+			ffwr_realloc(size, p, FFWR_MUXER_FMT);
+			if (p) {
+				continue;
+			}
+			ret = FFWR_REALLOC;
+			break;
+		}
+		*fmts = p;
+		*count = i;
+	} while (0);
+	if (ret) {
+		ffwr_clear_all_muxers(&p, i);
+	}
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+DLL_API_FF_WRAPPER int
+ffwr_clear_all_muxers(FFWR_MUXER_FMT **fmts, int count)
+{
+	int ret = 0;
+	int i = 0;
+	FFWR_MUXER_FMT *p = 0;
+	do {
+		if (!fmts) {
+			ret = FFWR_NULL_ARG;
+			break;
+		}
+		p = *fmts;
+		if (!(p)) {
+			ret = FFWR_NULL_ARG;
+			break;
+		}
+		for (i = 0; i < count; ++i) {
+			ffwr_free(p[i].name);
+			ffwr_free(p[i].detail);
+		}
+		ffwr_free(p);
+		*fmts = 0;
+
+	} while (0);
+	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 int ffwr_clone_str(char **dst, char *src) {

@@ -6,6 +6,7 @@ main()
 	FFWR_CODEC *lst = 0;
 	FFWR_DEVICE *devs = 0;
 	FFWR_DEMUXER_FMT *fmts = 0;
+	FFWR_MUXER_FMT *muxers = 0;
 	int count = 0;
 	int ret = 0;
 	char cfgpath[1024];
@@ -18,11 +19,12 @@ main()
 	ffwr_clear_all_codecs(&lst, count);
 	ffwr_all_devices(&devs, &count);
 	ffwr_clear_all_devices(&devs, count);
-
-#endif
-
 	ffwr_all_demuxers(&fmts, &count);
 	ffwr_clear_all_demuxers(&fmts, count);
+#endif
+
+	ffwr_all_muxers(&muxers, &count);
+	ffwr_clear_all_muxers(&muxers, count);
 
 	spl_finish_log();
 	return 0;
