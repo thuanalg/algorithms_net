@@ -273,7 +273,7 @@ ffwr_devices_by_name(FFWR_DEVICE **devs, int *count, char *name)
 		for ( ; i < dev_list->nb_devices; i++) {
 			dev = dev_list->devices[i];
 			type = dev->media_types ? dev->media_types[0] : 0;
-			spllog(2, "Device %d: %s (%s)\n",
+			spllog(2, "Device %d: (%s, %s)\n",
                 i, dev->device_name,
 			    dev->device_description);
 		}
