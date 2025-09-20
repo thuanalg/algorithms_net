@@ -25,7 +25,7 @@ typedef struct {
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 static int ffwr_clone_str(char **dst, char *str);
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
-#define FFWR_STEP           200
+#define FFWR_STEP           5
 int
 ffwr_all_codecs(FFWR_CODEC **lst, int *count)
 {
