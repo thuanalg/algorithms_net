@@ -814,5 +814,23 @@ if (avformat_open_input(&audio_ctx, audio_device, iformat, NULL) < 0) {
     fprintf(stderr, "Cannot open audio device\n");
     return -1;
 }
+AVDictionary *video_opts = NULL;
+av_dict_set(&video_opts, "framerate", "30", 0);
+av_dict_set(&video_opts, "video_size", "1280x720", 0);
+
+AVDictionary *audio_opts = NULL;
+av_dict_set(&audio_opts, "sample_rate", "48000", 0);
+av_dict_set(&audio_opts, "channels", "2", 0);
+
+// mở video
+AVFormatContext *video_ctx = NULL;
+avformat_open_input(&video_ctx, "video=Integrated Camera", NULL, &video_opts);
+
+// mở audio
+AVFormatContext *audio_ctx = NULL;
+avformat_open_input(&audio_ctx, "audio=Microphone (Realtek ...)", NULL, &audio_opts);
+
+// sau đó ghép 2 stream video/audio lại và ghi ra MP4
+
 
 #endif
