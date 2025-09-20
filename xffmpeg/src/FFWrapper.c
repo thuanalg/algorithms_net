@@ -318,6 +318,7 @@ int
 ffwr_clear_devices_by_name(FFWR_DEVICE **devs, int count)
 {
 	int ret = 0;
+	ret = ffwr_clear_all_devices(devs, count);
 	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
