@@ -13,6 +13,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FFWrapper", "FFWrapper\FFWrapper.vcxproj", "{7D309857-B432-4F81-806B-AD9DC068179F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "audio_video_record", "audio_video_record\audio_video_record.vcxproj", "{D7E6B55F-FC99-4732-BAA7-C0647E78B459}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7D309857-B432-4F81-806B-AD9DC068179F} = {7D309857-B432-4F81-806B-AD9DC068179F}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

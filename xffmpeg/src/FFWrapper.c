@@ -529,21 +529,33 @@ ffwr_open_devices(FFWR_DEVICE *devs, int count, char *name)
 	int i = 0;
 	int result = 0;
 	AVInputFormat *iformat = 0; 
-	AVFormatContext *video_ctx = 0;
-	AVFormatContext *audio_ctx = 0;
+	AVFormatContext *tmp = 0;
+
+	char buf[1024];
+
 	do {
 		iformat = av_find_input_format(name);
 #ifndef UNIX_LINUX
-		for (; i < count; ++i) {
+		for (i = count -1; i >= 0; --i) {
+        #if 0
+			AVDictionary *opts = 0;
+			av_dict_set(&opts, "rtbufsize", "100M", 0); //
+			av_dict_set(&opts, "framerate", "30", 0); //
+        #endif
 			if (devs[i].av == FFWR_VIDEO) {
 				/*Open Video context.*/
-				result = avformat_open_input(
-				    &video_ctx, "video=Integrated Webcam", iformat, 0);
+				snprintf(buf, 1024, "video=%s", devs[i].detail);
+
 			} else {
 				// Open audio device
-				result = avformat_open_input(
-				    &audio_ctx, "audio=Microphone (2- Realtek(R) Audio)", iformat, 0);
+				snprintf(buf, 1024, "audio=%s", devs[i].detail);
 			}
+			ret = avformat_open_input(&tmp, buf, iformat, 0);
+			//ret = avformat_open_input(&tmp, buf, iformat, &opt);
+			if (ret) {
+				break;
+			}
+			devs[i].context = (void *)tmp;
 		}
 #else
 #endif
