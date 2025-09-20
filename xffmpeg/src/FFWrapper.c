@@ -178,8 +178,8 @@ ffwr_all_devices(FFWR_DEVICE **lst, int *count) {
 		        continue;
 	        }
 	        step += FFWR_STEP;
-	        size = (step + 1) * sizeof(FFWR_CODEC);
-	        ffwr_realloc(size, p, FFWR_CODEC);
+		    size = (step + 1) * sizeof(FFWR_DEVICE);
+		    ffwr_realloc(size, p, FFWR_DEVICE);
 	        if (p) {
 		        continue;
 	        }
@@ -203,8 +203,8 @@ ffwr_all_devices(FFWR_DEVICE **lst, int *count) {
 		        continue;
 	        }
 	        step += FFWR_STEP;
-	        size = (step + 1) * sizeof(FFWR_CODEC);
-	        ffwr_realloc(size, p, FFWR_CODEC);
+		    size = (step + 1) * sizeof(FFWR_DEVICE);
+		    ffwr_realloc(size, p, FFWR_DEVICE);
 	        if (p) {
 		        continue;
 	        }
@@ -256,6 +256,10 @@ ffwr_devices_by_name(FFWR_DEVICE **devs, int *count, char *name)
 	AVDeviceInfoList *dev_list = NULL;
 	enum AVMediaType type;
 	int i = 0;
+	int zize = 0;
+	int step = FFWR_STEP;
+	FFWR_DEVICE *p = 0;
+	zize = (step + 1) * sizeof(FFWR_DEVICE); 
 	avdevice_register_all();
 	do {
 		iformat = av_find_input_format(name);
@@ -269,17 +273,44 @@ ffwr_devices_by_name(FFWR_DEVICE **devs, int *count, char *name)
 			ret = FFWR_NO_DEVICE;
 			break;
 		}
-
+		ffwr_malloc(zize, p, FFWR_DEVICE);
+		if (!p) {
+			ret = FFWR_MALLOC;
+			break;
+		}
 		for ( ; i < dev_list->nb_devices; i++) {
 			dev = dev_list->devices[i];
 			type = dev->media_types ? dev->media_types[0] : 0;
 			spllog(2, "Device %d: (%s, %s)\n",
                 i, dev->device_name,
 			    dev->device_description);
-		}
+			ffwr_clone_str(&p[i].name, dev->device_name);
+			ffwr_clone_str(&p[i].detail, dev->device_description);
+			p[i].av = dev->media_types ? dev->media_types[0]
+						   : AVMEDIA_TYPE_UNKNOWN;
 
+			if (i < step) {
+				continue;
+			}
+			step += FFWR_STEP;
+			zize = (step + 1) * sizeof(FFWR_DEVICE);
+			ffwr_realloc(zize, p, FFWR_DEVICE);
+			if (p) {
+				continue;
+			}
+			ret = FFWR_REALLOC;
+			break;
+		}
+		if (ret) {
+			break;
+		}
 		avdevice_free_list_devices(&dev_list);
+		*devs = p;
+		*count = i;
 	} while (0);
+	if (ret) {
+		ffwr_clear_devices_by_name(&p, i);
+	}
 	return ret;
 }
 

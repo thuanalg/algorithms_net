@@ -81,8 +81,9 @@ typedef enum {
 } FFWR_ERR_CODE;
 
 typedef enum {
-    FFWR_AUDIO, 
+	FFWR_UNKNOWN = -1,
     FFWR_VIDEO,
+	FFWR_AUDIO,
 } FFWR_AUDIO_VIDEO;
 
 
