@@ -245,7 +245,50 @@ ffwr_clear_all_devices(FFWR_DEVICE **devs, int count) {
     } while(0);
     return ret;
 }
+/* Find all audio/video devices by name. */
+int
+ffwr_devices_by_name(FFWR_DEVICE **devs, int *count, char *name)
+{
+	int ret = 0;
+	int result = 0;
+	AVDeviceInfo *dev = 0;
+	AVInputFormat *iformat = 0;
+	AVDeviceInfoList *dev_list = NULL;
+	enum AVMediaType type;
+	int i = 0;
+	avdevice_register_all();
+	do {
+		iformat = av_find_input_format(name);
+		if (!iformat) {
+			ret = FFWR_NO_FORMAT;
+			break;
+		}
+		result = avdevice_list_input_sources(
+            iformat, NULL, NULL, &dev_list);
+		if (result < 0) {
+			ret = FFWR_NO_DEVICE;
+			break;
+		}
 
+		for ( ; i < dev_list->nb_devices; i++) {
+			dev = dev_list->devices[i];
+			type = dev->media_types ? dev->media_types[0] : 0;
+			spllog(2, "Device %d: %s (%s)\n",
+                i, dev->device_name,
+			    dev->device_description);
+		}
+
+		avdevice_free_list_devices(&dev_list);
+	} while (0);
+	return ret;
+}
+
+int
+ffwr_clear_devices_by_name(FFWR_DEVICE **devs, int count)
+{
+	int ret = 0;
+	return ret;
+}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 /* Find all demuxer format. */
 int

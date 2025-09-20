@@ -19,14 +19,15 @@ main()
 	ffwr_clear_all_codecs(&lst, count);
 	ffwr_all_devices(&devs, &count);
 	ffwr_clear_all_devices(&devs, count);
-#endif
+//#endif
 	ffwr_all_demuxers(&fmts, &count);
 	ffwr_clear_all_demuxers(&fmts, count);
 //#endif
-
 	ffwr_all_muxers(&muxers, &count);
 	ffwr_clear_all_muxers(&muxers, count);
-
+#endif
+	ffwr_devices_by_name(&devs, &count, "dshow");
 	spl_finish_log();
 	return 0;
 }
+

@@ -71,7 +71,9 @@ typedef enum {
     FFWR_OK,
     FFWR_MALLOC,
     FFWR_REALLOC, 
-    FFWR_NULL_ARG, 
+    FFWR_NULL_ARG,
+	FFWR_NO_FORMAT,
+    FFWR_NO_DEVICE,
 
     
     
@@ -174,6 +176,13 @@ ffwr_all_devices(FFWR_DEVICE **, int *count);
 
 DLL_API_FF_WRAPPER int
 ffwr_clear_all_devices(FFWR_DEVICE **, int count);
+
+/* Find all audio/video devices by name. */
+DLL_API_FF_WRAPPER int
+ffwr_devices_by_name(FFWR_DEVICE **, int *count, char *name);
+
+DLL_API_FF_WRAPPER int
+ffwr_clear_devices_by_name(FFWR_DEVICE **, int count);
 
 /* Find all demuxer format. */
 DLL_API_FF_WRAPPER int
