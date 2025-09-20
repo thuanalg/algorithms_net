@@ -30,4 +30,3 @@ main(int argc, char *argv[])
 	spl_finish_log();
 	return 0;
 }
-
