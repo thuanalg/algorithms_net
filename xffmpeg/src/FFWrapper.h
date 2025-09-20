@@ -99,8 +99,12 @@ typedef struct __FFWR_DEVICE__{
 typedef struct {
     char *name;
     char *detail;
-} FFWR_INPUT_FMT;
+} FFWR_DEMUXER_FMT;
 
+typedef struct {
+	char *name;
+	char *detail;
+} FFWR_MUXER_FMT;
 
 typedef struct __FFWR_VIDEO_RECV__{
     char *name;
@@ -171,12 +175,19 @@ ffwr_all_devices(FFWR_DEVICE **, int *count);
 DLL_API_FF_WRAPPER int
 ffwr_clear_all_devices(FFWR_DEVICE **, int count);
 
-/* Find all input format. */
+/* Find all demuxer format. */
 DLL_API_FF_WRAPPER int
-ffwr_all_demuxers(FFWR_INPUT_FMT **, int *count);
+ffwr_all_demuxers(FFWR_DEMUXER_FMT **, int *count);
 
 DLL_API_FF_WRAPPER int
-ffwr_clear_all_demuxers(FFWR_INPUT_FMT **, int count);
+ffwr_clear_all_demuxers(FFWR_DEMUXER_FMT **, int count);
+
+
+DLL_API_FF_WRAPPER int
+ffwr_all_muxers(FFWR_DEMUXER_FMT **, int *count);
+
+DLL_API_FF_WRAPPER int
+ffwr_clear_all_muxers(FFWR_DEMUXER_FMT **, int count);
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 

@@ -249,16 +249,16 @@ ffwr_clear_all_devices(FFWR_DEVICE **devs, int count) {
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 /* Find all input format. */
 int
-ffwr_all_demuxers(FFWR_INPUT_FMT **fmts, int *count)
+ffwr_all_demuxers(FFWR_DEMUXER_FMT **fmts, int *count)
 {
 	int ret = 0;
 	void *opaque = 0;
-    FFWR_INPUT_FMT *p = 0;
+    FFWR_DEMUXER_FMT *p = 0;
     int size = 0;
     int i = 0;
     const AVInputFormat *ifmt = 0;
     int step = FFWR_STEP;
-    size = (step + 1) * sizeof(FFWR_INPUT_FMT); 
+    size = (step + 1) * sizeof(FFWR_DEMUXER_FMT); 
 #if LIBAVFORMAT_VERSION_MAJOR < 58    
     av_register_all();
 #endif    
@@ -271,7 +271,7 @@ ffwr_all_demuxers(FFWR_INPUT_FMT **fmts, int *count)
             ret = FFWR_NULL_ARG;
             break;
         }        
-        ffwr_malloc(size, p, FFWR_INPUT_FMT);
+        ffwr_malloc(size, p, FFWR_DEMUXER_FMT);
         if(!p) {
             ret = FFWR_MALLOC;
             break;
@@ -308,11 +308,11 @@ ffwr_all_demuxers(FFWR_INPUT_FMT **fmts, int *count)
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 DLL_API_FF_WRAPPER int
-ffwr_clear_all_demuxers(FFWR_INPUT_FMT **fmts, int count)
+ffwr_clear_all_demuxers(FFWR_DEMUXER_FMT **fmts, int count)
 {
     int ret = 0;
     int i = 0;
-    FFWR_INPUT_FMT *p = 0;
+    FFWR_DEMUXER_FMT *p = 0;
     do {
         if(!fmts) {
             ret = FFWR_NULL_ARG;
