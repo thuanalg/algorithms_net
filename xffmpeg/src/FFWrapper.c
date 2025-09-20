@@ -545,7 +545,7 @@ ffwr_open_devices(FFWR_DEVICE *devs, int count, char *name)
 			snprintf(buf, 1024, pfmt, devs[i].detail);
             //AVFormatContext
 			ret = avformat_open_input(
-			    &(devs[i].context), buf, iformat, 0);
+			    &(devs[i].in_ctx), buf, iformat, 0);
 			if (ret) {
 				break;
 			}

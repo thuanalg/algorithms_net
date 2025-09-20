@@ -97,7 +97,8 @@ typedef struct __FFWR_DEVICE__{
     char *name;
     char *detail;
     FFWR_AUDIO_VIDEO av;
-    void *context; /*AVFormatContext*/
+    void *in_ctx; /*AVFormatContext, input context*/
+    void *out_ctx; /*AVFormatContext, output context*/
 } FFWR_DEVICE;
 
 typedef struct {
