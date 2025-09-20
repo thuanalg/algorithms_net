@@ -527,10 +527,7 @@ ffwr_open_devices(FFWR_DEVICE *devs, int count, char *name)
 {
 	int ret = 0;
 	int i = 0;
-	int result = 0;
 	AVInputFormat *iformat = 0; 
-	AVFormatContext *tmp = 0;
-
 	char buf[1024]; 
 
 	do {
@@ -546,11 +543,11 @@ ffwr_open_devices(FFWR_DEVICE *devs, int count, char *name)
 			pfmt = (devs[i].av == FFWR_VIDEO) ? 
                 "video=%s" : "audio=%s";
 			snprintf(buf, 1024, pfmt, devs[i].detail);
-			ret = avformat_open_input(&tmp, buf, iformat, 0);
+			ret = avformat_open_input(
+			    &(devs[i].context), buf, iformat, 0);
 			if (ret) {
 				break;
 			}
-			devs[i].context = (void *)tmp;
 		}
 #else
 #endif
