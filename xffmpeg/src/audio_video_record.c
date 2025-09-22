@@ -34,6 +34,7 @@ main(int argc, char *argv[])
 		return -1;
 	}
 #endif
+
 	spl_finish_log();
 	return ret;
 }
