@@ -578,18 +578,16 @@ ffwr_open_devices(FFWR_DEVICE *devs, int count, char *name)
 				if (devs[i].av == FFWR_VIDEO) {
 					result = avformat_find_stream_info(
 					    devs[i].in_ctx, 0);
-					if (result >= 0)
-						continue;
+					if (result >= 0) continue;
 					spllog(4, "Cannot get info of the "
-					    "audio stream\n");
+					    "video stream\n");
 					ret = FFWR_OPEN_STREAM_VIDEO;
 					break;
 				} 
 				else if (devs[i].av == FFWR_AUDIO) {
 					result = avformat_find_stream_info( 
 						devs[i].in_ctx, 0);
-					if (result >= 0)
-						continue;
+					if (result >= 0) continue;
 					spllog(4,
 					    "Cannot get info of the "
 					    "audio stream\n");
