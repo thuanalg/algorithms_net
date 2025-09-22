@@ -530,6 +530,7 @@ ffwr_open_devices(FFWR_DEVICE *devs, int count, char *name)
 	AVInputFormat *iformat = 0; 
 	char buf[1024]; 
 	int result = 0;
+	AVPacket *pkt = 0;
 
 	do {
 		iformat = av_find_input_format(name);
@@ -597,6 +598,7 @@ ffwr_open_devices(FFWR_DEVICE *devs, int count, char *name)
 		if (ret) {
 			break;
 		}
+		
 		for (i = count - 1; i >= 0; --i) {
 			AVCodecParameters *codecpar = 0;
 			AVCodec *codec = 0;
@@ -613,11 +615,41 @@ ffwr_open_devices(FFWR_DEVICE *devs, int count, char *name)
 				continue;
 			codec = avcodec_find_decoder(codecpar->codec_id);
 			if (!codec) {
-				int a = AV_CODEC_ID_FIRST_AUDIO;
-			} else {
+				if (devs[i].av == FFWR_VIDEO) {
+					ret = FFWR_NO_VIDEO_CODEC_FOUND;
+					break;
+				} 
+				else if (devs[i].av == FFWR_AUDIO) {
+					ret = FFWR_NO_AUDIO_CODEC_FOUND;
+					break;
+				}
+			} 
+			/*AVCodecContext *codec_ctx*/
+			devs[i].in_codec_ctx = avcodec_alloc_context3(codec);
+			if (!devs[i].in_ctx) {
+				ret = (devs[i].av == FFWR_VIDEO)
+					  ? FFWR_ALLOC_VIDEO_CONTEXT
+					  : FFWR_ALLOC_AUDO_CONTEXT;
+				break;
+			}
+			avcodec_parameters_to_context(
+			    devs[i].in_codec_ctx, codecpar);
+			result = avcodec_open2(devs[i].in_codec_ctx, codec, 0);
+			if (result < 0) {
+				ret = (devs[i].av == FFWR_VIDEO)
+					  ? FFWR_OPEN_VIDEO_CONTEXT
+					  : FFWR_OPEN_AUDO_CONTEXT;
+				break;
+			}
+			/*
+			else {
 				int a = AV_CODEC_ID_RAWVIDEO;
 			}
-			//AV_CODEC_ID_RAWVIDEO
+			//AV_CODEC_ID_RAWVIDEO, AV_CODEC_ID_FIRST_AUDIO
+			*/
+		}
+		for (i = count - 1; i >= 0; --i) {
+
 		}
 #if 0
 		AVCodecParameters *codecpar =
