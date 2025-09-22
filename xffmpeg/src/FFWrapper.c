@@ -669,6 +669,28 @@ int
 ffwr_devices_operate(FFWR_DEVICE *devs, int count)
 {
 	int ret = 0;
+	AVPacket *pkt = av_packet_alloc();
+	AVPacket *audio_pkt = av_packet_alloc();
+	AVFrame *frame = av_frame_alloc();
+	int readindex = -1;
+	int i = 0;
+	int rs = 0;
+	do {
+		for (i = 0; i < count; ++i) {
+			readindex = av_read_frame(devs[i].in_ctx, pkt);
+			if (readindex < 0) {
+				continue;
+			}
+			rs = avcodec_send_packet(devs[i].in_ctx, pkt);
+			if (!rs) {
+				ret = FFWR_SEND_PACKET_FAILED;
+			}
+		}
+		if (ret) {
+			break;
+		}
+
+	} while (1);
 	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
