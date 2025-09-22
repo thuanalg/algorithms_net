@@ -218,6 +218,9 @@ DLL_API_FF_WRAPPER int
 ffwr_open_devices(FFWR_DEVICE *, int count, char *name);
 
 DLL_API_FF_WRAPPER int
+ffwr_devices_operate(FFWR_DEVICE *, int count);
+
+DLL_API_FF_WRAPPER int
 ffwr_close_devices(FFWR_DEVICE *, int count);
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/

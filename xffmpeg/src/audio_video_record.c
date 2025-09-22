@@ -11,17 +11,20 @@ main(int argc, char *argv[])
 	snprintf(cfgpath, 1024, "D:/x/algorithms_net/xffmpeg/ffmpeg/x64/z.cfg");
 	snprintf(input.folder, SPL_PATH_FOLDER, "%s", cfgpath);
 	ret = spl_init_log_ext(&input);
-
-	ffwr_devices_by_name(&devs, &count, "dshow");
-	/*Open Video context.*/
-	/*Open Audio context*/
-	ffwr_open_devices(devs, count, "dshow");
-	
 	do {
-
+		ffwr_devices_by_name(&devs, &count, "dshow");
+		/*Open Video context.*/
+		/*Open Audio context*/
+		ret = ffwr_open_devices(devs, count, "dshow");
+		if (ret) {
+			break;
+		}
+		ret = ffwr_devices_operate(devs, count);
+		if (ret) {
+			break;
+		}
+		ffwr_close_devices(devs, count);
 	} while (0);
-
-	ffwr_close_devices(devs, count);
 	spl_finish_log();
 	return ret;
 }

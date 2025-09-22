@@ -666,6 +666,13 @@ ffwr_open_devices(FFWR_DEVICE *devs, int count, char *name)
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 int
+ffwr_devices_operate(FFWR_DEVICE *devs, int count)
+{
+	int ret = 0;
+	return ret;
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+int
 ffwr_close_devices(FFWR_DEVICE *devs, int count)
 {
 	int ret = 0;
