@@ -597,7 +597,38 @@ ffwr_open_devices(FFWR_DEVICE *devs, int count, char *name)
 		if (ret) {
 			break;
 		}
-
+		for (i = count - 1; i >= 0; --i) {
+			AVCodecParameters *codecpar = 0;
+			AVCodec *codec = 0;
+			AVFormatContext *p = 0;
+			int index = 0;
+			if (!devs[i].in_ctx)
+				continue;
+			p = devs[i].in_ctx;
+			if (!p->streams) {
+				continue;
+			}				
+			codecpar = p->streams[index]->codecpar;
+			if (!codecpar)
+				continue;
+			codec = avcodec_find_decoder(codecpar->codec_id);
+			if (!codec) {
+				int a = AV_CODEC_ID_FIRST_AUDIO;
+			} else {
+				int a = AV_CODEC_ID_RAWVIDEO;
+			}
+			//AV_CODEC_ID_RAWVIDEO
+		}
+#if 0
+		AVCodecParameters *codecpar =
+		    fmt_ctx->streams[video_index]->codecpar;
+		AVCodec *codec = avcodec_find_decoder(codecpar->codec_id);
+		if (!codec) {
+			fprintf(stderr, "Not found\n");
+			avformat_close_input(&fmt_ctx);
+			return 1;
+		}
+#endif
 	} while (0);
 	return ret;
 }
