@@ -529,6 +529,7 @@ ffwr_open_devices(FFWR_DEVICE *devs, int count, char *name)
 	int i = 0;
 	AVInputFormat *iformat = 0; 
 	char buf[1024]; 
+	int result = 0;
 
 	do {
 		iformat = av_find_input_format(name);
@@ -572,7 +573,7 @@ ffwr_open_devices(FFWR_DEVICE *devs, int count, char *name)
 			break;
 		}
 		for (i = count - 1; i >= 0; --i) {
-			int result = 0;
+			result = 0;
 			if (devs[i].in_ctx) {
 				if (devs[i].av == FFWR_VIDEO) {
 					result = avformat_find_stream_info(
