@@ -669,28 +669,75 @@ int
 ffwr_devices_operate(FFWR_DEVICE *devs, int count)
 {
 	int ret = 0;
-	AVPacket *pkt = av_packet_alloc();
-	AVPacket *audio_pkt = av_packet_alloc();
-	AVFrame *frame = av_frame_alloc();
+	AVPacket *pkt = 0;
+	AVFrame *frame = 0;
 	int readindex = -1;
 	int i = 0;
 	int rs = 0;
+	int count_frame = 0;
 	do {
-		for (i = 0; i < count; ++i) {
-			readindex = av_read_frame(devs[i].in_ctx, pkt);
+		pkt = av_packet_alloc();
+		frame = av_frame_alloc();
+	} while (0);
+
+	if (ret) {
+		if (pkt) {
+			av_packet_free(&pkt);
+		}
+		if (frame) {
+			av_frame_free(&frame);
+		}
+		return ret;
+	}
+
+	do {
+		for (i = 0 ; i < count ; ++i) {
+			readindex = av_read_frame(
+				devs[i].in_ctx, pkt);
 			if (readindex < 0) {
 				continue;
 			}
-			rs = avcodec_send_packet(devs[i].in_ctx, pkt);
-			if (!rs) {
-				ret = FFWR_SEND_PACKET_FAILED;
+			rs = avcodec_send_packet(
+				devs[i].in_codec_ctx, pkt);
+			if (rs) {
+				spllog(3, "in_ctx, send packet: %s.", 
+					(devs[i].av == FFWR_VIDEO) ? 
+					"Video" : "Audio");
+				continue;
 			}
+			count_frame = 0;
+			while (1) {
+				rs = avcodec_receive_frame(
+				    devs[i].in_codec_ctx, frame);
+				if (rs) {
+					if (count_frame) {
+						break;
+					}
+					spllog(3, "in_ctx, recv fame: %s.",
+					    (devs[i].av == FFWR_VIDEO)
+						? "Video" : "Audio");
+					break;
+				}
+				++count_frame;
+				/*
+				* Have to init output AVFormatContex
+				* Processing
+				*/
+				av_frame_unref(frame);
+			}
+			
 		}
 		if (ret) {
 			break;
 		}
-
+		av_packet_unref(pkt);
 	} while (1);
+	if (pkt) {
+		av_packet_free(&pkt);
+	}
+	if (frame) {
+		av_frame_free(&frame);
+	}
 	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
