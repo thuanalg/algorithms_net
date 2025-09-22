@@ -539,21 +539,67 @@ ffwr_open_devices(FFWR_DEVICE *devs, int count, char *name)
 			av_dict_set(&opts, "rtbufsize", "100M", 0); //
 			av_dict_set(&opts, "framerate", "30", 0); //
         #endif
+			/*Open Video context.*/
+			/*Open Audio context*/
 			const char *pfmt = 0;
 			pfmt = (devs[i].av == FFWR_VIDEO) ? 
                 "video=%s" : "audio=%s";
 			snprintf(buf, 1024, pfmt, devs[i].detail);
             //AVFormatContext
-			ret = avformat_open_input(
-			    &(devs[i].in_ctx), buf, iformat, 0);
+			if (devs[i].av == FFWR_VIDEO) { 
+                AVDictionary *options = NULL;
+				av_dict_set(&options, "framerate", "30", 0);
+				av_dict_set(
+				    &options, "video_size", "640x480", 0);
+				ret = avformat_open_input(
+				    &(devs[i].in_ctx), buf, iformat, &options);
+			} else {
+				ret = avformat_open_input(
+				    &(devs[i].in_ctx), buf, iformat, 0);
+			}
+
 			if (ret) {
 				break;
 			}
 			//AVFormatContext *v = devs[i].context;
 			//int a = 0;
 		}
+
+
 #else
 #endif
+		if (ret) {
+			break;
+		}
+		for (i = count - 1; i >= 0; --i) {
+			int result = 0;
+			if (devs[i].in_ctx) {
+				if (devs[i].av == FFWR_VIDEO) {
+					result = avformat_find_stream_info(
+					    devs[i].in_ctx, 0);
+					if (result >= 0)
+						continue;
+					spllog(4, "Cannot get info of the "
+					    "audio stream\n");
+					ret = FFWR_OPEN_STREAM_VIDEO;
+					break;
+				} 
+				else if (devs[i].av == FFWR_AUDIO) {
+					result = avformat_find_stream_info( 
+						devs[i].in_ctx, 0);
+					if (result >= 0)
+						continue;
+					spllog(4,
+					    "Cannot get info of the "
+					    "audio stream\n");
+					ret = FFWR_OPEN_STREAM_AUDIO;
+					break;
+				}
+			}
+		}
+		if (ret) {
+			break;
+		}
 	} while (0);
 	return ret;
 }

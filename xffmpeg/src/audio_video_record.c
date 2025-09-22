@@ -13,27 +13,14 @@ main(int argc, char *argv[])
 	ret = spl_init_log_ext(&input);
 
 	ffwr_devices_by_name(&devs, &count, "dshow");
-	ffwr_open_devices(devs, count, "dshow");
-	
-#if 0
 	/*Open Video context.*/
 	/*Open Audio context*/
-	AVFormatContext *video_ctx = NULL;
-	AVFormatContext *audio_ctx = NULL;
-	AVInputFormat *iformat = av_find_input_format("dshow");
+	ffwr_open_devices(devs, count, "dshow");
+	
+	do {
 
-	// Open video device
-	if (avformat_open_input(&video_ctx, video_device, iformat, NULL) < 0) {
-		fprintf(stderr, "Cannot open video device\n");
-		return -1;
-	}
+	} while (0);
 
-	// Open audio device
-	if (avformat_open_input(&audio_ctx, audio_device, iformat, NULL) < 0) {
-		fprintf(stderr, "Cannot open audio device\n");
-		return -1;
-	}
-#endif
 	ffwr_close_devices(devs, count);
 	spl_finish_log();
 	return ret;

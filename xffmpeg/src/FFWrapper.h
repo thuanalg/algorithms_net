@@ -74,6 +74,8 @@ typedef enum {
     FFWR_NULL_ARG,
 	FFWR_NO_FORMAT,
     FFWR_NO_DEVICE,
+	FFWR_OPEN_STREAM_VIDEO,
+	FFWR_OPEN_STREAM_AUDIO,
 
     
     
@@ -98,6 +100,7 @@ typedef struct __FFWR_DEVICE__{
     char *detail;
     FFWR_AUDIO_VIDEO av;
     void *in_ctx; /*AVFormatContext, input context*/
+    void *in_stream;
     void *out_ctx; /*AVFormatContext, output context*/
 } FFWR_DEVICE;
 
