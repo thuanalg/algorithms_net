@@ -100,7 +100,11 @@ typedef struct __FFWR_DEVICE__{
     char *detail;
     FFWR_AUDIO_VIDEO av;
     void *in_ctx; /*AVFormatContext, input context*/
-    void *in_stream;
+    void *in_stream; /*AVStream, input context*/
+    void *in_codec_ctx; /*AVCodecContext, input context*/
+
+
+
     void *out_ctx; /*AVFormatContext, output context*/
 } FFWR_DEVICE;
 

@@ -565,8 +565,6 @@ ffwr_open_devices(FFWR_DEVICE *devs, int count, char *name)
 			//AVFormatContext *v = devs[i].context;
 			//int a = 0;
 		}
-
-
 #else
 #endif
 		if (ret) {
@@ -599,6 +597,7 @@ ffwr_open_devices(FFWR_DEVICE *devs, int count, char *name)
 		if (ret) {
 			break;
 		}
+
 	} while (0);
 	return ret;
 }
@@ -609,6 +608,9 @@ ffwr_close_devices(FFWR_DEVICE *devs, int count)
 	int ret = 0;
 	int i = 0;
 	for (i = 0; i < count; ++i) {
+		if (!devs[i].in_ctx) {
+			continue;
+		}
 		avformat_close_input(&devs[i].in_ctx);
 	}
 	return ret;
