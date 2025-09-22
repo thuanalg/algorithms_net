@@ -562,6 +562,10 @@ int
 ffwr_close_devices(FFWR_DEVICE *devs, int count)
 {
 	int ret = 0;
+	int i = 0;
+	for (i = 0; i < count; ++i) {
+		avformat_close_input(&devs[i].in_ctx);
+	}
 	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/

@@ -204,6 +204,9 @@ ffwr_clear_all_muxers(FFWR_MUXER_FMT **, int count);
 DLL_API_FF_WRAPPER int
 ffwr_open_devices(FFWR_DEVICE *, int count, char *name);
 
+DLL_API_FF_WRAPPER int
+ffwr_close_devices(FFWR_DEVICE *, int count);
+
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 
 #ifdef __cplusplus

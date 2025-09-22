@@ -34,7 +34,7 @@ main(int argc, char *argv[])
 		return -1;
 	}
 #endif
-
+	ffwr_close_devices(devs, count);
 	spl_finish_log();
 	return ret;
 }
