@@ -1109,6 +1109,42 @@ int read_pcm_frame(FILE *f, AVFrame *frame, int nb_samples) {
     return 1;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <libavformat/avformat.h>
