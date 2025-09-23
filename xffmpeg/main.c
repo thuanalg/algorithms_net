@@ -925,5 +925,268 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
+#include <libavformat/avformat.h>
+#include <libavutil/timestamp.h>
+
+static void log_packet(const AVFormatContext *fmt_ctx, const AVPacket *pkt, const char *tag)
+{
+    AVRational *time_base = &fmt_ctx->streams[pkt->stream_index]->time_base;
+    printf("%s: stream=%d pts=%s dts=%s duration=%s\n",
+           tag, pkt->stream_index,
+           av_ts2str(pkt->pts), av_ts2timestr(pkt->pts, time_base),
+           av_ts2str(pkt->dts), av_ts2timestr(pkt->dts, time_base),
+           av_ts2str(pkt->duration), av_ts2timestr(pkt->duration, time_base));
+}
+
+int main(int argc, char *argv[])
+{
+    if (argc < 4) {
+        fprintf(stderr, "Usage: %s input.h264 input.aac output.mp4\n", argv[0]);
+        return -1;
+    }
+
+    const char *in_filename_v = argv[1];  // input video
+    const char *in_filename_a = argv[2];  // input audio
+    const char *out_filename  = argv[3];  // output mp4
+
+    AVFormatContext *ifmt_ctx_v = NULL, *ifmt_ctx_a = NULL, *ofmt_ctx = NULL;
+    AVPacket pkt_v, pkt_a;
+    int ret, got_v = 0, got_a = 0;
+
+    // Open video input
+    if ((ret = avformat_open_input(&ifmt_ctx_v, in_filename_v, NULL, NULL)) < 0) {
+        fprintf(stderr, "Could not open video input\n");
+        return ret;
+    }
+    avformat_find_stream_info(ifmt_ctx_v, NULL);
+
+    // Open audio input
+    if ((ret = avformat_open_input(&ifmt_ctx_a, in_filename_a, NULL, NULL)) < 0) {
+        fprintf(stderr, "Could not open audio input\n");
+        return ret;
+    }
+    avformat_find_stream_info(ifmt_ctx_a, NULL);
+
+    // Allocate output context
+    avformat_alloc_output_context2(&ofmt_ctx, NULL, "mp4", out_filename);
+    if (!ofmt_ctx) {
+        fprintf(stderr, "Could not create output context\n");
+        return -1;
+    }
+
+    // Create video stream
+    AVStream *in_stream_v = ifmt_ctx_v->streams[0];
+    AVStream *out_stream_v = avformat_new_stream(ofmt_ctx, NULL);
+    avcodec_parameters_copy(out_stream_v->codecpar, in_stream_v->codecpar);
+    out_stream_v->codecpar->codec_tag = 0;
+
+    // Create audio stream
+    AVStream *in_stream_a = ifmt_ctx_a->streams[0];
+    AVStream *out_stream_a = avformat_new_stream(ofmt_ctx, NULL);
+    avcodec_parameters_copy(out_stream_a->codecpar, in_stream_a->codecpar);
+    out_stream_a->codecpar->codec_tag = 0;
+
+    // Open output file
+    if (!(ofmt_ctx->oformat->flags & AVFMT_NOFILE)) {
+        ret = avio_open(&ofmt_ctx->pb, out_filename, AVIO_FLAG_WRITE);
+        if (ret < 0) {
+            fprintf(stderr, "Could not open output file\n");
+            return -1;
+        }
+    }
+
+    // Write header
+    avformat_write_header(ofmt_ctx, NULL);
+
+    // Init packets
+    av_init_packet(&pkt_v);
+    pkt_v.data = NULL; pkt_v.size = 0;
+    av_init_packet(&pkt_a);
+    pkt_a.data = NULL; pkt_a.size = 0;
+
+    // Read loop: interleave video & audio
+    while (1) {
+        if (!got_v) {
+            ret = av_read_frame(ifmt_ctx_v, &pkt_v);
+            if (ret >= 0) got_v = 1;
+        }
+        if (!got_a) {
+            ret = av_read_frame(ifmt_ctx_a, &pkt_a);
+            if (ret >= 0) got_a = 1;
+        }
+
+        if (!got_v && !got_a) break; // both inputs finished
+
+        int write_video = 0;
+        if (got_v && got_a) {
+            // choose packet with smaller dts (after rescale)
+            int64_t dts_v = av_rescale_q(pkt_v.dts, in_stream_v->time_base, out_stream_v->time_base);
+            int64_t dts_a = av_rescale_q(pkt_a.dts, in_stream_a->time_base, out_stream_a->time_base);
+            write_video = (dts_v <= dts_a);
+        } else if (got_v) {
+            write_video = 1;
+        } else {
+            write_video = 0;
+        }
+
+        AVPacket *pkt = write_video ? &pkt_v : &pkt_a;
+        AVStream *in_stream  = write_video ? in_stream_v : in_stream_a;
+        AVStream *out_stream = write_video ? out_stream_v : out_stream_a;
+
+        // Rescale timestamps
+        pkt->pts = av_rescale_q_rnd(pkt->pts, in_stream->time_base, out_stream->time_base,
+                                    AV_ROUND_NEAR_INF | AV_ROUND_PASS_MINMAX);
+        pkt->dts = av_rescale_q_rnd(pkt->dts, in_stream->time_base, out_stream->time_base,
+                                    AV_ROUND_NEAR_INF | AV_ROUND_PASS_MINMAX);
+        pkt->duration = av_rescale_q(pkt->duration, in_stream->time_base, out_stream->time_base);
+        pkt->pos = -1;
+        pkt->stream_index = out_stream->index;
+
+        // Write packet
+        ret = av_interleaved_write_frame(ofmt_ctx, pkt);
+        if (ret < 0) {
+            fprintf(stderr, "Error muxing packet\n");
+            break;
+        }
+
+        // Release packet
+        av_packet_unref(pkt);
+        if (write_video) got_v = 0; else got_a = 0;
+    }
+
+    // Write trailer
+    av_write_trailer(ofmt_ctx);
+
+    // Cleanup
+    avformat_close_input(&ifmt_ctx_v);
+    avformat_close_input(&ifmt_ctx_a);
+    if (!(ofmt_ctx->oformat->flags & AVFMT_NOFILE))
+        avio_closep(&ofmt_ctx->pb);
+    avformat_free_context(ofmt_ctx);
+
+    return 0;
+}
+full_example_mux_raw_to_mp4.c
+#include <stdio.h>
+#include <stdlib.h>
+#include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
+#include <libavutil/imgutils.h>
+#include <libavutil/samplefmt.h>
+#include <libavutil/opt.h>
+#include <libswresample/swresample.h>
+#include <libswscale/swscale.h>
+
+#define WIDTH 1280
+#define HEIGHT 720
+#define FPS 30
+#define AUDIO_SAMPLE_RATE 48000
+#define AUDIO_CHANNELS 2
+#define AUDIO_FORMAT AV_SAMPLE_FMT_FLTP
+
+// Fake: read a YUV420 frame from file
+int read_yuv_frame(FILE *f, AVFrame *frame) {
+    int y_size = WIDTH * HEIGHT;
+    int uv_size = (WIDTH / 2) * (HEIGHT / 2);
+
+    if (fread(frame->data[0], 1, y_size, f) != y_size) return 0;
+    if (fread(frame->data[1], 1, uv_size, f) != uv_size) return 0;
+    if (fread(frame->data[2], 1, uv_size, f) != uv_size) return 0;
+
+    return 1;
+}
+
+// Fake: read PCM float samples from WAV file
+int read_pcm_frame(FILE *f, AVFrame *frame, int nb_samples) {
+    int i, ch;
+    float sample;
+    for (i = 0; i < nb_samples; i++) {
+        for (ch = 0; ch < AUDIO_CHANNELS; ch++) {
+            if (fread(&sample, sizeof(float), 1, f) != 1) return 0;
+            ((float*)frame->data[ch])[i] = sample;
+        }
+    }
+    return 1;
+}
+
+int main(int argc, char *argv[]) {
+    if (argc < 5) {
+        fprintf(stderr, "Usage: %s input.yuv input.wav output.mp4 duration_sec\n", argv[0]);
+        return -1;
+    }
+
+    const char *in_yuv = argv[1];
+    const char *in_wav = argv[2];
+    const char *out_mp4 = argv[3];
+    int duration_sec = atoi(argv[4]);
+
+    FILE *f_yuv = fopen(in_yuv, "rb");
+    FILE *f_wav = fopen(in_wav, "rb");
+
+    avformat_network_init();
+
+    AVFormatContext *ofmt_ctx;
+    avformat_alloc_output_context2(&ofmt_ctx, NULL, "mp4", out_mp4);
+
+    // Video encoder
+    AVCodec *codec_v = avcodec_find_encoder(AV_CODEC_ID_H264);
+    AVCodecContext *c_v = avcodec_alloc_context3(codec_v);
+    c_v->width = WIDTH;
+    c_v->height = HEIGHT;
+    c_v->time_base = (AVRational){1, FPS};
+    c_v->pix_fmt = AV_PIX_FMT_YUV420P;
+    c_v->bit_rate = 4000000;
+    avcodec_open2(c_v, codec_v, NULL);
+
+    AVStream *st_v = avformat_new_stream(ofmt_ctx, NULL);
+    avcodec_parameters_from_context(st_v->codecpar, c_v);
+
+    // Audio encoder
+    AVCodec *codec_a = avcodec_find_encoder(AV_CODEC_ID_AAC);
+    AVCodecContext *c_a = avcodec_alloc_context3(codec_a);
+    c_a->sample_rate = AUDIO_SAMPLE_RATE;
+    c_a->channels = AUDIO_CHANNELS;
+    c_a->channel_layout = av_get_default_channel_layout(AUDIO_CHANNELS);
+    c_a->sample_fmt = codec_a->sample_fmts[0];
+    c_a->time_base = (AVRational){1, AUDIO_SAMPLE_RATE};
+    c_a->bit_rate = 128000;
+    avcodec_open2(c_a, codec_a, NULL);
+
+    AVStream *st_a = avformat_new_stream(ofmt_ctx, NULL);
+    avcodec_parameters_from_context(st_a->codecpar, c_a);
+
+    // Open output
+    if (!(ofmt_ctx->oformat->flags & AVFMT_NOFILE))
+        avio_open(&ofmt_ctx->pb, out_mp4, AVIO_FLAG_WRITE);
+
+    avformat_write_header(ofmt_ctx, NULL);
+
+    // Allocate frames
+    AVFrame *frame_v = av_frame_alloc();
+    frame_v->format = c_v->pix_fmt;
+    frame_v->width  = c_v->width;
+    frame_v->height = c_v->height;
+    av_frame_get_buffer(frame_v, 32);
+
+    AVFrame *frame_a = av_frame_alloc();
+    frame_a->nb_samples = c_a->frame_size;
+    frame_a->format = c_a->sample_fmt;
+    frame_a->channel_layout = c_a->channel_layout;
+    av_frame_get_buffer(frame_a, 0);
+
+    AVPacket pkt;
+    av_init_packet(&pkt);
+    pkt.data = NULL;
+    pkt.size = 0;
+
+    int total_frames = duration_sec * FPS;
+    int i;
+    for (i = 0; i < total_frames; i++) {
+        // read video frame
+        if (!read_yuv_frame(f_yuv, frame_v)) break;
+        frame_v->pts = i;
+
+        avcodec_send_frame(c_v, frame_v);
+        while (avco
 
 #endif
