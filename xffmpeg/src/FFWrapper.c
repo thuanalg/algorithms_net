@@ -767,6 +767,8 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 	AVOutputFormat *fmt = 0;
 	AVStream *video_st = 0;
 	AVStream *audio_st = 0;
+	//AV_CHANNEL_LAYOUT_STEREO
+
 	do {
 		fp = fopen("d:/z.mp4", "w+");
 		if (!fp) {
@@ -840,7 +842,7 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 		video_st->codecpar->width = 400;
 		video_st->codecpar->height = 640;
 		video_st->codecpar->format = AV_PIX_FMT_YUV420P;
-
+		
 
 		/* Create audio stream */
 		audio_st = avformat_new_stream(ctx, 0);

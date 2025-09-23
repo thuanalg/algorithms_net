@@ -1339,8 +1339,12 @@ AVStream *audio_st = avformat_new_stream(out_ctx, NULL);
 AVCodecContext *audio_enc = avcodec_alloc_context3(codec_audio);
 audio_enc->codec_id = out_ctx->oformat->audio_codec;
 audio_enc->sample_rate = 44100;
-audio_enc->channels = 2;
-audio_enc->channel_layout = AV_CH_LAYOUT_STEREO;
+
+//audio_enc->channels = 2;
+//audio_enc->channel_layout = AV_CH_LAYOUT_STEREO;
+//AVChannelLayout layout = AV_CHANNEL_LAYOUT_STEREO; //ch_layout
+//av_channel_layout_copy(&audio_enc->ch_layout, &layout);
+
 audio_enc->time_base = (AVRational){1, 44100};
 avcodec_open2(audio_enc, codec_audio, NULL);
 // copy params vào stream
