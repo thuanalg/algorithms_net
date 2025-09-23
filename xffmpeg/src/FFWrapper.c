@@ -763,6 +763,9 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 	uint8_t *avio_buffer = 0;
 	AVIOContext *avio_ctx = 0;
 	FILE *fp = 0;
+	AVOutputFormat *fmt = 0;
+	AVStream *video_st = 0;
+	AVStream *audio_st = 0;
 	do {
 		fp = fopen("d:/z.mp4", "w+");
 		if (!fp) {
@@ -777,7 +780,12 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 			break;
 		}
 		devs[0].out_ctx = ctx;
+		fmt = ctx->oformat;
+	#if 0
 		codec = avcodec_find_encoder(AV_CODEC_ID_H264);
+	#else
+		codec = avcodec_find_encoder(fmt->video_codec);
+	#endif
 		if (!codec) {
 			ret = FFWR_H264_NOT_FOUND;
 			break;
@@ -788,7 +796,11 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 				break;
 			}
 		}
+	#if 0
 		codec = avcodec_find_encoder(AV_CODEC_ID_AAC);
+	#else
+		codec = avcodec_find_encoder(fmt->audio_codec);
+	#endif
 		if (!codec) {
 			ret = FFWR_ACC_NOT_FOUND;
 			break;
@@ -799,6 +811,34 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 				break;
 			}
 		}
+		/* Create Video stream */
+		video_st = avformat_new_stream(ctx, 0);
+		if (!video_st) {
+			fprintf(stderr, "Không tạo được video stream\n");
+			return -1;
+		}
+		video_st->id = ctx->nb_streams - 1;
+		/* Declare code for video */
+		video_st->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
+		video_st->codecpar->codec_id = fmt->video_codec;
+		/*Golden rate 1:1.618*/
+		video_st->codecpar->width = 400;
+		video_st->codecpar->height = 640;
+		video_st->codecpar->format = AV_PIX_FMT_YUV420P;
+
+		/* Create audio stream */
+		audio_st = avformat_new_stream(ctx, 0);
+		if (!audio_st) {
+			fprintf(stderr, "Cannot create audio stream\n");
+			return -1;
+		}
+		audio_st->id = ctx->nb_streams - 1;
+		/* Declare code for audio */
+		audio_st->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;
+		audio_st->codecpar->codec_id = fmt->audio_codec;
+		audio_st->codecpar->sample_rate = 48000;
+		audio_st->codecpar->format = AV_SAMPLE_FMT_FLTP;
+
 		avio_buffer = av_malloc(4096);
 		if (!avio_buffer) {
 			ret = FFWR_AVIO_MALLOC_BUFF;
@@ -817,6 +857,8 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 		ctx = devs[0].out_ctx;
 		ctx->pb = avio_ctx;
 		ctx->flags |= AVFMT_FLAG_CUSTOM_IO;
+		int kk = ctx->nb_streams;
+		spllog(0, "---");
 	} while (0);
 	return ret;
 }
