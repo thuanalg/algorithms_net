@@ -740,6 +740,16 @@ ffwr_devices_operate(FFWR_DEVICE *devs, int count)
 	}
 	return ret;
 }
+
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+int
+ffwr_open_output(FFWR_DEVICE *devs, int count)
+{
+	int ret = 0;
+	do {
+	} while (0);
+	return ret;
+}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 int
 ffwr_close_devices(FFWR_DEVICE *devs, int count)
