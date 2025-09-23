@@ -841,13 +841,13 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 		audio_st->codecpar->format = AV_SAMPLE_FMT_FLTP;
 
 		/* Next step: write file, write header, write packet audio/video*/
-		//if (!(fmt->flags & AVFMT_NOFILE)) {
-		//	if (avio_open(&oc->pb, "output.mp4", AVIO_FLAG_WRITE) <
-		//	    0) {
-		//		fprintf(stderr, "Không mở được file output\n");
-		//		return -1;
-		//	}
-		//}
+		if (!(fmt->flags & AVFMT_NOFILE)) {
+			rs = avio_open(&ctx->pb, "output.mp4", AVIO_FLAG_WRITE);
+			if (rs < 0) {
+				fprintf(stderr, "Không mở được file output\n");
+				return -1;
+			}
+		}
 		//rs = avformat_write_header(ctx, 0);
 		//if (rs < 0) {
 		//	fprintf(stderr, "Cannot write.\n");
