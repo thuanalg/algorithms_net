@@ -1319,5 +1319,35 @@ int main(int argc, char *argv[]) {
     printf("MP4 mux complete!\n");
     return 0;
 }
+// 1. Tạo output context
+AVFormatContext *out_ctx;
+avformat_alloc_output_context2(&out_ctx, NULL, NULL, "out.mp4");
+
+// 2. Thêm video stream
+AVStream *video_st = avformat_new_stream(out_ctx, NULL);
+AVCodecContext *video_enc = avcodec_alloc_context3(codec_video);
+video_enc->codec_id = out_ctx->oformat->video_codec;
+video_enc->width = 1920;
+video_enc->height = 1080;
+video_enc->time_base = (AVRational){1, 25};
+avcodec_open2(video_enc, codec_video, NULL);
+// copy params vào stream
+avcodec_parameters_from_context(video_st->codecpar, video_enc);
+
+// 3. Thêm audio stream
+AVStream *audio_st = avformat_new_stream(out_ctx, NULL);
+AVCodecContext *audio_enc = avcodec_alloc_context3(codec_audio);
+audio_enc->codec_id = out_ctx->oformat->audio_codec;
+audio_enc->sample_rate = 44100;
+audio_enc->channels = 2;
+audio_enc->channel_layout = AV_CH_LAYOUT_STEREO;
+audio_enc->time_base = (AVRational){1, 44100};
+avcodec_open2(audio_enc, codec_audio, NULL);
+// copy params vào stream
+avcodec_parameters_from_context(audio_st->codecpar, audio_enc);
+
+// 4. Mở file và ghi header
+avio_open(&out_ctx->pb, "out.mp4", AVIO_FLAG_WRITE);
+avformat_write_header(out_ctx, NULL);
 
 #endif

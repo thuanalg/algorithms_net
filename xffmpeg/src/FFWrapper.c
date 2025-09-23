@@ -758,7 +758,8 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 	int ret = 0;
 	int i = 0;
 	int rs = 0;
-	AVFormatContext *ctx = 0;
+	AVFormatContext *fmt_ctx = 0;
+	AVCodecContext *codec_ctx = 0;;
 	const AVCodec *codec = 0;
 	uint8_t *avio_buffer = 0;
 	AVIOContext *avio_ctx = 0;
@@ -774,13 +775,13 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 		}
 		devs[0].out_cb_obj = fp;
 		devs[0].avio_cb_fn = write_packet;
-		rs = avformat_alloc_output_context2(&ctx, 0, "mp4", 0);
+		rs = avformat_alloc_output_context2(&fmt_ctx, 0, "mp4", 0);
 		if (rs < 0) {
 			ret = FFWR_CREATE_OUTPUT_CONTEXT;
 			break;
 		}
-		devs[0].out_ctx = ctx;
-		fmt = ctx->oformat;
+		devs[0].out_ctx = fmt_ctx;
+		fmt = fmt_ctx->oformat;
 	#if 0
 		codec = avcodec_find_encoder(AV_CODEC_ID_H264);
 	#else
@@ -790,9 +791,23 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 			ret = FFWR_H264_NOT_FOUND;
 			break;
 		} 
+		codec_ctx = avcodec_alloc_context3(codec);
+		codec_ctx->codec_id = AV_CODEC_ID_H264;
+		codec_ctx->bit_rate = 400000;
+		/*Golden rate 1:1.618*/
+		codec_ctx->width = 640;
+		codec_ctx->height = 400;
+		codec_ctx->time_base = (AVRational){1, 25};
+		codec_ctx->framerate = (AVRational){25, 1};
+		codec_ctx->gop_size = 12;
+		codec_ctx->max_b_frames = 2;
+		codec_ctx->pix_fmt = AV_PIX_FMT_YUV420P;
+		if (fmt_ctx->oformat->flags & AVFMT_GLOBALHEADER) {
+			codec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+		}			
 		for (i = 0; i < count; ++i) {
 			if (devs[i].av == FFWR_VIDEO) {
-				devs[i].out_video_codec = codec;
+				devs[i].out_vcodec_context = codec_ctx;
 				break;
 			}
 		}

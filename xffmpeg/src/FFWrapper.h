@@ -121,8 +121,8 @@ typedef struct __FFWR_DEVICE__{
 
 
     void *out_ctx; /*AVFormatContext, output context*/
-    void *out_video_codec; /*AVFormatContext, output context*/
-    void *out_audio_codec; /*AVFormatContext, output context*/
+    void *out_vcodec_context; /*AVCodecContext, output context*/
+    void *out_acodec_context; /*AVCodecContext, output context*/
     void *out_avio;
     void *out_avio_buff;
     FFWR_WRITE_PACKET_CB avio_cb_fn;
