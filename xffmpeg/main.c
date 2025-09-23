@@ -832,5 +832,98 @@ avformat_open_input(&audio_ctx, "audio=Microphone (Realtek ...)", NULL, &audio_o
 
 // sau đó ghép 2 stream video/audio lại và ghi ra MP4
 
+//./configure --enable-shared --enable-gpl --enable-libx264 --enable-libx265 --enable-openssl --enable-version3 --enable-openal --disable-pthreads --enable-libopus
+
+#include <libavformat/avformat.h>
+#include <libavutil/timestamp.h>
+
+int main(int argc, char *argv[]) {
+    AVFormatContext *ifmt_ctx_v = NULL, *ifmt_ctx_a = NULL, *ofmt_ctx = NULL;
+    AVPacket pkt;
+    int ret;
+
+    const char *in_filename_v = "input.h264";  // video input
+    const char *in_filename_a = "input.aac";   // audio input
+    const char *out_filename  = "output.mp4";  // output file
+
+    // 1. Open input files
+    avformat_open_input(&ifmt_ctx_v, in_filename_v, NULL, NULL);
+    avformat_find_stream_info(ifmt_ctx_v, NULL);
+
+    avformat_open_input(&ifmt_ctx_a, in_filename_a, NULL, NULL);
+    avformat_find_stream_info(ifmt_ctx_a, NULL);
+
+    // 2. Allocate output context
+    avformat_alloc_output_context2(&ofmt_ctx, NULL, "mp4", out_filename);
+    if (!ofmt_ctx) {
+        fprintf(stderr, "Could not create output context\n");
+        return -1;
+    }
+
+    // 3. Create new streams for video and audio
+    AVStream *in_stream_v = ifmt_ctx_v->streams[0];
+    AVStream *in_stream_a = ifmt_ctx_a->streams[0];
+
+    AVStream *out_stream_v = avformat_new_stream(ofmt_ctx, NULL);
+    AVStream *out_stream_a = avformat_new_stream(ofmt_ctx, NULL);
+
+    avcodec_parameters_copy(out_stream_v->codecpar, in_stream_v->codecpar);
+    avcodec_parameters_copy(out_stream_a->codecpar, in_stream_a->codecpar);
+
+    out_stream_v->codecpar->codec_tag = 0;
+    out_stream_a->codecpar->codec_tag = 0;
+
+    // 4. Open output file
+    if (!(ofmt_ctx->oformat->flags & AVFMT_NOFILE)) {
+        ret = avio_open(&ofmt_ctx->pb, out_filename, AVIO_FLAG_WRITE);
+        if (ret < 0) {
+            fprintf(stderr, "Could not open output file\n");
+            return -1;
+        }
+    }
+
+    // 5. Write header
+    avformat_write_header(ofmt_ctx, NULL);
+
+    // 6. Read packets from both inputs and write to output
+    while (1) {
+        AVFormatContext *ifmt_ctx;
+        AVStream *in_stream, *out_stream;
+
+        // chọn đọc từ video hay audio (ở đây ví dụ chỉ đọc video trước)
+        ret = av_read_frame(ifmt_ctx_v, &pkt);
+        if (ret < 0) break;
+        in_stream  = ifmt_ctx_v->streams[pkt.stream_index];
+        out_stream = out_stream_v;
+
+        // Convert PTS/DTS to output time_base
+        pkt.pts = av_rescale_q_rnd(pkt.pts, in_stream->time_base, out_stream->time_base,
+                                   AV_ROUND_NEAR_INF | AV_ROUND_PASS_MINMAX);
+        pkt.dts = av_rescale_q_rnd(pkt.dts, in_stream->time_base, out_stream->time_base,
+                                   AV_ROUND_NEAR_INF | AV_ROUND_PASS_MINMAX);
+        pkt.duration = av_rescale_q(pkt.duration, in_stream->time_base, out_stream->time_base);
+        pkt.pos = -1;
+        pkt.stream_index = out_stream->index;
+
+        av_interleaved_write_frame(ofmt_ctx, &pkt);
+        av_packet_unref(&pkt);
+
+        // bạn cần làm tương tự cho audio: av_read_frame(ifmt_ctx_a, &pkt)
+        // rồi đổi in_stream, out_stream sang audio
+    }
+
+    // 7. Write trailer
+    av_write_trailer(ofmt_ctx);
+
+    // 8. Cleanup
+    avformat_close_input(&ifmt_ctx_v);
+    avformat_close_input(&ifmt_ctx_a);
+
+    if (!(ofmt_ctx->oformat->flags & AVFMT_NOFILE))
+        avio_closep(&ofmt_ctx->pb);
+    avformat_free_context(ofmt_ctx);
+
+    return 0;
+}
 
 #endif

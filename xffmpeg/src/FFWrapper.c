@@ -746,7 +746,15 @@ int
 ffwr_open_output(FFWR_DEVICE *devs, int count)
 {
 	int ret = 0;
+	int i = 0;
 	do {
+		for (i = 0; i < count; ++i) {
+			
+			ret = (devs[i].av == FFWR_VIDEO) ? avformat_alloc_output_context2(
+					&devs[i].out_ctx, 0, "mp4", 0)
+				  : avformat_alloc_output_context2(
+					&devs[i].out_ctx, 0, "mp4", 0);
+		}
 	} while (0);
 	return ret;
 }
