@@ -83,6 +83,9 @@ typedef enum {
 	FFWR_OPEN_VIDEO_CONTEXT,
 	FFWR_OPEN_AUDO_CONTEXT,
 	FFWR_SEND_PACKET_FAILED,
+	FFWR_CREATE_OUTPUT_CONTEXT,
+	FFWR_H264_NOT_FOUND,
+	FFWR_ACC_NOT_FOUND,
 
     
     
@@ -113,6 +116,9 @@ typedef struct __FFWR_DEVICE__{
 
 
     void *out_ctx; /*AVFormatContext, output context*/
+    void *out_video_codec; /*AVFormatContext, output context*/
+    void *out_audio_codec; /*AVFormatContext, output context*/
+    void *out_av;
 } FFWR_DEVICE;
 
 typedef struct {

@@ -19,6 +19,10 @@ main(int argc, char *argv[])
 		if (ret) {
 			break;
 		}
+		ret = ffwr_open_output(devs, count);
+		if (ret) {
+			break;
+		}
 		ret = ffwr_devices_operate(devs, count);
 		if (ret) {
 			break;

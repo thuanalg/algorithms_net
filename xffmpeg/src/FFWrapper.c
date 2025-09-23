@@ -747,13 +747,39 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 {
 	int ret = 0;
 	int i = 0;
+	int rs = 0;
+	AVFormatContext *ctx = 0;
+	const AVCodec *codec = 0;
 	do {
+		rs = avformat_alloc_output_context2(&ctx, 0, "mp4", 0);
+		if (rs < 0) {
+			ret = FFWR_CREATE_OUTPUT_CONTEXT;
+			break;
+		}
 		for (i = 0; i < count; ++i) {
-			
-			ret = (devs[i].av == FFWR_VIDEO) ? avformat_alloc_output_context2(
-					&devs[i].out_ctx, 0, "mp4", 0)
-				  : avformat_alloc_output_context2(
-					&devs[i].out_ctx, 0, "mp4", 0);
+			devs[i].out_ctx = ctx;
+		}
+		codec = avcodec_find_encoder(AV_CODEC_ID_H264);
+		if (!codec) {
+			ret = FFWR_H264_NOT_FOUND;
+			break;
+		} 
+		for (i = 0; i < count; ++i) {
+			if (devs[i].av == FFWR_VIDEO) {
+				devs[i].out_video_codec = codec;
+				break;
+			}
+		}
+		codec = avcodec_find_encoder(AV_CODEC_ID_AAC);
+		if (!codec) {
+			ret = FFWR_ACC_NOT_FOUND;
+			break;
+		} 
+		for (i = 0; i < count; ++i) {
+			if (devs[i].av == FFWR_AUDIO) {
+				devs[i].out_audio_codec = codec;
+				break;
+			}
 		}
 	} while (0);
 	return ret;
