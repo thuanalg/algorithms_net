@@ -670,6 +670,7 @@ ffwr_devices_operate(FFWR_DEVICE *devs, int count)
 {
 	int ret = 0;
 	AVPacket *pkt = 0;
+	AVPacket *out_pkt = 0;
 	AVFrame *frame = 0;
 	int readindex = -1;
 	int i = 0;
@@ -677,6 +678,7 @@ ffwr_devices_operate(FFWR_DEVICE *devs, int count)
 	int count_frame = 0;
 	do {
 		pkt = av_packet_alloc();
+		out_pkt = av_packet_alloc();
 		frame = av_frame_alloc();
 	} while (0);
 
@@ -734,6 +736,9 @@ ffwr_devices_operate(FFWR_DEVICE *devs, int count)
 	} while (1);
 	if (pkt) {
 		av_packet_free(&pkt);
+	}
+	if (out_pkt) {
+		av_packet_free(&out_pkt);
 	}
 	if (frame) {
 		av_frame_free(&frame);
@@ -809,6 +814,9 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 			ret = FFWR_AVIO_CTX_NULL;
 			break;
 		}
+		ctx = devs[0].out_ctx;
+		ctx->pb = avio_ctx;
+		ctx->flags |= AVFMT_FLAG_CUSTOM_IO;
 	} while (0);
 	return ret;
 }
