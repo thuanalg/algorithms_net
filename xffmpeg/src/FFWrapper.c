@@ -826,6 +826,7 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 		video_st->codecpar->height = 640;
 		video_st->codecpar->format = AV_PIX_FMT_YUV420P;
 
+
 		/* Create audio stream */
 		audio_st = avformat_new_stream(ctx, 0);
 		if (!audio_st) {
@@ -838,6 +839,21 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 		audio_st->codecpar->codec_id = fmt->audio_codec;
 		audio_st->codecpar->sample_rate = 48000;
 		audio_st->codecpar->format = AV_SAMPLE_FMT_FLTP;
+
+		/* Next step: write file, write header, write packet audio/video*/
+		//if (!(fmt->flags & AVFMT_NOFILE)) {
+		//	if (avio_open(&oc->pb, "output.mp4", AVIO_FLAG_WRITE) <
+		//	    0) {
+		//		fprintf(stderr, "Không mở được file output\n");
+		//		return -1;
+		//	}
+		//}
+		//rs = avformat_write_header(ctx, 0);
+		//if (rs < 0) {
+		//	fprintf(stderr, "Cannot write.\n");
+		//	return -1;
+		//}
+		/**/
 
 		avio_buffer = av_malloc(4096);
 		if (!avio_buffer) {
@@ -857,6 +873,14 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 		ctx = devs[0].out_ctx;
 		ctx->pb = avio_ctx;
 		ctx->flags |= AVFMT_FLAG_CUSTOM_IO;
+
+		rs = avformat_write_header(ctx, 0);
+		if (rs < 0) {
+			fprintf(stderr, "Cannot write.\n");
+			return -1;
+		}
+		/**/
+
 		int kk = ctx->nb_streams;
 		spllog(0, "---");
 	} while (0);
