@@ -1109,6 +1109,48 @@ int read_pcm_frame(FILE *f, AVFrame *frame, int nb_samples) {
     return 1;
 }
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
+#include <libavutil/imgutils.h>
+#include <libavutil/samplefmt.h>
+#include <libavutil/opt.h>
+#include <libswresample/swresample.h>
+#include <libswscale/swscale.h>
+
+#define WIDTH 1280
+#define HEIGHT 720
+#define FPS 30
+#define AUDIO_SAMPLE_RATE 48000
+#define AUDIO_CHANNELS 2
+#define AUDIO_FORMAT AV_SAMPLE_FMT_FLTP
+
+// Fake: read a YUV420 frame from file
+int read_yuv_frame(FILE *f, AVFrame *frame) {
+    int y_size = WIDTH * HEIGHT;
+    int uv_size = (WIDTH / 2) * (HEIGHT / 2);
+
+    if (fread(frame->data[0], 1, y_size, f) != y_size) return 0;
+    if (fread(frame->data[1], 1, uv_size, f) != uv_size) return 0;
+    if (fread(frame->data[2], 1, uv_size, f) != uv_size) return 0;
+
+    return 1;
+}
+
+// Fake: read PCM float samples from WAV file
+int read_pcm_frame(FILE *f, AVFrame *frame, int nb_samples) {
+    int i, ch;
+    float sample;
+    for (i = 0; i < nb_samples; i++) {
+        for (ch = 0; ch < AUDIO_CHANNELS; ch++) {
+            if (fread(&sample, sizeof(float), 1, f) != 1) return 0;
+            ((float*)frame->data[ch])[i] = sample;
+        }
+    }
+    return 1;
+}
+
 int main(int argc, char *argv[]) {
     if (argc < 5) {
         fprintf(stderr, "Usage: %s input.yuv input.wav output.mp4 duration_sec\n", argv[0]);
@@ -1187,6 +1229,59 @@ int main(int argc, char *argv[]) {
         frame_v->pts = i;
 
         avcodec_send_frame(c_v, frame_v);
-        while (avco
+        while (avcodec_receive_packet(c_v, &pkt) == 0) {
+            pkt.stream_index = st_v->index;
+            pkt.pts = av_rescale_q(pkt.pts, c_v->time_base, st_v->time_base);
+            pkt.dts = pkt.pts;
+            pkt.duration = av_rescale_q(1, c_v->time_base, st_v->time_base);
+            av_interleaved_write_frame(ofmt_ctx, &pkt);
+            av_packet_unref(&pkt);
+        }
+
+        // read audio frame
+        if (!read_pcm_frame(f_wav, frame_a, frame_a->nb_samples)) break;
+        frame_a->pts += frame_a->nb_samples;
+
+        avcodec_send_frame(c_a, frame_a);
+        while (avcodec_receive_packet(c_a, &pkt) == 0) {
+            pkt.stream_index = st_a->index;
+            pkt.pts = av_rescale_q(pkt.pts, c_a->time_base, st_a->time_base);
+            pkt.dts = pkt.pts;
+            pkt.duration = av_rescale_q(frame_a->nb_samples, c_a->time_base, st_a->time_base);
+            av_interleaved_write_frame(ofmt_ctx, &pkt);
+            av_packet_unref(&pkt);
+        }
+    }
+
+    // flush encoders
+    avcodec_send_frame(c_v, NULL);
+    while (avcodec_receive_packet(c_v, &pkt) == 0) {
+        pkt.stream_index = st_v->index;
+        av_interleaved_write_frame(ofmt_ctx, &pkt);
+        av_packet_unref(&pkt);
+    }
+
+    avcodec_send_frame(c_a, NULL);
+    while (avcodec_receive_packet(c_a, &pkt) == 0) {
+        pkt.stream_index = st_a->index;
+        av_interleaved_write_frame(ofmt_ctx, &pkt);
+        av_packet_unref(&pkt);
+    }
+
+    av_write_trailer(ofmt_ctx);
+
+    fclose(f_yuv);
+    fclose(f_wav);
+    av_frame_free(&frame_v);
+    av_frame_free(&frame_a);
+    avcodec_free_context(&c_v);
+    avcodec_free_context(&c_a);
+    if (!(ofmt_ctx->oformat->flags & AVFMT_NOFILE))
+        avio_closep(&ofmt_ctx->pb);
+    avformat_free_context(ofmt_ctx);
+
+    printf("MP4 mux complete!\n");
+    return 0;
+}
 
 #endif
