@@ -100,7 +100,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;EXPORT_DLL_API_FF_WRAPPER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;EXPORT_DLL_API_FF_WRAPPER;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>D:\ProgramFiles\msys64\usr\local\include;D:\x\algorithms_net\xffmpeg\src;D:\reserach\simplelog-topic\include</AdditionalIncludeDirectories>
     </ClCompile>

@@ -67,6 +67,9 @@ extern "C" {
 #endif
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+typedef int (*FFWR_WRITE_PACKET_CB)(
+    void *obj, unsigned char *buf, int buf_size);
+
 typedef enum {
     FFWR_OK,
     FFWR_MALLOC,
@@ -86,7 +89,9 @@ typedef enum {
 	FFWR_CREATE_OUTPUT_CONTEXT,
 	FFWR_H264_NOT_FOUND,
 	FFWR_ACC_NOT_FOUND,
-
+	FFWR_AVIO_MALLOC_BUFF,
+	FFWR_OPEN_FILE,
+	FFWR_AVIO_CTX_NULL,
     
     
     FFWR_ERR_END
@@ -118,7 +123,11 @@ typedef struct __FFWR_DEVICE__{
     void *out_ctx; /*AVFormatContext, output context*/
     void *out_video_codec; /*AVFormatContext, output context*/
     void *out_audio_codec; /*AVFormatContext, output context*/
-    void *out_av;
+    void *out_avio;
+    void *out_avio_buff;
+    FFWR_WRITE_PACKET_CB avio_cb_fn;
+    void *out_cb_obj;
+    char filename[512];
 } FFWR_DEVICE;
 
 typedef struct {

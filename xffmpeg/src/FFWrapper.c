@@ -742,6 +742,11 @@ ffwr_devices_operate(FFWR_DEVICE *devs, int count)
 }
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+static int
+write_packet(void *opaque, uint8_t *buf, int buf_size)
+{
+	return fwrite(buf, 1, buf_size, (FILE *)opaque);
+}
 int
 ffwr_open_output(FFWR_DEVICE *devs, int count)
 {
@@ -750,15 +755,23 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 	int rs = 0;
 	AVFormatContext *ctx = 0;
 	const AVCodec *codec = 0;
+	uint8_t *avio_buffer = 0;
+	AVIOContext *avio_ctx = 0;
+	FILE *fp = 0;
 	do {
+		fp = fopen("d:/z.mp4", "w+");
+		if (!fp) {
+			ret = FFWR_OPEN_FILE;
+			break;
+		}
+		devs[0].out_cb_obj = fp;
+		devs[0].avio_cb_fn = write_packet;
 		rs = avformat_alloc_output_context2(&ctx, 0, "mp4", 0);
 		if (rs < 0) {
 			ret = FFWR_CREATE_OUTPUT_CONTEXT;
 			break;
 		}
-		for (i = 0; i < count; ++i) {
-			devs[i].out_ctx = ctx;
-		}
+		devs[0].out_ctx = ctx;
 		codec = avcodec_find_encoder(AV_CODEC_ID_H264);
 		if (!codec) {
 			ret = FFWR_H264_NOT_FOUND;
@@ -780,6 +793,21 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 				devs[i].out_audio_codec = codec;
 				break;
 			}
+		}
+		avio_buffer = av_malloc(4096);
+		if (!avio_buffer) {
+			ret = FFWR_AVIO_MALLOC_BUFF;
+			break;
+		}
+
+		devs[0].out_avio_buff = avio_buffer;
+
+		avio_ctx = avio_alloc_context(
+		    avio_buffer, 4096, 1, 
+			devs[0].out_cb_obj, 0, devs[0].avio_cb_fn, 0);
+		if (!avio_ctx) {
+			ret = FFWR_AVIO_CTX_NULL;
+			break;
 		}
 	} while (0);
 	return ret;
