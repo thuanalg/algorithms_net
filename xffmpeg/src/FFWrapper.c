@@ -759,7 +759,8 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 	int i = 0;
 	int rs = 0;
 	AVFormatContext *fmt_ctx = 0;
-	AVCodecContext *codec_ctx = 0;;
+	AVCodecContext *vcodec_ctx = 0;;
+	AVCodecContext *acodec_ctx = 0;;
 	const AVCodec *codec = 0;
 	uint8_t *avio_buffer = 0;
 	AVIOContext *avio_ctx = 0;
@@ -767,6 +768,7 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 	AVOutputFormat *fmt = 0;
 	AVStream *video_st = 0;
 	AVStream *audio_st = 0;
+	AVChannelLayout layout = AV_CHANNEL_LAYOUT_STEREO;
 	//AV_CHANNEL_LAYOUT_STEREO
 
 	do {
@@ -784,6 +786,7 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 		}
 		devs[0].out_ctx = fmt_ctx;
 		fmt = fmt_ctx->oformat;
+		/*------------*/
 	#if 0
 		codec = avcodec_find_encoder(AV_CODEC_ID_H264);
 	#else
@@ -793,26 +796,50 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 			ret = FFWR_H264_NOT_FOUND;
 			break;
 		} 
-		codec_ctx = avcodec_alloc_context3(codec);
-		codec_ctx->codec_id = AV_CODEC_ID_H264;
-		codec_ctx->bit_rate = 400000;
+		vcodec_ctx = avcodec_alloc_context3(codec);
+		vcodec_ctx->codec_id = AV_CODEC_ID_H264;
+		vcodec_ctx->bit_rate = 400000;
 		/*Golden rate 1:1.618*/
-		codec_ctx->width = 640;
-		codec_ctx->height = 400;
-		codec_ctx->time_base = (AVRational){1, 25};
-		codec_ctx->framerate = (AVRational){25, 1};
-		codec_ctx->gop_size = 12;
-		codec_ctx->max_b_frames = 2;
-		codec_ctx->pix_fmt = AV_PIX_FMT_YUV420P;
+		vcodec_ctx->width = 640;
+		vcodec_ctx->height = 400;
+		vcodec_ctx->time_base = (AVRational){1, 25};
+		vcodec_ctx->framerate = (AVRational){25, 1};
+		vcodec_ctx->gop_size = 12;
+		vcodec_ctx->max_b_frames = 2;
+		vcodec_ctx->pix_fmt = AV_PIX_FMT_YUV420P;
 		if (fmt_ctx->oformat->flags & AVFMT_GLOBALHEADER) {
-			codec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+			vcodec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 		}			
 		for (i = 0; i < count; ++i) {
 			if (devs[i].av == FFWR_VIDEO) {
-				devs[i].out_vcodec_context = codec_ctx;
+				devs[i].out_vcodec_context = vcodec_ctx;
 				break;
 			}
 		}
+		/*------------*/
+		/* Create Video stream */
+		video_st = avformat_new_stream(fmt_ctx, 0);
+		if (!video_st) {
+			spllog(4, "Cannot create video stream\n");
+			ret = FFWR_CREATE_VIDEO_STREAM;
+			break;
+		}
+		rs = avcodec_parameters_from_context(
+		    video_st->codecpar, vcodec_ctx);
+
+		video_st->id = fmt_ctx->nb_streams - 1;
+
+		/*------------*/
+		/* Create audio stream */
+		audio_st = avformat_new_stream(fmt_ctx, 0);
+		if (!audio_st) {
+			spllog(4, "Cannot create audio stream\n");
+			ret = FFWR_CREATE_AUDIO_STREAM;
+			break;
+		}
+		audio_st->id = fmt_ctx->nb_streams - 1;
+		/* Declare code for audio */
+		/*------------*/
 	#if 0
 		codec = avcodec_find_encoder(AV_CODEC_ID_AAC);
 	#else
@@ -822,55 +849,25 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 			ret = FFWR_ACC_NOT_FOUND;
 			break;
 		} 
+		acodec_ctx = avcodec_alloc_context3(codec);
+		acodec_ctx->codec_id = fmt_ctx->oformat->audio_codec;
+		acodec_ctx->sample_rate = 44100;
+		acodec_ctx->time_base = (AVRational){1, 44100};
+		av_channel_layout_copy(&acodec_ctx->ch_layout, &layout);
+		avcodec_open2(acodec_ctx, codec, 0);
+		// copy params into stream
+		avcodec_parameters_from_context(audio_st->codecpar, acodec_ctx);
+
 		for (i = 0; i < count; ++i) {
 			if (devs[i].av == FFWR_AUDIO) {
-				devs[i].out_audio_codec = codec;
+				devs[i].out_acodec_context = acodec_ctx;
 				break;
 			}
 		}
-		/* Create Video stream */
-		video_st = avformat_new_stream(ctx, 0);
-		if (!video_st) {
-			fprintf(stderr, "Không tạo được video stream\n");
-			return -1;
-		}
-		video_st->id = ctx->nb_streams - 1;
-		/* Declare code for video */
-		video_st->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
-		video_st->codecpar->codec_id = fmt->video_codec;
-		/*Golden rate 1:1.618*/
-		video_st->codecpar->width = 400;
-		video_st->codecpar->height = 640;
-		video_st->codecpar->format = AV_PIX_FMT_YUV420P;
+		/*------------*/
+		/*------------*/
+
 		
-
-		/* Create audio stream */
-		audio_st = avformat_new_stream(ctx, 0);
-		if (!audio_st) {
-			fprintf(stderr, "Cannot create audio stream\n");
-			return -1;
-		}
-		audio_st->id = ctx->nb_streams - 1;
-		/* Declare code for audio */
-		audio_st->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;
-		audio_st->codecpar->codec_id = fmt->audio_codec;
-		audio_st->codecpar->sample_rate = 48000;
-		audio_st->codecpar->format = AV_SAMPLE_FMT_FLTP;
-
-		/* Next step: write file, write header, write packet audio/video*/
-		if (!(fmt->flags & AVFMT_NOFILE)) {
-			rs = avio_open(&ctx->pb, "output.mp4", AVIO_FLAG_WRITE);
-			if (rs < 0) {
-				fprintf(stderr, "Không mở được file output\n");
-				return -1;
-			}
-		}
-		//rs = avformat_write_header(ctx, 0);
-		//if (rs < 0) {
-		//	fprintf(stderr, "Cannot write.\n");
-		//	return -1;
-		//}
-		/**/
 
 		avio_buffer = av_malloc(4096);
 		if (!avio_buffer) {
@@ -887,18 +884,20 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 			ret = FFWR_AVIO_CTX_NULL;
 			break;
 		}
-		ctx = devs[0].out_ctx;
-		ctx->pb = avio_ctx;
-		ctx->flags |= AVFMT_FLAG_CUSTOM_IO;
-
-		rs = avformat_write_header(ctx, 0);
+		fmt_ctx = devs[0].out_ctx;
+		fmt_ctx->pb = avio_ctx;
+		fmt_ctx->flags |= AVFMT_FLAG_CUSTOM_IO;
+		/* Next step: write file, write header, 
+		write packet audio/video*/
+		rs = avformat_write_header(fmt_ctx, 0);
 		if (rs < 0) {
-			fprintf(stderr, "Cannot write.\n");
-			return -1;
+			spllog(4, "Cannot write.\n");
+			ret = FFWR_WRITE_HEADER;
+			break;
 		}
 		/**/
 
-		int kk = ctx->nb_streams;
+		int kk = fmt_ctx->nb_streams;
 		spllog(0, "---");
 	} while (0);
 	return ret;
