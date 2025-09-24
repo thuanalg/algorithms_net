@@ -761,7 +761,8 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 	AVFormatContext *fmt_ctx = 0;
 	AVCodecContext *vcodec_ctx = 0;;
 	AVCodecContext *acodec_ctx = 0;;
-	const AVCodec *codec = 0;
+	const AVCodec *acodec = 0;
+	const AVCodec *vcodec = 0;
 	uint8_t *avio_buffer = 0;
 	AVIOContext *avio_ctx = 0;
 	FILE *fp = 0;
@@ -788,20 +789,20 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 		fmt = fmt_ctx->oformat;
 		/*------------*/
 	#if 0
-		codec = avcodec_find_encoder(AV_CODEC_ID_H264);
+		vcodec = avcodec_find_encoder(AV_CODEC_ID_H264);
 	#else
-		codec = avcodec_find_encoder(fmt->video_codec);
+		vcodec = avcodec_find_encoder(fmt->video_codec);
 	#endif
-		if (!codec) {
+		if (!vcodec) {
 			ret = FFWR_H264_NOT_FOUND;
 			break;
 		} 
-		vcodec_ctx = avcodec_alloc_context3(codec);
+		vcodec_ctx = avcodec_alloc_context3(vcodec);
 		vcodec_ctx->codec_id = AV_CODEC_ID_H264;
 		vcodec_ctx->bit_rate = 400000;
 		/*Golden rate 1:1.618*/
-		vcodec_ctx->width = 640;
 		vcodec_ctx->height = 400;
+		vcodec_ctx->width = 640;
 		vcodec_ctx->time_base = (AVRational){1, 25};
 		vcodec_ctx->framerate = (AVRational){25, 1};
 		vcodec_ctx->gop_size = 12;
@@ -839,24 +840,23 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 		}
 		audio_st->id = fmt_ctx->nb_streams - 1;
 		/* Declare code for audio */
-		/*------------*/
 	#if 0
-		codec = avcodec_find_encoder(AV_CODEC_ID_AAC);
+		acodec = avcodec_find_encoder(AV_CODEC_ID_AAC);
 	#else
-		codec = avcodec_find_encoder(fmt->audio_codec);
+		acodec = avcodec_find_encoder(fmt->audio_codec);
 	#endif
-		if (!codec) {
+		if (!acodec) {
 			ret = FFWR_ACC_NOT_FOUND;
 			break;
 		} 
-		acodec_ctx = avcodec_alloc_context3(codec);
+		acodec_ctx = avcodec_alloc_context3(acodec);
 		acodec_ctx->codec_id = fmt_ctx->oformat->audio_codec;
 		acodec_ctx->sample_rate = 44100;
 		acodec_ctx->time_base = (AVRational){1, 44100};
 		av_channel_layout_copy(&acodec_ctx->ch_layout, &layout);
-		avcodec_open2(acodec_ctx, codec, 0);
+		avcodec_open2(acodec_ctx, acodec, 0);
 		// copy params into stream
-		avcodec_parameters_from_context(audio_st->codecpar, acodec_ctx);
+		rs = avcodec_parameters_from_context(audio_st->codecpar, acodec_ctx);
 
 		for (i = 0; i < count; ++i) {
 			if (devs[i].av == FFWR_AUDIO) {
@@ -866,8 +866,6 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 		}
 		/*------------*/
 		/*------------*/
-
-		
 
 		avio_buffer = av_malloc(4096);
 		if (!avio_buffer) {
