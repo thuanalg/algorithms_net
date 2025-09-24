@@ -750,7 +750,24 @@ ffwr_devices_operate(FFWR_DEVICE *devs, int count)
 static int
 write_packet(void *opaque, uint8_t *buf, int buf_size)
 {
-	return fwrite(buf, 1, buf_size, (FILE *)opaque);
+	int n = fwrite(buf, 1, buf_size, (FILE *)opaque);
+	fflush((FILE *)opaque);
+	return n;
+}
+int64_t
+my_seek(void *opaque, int64_t offset, int whence)
+{
+	FILE *f = (FILE *)opaque;
+
+	if (whence == AVSEEK_SIZE) {
+		long cur = ftell(f);
+		fseek(f, 0, SEEK_END);
+		long size = ftell(f);
+		fseek(f, cur, SEEK_SET);
+		return size;
+	}
+
+	return fseek(f, (long)offset, whence) == 0 ? ftell(f) : -1;
 }
 int
 ffwr_open_output(FFWR_DEVICE *devs, int count)
@@ -866,7 +883,7 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 		}
 		/*------------*/
 		/*------------*/
-	#if 0
+	#if 1
 		avio_buffer = av_malloc(4096);
 		if (!avio_buffer) {
 			ret = FFWR_AVIO_MALLOC_BUFF;
@@ -877,7 +894,7 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 
 		avio_ctx = avio_alloc_context(
 		    avio_buffer, 4096, 1, 
-			devs[0].out_cb_obj, 0, devs[0].avio_cb_fn, 0);
+			devs[0].out_cb_obj, 0, devs[0].avio_cb_fn, my_seek);
 		if (!avio_ctx) {
 			ret = FFWR_AVIO_CTX_NULL;
 			break;
