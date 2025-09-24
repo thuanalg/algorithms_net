@@ -128,9 +128,11 @@ typedef struct __FFWR_DEVICE__{
     void *out_acodec_context; /*AVCodecContext, output context*/
     void *out_avio;
     void *out_avio_buff;
+    void *out_stream;
     FFWR_WRITE_PACKET_CB avio_cb_fn;
     void *out_cb_obj;
     char filename[512];
+    void *filestream;
 } FFWR_DEVICE;
 
 typedef struct {

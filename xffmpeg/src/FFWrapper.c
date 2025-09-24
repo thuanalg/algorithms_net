@@ -669,38 +669,37 @@ int
 ffwr_devices_operate(FFWR_DEVICE *devs, int count)
 {
 	int ret = 0;
-	AVPacket *pkt = 0;
-	AVPacket *out_pkt = 0;
-	AVFrame *frame = 0;
+	AVPacket pkt = {0};
+	AVPacket out_pkt = {0};
+	AVFrame frame = {0};
+	AVCodecContext *avCodec_ctx = 0;
 	int readindex = -1;
 	int i = 0;
 	int rs = 0;
 	int count_frame = 0;
-	do {
-		pkt = av_packet_alloc();
-		out_pkt = av_packet_alloc();
-		frame = av_frame_alloc();
-	} while (0);
+	int stream_index = -1;
+	AVStream *out_steam = 0;
 
-	if (ret) {
-		if (pkt) {
-			av_packet_free(&pkt);
-		}
-		if (frame) {
-			av_frame_free(&frame);
-		}
-		return ret;
-	}
+	//av_init_packet(&pkt);
+	//av_init_packet(&out_pkt);
+
 
 	do {
 		for (i = 0 ; i < count ; ++i) {
+			avCodec_ctx = (devs[i].av == FFWR_VIDEO)
+					  ? devs[i].out_vcodec_context
+					  : devs[i].out_acodec_context;
+			stream_index = (devs[i].av == FFWR_VIDEO)
+					  ? 0
+					  : 1;
+			out_steam = (AVStream *)(devs[i].out_stream);
 			readindex = av_read_frame(
-				devs[i].in_ctx, pkt);
+				devs[i].in_ctx, &pkt);
 			if (readindex < 0) {
 				continue;
 			}
 			rs = avcodec_send_packet(
-				devs[i].in_codec_ctx, pkt);
+				devs[i].in_codec_ctx, &pkt);
 			if (rs) {
 				spllog(3, "in_ctx, send packet: %s.", 
 					(devs[i].av == FFWR_VIDEO) ? 
@@ -710,7 +709,7 @@ ffwr_devices_operate(FFWR_DEVICE *devs, int count)
 			count_frame = 0;
 			while (1) {
 				rs = avcodec_receive_frame(
-				    devs[i].in_codec_ctx, frame);
+				    devs[i].in_codec_ctx, &frame);
 				if (rs) {
 					if (count_frame) {
 						break;
@@ -720,29 +719,65 @@ ffwr_devices_operate(FFWR_DEVICE *devs, int count)
 						? "Video" : "Audio");
 					break;
 				}
+
+				
+#if 0
+				int ret = avcodec_send_frame(video_enc, raw_video_frame);
+				while (ret >= 0) {
+				    AVPacket pkt = {0};
+				    av_init_packet(&pkt);
+				    ret = avcodec_receive_packet(video_enc, &pkt);
+				    if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) break;
+				    pkt.stream_index = video_st->index;
+				    av_packet_rescale_ts(&pkt, video_enc->time_base, video_st->time_base);
+				    av_interleaved_write_frame(out_ctx, &pkt);
+				    av_packet_unref(&pkt);
+				}
+				int ret = avcodec_send_frame(audio_enc, raw_audio_frame);
+				while (ret >= 0) {
+				    AVPacket pkt = {0};
+				    av_init_packet(&pkt);
+				    ret = avcodec_receive_packet(audio_enc, &pkt);
+				    if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) break;
+				    pkt.stream_index = audio_st->index;
+				    av_packet_rescale_ts(&pkt, audio_enc->time_base, audio_st->time_base);
+				    av_interleaved_write_frame(out_ctx, &pkt);
+				    av_packet_unref(&pkt);
+				}
+#else
+				rs = avcodec_send_frame(avCodec_ctx, &frame);
+				while (rs >= 0) {
+					rs = avcodec_receive_packet(
+					    avCodec_ctx, &out_pkt);
+					if (rs == AVERROR(EAGAIN) ||
+					    rs == AVERROR_EOF)
+						break;
+					
+					out_pkt.stream_index = out_steam->index;
+					av_packet_rescale_ts(&out_pkt,
+					    avCodec_ctx->time_base,
+					    out_steam->time_base);
+					rs = av_interleaved_write_frame(
+					    devs[i].out_ctx, &out_pkt);
+
+					av_packet_unref(&out_pkt);
+				}
+#endif
 				++count_frame;
 				/*
 				* Have to init output AVFormatContex
 				* Processing
 				*/
-				av_frame_unref(frame);
+				av_frame_unref(&frame);
 			}
 			
 		}
 		if (ret) {
 			break;
 		}
-		av_packet_unref(pkt);
+		av_packet_unref(&pkt);
 	} while (1);
-	if (pkt) {
-		av_packet_free(&pkt);
-	}
-	if (out_pkt) {
-		av_packet_free(&out_pkt);
-	}
-	if (frame) {
-		av_frame_free(&frame);
-	}
+
 	return ret;
 }
 
@@ -750,9 +785,13 @@ ffwr_devices_operate(FFWR_DEVICE *devs, int count)
 static int
 write_packet(void *opaque, uint8_t *buf, int buf_size)
 {
+#if 0
 	int n = fwrite(buf, 1, buf_size, (FILE *)opaque);
 	fflush((FILE *)opaque);
 	return n;
+#else
+	return fwrite(buf, 1, buf_size, (FILE *)opaque);
+#endif
 }
 int64_t
 my_seek(void *opaque, int64_t offset, int whence)
@@ -846,7 +885,9 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 		    video_st->codecpar, vcodec_ctx);
 
 		video_st->id = fmt_ctx->nb_streams - 1;
-
+		if (devs[i].av == FFWR_VIDEO) {
+			devs[i].out_stream = video_st;
+		}
 		/*------------*/
 		/* Create audio stream */
 		audio_st = avformat_new_stream(fmt_ctx, 0);
@@ -854,6 +895,9 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 			spllog(4, "Cannot create audio stream\n");
 			ret = FFWR_CREATE_AUDIO_STREAM;
 			break;
+		}
+		if (devs[i].av == FFWR_AUDIO) {
+			devs[i].out_stream = audio_st;
 		}
 		audio_st->id = fmt_ctx->nb_streams - 1;
 		/* Declare code for audio */
@@ -930,6 +974,11 @@ ffwr_close_devices(FFWR_DEVICE *devs, int count)
 	for (i = 0; i < count; ++i) {
 		if (!devs[i].in_ctx) {
 			continue;
+		}
+		if (devs[i].out_cb_obj)
+		{
+			fclose(devs[i].out_cb_obj);
+			devs[i].out_cb_obj = 0;
 		}
 		avformat_close_input(&devs[i].in_ctx);
 	}
