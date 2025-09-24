@@ -866,7 +866,7 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 		}
 		/*------------*/
 		/*------------*/
-
+	#if 0
 		avio_buffer = av_malloc(4096);
 		if (!avio_buffer) {
 			ret = FFWR_AVIO_MALLOC_BUFF;
@@ -884,6 +884,9 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 		}
 		fmt_ctx->pb = avio_ctx;
 		fmt_ctx->flags |= AVFMT_FLAG_CUSTOM_IO;
+	#else
+		avio_open(&fmt_ctx->pb, "test.mp4", AVIO_FLAG_READ_WRITE);
+	#endif
 		/* Next step: write file, write header, 
 		write packet audio/video*/
 		rs = avformat_write_header(fmt_ctx, 0);
