@@ -884,14 +884,15 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 			ret = FFWR_AVIO_CTX_NULL;
 			break;
 		}
-		fmt_ctx = devs[0].out_ctx;
 		fmt_ctx->pb = avio_ctx;
 		fmt_ctx->flags |= AVFMT_FLAG_CUSTOM_IO;
 		/* Next step: write file, write header, 
 		write packet audio/video*/
 		rs = avformat_write_header(fmt_ctx, 0);
 		if (rs < 0) {
-			spllog(4, "Cannot write.\n");
+			char buf[AV_ERROR_MAX_STRING_SIZE] = {0};
+			av_strerror(rs, buf, sizeof(buf));
+			spllog(4, "Cannot be written by : %s.\n", buf);
 			ret = FFWR_WRITE_HEADER;
 			break;
 		}
