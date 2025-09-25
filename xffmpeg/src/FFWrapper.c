@@ -745,20 +745,36 @@ ffwr_devices_operate(FFWR_DEVICE *devs, int count)
 				    av_packet_unref(&pkt);
 				}
 #else
+
+#if 0				//AV_PIX_FMT_YUV420P
+				frame.format = AV_PIX_FMT_YUV420P;
+				enum AVPixelFormat {
+				    AV_PIX_FMT_NONE = -1,
+				    AV_PIX_FMT_YUV420P,   ///< planar YUV 4:2:0, 12bpp, (1 Cr & Cb sample per 2x2 Y samples)
+				    AV_PIX_FMT_YUYV422,   ///< packed YUV 4:2:2, 16bpp, Y0 Cb Y1 Cr
+				    AV_PIX_FMT_RGB24,     ///< packed RGB 8:8:8, 24bpp, RGBRGB...
+#endif
+				//if (devs[i].av == FFWR_AUDIO) {
+				//	frame.nb_samples =
+				//	    avCodec_ctx->frame_size;
+				//}
 				rs = avcodec_send_frame(avCodec_ctx, &frame);
+				if (rs < 0) {
+					ret = FFWR_SEND_OUTPUT_CONTEXT;
+					break;
+				}
 				while (rs >= 0) {
-					rs = avcodec_receive_packet(
-					    avCodec_ctx, &out_pkt);
+					rs = avcodec_receive_packet( avCodec_ctx, &out_pkt);
 					if (rs == AVERROR(EAGAIN) ||
-					    rs == AVERROR_EOF)
+					    rs == AVERROR_EOF) {
 						break;
-					
+					}
 					out_pkt.stream_index = out_steam->index;
 					av_packet_rescale_ts(&out_pkt,
 					    avCodec_ctx->time_base,
 					    out_steam->time_base);
 					rs = av_interleaved_write_frame(
-					    devs[i].out_ctx, &out_pkt);
+					    devs[0].out_ctx, &out_pkt);
 
 					av_packet_unref(&out_pkt);
 				}
@@ -857,7 +873,7 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 		vcodec_ctx->codec_id = AV_CODEC_ID_H264;
 		vcodec_ctx->bit_rate = 400000;
 		/*Golden rate 1:1.618*/
-		vcodec_ctx->height = 400;
+		vcodec_ctx->height = 480;
 		vcodec_ctx->width = 640;
 		vcodec_ctx->time_base = (AVRational){1, 25};
 		vcodec_ctx->framerate = (AVRational){25, 1};
@@ -896,12 +912,15 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 			ret = FFWR_CREATE_AUDIO_STREAM;
 			break;
 		}
-		if (devs[i].av == FFWR_AUDIO) {
-			devs[i].out_stream = audio_st;
+		for (i = 0; i < count; ++i) {
+			if (devs[i].av == FFWR_AUDIO) {
+				devs[i].out_stream = audio_st;
+				break;
+			}
 		}
 		audio_st->id = fmt_ctx->nb_streams - 1;
 		/* Declare code for audio */
-	#if 0
+	#if 1
 		acodec = avcodec_find_encoder(AV_CODEC_ID_AAC);
 	#else
 		acodec = avcodec_find_encoder(fmt->audio_codec);
@@ -912,7 +931,9 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 		} 
 		acodec_ctx = avcodec_alloc_context3(acodec);
 		acodec_ctx->codec_id = fmt_ctx->oformat->audio_codec;
+		//acodec_ctx->codec_id = acodec;
 		acodec_ctx->sample_rate = 44100;
+		acodec_ctx->sample_fmt = acodec->sample_fmts[0]; 
 		acodec_ctx->time_base = (AVRational){1, 44100};
 		av_channel_layout_copy(&acodec_ctx->ch_layout, &layout);
 		avcodec_open2(acodec_ctx, acodec, 0);

@@ -3,13 +3,13 @@
   "WorkspaceRootPath": "D:\\x\\algorithms_net\\xffmpeg\\ffmpeg\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{7D309857-B432-4F81-806B-AD9DC068179F}|FFWrapper\\FFWrapper.vcxproj|D:\\x\\algorithms_net\\xffmpeg\\src\\FFWrapper.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{D7E6B55F-FC99-4732-BAA7-C0647E78B459}|audio_video_record\\audio_video_record.vcxproj|D:\\x\\algorithms_net\\xffmpeg\\src\\audio_video_record.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{7D309857-B432-4F81-806B-AD9DC068179F}|FFWrapper\\FFWrapper.vcxproj|D:\\x\\algorithms_net\\xffmpeg\\src\\FFWrapper.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{D7E6B55F-FC99-4732-BAA7-C0647E78B459}|audio_video_record\\audio_video_record.vcxproj|D:\\x\\algorithms_net\\xffmpeg\\src\\audio_video_record.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{7D309857-B432-4F81-806B-AD9DC068179F}|FFWrapper\\FFWrapper.vcxproj|D:\\x\\algorithms_net\\xffmpeg\\src\\FFWrapper.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -19,17 +19,17 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
               "Title": "audio_video_record.c",
               "DocumentMoniker": "D:\\x\\algorithms_net\\xffmpeg\\src\\audio_video_record.c",
               "RelativeDocumentMoniker": "..\\src\\audio_video_record.c",
               "ToolTip": "D:\\x\\algorithms_net\\xffmpeg\\src\\audio_video_record.c",
               "RelativeToolTip": "..\\src\\audio_video_record.c",
-              "ViewState": "AgIAAAkAAAAAAAAAAAAAAB0AAAAUAAAAAAAAAA==",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAiwBcAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
               "WhenOpened": "2025-09-22T13:29:45.462Z",
               "EditorCaption": ""
@@ -42,20 +42,20 @@
               "RelativeDocumentMoniker": "..\\src\\FFWrapper.h",
               "ToolTip": "D:\\x\\algorithms_net\\xffmpeg\\src\\FFWrapper.h",
               "RelativeToolTip": "..\\src\\FFWrapper.h",
-              "ViewState": "AgIAANUAAAAAAAAAAAASwPQAAAAUAAAAAAAAAA==",
+              "ViewState": "AgIAAKYAAAAAAAAAAAAAALwAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2025-09-22T10:47:33.113Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "FFWrapper.c",
               "DocumentMoniker": "D:\\x\\algorithms_net\\xffmpeg\\src\\FFWrapper.c",
               "RelativeDocumentMoniker": "..\\src\\FFWrapper.c",
               "ToolTip": "D:\\x\\algorithms_net\\xffmpeg\\src\\FFWrapper.c",
               "RelativeToolTip": "..\\src\\FFWrapper.c",
-              "ViewState": "AgIAAN0CAAAAAAAAAAAqwOoCAAAFAAAAAAAAAA==",
+              "ViewState": "AgIAAKsCAAAAAAAAAAASwLwCAAAcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
               "WhenOpened": "2025-09-19T07:56:08.811Z",
               "EditorCaption": ""

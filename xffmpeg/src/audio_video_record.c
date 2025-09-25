@@ -8,7 +8,7 @@ main(int argc, char *argv[])
 	int ret = 0;
 	char cfgpath[1024];
 	SPL_INPUT_ARG input = {0};
-	snprintf(cfgpath, 1024, "D:/x/algorithms_net/xffmpeg/ffmpeg/x64/z.cfg");
+	snprintf(cfgpath, 1024, "z.cfg");
 	snprintf(input.folder, SPL_PATH_FOLDER, "%s", cfgpath);
 	ret = spl_init_log_ext(&input);
 	do {
