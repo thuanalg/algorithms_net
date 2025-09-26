@@ -762,8 +762,7 @@ ffwr_devices_operate(FFWR_DEVICE *devs, int count)
 				/*AV_CODEC_ID_H264: 27, AV_CODEC_ID_AAC: 86018*/
 				rs = avcodec_send_frame(avCodec_ctx, &frame);
 				if (rs < 0) {
-					ret = FFWR_SEND_OUTPUT_CONTEXT;
-					break;
+					continue;
 				}
 				while (rs >= 0) {
 					
