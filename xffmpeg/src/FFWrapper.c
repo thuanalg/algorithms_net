@@ -708,6 +708,7 @@ ffwr_devices_operate(FFWR_DEVICE *devs, int count)
 			}
 			count_frame = 0;
 			while (1) {
+				/*AV_CODEC_ID_PCM_S16LE: 65536, AV_CODEC_ID_RAWVIDEO: 13*/
 				rs = avcodec_receive_frame(
 				    devs[i].in_codec_ctx, &frame);
 				if (rs) {
@@ -758,12 +759,14 @@ ffwr_devices_operate(FFWR_DEVICE *devs, int count)
 				//	frame.nb_samples =
 				//	    avCodec_ctx->frame_size;
 				//}
+				/*AV_CODEC_ID_H264: 27, AV_CODEC_ID_AAC: 86018*/
 				rs = avcodec_send_frame(avCodec_ctx, &frame);
 				if (rs < 0) {
 					ret = FFWR_SEND_OUTPUT_CONTEXT;
 					break;
 				}
 				while (rs >= 0) {
+					
 					rs = avcodec_receive_packet( avCodec_ctx, &out_pkt);
 					if (rs == AVERROR(EAGAIN) ||
 					    rs == AVERROR_EOF) {
