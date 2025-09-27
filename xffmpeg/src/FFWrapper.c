@@ -1021,6 +1021,19 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 	AVInputFormat *iformat = 0; 
 	AVPacket pkt = {0};
 	int readindex = 0;
+	AVCodec *avcode = 0;
+	AVCodecContext *actx_raw = 0;
+	AVCodecContext *vctx_raw = 0;
+	AVCodecContext *cctx = 0;
+	int count = 0;
+	AVFrame frame = {0};
+	AVStream *st = 0;
+	enum AVMediaType type = AVMEDIA_TYPE_UNKNOWN;
+	const AVCodec *vcodec = avcodec_find_decoder(AV_CODEC_ID_RAWVIDEO);
+	const AVCodec *acodec = avcodec_find_decoder(AV_CODEC_ID_PCM_S16LE);
+	vctx_raw  = avcodec_alloc_context3(vcodec);
+	actx_raw  = avcodec_alloc_context3(acodec);
+
 	do {
 		iformat = av_find_input_format(inp->type);
 		if (!iformat) {
@@ -1031,13 +1044,61 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 		if (rs < 0) {
 			break;
 		}
+		if (avformat_find_stream_info(fctx, NULL) < 0) {
+			break;
+		}
+		st = fctx->streams[0];
+		type = st->codecpar->codec_type;
+		avcodec_parameters_to_context(vctx_raw, st->codecpar);
+		rs = avcodec_open2(vctx_raw, vcodec, 0);
+		if (rs < 0) {
+			break;
+		}
+		st = fctx->streams[1];
+		avcodec_parameters_to_context(actx_raw, st->codecpar);
+		rs = avcodec_open2(actx_raw, acodec, 0);
+		if (rs < 0) {
+			break;
+		}
 		while (1) {
+			cctx = 0;
 			readindex = av_read_frame(fctx, &pkt);
 			if (readindex < 0) {
 				break;
 			}
 			spllog(1, "pkt::size: %d", pkt.size);
+			st = fctx->streams[pkt.stream_index];
+			type = st->codecpar->codec_type;
+
+			if (type == AVMEDIA_TYPE_VIDEO) 
+			{
+				if (fctx->data_codec_id == AV_CODEC_ID_NONE) {
+					cctx = vctx_raw;
+				}
+			} else if (type == AVMEDIA_TYPE_AUDIO) {
+				if (fctx->data_codec_id == AV_CODEC_ID_NONE) {
+					cctx = actx_raw;
+				}
+			}
+			if (!cctx) {
+				continue;
+			}
+			rs = avcodec_send_packet(cctx, &pkt);
+			if (rs < 0) {
+				av_packet_unref(&pkt);
+				continue;
+			}
+			rs = avcodec_receive_frame(cctx, &frame);
+			if (rs < 0) {
+				av_frame_unref(&frame);
+				av_packet_unref(&pkt);
+				continue;
+			}
+			spllog(1, "fr::sample_rate: %d", frame.sample_rate);
 			av_packet_unref(&pkt);
+
+			av_frame_unref(&frame);
+			
 
 		}
 	} while (0);
