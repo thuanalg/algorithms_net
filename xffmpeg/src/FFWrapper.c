@@ -552,7 +552,7 @@ ffwr_open_devices(FFWR_DEVICE *devs, int count, char *name)
                 AVDictionary *options = NULL;
 				av_dict_set(&options, "framerate", "30", 0);
 				av_dict_set(
-				    &options, "video_size", "640x480", 0);
+				    &options, "video_size", "1920×1080", 0);
 				ret = avformat_open_input(
 				    &(devs[i].in_ctx), buf, iformat, &options);
 			} else {
@@ -679,13 +679,14 @@ ffwr_devices_operate(FFWR_DEVICE *devs, int count)
 	int count_frame = 0;
 	int stream_index = -1;
 	AVStream *out_steam = 0;
+	AVFormatContext *fctx = 0;
 
 	//av_init_packet(&pkt);
 	//av_init_packet(&out_pkt);
 
 
 	do {
-		for (i = 0 ; i < count ; ++i) {
+		for (i = count - 1; i >= 0; --i) {
 			avCodec_ctx = (devs[i].av == FFWR_VIDEO)
 					  ? devs[i].out_vcodec_context
 					  : devs[i].out_acodec_context;
@@ -693,17 +694,20 @@ ffwr_devices_operate(FFWR_DEVICE *devs, int count)
 					  ? 0
 					  : 1;
 			out_steam = (AVStream *)(devs[i].out_stream);
-			readindex = av_read_frame(
-				devs[i].in_ctx, &pkt);
+			fctx = (AVFormatContext *)devs[i].in_ctx;
+			//fctx->v
+			readindex = av_read_frame(fctx, &pkt);
 			if (readindex < 0) {
 				continue;
 			}
+
 			rs = avcodec_send_packet(
 				devs[i].in_codec_ctx, &pkt);
 			if (rs) {
-				spllog(3, "in_ctx, send packet: %s.", 
+				spllog(3, "in_ctx, send packet: %s, codec_id: %d.", 
 					(devs[i].av == FFWR_VIDEO) ? 
-					"Video" : "Audio");
+					"Video" : "Audio",
+				    ((AVCodecContext *)devs[i].in_codec_ctx)->codec_id);
 				continue;
 			}
 			count_frame = 0;
@@ -1008,6 +1012,37 @@ ffwr_close_devices(FFWR_DEVICE *devs, int count)
 	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+int
+ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
+{
+	int ret = 0;
+	int rs = 0;
+	AVFormatContext *fctx = 0;
+	AVInputFormat *iformat = 0; 
+	AVPacket pkt = {0};
+	int readindex = 0;
+	do {
+		iformat = av_find_input_format(inp->type);
+		if (!iformat) {
+			break;
+		}
+		rs = avformat_open_input(&fctx, inp->name, iformat, 0);
+
+		if (rs < 0) {
+			break;
+		}
+		while (1) {
+			readindex = av_read_frame(fctx, &pkt);
+			if (readindex < 0) {
+				break;
+			}
+			spllog(1, "pkt::size: %d", pkt.size);
+			av_packet_unref(&pkt);
+
+		}
+	} while (0);
+	return ret;
+}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/

@@ -1,5 +1,6 @@
 #include "FFWrapper.h"
 #include <simplelog.h>
+#if 0
 int
 main(int argc, char *argv[])
 {
@@ -32,3 +33,35 @@ main(int argc, char *argv[])
 	spl_finish_log();
 	return ret;
 }
+
+#else 
+
+int
+main(int argc, char *argv[])
+{
+	FFWR_FMT_DEVICES inp;
+	int count = 0;
+	int ret = 0;
+	int rs = 0;
+	char cfgpath[1024];
+	SPL_INPUT_ARG input = {0};
+	snprintf(cfgpath, 1024, "z.cfg");
+	snprintf(input.folder, SPL_PATH_FOLDER, "%s", cfgpath);
+	ret = spl_init_log_ext(&input);
+	memset(&inp, 0, sizeof(inp));
+
+	do {
+		rs = avdevice_register_all();
+
+		snprintf(inp.type, 64, "%s", "dshow");
+		snprintf(inp.name, 512, "%s", 
+			"video=Integrated Webcam:audio="
+			"Microphone (2- Realtek(R) Audio)");
+
+		ffwr_open_in_fmt(&inp);
+
+	} while (0);
+	spl_finish_log();
+	return ret;
+}
+#endif

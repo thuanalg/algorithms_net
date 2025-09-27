@@ -136,6 +136,26 @@ typedef struct __FFWR_DEVICE__{
     void *filestream;
 } FFWR_DEVICE;
 
+typedef struct __FFWR_OUT_GROUP__ {
+	int a;
+} FFWR_OUT_GROUP;
+
+typedef struct __FFWR_FMT_DEVICES__
+{
+	/*dshow: direct show, av_find_input_format(type) */
+	char type[64]; 
+	
+    /*dshow: avformat_open_input(name) 
+    * video=Integrated Webcam:audio=Microphone (2- Realtek(R) Audio)
+    */
+	char name[1024]; 
+	
+    char *detail;
+    
+    void *in_fmt_ctx; /*AVFormatContext, output context*/
+
+} FFWR_FMT_DEVICES;
+
 typedef struct {
     char *name;
     char *detail;
@@ -247,6 +267,10 @@ ffwr_devices_operate(FFWR_DEVICE *, int count);
 
 DLL_API_FF_WRAPPER int
 ffwr_close_devices(FFWR_DEVICE *, int count);
+
+DLL_API_FF_WRAPPER int
+ffwr_open_in_fmt(FFWR_FMT_DEVICES * inp);
+
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 
