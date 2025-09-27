@@ -67,8 +67,11 @@ extern "C" {
 #endif
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
-typedef int (*FFWR_WRITE_PACKET_CB)(
-    void *obj, unsigned char *buf, int buf_size);
+typedef int (*FFWR_WRITE_PACKET_CB)( void *obj, unsigned char *buf, int buf_size);
+#ifndef FFLL
+	#define FFLL long long
+#endif
+typedef FFLL (*FFWR_SEEK_PACKET_CB)(void *opaque, FFLL offset, int whence);
 
 typedef enum {
     FFWR_OK,
@@ -137,7 +140,12 @@ typedef struct __FFWR_DEVICE__{
 } FFWR_DEVICE;
 
 typedef struct __FFWR_OUT_GROUP__ {
-	int a;
+	int n; /*n AVCodecContext, n AVStream*/
+	void *fmt_ctx;
+	void **c_ctx; /*n AVCodecContext*/
+	void *fp; /*FILE *stream*/
+	FFWR_WRITE_PACKET_CB cb_write;
+	FFWR_SEEK_PACKET_CB cb_seek;
 } FFWR_OUT_GROUP;
 
 typedef struct __FFWR_FMT_DEVICES__
@@ -270,8 +278,9 @@ ffwr_close_devices(FFWR_DEVICE *, int count);
 
 DLL_API_FF_WRAPPER int
 ffwr_open_in_fmt(FFWR_FMT_DEVICES * inp);
-
-
+//FFWR_OUT_GROUP
+DLL_API_FF_WRAPPER int
+ffwr_open_out_fmt(FFWR_OUT_GROUP *out, int n);
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 
 #ifdef __cplusplus

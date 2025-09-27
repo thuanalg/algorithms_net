@@ -815,7 +815,8 @@ write_packet(void *opaque, uint8_t *buf, int buf_size)
 	return fwrite(buf, 1, buf_size, (FILE *)opaque);
 #endif
 }
-int64_t
+
+FFLL
 my_seek(void *opaque, int64_t offset, int whence)
 {
 	FILE *f = (FILE *)opaque;
@@ -942,9 +943,11 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 		acodec_ctx->sample_fmt = acodec->sample_fmts[0]; 
 		acodec_ctx->time_base = (AVRational){1, 44100};
 		av_channel_layout_copy(&acodec_ctx->ch_layout, &layout);
+		rs = avcodec_parameters_from_context(
+		    audio_st->codecpar, acodec_ctx);
 		avcodec_open2(acodec_ctx, acodec, 0);
 		// copy params into stream
-		rs = avcodec_parameters_from_context(audio_st->codecpar, acodec_ctx);
+		
 
 		for (i = 0; i < count; ++i) {
 			if (devs[i].av == FFWR_AUDIO) {
@@ -1028,6 +1031,7 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 	int count = 0;
 	AVFrame frame = {0};
 	AVStream *st = 0;
+	FFWR_OUT_GROUP outobj = {0};
 	enum AVMediaType type = AVMEDIA_TYPE_UNKNOWN;
 	const AVCodec *vcodec = avcodec_find_decoder(AV_CODEC_ID_RAWVIDEO);
 	const AVCodec *acodec = avcodec_find_decoder(AV_CODEC_ID_PCM_S16LE);
@@ -1105,6 +1109,30 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+int
+ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int n)
+{
+	int ret = 0;
+	AVFormatContext *fmt_ctx = 0;
+	int rs = 0;
+	FILE *fp = 0;
+	do {
+		rs = avformat_alloc_output_context2(&fmt_ctx, 0, "mp4", 0);
+		if (!fmt_ctx) {
+			spllog(4, "Could not allocate output context\n");
+			break;
+		}
+		output->fmt_ctx = fmt_ctx;
+		fp = fopen("output.mp4", "w+");
+		if (!fp) {
+			break;
+		}
+		output->fp = fp;
+		output->cb_write = write_packet;
+		output->cb_seek = my_seek;
+	} while (0);
+	return ret;
+}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
