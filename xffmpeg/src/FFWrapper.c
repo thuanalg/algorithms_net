@@ -880,13 +880,13 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 		vcodec_ctx->codec_id = AV_CODEC_ID_H264;
 		vcodec_ctx->bit_rate = 400000;
 		/*Golden rate 1:1.618*/
-		vcodec_ctx->height = 480;
-		vcodec_ctx->width = 640;
+		vcodec_ctx->height = 1080;
+		vcodec_ctx->width = 1920;
 		vcodec_ctx->time_base = (AVRational){1, 25};
 		vcodec_ctx->framerate = (AVRational){25, 1};
 		vcodec_ctx->gop_size = 12;
 		vcodec_ctx->max_b_frames = 2;
-		vcodec_ctx->pix_fmt = AV_PIX_FMT_YUV420P;
+		vcodec_ctx->pix_fmt = AV_PIX_FMT_YUVJ422P;
 		if (fmt_ctx->oformat->flags & AVFMT_GLOBALHEADER) {
 			vcodec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 		}			
@@ -1100,7 +1100,8 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 				av_packet_unref(&pkt);
 				continue;
 			}
-			spllog(1, "fr::sample_rate: %d", frame->sample_rate);
+			spllog(1, "fr::sample_rate: %d (w,h) = (%d, %d)", 
+				frame->sample_rate, frame->width, frame->height);
 			if (type == AVMEDIA_TYPE_VIDEO) {
 				cctx = (AVCodecContext *)outobj.vctx;
 			} else {
@@ -1108,7 +1109,9 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 			}
 			rs = avcodec_send_frame(cctx, frame);
 			if (rs < 0) {
-				//continue;
+				int b = 0;
+			} else {
+				int a = 0;
 			}
 			av_packet_unref(&pkt);
 
@@ -1157,8 +1160,8 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
 		vcodec_ctx->codec_id = AV_CODEC_ID_H264;
 		vcodec_ctx->bit_rate = 400000;
 		/*Golden rate 1:1.618*/
-		vcodec_ctx->height = 480;
-		vcodec_ctx->width = 640;
+		vcodec_ctx->height = 1080;
+		vcodec_ctx->width = 1920;
 		vcodec_ctx->time_base = (AVRational){1, 25};
 		vcodec_ctx->framerate = (AVRational){25, 1};
 		vcodec_ctx->gop_size = 12;
