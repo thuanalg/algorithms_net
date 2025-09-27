@@ -1064,6 +1064,7 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 		if (rs < 0) {
 			break;
 		}
+		ffwr_open_out_fmt(&outobj, fctx->nb_streams + 1);
 		while (1) {
 			cctx = 0;
 			readindex = av_read_frame(fctx, &pkt);
@@ -1110,12 +1111,21 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 int
-ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int n)
+ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
 {
 	int ret = 0;
 	AVFormatContext *fmt_ctx = 0;
 	int rs = 0;
 	FILE *fp = 0;
+	AVCodec *vcodec =0;
+	AVCodec *acodec =0;
+	AVStream *vstream = 0;
+	AVStream *astream = 0;
+	AVCodecContext *vcodec_ctx = 0;
+	AVCodecContext *acodec_ctx = 0;
+	AVChannelLayout layout = AV_CHANNEL_LAYOUT_STEREO;
+	AVIOContext *avio_ctx = 0;
+	uint8_t *avio_buffer = 0;
 	do {
 		rs = avformat_alloc_output_context2(&fmt_ctx, 0, "mp4", 0);
 		if (!fmt_ctx) {
@@ -1130,6 +1140,96 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int n)
 		output->fp = fp;
 		output->cb_write = write_packet;
 		output->cb_seek = my_seek;
+		vcodec = avcodec_find_encoder(AV_CODEC_ID_H264);
+		vstream = avformat_new_stream(fmt_ctx, vcodec);
+		vcodec_ctx = avcodec_alloc_context3(vcodec);
+
+		vcodec_ctx->codec_id = AV_CODEC_ID_H264;
+		vcodec_ctx->bit_rate = 400000;
+		/*Golden rate 1:1.618*/
+		vcodec_ctx->height = 480;
+		vcodec_ctx->width = 640;
+		vcodec_ctx->time_base = (AVRational){1, 25};
+		vcodec_ctx->framerate = (AVRational){25, 1};
+		vcodec_ctx->gop_size = 12;
+		vcodec_ctx->max_b_frames = 2;
+		vcodec_ctx->pix_fmt = AV_PIX_FMT_YUV420P;
+		if (fmt_ctx->oformat->flags & AVFMT_GLOBALHEADER) {
+			vcodec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+		}
+		rs = avcodec_parameters_from_context(
+		    vstream->codecpar, vcodec_ctx);
+		if (rs < 0) {
+			break;
+		}
+		rs = avcodec_open2(vcodec_ctx, vcodec, 0);
+		if (rs < 0) {
+			break;
+		}
+		/*---------------*/
+		acodec = avcodec_find_encoder(AV_CODEC_ID_AAC);
+		astream = avformat_new_stream(fmt_ctx, vcodec);
+		acodec_ctx = avcodec_alloc_context3(acodec);
+		acodec_ctx->sample_rate = 44100;
+		acodec_ctx->sample_fmt = acodec->sample_fmts[0];
+		acodec_ctx->time_base = (AVRational){1, 44100};
+		av_channel_layout_copy(&acodec_ctx->ch_layout, &layout);
+		rs = avcodec_parameters_from_context(
+		    astream->codecpar, acodec_ctx);
+		if (rs < 0) {
+			break;
+		}
+		rs = avcodec_open2(acodec_ctx, acodec, 0);
+		if (rs < 0) {
+			break;
+		}
+		/*---------------*/
+		avio_buffer = av_malloc(4096);
+		if (!avio_buffer) {
+			ret = FFWR_AVIO_MALLOC_BUFF;
+			break;
+		}
+		avio_ctx = avio_alloc_context(avio_buffer, 4096, 1, output->fp,
+		    0, output->cb_write, output->cb_seek);
+		if (!avio_ctx) {
+			ret = FFWR_AVIO_CTX_NULL;
+			break;
+		}
+		fmt_ctx->pb = avio_ctx;
+		fmt_ctx->flags |= AVFMT_FLAG_CUSTOM_IO;
+
+		/* Next step: write file, write header,
+		write packet audio/video*/
+		rs = avformat_write_header(fmt_ctx, 0);
+		if (rs < 0) {
+			char buf[AV_ERROR_MAX_STRING_SIZE] = {0};
+			av_strerror(rs, buf, sizeof(buf));
+			spllog(4, "Cannot be written by : %s.\n", buf);
+			ret = FFWR_WRITE_HEADER;
+			break;
+		}
+#if 0
+#if 1
+		acodec = avcodec_find_encoder(AV_CODEC_ID_AAC);
+#else
+		acodec = avcodec_find_encoder(fmt->audio_codec);
+#endif
+		if (!acodec) {
+			ret = FFWR_ACC_NOT_FOUND;
+			break;
+		} 
+		acodec_ctx = avcodec_alloc_context3(acodec);
+		acodec_ctx->codec_id = fmt_ctx->oformat->audio_codec;
+		//acodec_ctx->codec_id = acodec;
+		acodec_ctx->sample_rate = 44100;
+		acodec_ctx->sample_fmt = acodec->sample_fmts[0]; 
+		acodec_ctx->time_base = (AVRational){1, 44100};
+		av_channel_layout_copy(&acodec_ctx->ch_layout, &layout);
+		rs = avcodec_parameters_from_context(
+		    audio_st->codecpar, acodec_ctx);
+		avcodec_open2(acodec_ctx, acodec, 0);
+		// copy params into stream
+#endif
 	} while (0);
 	return ret;
 }
