@@ -146,6 +146,8 @@ typedef struct __FFWR_OUT_GROUP__ {
 	void *fp; /*FILE *stream*/
 	FFWR_WRITE_PACKET_CB cb_write;
 	FFWR_SEEK_PACKET_CB cb_seek;
+	void *vctx;
+	void *actx;
 } FFWR_OUT_GROUP;
 
 typedef struct __FFWR_FMT_DEVICES__

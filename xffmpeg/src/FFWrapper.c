@@ -807,7 +807,7 @@ ffwr_devices_operate(FFWR_DEVICE *devs, int count)
 static int
 write_packet(void *opaque, uint8_t *buf, int buf_size)
 {
-#if 0
+#if 1
 	int n = fwrite(buf, 1, buf_size, (FILE *)opaque);
 	fflush((FILE *)opaque);
 	return n;
@@ -1029,7 +1029,7 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 	AVCodecContext *vctx_raw = 0;
 	AVCodecContext *cctx = 0;
 	int count = 0;
-	AVFrame frame = {0};
+	AVFrame * frame = 0;
 	AVStream *st = 0;
 	FFWR_OUT_GROUP outobj = {0};
 	enum AVMediaType type = AVMEDIA_TYPE_UNKNOWN;
@@ -1039,6 +1039,7 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 	actx_raw  = avcodec_alloc_context3(acodec);
 
 	do {
+		frame = av_frame_alloc(); 
 		iformat = av_find_input_format(inp->type);
 		if (!iformat) {
 			break;
@@ -1093,16 +1094,25 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 				av_packet_unref(&pkt);
 				continue;
 			}
-			rs = avcodec_receive_frame(cctx, &frame);
+			rs = avcodec_receive_frame(cctx, frame);
 			if (rs < 0) {
-				av_frame_unref(&frame);
+				av_frame_unref(frame);
 				av_packet_unref(&pkt);
 				continue;
 			}
-			spllog(1, "fr::sample_rate: %d", frame.sample_rate);
+			spllog(1, "fr::sample_rate: %d", frame->sample_rate);
+			if (type == AVMEDIA_TYPE_VIDEO) {
+				cctx = (AVCodecContext *)outobj.vctx;
+			} else {
+				cctx = (AVCodecContext *)outobj.actx;
+			}
+			rs = avcodec_send_frame(cctx, frame);
+			if (rs < 0) {
+				//continue;
+			}
 			av_packet_unref(&pkt);
 
-			av_frame_unref(&frame);
+			av_frame_unref(frame);
 			
 
 		}
@@ -1166,6 +1176,7 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
 		if (rs < 0) {
 			break;
 		}
+		output->vctx = vcodec_ctx;
 		/*---------------*/
 		acodec = avcodec_find_encoder(AV_CODEC_ID_AAC);
 		astream = avformat_new_stream(fmt_ctx, vcodec);
@@ -1183,6 +1194,7 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
 		if (rs < 0) {
 			break;
 		}
+		output->actx = acodec_ctx;
 		/*---------------*/
 		avio_buffer = av_malloc(4096);
 		if (!avio_buffer) {
