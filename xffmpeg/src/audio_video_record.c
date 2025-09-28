@@ -51,7 +51,7 @@ main(int argc, char *argv[])
 	memset(&inp, 0, sizeof(inp));
 
 	do {
-		rs = avdevice_register_all();
+		
 
 		snprintf(inp.type, 64, "%s", "dshow");
 		snprintf(inp.name, 512, "%s", 

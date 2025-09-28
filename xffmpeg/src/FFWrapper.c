@@ -1029,6 +1029,8 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 	AVCodecContext *vctx_raw = 0;
 	AVCodecContext *cctx = 0;
 	int count = 0;
+	AVFrame * vframe = 0;
+	AVFrame * aframe = 0;
 	AVFrame * frame = 0;
 	AVStream *st = 0;
 	FFWR_OUT_GROUP outobj = {0};
@@ -1037,10 +1039,14 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 	const AVCodec *acodec = avcodec_find_decoder(AV_CODEC_ID_PCM_S16LE);
 	vctx_raw  = avcodec_alloc_context3(vcodec);
 	actx_raw  = avcodec_alloc_context3(acodec);
-
+	avdevice_register_all();
 	do {
-		frame = av_frame_alloc(); 
+		vframe = av_frame_alloc(); 
+		aframe = av_frame_alloc(); 
+
+
 		iformat = av_find_input_format(inp->type);
+
 		if (!iformat) {
 			break;
 		}
@@ -1072,7 +1078,7 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 			if (readindex < 0) {
 				break;
 			}
-			spllog(1, "pkt::size: %d", pkt.size);
+			//spllog(1, "pkt::size: %d", pkt.size);
 			st = fctx->streams[pkt.stream_index];
 			type = st->codecpar->codec_type;
 
@@ -1094,19 +1100,41 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 				av_packet_unref(&pkt);
 				continue;
 			}
-			rs = avcodec_receive_frame(cctx, frame);
+			rs = avcodec_receive_frame(cctx, vframe);
 			if (rs < 0) {
-				av_frame_unref(frame);
+				av_frame_unref(vframe);
 				av_packet_unref(&pkt);
 				continue;
 			}
-			spllog(1, "fr::sample_rate: %d (w,h) = (%d, %d)", 
-				frame->sample_rate, frame->width, frame->height);
+
+
 			if (type == AVMEDIA_TYPE_VIDEO) {
 				cctx = (AVCodecContext *)outobj.vctx;
+
+				vframe->format = cctx->pix_fmt;
+				vframe->width = cctx->width;
+				vframe->height = cctx->height;
+				//vframe->format = AV_PIX_FMT_YUV420P;
+				//vframe->width = 1920;
+				//vframe->height = 1080;
+
+
+				frame = vframe;
+
 			} else {
+				frame = aframe;
 				cctx = (AVCodecContext *)outobj.actx;
+				aframe->format = cctx->pix_fmt;
+				aframe->width = cctx->width;
+				aframe->height = cctx->height;
+				
 			}
+			spllog(1, "fr::sample_rate: %d (w,h) = (%d, %d)",
+			    frame->sample_rate, frame->width, frame->height);
+
+			rs = av_frame_get_buffer(frame, 0);
+			rs = av_frame_make_writable(frame);
+
 			rs = avcodec_send_frame(cctx, frame);
 			if (rs < 0) {
 				int b = 0;
@@ -1154,22 +1182,28 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
 		output->cb_write = write_packet;
 		output->cb_seek = my_seek;
 		vcodec = avcodec_find_encoder(AV_CODEC_ID_H264);
-		vstream = avformat_new_stream(fmt_ctx, vcodec);
+		
 		vcodec_ctx = avcodec_alloc_context3(vcodec);
 
-		vcodec_ctx->codec_id = AV_CODEC_ID_H264;
+		//vcodec_ctx->codec_id = AV_CODEC_ID_H264;
 		vcodec_ctx->bit_rate = 400000;
-		/*Golden rate 1:1.618*/
-		vcodec_ctx->height = 1080;
+		/* Golden rate 1:1.618 */
 		vcodec_ctx->width = 1920;
+		vcodec_ctx->height = 1080;
+		//vcodec_ctx->time_base = (AVRational){1, 25};
+		//vcodec_ctx->framerate = (AVRational){25, 1};
 		vcodec_ctx->time_base = (AVRational){1, 25};
 		vcodec_ctx->framerate = (AVRational){25, 1};
-		vcodec_ctx->gop_size = 12;
-		vcodec_ctx->max_b_frames = 2;
+		vcodec_ctx->gop_size = 10;
+		vcodec_ctx->max_b_frames = 1;
 		vcodec_ctx->pix_fmt = AV_PIX_FMT_YUV420P;
+		//av_opt_set(cctx->priv_data, "preset", "slow", 0);
+		av_opt_set(vcodec_ctx->priv_data, "preset", "slow", 0);
+
 		if (fmt_ctx->oformat->flags & AVFMT_GLOBALHEADER) {
 			vcodec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 		}
+		vstream = avformat_new_stream(fmt_ctx, vcodec);
 		rs = avcodec_parameters_from_context(
 		    vstream->codecpar, vcodec_ctx);
 		if (rs < 0) {
