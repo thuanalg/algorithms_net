@@ -1100,7 +1100,12 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 				av_packet_unref(&pkt);
 				continue;
 			}
-			rs = avcodec_receive_frame(cctx, vframe);
+			if (type == AVMEDIA_TYPE_VIDEO) {
+				frame = vframe;
+			} else {
+				frame = aframe;
+			}
+			rs = avcodec_receive_frame(cctx, frame);
 			if (rs < 0) {
 				av_frame_unref(vframe);
 				av_packet_unref(&pkt);
@@ -1196,7 +1201,7 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
 		vcodec_ctx->framerate = (AVRational){25, 1};
 		vcodec_ctx->gop_size = 10;
 		vcodec_ctx->max_b_frames = 1;
-		vcodec_ctx->pix_fmt = AV_PIX_FMT_YUV420P;
+		vcodec_ctx->pix_fmt = AV_PIX_FMT_YUV422P;
 		//av_opt_set(cctx->priv_data, "preset", "slow", 0);
 		av_opt_set(vcodec_ctx->priv_data, "preset", "slow", 0);
 

@@ -54,10 +54,15 @@ main(int argc, char *argv[])
 		
 
 		snprintf(inp.type, 64, "%s", "dshow");
+#if 1
 		snprintf(inp.name, 512, "%s", 
 			"video=Integrated Webcam:audio="
 			"Microphone (2- Realtek(R) Audio)");
-
+#else
+		snprintf(inp.name, 512, "%s",
+		    "audio="
+		    "Microphone (2- Realtek(R) Audio)");
+#endif
 		ffwr_open_in_fmt(&inp);
 
 	} while (0);
