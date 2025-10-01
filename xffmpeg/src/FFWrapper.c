@@ -781,7 +781,7 @@ ffwr_devices_operate(FFWR_DEVICE *devs, int count)
 					    out_steam->time_base);
 					rs = av_interleaved_write_frame(
 					    devs[0].out_ctx, &out_pkt);
-
+					//av_write_frame
 					av_packet_unref(&out_pkt);
 				}
 #endif
