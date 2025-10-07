@@ -24,6 +24,8 @@ typedef struct {
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 static int ffwr_clone_str(char **dst, char *str);
+static int convert_frame(AVFrame *src, AVFrame *dst);
+static int convert_audio_frame(AVFrame *src, AVFrame *dst);
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 #define FFWR_STEP           5
 int
@@ -552,7 +554,8 @@ ffwr_open_devices(FFWR_DEVICE *devs, int count, char *name)
                 AVDictionary *options = NULL;
 				av_dict_set(&options, "framerate", "30", 0);
 				av_dict_set(
-				    &options, "video_size", "1920×1080", 0);
+				    &options, "video_size", "640×480", 0);
+				av_dict_set(&options, "rtbufsize", "100M", 0);
 				ret = avformat_open_input(
 				    &(devs[i].in_ctx), buf, iformat, &options);
 			} else {
@@ -810,6 +813,7 @@ write_packet(void *opaque, uint8_t *buf, int buf_size)
 #if 1
 	int n = fwrite(buf, 1, buf_size, (FILE *)opaque);
 	fflush((FILE *)opaque);
+	spllog(1, "buf_size: %d", buf_size);
 	return n;
 #else
 	return fwrite(buf, 1, buf_size, (FILE *)opaque);
@@ -880,8 +884,8 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 		vcodec_ctx->codec_id = AV_CODEC_ID_H264;
 		vcodec_ctx->bit_rate = 400000;
 		/*Golden rate 1:1.618*/
-		vcodec_ctx->height = 1080;
-		vcodec_ctx->width = 1920;
+		vcodec_ctx->height = 480;
+		vcodec_ctx->width = 640;
 		vcodec_ctx->time_base = (AVRational){1, 25};
 		vcodec_ctx->framerate = (AVRational){25, 1};
 		vcodec_ctx->gop_size = 12;
@@ -1015,6 +1019,7 @@ ffwr_close_devices(FFWR_DEVICE *devs, int count)
 	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+#define FRAME_NUBER__ 1000
 int
 ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 {
@@ -1031,7 +1036,8 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 	int count = 0;
 	AVFrame * vframe = 0;
 	AVFrame * aframe = 0;
-	AVFrame * frame = 0;
+	AVFrame * inframe = 0;
+	AVFrame * outframe = 0;
 	AVStream *st = 0;
 	FFWR_OUT_GROUP outobj = {0};
 	enum AVMediaType type = AVMEDIA_TYPE_UNKNOWN;
@@ -1040,9 +1046,14 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 	vctx_raw  = avcodec_alloc_context3(vcodec);
 	actx_raw  = avcodec_alloc_context3(acodec);
 	avdevice_register_all();
+	int nnnn = 0;
+	static int64_t vframe_index = 0;
+	static int64_t aframe_index = 0;
+	
 	do {
 		vframe = av_frame_alloc(); 
 		aframe = av_frame_alloc(); 
+		outframe = av_frame_alloc();
 
 
 		iformat = av_find_input_format(inp->type);
@@ -1050,7 +1061,12 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 		if (!iformat) {
 			break;
 		}
-		rs = avformat_open_input(&fctx, inp->name, iformat, 0);
+		AVDictionary *options = NULL;
+		//av_dict_set(&options, "framerate", "30", 0);
+		//av_dict_set(&options, "video_size", "640×480", 0);
+		av_dict_set(&options, "rtbufsize", "100M", 0);
+
+		rs = avformat_open_input(&fctx, inp->name, iformat, &options);
 
 		if (rs < 0) {
 			break;
@@ -1065,14 +1081,16 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 		if (rs < 0) {
 			break;
 		}
+#if 0
 		st = fctx->streams[1];
 		avcodec_parameters_to_context(actx_raw, st->codecpar);
 		rs = avcodec_open2(actx_raw, acodec, 0);
 		if (rs < 0) {
 			break;
 		}
+#endif
 		ffwr_open_out_fmt(&outobj, fctx->nb_streams + 1);
-		while (1) {
+		while (nnnn < FRAME_NUBER__) {
 			cctx = 0;
 			readindex = av_read_frame(fctx, &pkt);
 			if (readindex < 0) {
@@ -1101,11 +1119,11 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 				continue;
 			}
 			if (type == AVMEDIA_TYPE_VIDEO) {
-				frame = vframe;
+				inframe = vframe;
 			} else {
-				frame = aframe;
+				inframe = aframe;
 			}
-			rs = avcodec_receive_frame(cctx, frame);
+			rs = avcodec_receive_frame(cctx, inframe);
 			if (rs < 0) {
 				av_frame_unref(vframe);
 				av_packet_unref(&pkt);
@@ -1116,43 +1134,67 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 			if (type == AVMEDIA_TYPE_VIDEO) {
 				cctx = (AVCodecContext *)outobj.vctx;
 
-				vframe->format = cctx->pix_fmt;
-				vframe->width = cctx->width;
-				vframe->height = cctx->height;
+				outframe->format = cctx->pix_fmt;
+				outframe->width = cctx->width;
+				outframe->height = cctx->height;
 				//vframe->format = AV_PIX_FMT_YUV420P;
 				//vframe->width = 1920;
 				//vframe->height = 1080;
 
+				convert_frame(inframe, outframe);
+				//frame = vframe;
+				outframe->pts = vframe_index++;
 
-				frame = vframe;
 
 			} else {
-				frame = aframe;
+				//For audio
 				cctx = (AVCodecContext *)outobj.actx;
-				aframe->format = cctx->pix_fmt;
-				aframe->width = cctx->width;
-				aframe->height = cctx->height;
-				
+				aframe->format = 8;
+				//cctx->codec_id
+				aframe->nb_samples = 1024;
+				convert_audio_frame(inframe, aframe);
+				outframe = aframe;
+				outframe->pts = aframe_index++;
 			}
 			spllog(1, "fr::sample_rate: %d (w,h) = (%d, %d)",
-			    frame->sample_rate, frame->width, frame->height);
+			    outframe->sample_rate, outframe->width,
+			    outframe->height);
 
-			rs = av_frame_get_buffer(frame, 0);
-			rs = av_frame_make_writable(frame);
+			rs = av_frame_get_buffer(outframe, 0);
+			rs = av_frame_make_writable(outframe);
 
-			rs = avcodec_send_frame(cctx, frame);
+			rs = avcodec_send_frame(cctx, outframe);
 			if (rs < 0) {
 				int b = 0;
 			} else {
 				int a = 0;
 			}
+			while (1) {
+				ret = avcodec_receive_packet(cctx, &pkt);
+				if (ret < 0) {
+					break;
+				} else {
+					int k = 0;
+				}
+				pkt.stream_index = (type == AVMEDIA_TYPE_VIDEO) ? 0 :1 ;
+				ret = av_interleaved_write_frame(outobj.fmt_ctx, &pkt); 
+				if (ret < 0) { 	
+					break;
+				} else {
+					++nnnn;
+				}
+
+				av_packet_unref(&pkt);
+			}
 			av_packet_unref(&pkt);
 
-			av_frame_unref(frame);
-			
-
+			av_frame_unref(outframe);
+			av_frame_unref(vframe);
+			av_frame_unref(aframe);
+			av_frame_unref(inframe);
 		}
-	} while (0);
+	} while (nnnn < FRAME_NUBER__);
+	ret  = av_write_trailer(outobj.fmt_ctx);
 	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
@@ -1179,7 +1221,7 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
 			break;
 		}
 		output->fmt_ctx = fmt_ctx;
-		fp = fopen("output.mp4", "w+");
+		fp = fopen("d:/output.mp4", "w+");
 		if (!fp) {
 			break;
 		}
@@ -1193,17 +1235,21 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
 		//vcodec_ctx->codec_id = AV_CODEC_ID_H264;
 		vcodec_ctx->bit_rate = 400000;
 		/* Golden rate 1:1.618 */
-		vcodec_ctx->width = 1920;
-		vcodec_ctx->height = 1080;
+		vcodec_ctx->width = 640;
+		vcodec_ctx->height = 480;
 		//vcodec_ctx->time_base = (AVRational){1, 25};
 		//vcodec_ctx->framerate = (AVRational){25, 1};
 		vcodec_ctx->time_base = (AVRational){1, 25};
 		vcodec_ctx->framerate = (AVRational){25, 1};
 		vcodec_ctx->gop_size = 10;
-		vcodec_ctx->max_b_frames = 1;
+		vcodec_ctx->max_b_frames = 0;
+		//vcodec_ctx->pix_fmt = 1;
 		vcodec_ctx->pix_fmt = AV_PIX_FMT_YUV422P;
 		//av_opt_set(cctx->priv_data, "preset", "slow", 0);
-		av_opt_set(vcodec_ctx->priv_data, "preset", "slow", 0);
+		//av_opt_set(vcodec_ctx->priv_data, "preset", "slow", 0);
+		av_opt_set(vcodec_ctx->priv_data, "profile", "high422", 0);
+
+		
 
 		if (fmt_ctx->oformat->flags & AVFMT_GLOBALHEADER) {
 			vcodec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
@@ -1214,12 +1260,16 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
 		if (rs < 0) {
 			break;
 		}
+		vstream->time_base = vcodec_ctx->time_base;
+		vstream->codecpar->profile = vcodec_ctx->profile;
+
 		rs = avcodec_open2(vcodec_ctx, vcodec, 0);
 		if (rs < 0) {
 			break;
 		}
 		output->vctx = vcodec_ctx;
 		/*---------------*/
+#if 0
 		acodec = avcodec_find_encoder(AV_CODEC_ID_AAC);
 		astream = avformat_new_stream(fmt_ctx, vcodec);
 		acodec_ctx = avcodec_alloc_context3(acodec);
@@ -1232,11 +1282,13 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
 		if (rs < 0) {
 			break;
 		}
+		astream->time_base = acodec_ctx->time_base;
 		rs = avcodec_open2(acodec_ctx, acodec, 0);
 		if (rs < 0) {
 			break;
 		}
 		output->actx = acodec_ctx;
+#endif
 		/*---------------*/
 		avio_buffer = av_malloc(4096);
 		if (!avio_buffer) {
@@ -1293,6 +1345,138 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 
-#if 0
+#if 1
+#include <libavutil/frame.h>
+#include <libavutil/imgutils.h>
+#include <libswscale/swscale.h>
+#include <stdio.h>
+#include <libavutil/opt.h>
+#include <libswresample/swresample.h>
+#include <libavutil/channel_layout.h>
+#include <libavutil/frame.h>
+#include <stdio.h>
+
+int
+convert_frame(AVFrame *src, AVFrame *dst)
+{
+
+    int ret = 0;
+
+
+
+    //AVFrame *src = av_frame_alloc();
+    //src->format = src_fmt;
+    //src->width  = src_w;
+    //src->height = src_h;
+    av_frame_get_buffer(src, 32);
+
+    // TODO: copy hoặc điền dữ liệu thật vào src->data[0]
+
+    //dst->format = dst_fmt;
+    //dst->width  = dst_w;
+    //dst->height = dst_h;
+    av_frame_get_buffer(dst, 32);
+
+    struct SwsContext *sws_ctx = sws_getContext(
+		src->width, 
+		src->height, 
+		src->format, 
+		dst->width, 
+		dst->height, 
+		dst->format,
+        SWS_BILINEAR, NULL, NULL, NULL
+    );
+    if (!sws_ctx) {
+        fprintf(stderr, "Error: cannot create sws context\n");
+        return -1;
+    }
+
+    ret = sws_scale(
+        sws_ctx,
+        (const uint8_t * const *)src->data,
+        src->linesize,
+        0,
+        src->height,
+        dst->data,
+        dst->linesize
+    );
+
+
+
+    sws_freeContext(sws_ctx);
+    //av_frame_free(&src);
+    //av_frame_free(&dst);
+    return 0;
+}
+int
+convert_audio_frame(AVFrame *src, AVFrame *dst)
+{
+	int ret = 0;
+	struct SwrContext *swr_ctx = NULL;
+	AVChannelLayout src_layout, dst_layout;
+
+	av_channel_layout_default(&src_layout, src->ch_layout.nb_channels);
+	av_channel_layout_default(&dst_layout, dst->ch_layout.nb_channels);
+	// 🔧 Tạo SwrContext cho chuyển đổi audio
+	swr_alloc_set_opts2(&swr_ctx, &dst_layout,
+	    (enum AVSampleFormat)dst->format, dst->sample_rate, &src_layout,
+	    (enum AVSampleFormat)src->format, src->sample_rate, 0, NULL);
+
+	if (!swr_ctx) {
+		fprintf(stderr, "❌ Error: cannot allocate SwrContext\n");
+		return -1;
+	}
+
+	if ((ret = swr_init(swr_ctx)) < 0) {
+		fprintf(stderr, "❌ Error: cannot init SwrContext (%d)\n", ret);
+		swr_free(&swr_ctx);
+		return ret;
+	}
+
+	// 🔄 Tính số mẫu đầu ra (có thể khác đầu vào do sample_rate thay đổi)
+	//int dst_nb_samples = av_rescale_rnd(
+	//    swr_get_delay(swr_ctx, src->sample_rate) + src->nb_samples,
+	//    dst->sample_rate, src->sample_rate, AV_ROUND_UP);
+	//
+	//// 🔧 Cấp buffer cho frame đầu ra
+	//dst->nb_samples = dst_nb_samples;
+
+	if ((ret = av_frame_get_buffer(dst, 0)) < 0) {
+		fprintf(
+		    stderr, "❌ Error: cannot allocate dst buffer (%d)\n", ret);
+		swr_free(&swr_ctx);
+		return ret;
+	}
+
+	// 🚀 Thực hiện chuyển đổi audio
+	ret = swr_convert(swr_ctx, dst->data, dst->nb_samples,
+	    (const uint8_t **)src->data, src->nb_samples);
+
+	if (ret < 0) {
+		fprintf(stderr, "❌ Error: swr_convert failed (%d)\n", ret);
+		swr_free(&swr_ctx);
+		return ret;
+	}
+
+	// ✅ Cập nhật số mẫu thực tế đầu ra
+	dst->nb_samples = ret;
+
+	// 🧹 Giải phóng context
+	swr_free(&swr_ctx);
+
+	printf("✅ Audio convert done: %d samples -> %d samples\n",
+	    src->nb_samples, dst->nb_samples);
+
+	return 0;
+}
+#else
+
+convert_audio_frame(src, dst);
+| Chức năng | Video                 | Audio                           |
+| --------- | --------------------- | ------------------------------- |
+| Thư viện  | libswscale            | libswresample                   |
+| Hàm chính | `sws_scale()`         | `swr_convert()`                 |
+| Context   | `SwsContext`          | `SwrContext`                    |
+| Mục đích  | Pixel format / Resize | Sample format / Rate / Channels |
 
 #endif
