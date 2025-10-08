@@ -1306,7 +1306,8 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
 
 		/* Next step: write file, write header,
 		write packet audio/video*/
-		rs = avformat_write_header(fmt_ctx, 0);
+		AVDictionary *options_header = 0;
+		rs = avformat_write_header(fmt_ctx, &options_header);
 		if (rs < 0) {
 			char buf[AV_ERROR_MAX_STRING_SIZE] = {0};
 			av_strerror(rs, buf, sizeof(buf));
@@ -1314,28 +1315,6 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
 			ret = FFWR_WRITE_HEADER;
 			break;
 		}
-#if 0
-#if 1
-		acodec = avcodec_find_encoder(AV_CODEC_ID_AAC);
-#else
-		acodec = avcodec_find_encoder(fmt->audio_codec);
-#endif
-		if (!acodec) {
-			ret = FFWR_ACC_NOT_FOUND;
-			break;
-		} 
-		acodec_ctx = avcodec_alloc_context3(acodec);
-		acodec_ctx->codec_id = fmt_ctx->oformat->audio_codec;
-		//acodec_ctx->codec_id = acodec;
-		acodec_ctx->sample_rate = 44100;
-		acodec_ctx->sample_fmt = acodec->sample_fmts[0]; 
-		acodec_ctx->time_base = (AVRational){1, 44100};
-		av_channel_layout_copy(&acodec_ctx->ch_layout, &layout);
-		rs = avcodec_parameters_from_context(
-		    audio_st->codecpar, acodec_ctx);
-		avcodec_open2(acodec_ctx, acodec, 0);
-		// copy params into stream
-#endif
 	} while (0);
 	return ret;
 }
