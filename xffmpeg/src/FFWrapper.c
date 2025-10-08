@@ -1261,23 +1261,46 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
 			vcodec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 		}
 		vstream = avformat_new_stream(fmt_ctx, vcodec);
+		//rs = avcodec_parameters_from_context(
+		//    vstream->codecpar, vcodec_ctx);
+		//if (rs < 0) {
+		//	break;
+		//}
+		vstream->time_base = vcodec_ctx->time_base;
+		vstream->codecpar->profile = vcodec_ctx->profile;
+
+		// Cấu hình màu (nếu bạn muốn metadata đầy đủ)
+		vcodec_ctx->color_primaries = AVCOL_PRI_BT709;
+		vcodec_ctx->color_trc = AVCOL_TRC_BT709;
+		vcodec_ctx->colorspace = AVCOL_SPC_BT709;
+		vcodec_ctx->chroma_sample_location = AVCHROMA_LOC_LEFT;
+
+		// Thiết lập profile
+		av_opt_set(vcodec_ctx->priv_data, "profile", "high422", 0);
+
+		// (tùy chọn) preset & tune để dễ encode
+		av_opt_set(vcodec_ctx->priv_data, "preset", "medium", 0);
+		av_opt_set(vcodec_ctx->priv_data, "tune", "film", 0);
+
+        AVCodecDescriptor const *output_descriptor =
+		    avcodec_descriptor_get(vcodec->id);
+		vcodec_ctx->profile = 
+		vstream->codecpar->profile = vcodec_ctx->profile;
+
+		rs = avcodec_open2(vcodec_ctx, vcodec, 0);
+		if (rs < 0) {
+			break;
+		}
+		vstream->codecpar->profile =
+		    output_descriptor->profiles->profile;
+		vstream->codecpar->level = 30;
 		rs = avcodec_parameters_from_context(
 		    vstream->codecpar, vcodec_ctx);
 		if (rs < 0) {
 			break;
 		}
 		vstream->time_base = vcodec_ctx->time_base;
-		vstream->codecpar->profile = vcodec_ctx->profile;
 
-		av_opt_set(vcodec_ctx->priv_data, "profile", "high422", 0);
-
-        AVCodecDescriptor const *output_descriptor =
-		    avcodec_descriptor_get(vcodec->id);
-		vcodec_ctx->profile = output_descriptor->profiles->profile;
-		rs = avcodec_open2(vcodec_ctx, vcodec, 0);
-		if (rs < 0) {
-			break;
-		}
 		output->vctx = vcodec_ctx;
 		/*---------------*/
 #if 0
