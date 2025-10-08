@@ -767,6 +767,7 @@ ffwr_devices_operate(FFWR_DEVICE *devs, int count)
 				//	    avCodec_ctx->frame_size;
 				//}
 				/*AV_CODEC_ID_H264: 27, AV_CODEC_ID_AAC: 86018*/
+					/*Ignore*/
 				rs = avcodec_send_frame(avCodec_ctx, &frame);
 				if (rs < 0) {
 					continue;
@@ -886,10 +887,10 @@ ffwr_open_output(FFWR_DEVICE *devs, int count)
 		/*Golden rate 1:1.618*/
 		vcodec_ctx->height = 480;
 		vcodec_ctx->width = 640;
-		vcodec_ctx->time_base = (AVRational){1, 25};
-		vcodec_ctx->framerate = (AVRational){25, 1};
-		vcodec_ctx->gop_size = 12;
-		vcodec_ctx->max_b_frames = 2;
+		vcodec_ctx->time_base = (AVRational){333333, 10000000};
+		vcodec_ctx->framerate = (AVRational){10000000, 333333};
+		vcodec_ctx->gop_size = -1;
+		vcodec_ctx->max_b_frames = 0;
 		vcodec_ctx->pix_fmt = AV_PIX_FMT_YUVJ422P;
 		if (fmt_ctx->oformat->flags & AVFMT_GLOBALHEADER) {
 			vcodec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
@@ -1077,6 +1078,7 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 		st = fctx->streams[0];
 		type = st->codecpar->codec_type;
 		avcodec_parameters_to_context(vctx_raw, st->codecpar);
+		//av_opt_set(vctx_raw->priv_data, "profile", "high422", 0);
 		rs = avcodec_open2(vctx_raw, vcodec, 0);
 		if (rs < 0) {
 			break;
@@ -1140,6 +1142,7 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 				//vframe->format = AV_PIX_FMT_YUV420P;
 				//vframe->width = 1920;
 				//vframe->height = 1080;
+
 
 				convert_frame(inframe, outframe);
 				//frame = vframe;
@@ -1214,7 +1217,10 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
 	AVChannelLayout layout = AV_CHANNEL_LAYOUT_STEREO;
 	AVIOContext *avio_ctx = 0;
 	uint8_t *avio_buffer = 0;
+	//AVOutputFormat outfmt = {0};
+	//outfmt.video_codec = AV_CODEC_ID_H264;
 	do {
+		//rs = avformat_alloc_output_context2(&fmt_ctx, &outfmt, "mp4", 0);
 		rs = avformat_alloc_output_context2(&fmt_ctx, 0, "mp4", 0);
 		if (!fmt_ctx) {
 			spllog(4, "Could not allocate output context\n");
@@ -1239,15 +1245,15 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
 		vcodec_ctx->height = 480;
 		//vcodec_ctx->time_base = (AVRational){1, 25};
 		//vcodec_ctx->framerate = (AVRational){25, 1};
-		vcodec_ctx->time_base = (AVRational){1, 25};
-		vcodec_ctx->framerate = (AVRational){25, 1};
+		vcodec_ctx->time_base = (AVRational){333333, 10000000};
+		vcodec_ctx->framerate = (AVRational){10000000, 333333};
 		vcodec_ctx->gop_size = 10;
 		vcodec_ctx->max_b_frames = 0;
 		//vcodec_ctx->pix_fmt = 1;
 		vcodec_ctx->pix_fmt = AV_PIX_FMT_YUV422P;
 		//av_opt_set(cctx->priv_data, "preset", "slow", 0);
 		//av_opt_set(vcodec_ctx->priv_data, "preset", "slow", 0);
-		av_opt_set(vcodec_ctx->priv_data, "profile", "high422", 0);
+		//av_opt_set(vcodec_ctx->priv_data, "profile", "high422", 0);
 
 		
 
@@ -1263,6 +1269,11 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
 		vstream->time_base = vcodec_ctx->time_base;
 		vstream->codecpar->profile = vcodec_ctx->profile;
 
+		av_opt_set(vcodec_ctx->priv_data, "profile", "high422", 0);
+
+        AVCodecDescriptor const *output_descriptor =
+		    avcodec_descriptor_get(vcodec->id);
+		vcodec_ctx->profile = output_descriptor->profiles->profile;
 		rs = avcodec_open2(vcodec_ctx, vcodec, 0);
 		if (rs < 0) {
 			break;
@@ -1290,6 +1301,7 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
 		output->actx = acodec_ctx;
 #endif
 		/*---------------*/
+		
 		avio_buffer = av_malloc(4096);
 		if (!avio_buffer) {
 			ret = FFWR_AVIO_MALLOC_BUFF;
@@ -1308,6 +1320,7 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
 		write packet audio/video*/
 		AVDictionary *options_header = 0;
 		rs = avformat_write_header(fmt_ctx, &options_header);
+		//rs = avformat_write_header(fmt_ctx, 0);
 		if (rs < 0) {
 			char buf[AV_ERROR_MAX_STRING_SIZE] = {0};
 			av_strerror(rs, buf, sizeof(buf));
