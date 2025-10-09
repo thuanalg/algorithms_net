@@ -1198,8 +1198,10 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 		}
 	} while (nnnn < FRAME_NUBER__);
 	ret  = av_write_trailer(outobj.fmt_ctx);
+	//avformat_free_context(fmt_ctx->pb);
 	return ret;
 }
+
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 int
 ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
@@ -1267,13 +1269,14 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
 		//	break;
 		//}
 		vstream->time_base = vcodec_ctx->time_base;
-		vstream->codecpar->profile = vcodec_ctx->profile;
+		vstream->codecpar->profile = 122;
 
 		// Cấu hình màu (nếu bạn muốn metadata đầy đủ)
 		vcodec_ctx->color_primaries = AVCOL_PRI_BT709;
 		vcodec_ctx->color_trc = AVCOL_TRC_BT709;
 		vcodec_ctx->colorspace = AVCOL_SPC_BT709;
 		vcodec_ctx->chroma_sample_location = AVCHROMA_LOC_LEFT;
+		vcodec_ctx->level = 30;
 
 		// Thiết lập profile
 		av_opt_set(vcodec_ctx->priv_data, "profile", "high422", 0);
@@ -1285,15 +1288,14 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
         AVCodecDescriptor const *output_descriptor =
 		    avcodec_descriptor_get(vcodec->id);
 		vcodec_ctx->profile = 
-		vstream->codecpar->profile = vcodec_ctx->profile;
+		vstream->codecpar->profile = 122;
 
 		rs = avcodec_open2(vcodec_ctx, vcodec, 0);
 		if (rs < 0) {
 			break;
 		}
-		vstream->codecpar->profile =
-		    output_descriptor->profiles->profile;
-		vstream->codecpar->level = 30;
+
+		//vstream->codecpar->level = 30;
 		rs = avcodec_parameters_from_context(
 		    vstream->codecpar, vcodec_ctx);
 		if (rs < 0) {
@@ -1351,6 +1353,16 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
 			ret = FFWR_WRITE_HEADER;
 			break;
 		}
+	} while (0);
+	return ret;
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+int
+ffwr_close_out_fmt(FFWR_OUT_GROUP *output, int nstream)
+{
+	int ret = 0;
+	do {
+
 	} while (0);
 	return ret;
 }
