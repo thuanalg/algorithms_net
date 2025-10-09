@@ -1136,7 +1136,7 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 			if (type == AVMEDIA_TYPE_VIDEO) {
 				cctx = (AVCodecContext *)outobj.vctx;
 
-				outframe->format = cctx->pix_fmt;
+				outframe->format = (int)cctx->pix_fmt;
 				outframe->width = cctx->width;
 				outframe->height = cctx->height;
 				//vframe->format = AV_PIX_FMT_YUV420P;
@@ -1198,7 +1198,7 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 		}
 	} while (nnnn < FRAME_NUBER__);
 	ret  = av_write_trailer(outobj.fmt_ctx);
-	//avformat_free_context(fmt_ctx->pb);
+	ffwr_close_out_fmt(&outobj);
 	return ret;
 }
 
@@ -1358,11 +1358,45 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 int
-ffwr_close_out_fmt(FFWR_OUT_GROUP *output, int nstream)
+ffwr_close_out_fmt(FFWR_OUT_GROUP *output)
 {
 	int ret = 0;
+	AVFormatContext *fmt_ctx = 0;
+	int rs = 0;
+	FILE *fp = 0;
+	AVCodec *vcodec = 0;
+	AVCodec *acodec = 0;
+	AVStream *vstream = 0;
+	AVStream *astream = 0;
+	AVCodecContext *vcodec_ctx = 0;
+	AVCodecContext *acodec_ctx = 0;
+	AVChannelLayout layout = AV_CHANNEL_LAYOUT_STEREO;
+	AVIOContext *avio_ctx = 0;
+	uint8_t *avio_buffer = 0;
+	// AVOutputFormat outfmt = {0};
+	// outfmt.video_codec = AV_CODEC_ID_H264;
 	do {
 
+
+		if (!output) {
+			ret = 1;
+			break;
+		}
+		fmt_ctx = output->fmt_ctx;
+		avio_context_free(&(fmt_ctx->pb));
+		if (output->vctx) {
+			avcodec_free_context(&(output->vctx));
+		}
+		if (output->actx) {
+			avcodec_free_context(&(output->actx));
+		}
+		if (output->fmt_ctx) {
+			avformat_free_context(output->fmt_ctx);
+			output->fmt_ctx = 0;
+		}
+		if (output->fp) {
+			fclose(output->fp);
+		}
 	} while (0);
 	return ret;
 }

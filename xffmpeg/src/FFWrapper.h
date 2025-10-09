@@ -285,7 +285,7 @@ DLL_API_FF_WRAPPER int
 ffwr_open_out_fmt(FFWR_OUT_GROUP *out, int n);
 
 int
-ffwr_close_out_fmt(FFWR_OUT_GROUP *output, int nstream);
+ffwr_close_out_fmt(FFWR_OUT_GROUP *output);
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 
 #ifdef __cplusplus
