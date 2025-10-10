@@ -1197,6 +1197,7 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 			av_frame_unref(inframe);
 		}
 	} while (nnnn < FRAME_NUBER__);
+	spl_milli_sleep(10);
 	ret  = av_write_trailer(outobj.fmt_ctx);
 	ffwr_close_out_fmt(&outobj);
 	return ret;
@@ -1219,6 +1220,8 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
 	AVChannelLayout layout = AV_CHANNEL_LAYOUT_STEREO;
 	AVIOContext *avio_ctx = 0;
 	uint8_t *avio_buffer = 0;
+	//FFStream *ff = 0;
+	//(const FFStream *)st;
 	//AVOutputFormat outfmt = {0};
 	//outfmt.video_codec = AV_CODEC_ID_H264;
 	do {
@@ -1302,6 +1305,7 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
 			break;
 		}
 		vstream->time_base = vcodec_ctx->time_base;
+		avtry_set_profile(vstream, 122);
 
 		output->vctx = vcodec_ctx;
 		/*---------------*/

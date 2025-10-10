@@ -47,6 +47,7 @@ main(int argc, char *argv[])
 	SPL_INPUT_ARG input = {0};
 	snprintf(cfgpath, 1024, "z.cfg");
 	snprintf(input.folder, SPL_PATH_FOLDER, "%s", cfgpath);
+	snprintf(input.id_name, 100, "wrapper");
 	ret = spl_init_log_ext(&input);
 	memset(&inp, 0, sizeof(inp));
 
