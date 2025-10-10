@@ -1167,6 +1167,10 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 			rs = av_frame_get_buffer(outframe, 0);
 			rs = av_frame_make_writable(outframe);
 
+			outfmt_ctx = outobj.fmt_ctx;
+			avtry_set_profile(
+			     outfmt_ctx->streams[0], 122, cctx);
+			
 			rs = avcodec_send_frame(cctx, outframe);
 			if (rs < 0) {
 				int b = 0;
@@ -1180,13 +1184,20 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 				} else {
 					int k = 0;
 				}
+
 				pkt.stream_index = (type == AVMEDIA_TYPE_VIDEO) ? 0 :1 ;
-				
+
+				//outfmt_ctx->streams[0]->time_base =
+				//    (AVRational){1, 30};
+				//cctx->time_base = (AVRational){1, 30};
+
+				av_packet_rescale_ts(&pkt, cctx->time_base,
+				    outfmt_ctx->streams[0]->time_base);
+
 				ret = av_interleaved_write_frame(
 				    outobj.fmt_ctx, &pkt); 
-				//avtry_set_profile(
-				//    outfmt_ctx->streams[pkt.stream_index], 122,
-				//    outobj.vctx);
+
+				spl_avpkt(&pkt);
 				if (ret < 0) { 	
 					break;
 				} else {
@@ -1262,8 +1273,9 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
 		//vcodec_ctx->time_base = (AVRational){1, 25};
 		//vcodec_ctx->framerate = (AVRational){25, 1};
 
-		vcodec_ctx->time_base = (AVRational){333333, 10000000};
-		vcodec_ctx->framerate = (AVRational){10000000, 333333};
+		vcodec_ctx->time_base = (AVRational){1, 30};
+		vcodec_ctx->framerate = (AVRational){30, 1};
+		
 
 		vcodec_ctx->gop_size = 10;
 		vcodec_ctx->max_b_frames = 0;
@@ -1285,6 +1297,7 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
 		//	break;
 		//}
 		vstream->time_base = vcodec_ctx->time_base;
+		//vstream->r_frame_rate
 		vstream->codecpar->profile = 122;
 
 		// Cấu hình màu (nếu bạn muốn metadata đầy đủ)
