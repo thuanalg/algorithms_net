@@ -1050,6 +1050,7 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 	int nnnn = 0;
 	static int64_t vframe_index = 0;
 	static int64_t aframe_index = 0;
+	AVFormatContext *outfmt_ctx = 0;
 	
 	do {
 		vframe = av_frame_alloc(); 
@@ -1180,7 +1181,12 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 					int k = 0;
 				}
 				pkt.stream_index = (type == AVMEDIA_TYPE_VIDEO) ? 0 :1 ;
-				ret = av_interleaved_write_frame(outobj.fmt_ctx, &pkt); 
+				
+				ret = av_interleaved_write_frame(
+				    outobj.fmt_ctx, &pkt); 
+				//avtry_set_profile(
+				//    outfmt_ctx->streams[pkt.stream_index], 122,
+				//    outobj.vctx);
 				if (ret < 0) { 	
 					break;
 				} else {
@@ -1197,8 +1203,12 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 			av_frame_unref(inframe);
 		}
 	} while (nnnn < FRAME_NUBER__);
-	AVFormatContext *outfmt_ctx = outobj.fmt_ctx;
-	avtry_set_profile(outfmt_ctx->streams[0], 122, outobj.vctx);
+	outfmt_ctx = outobj.fmt_ctx;
+	if (outfmt_ctx && outfmt_ctx->streams[0]) {
+		avtry_set_profile(
+		    outfmt_ctx->streams[0], 122, outobj.vctx);
+	}
+	//spl_milli_sleep(10);
 	ret  = av_write_trailer(outobj.fmt_ctx);
 	ffwr_close_out_fmt(&outobj);
 	return ret;
@@ -1400,7 +1410,7 @@ ffwr_close_out_fmt(FFWR_OUT_GROUP *output)
 			avcodec_free_context(&(output->actx));
 		}
 		if (output->fmt_ctx) {
-			avformat_free_context(output->fmt_ctx);
+			//avformat_free_context(output->fmt_ctx);
 			output->fmt_ctx = 0;
 		}
 		if (output->fp) {
