@@ -1197,7 +1197,8 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 			av_frame_unref(inframe);
 		}
 	} while (nnnn < FRAME_NUBER__);
-	spl_milli_sleep(10);
+	AVFormatContext *outfmt_ctx = outobj.fmt_ctx;
+	avtry_set_profile(outfmt_ctx->streams[0], 122, outobj.vctx);
 	ret  = av_write_trailer(outobj.fmt_ctx);
 	ffwr_close_out_fmt(&outobj);
 	return ret;
@@ -1243,15 +1244,17 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
 		
 		vcodec_ctx = avcodec_alloc_context3(vcodec);
 
-		//vcodec_ctx->codec_id = AV_CODEC_ID_H264;
+		vcodec_ctx->codec_id = AV_CODEC_ID_H264;
 		vcodec_ctx->bit_rate = 400000;
 		/* Golden rate 1:1.618 */
 		vcodec_ctx->width = 640;
 		vcodec_ctx->height = 480;
 		//vcodec_ctx->time_base = (AVRational){1, 25};
 		//vcodec_ctx->framerate = (AVRational){25, 1};
+
 		vcodec_ctx->time_base = (AVRational){333333, 10000000};
 		vcodec_ctx->framerate = (AVRational){10000000, 333333};
+
 		vcodec_ctx->gop_size = 10;
 		vcodec_ctx->max_b_frames = 0;
 		//vcodec_ctx->pix_fmt = 1;
@@ -1293,6 +1296,8 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
 		vcodec_ctx->profile = 
 		vstream->codecpar->profile = 122;
 
+		
+
 		rs = avcodec_open2(vcodec_ctx, vcodec, 0);
 		if (rs < 0) {
 			break;
@@ -1305,8 +1310,8 @@ ffwr_open_out_fmt(FFWR_OUT_GROUP *output, int nstream)
 			break;
 		}
 		vstream->time_base = vcodec_ctx->time_base;
-		avtry_set_profile(vstream, 122);
-
+		//avtry_set_profile(vstream, 122);
+		//avtry_set_profile(vstream, 122, vcodec_ctx);
 		output->vctx = vcodec_ctx;
 		/*---------------*/
 #if 0

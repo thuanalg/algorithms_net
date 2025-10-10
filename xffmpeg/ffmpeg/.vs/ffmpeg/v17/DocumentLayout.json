@@ -37,8 +37,7 @@
               "RelativeToolTip": "..\\..\\..\\..\\ProgramFiles\\msys64\\usr\\local\\include\\libavformat\\avformat.h",
               "ViewState": "AgIAABUIAAAAAAAAAAASwCkIAAAiAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-10-09T11:49:14.847Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-09T11:49:14.847Z"
             },
             {
               "$type": "Document",
@@ -48,8 +47,7 @@
               "ToolTip": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\include\\stdint.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAjAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-09-27T08:40:30.832Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-27T08:40:30.832Z"
             },
             {
               "$type": "Document",
@@ -61,8 +59,7 @@
               "RelativeToolTip": "..\\src\\audio_video_record.c",
               "ViewState": "AgIAACEAAAAAAAAAAAAAADEAAAApAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
-              "WhenOpened": "2025-09-22T13:29:45.462Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-22T13:29:45.462Z"
             },
             {
               "$type": "Document",
@@ -74,8 +71,7 @@
               "RelativeToolTip": "..\\src\\FFWrapper.h",
               "ViewState": "AgIAAAABAAAAAAAAAAASwCABAAA9AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-09-22T10:47:33.113Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-22T10:47:33.113Z"
             },
             {
               "$type": "Document",
@@ -85,7 +81,7 @@
               "RelativeDocumentMoniker": "..\\src\\FFWrapper.c",
               "ToolTip": "D:\\x\\algorithms_net\\xffmpeg\\src\\FFWrapper.c",
               "RelativeToolTip": "..\\src\\FFWrapper.c",
-              "ViewState": "AgIAAAAFAAAAAAAAAAASwBsFAAAiAAAAAAAAAA==",
+              "ViewState": "AgIAAAkFAAAAAAAAAAASwB0FAAAEAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
               "WhenOpened": "2025-09-19T07:56:08.811Z",
               "EditorCaption": ""

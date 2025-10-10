@@ -6,10 +6,13 @@
       "AbsoluteMoniker": "D:0:0:{7D309857-B432-4F81-806B-AD9DC068179F}|FFWrapper\\FFWrapper.vcxproj|D:\\x\\algorithms_net\\xffmpeg\\src\\FFWrapper.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7D309857-B432-4F81-806B-AD9DC068179F}|FFWrapper\\FFWrapper.vcxproj|D:\\x\\algorithms_net\\xffmpeg\\src\\FFWrapper.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{7D309857-B432-4F81-806B-AD9DC068179F}|FFWrapper\\FFWrapper.vcxproj|D:\\PROGRAMFILES\\MSYS64\\USR\\LOCAL\\INCLUDE\\LIBAVFORMAT\\AVFORMAT.H||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{D7E6B55F-FC99-4732-BAA7-C0647E78B459}|audio_video_record\\audio_video_record.vcxproj|D:\\x\\algorithms_net\\xffmpeg\\src\\audio_video_record.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7D309857-B432-4F81-806B-AD9DC068179F}|FFWrapper\\FFWrapper.vcxproj|D:\\x\\algorithms_net\\xffmpeg\\src\\FFWrapper.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{7D309857-B432-4F81-806B-AD9DC068179F}|FFWrapper\\FFWrapper.vcxproj|C:\\PROGRAM FILES\\MICROSOFT VISUAL STUDIO\\2022\\COMMUNITY\\VC\\TOOLS\\MSVC\\14.44.35207\\INCLUDE\\STDINT.H||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
@@ -22,11 +25,23 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 1,
+              "Title": "avformat.h",
+              "DocumentMoniker": "D:\\ProgramFiles\\msys64\\usr\\local\\include\\libavformat\\avformat.h",
+              "RelativeDocumentMoniker": "..\\..\\..\\..\\ProgramFiles\\msys64\\usr\\local\\include\\libavformat\\avformat.h",
+              "ToolTip": "D:\\ProgramFiles\\msys64\\usr\\local\\include\\libavformat\\avformat.h",
+              "RelativeToolTip": "..\\..\\..\\..\\ProgramFiles\\msys64\\usr\\local\\include\\libavformat\\avformat.h",
+              "ViewState": "AgIAABUIAAAAAAAAAAASwCkIAAAiAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-10-09T11:49:14.847Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
               "Title": "stdint.h",
               "DocumentMoniker": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\include\\stdint.h",
               "ToolTip": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\include\\stdint.h",
@@ -42,23 +57,21 @@
               "RelativeDocumentMoniker": "..\\src\\audio_video_record.c",
               "ToolTip": "D:\\x\\algorithms_net\\xffmpeg\\src\\audio_video_record.c",
               "RelativeToolTip": "..\\src\\audio_video_record.c",
-              "ViewState": "AgIAACEAAAAAAAAAAAAiwEMAAAASAAAAAAAAAA==",
+              "ViewState": "AgIAACEAAAAAAAAAAAAAADEAAAApAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
-              "WhenOpened": "2025-09-22T13:29:45.462Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-22T13:29:45.462Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "FFWrapper.h",
               "DocumentMoniker": "D:\\x\\algorithms_net\\xffmpeg\\src\\FFWrapper.h",
               "RelativeDocumentMoniker": "..\\src\\FFWrapper.h",
               "ToolTip": "D:\\x\\algorithms_net\\xffmpeg\\src\\FFWrapper.h",
               "RelativeToolTip": "..\\src\\FFWrapper.h",
-              "ViewState": "AgIAAAABAAAAAAAAAAASwBkBAAAQAAAAAAAAAA==",
+              "ViewState": "AgIAAAABAAAAAAAAAAASwCABAAA9AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-09-22T10:47:33.113Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-22T10:47:33.113Z"
             },
             {
               "$type": "Document",
@@ -68,7 +81,7 @@
               "RelativeDocumentMoniker": "..\\src\\FFWrapper.c",
               "ToolTip": "D:\\x\\algorithms_net\\xffmpeg\\src\\FFWrapper.c",
               "RelativeToolTip": "..\\src\\FFWrapper.c",
-              "ViewState": "AgIAAKUEAAAAAAAAAAASwK8EAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAAkFAAAAAAAAAAASwB0FAAAEAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
               "WhenOpened": "2025-09-19T07:56:08.811Z",
               "EditorCaption": ""
