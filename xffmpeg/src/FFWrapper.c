@@ -1578,4 +1578,7 @@ avio_open2(&fmt_ctx->pb, "d:/output.mp4", AVIO_FLAG_WRITE, NULL, NULL);
 avformat_alloc_output_context2(&fmt_ctx, NULL, "mpegts", NULL);
 avio_open2(&fmt_ctx->pb, "udp://127.0.0.1:1234?pkt_size=1316", AVIO_FLAG_WRITE,
     NULL, NULL);
+Invalid NAL unit size
+Error splitting the input into
+Sample size %u is too large
 #endif
