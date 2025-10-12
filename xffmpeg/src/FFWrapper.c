@@ -1073,7 +1073,7 @@ ffwr_open_in_fmt(FFWR_FMT_DEVICES *inp)
 		if (rs < 0) {
 			break;
 		}
-		if (avformat_find_stream_info(fctx, NULL) < 0) {
+		if ((fctx, NULL) < 0) {
 			break;
 		}
 		st = fctx->streams[0];
@@ -1564,13 +1564,7 @@ convert_audio_frame(AVFrame *src, AVFrame *dst)
 }
 #else
 
-convert_audio_frame(src, dst);
-| Chức năng | Video                 | Audio                           |
-| --------- | --------------------- | ------------------------------- |
-| Thư viện  | libswscale            | libswresample                   |
-| Hàm chính | `sws_scale()`         | `swr_convert()`                 |
-| Context   | `SwsContext`          | `SwrContext`                    |
-| Mục đích  | Pixel format / Resize | Sample format / Rate / Channels |
+
     
 avformat_alloc_output_context2(&fmt_ctx, NULL, "mp4", "d:/output.mp4");
 avio_open2(&fmt_ctx->pb, "d:/output.mp4", AVIO_FLAG_WRITE, NULL, NULL);
