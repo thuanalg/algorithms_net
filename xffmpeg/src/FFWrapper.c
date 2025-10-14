@@ -1554,8 +1554,7 @@ convert_audio_frame(AVFrame *src, AVFrame *dst)
 	// ✅ Cập nhật số mẫu thực tế đầu ra
 	dst->nb_samples = ret;
 
-	// 🧹 Giải phóng context
-	swr_free(&swr_ctx);
+
 
 	printf("✅ Audio convert done: %d samples -> %d samples\n",
 	    src->nb_samples, dst->nb_samples);
