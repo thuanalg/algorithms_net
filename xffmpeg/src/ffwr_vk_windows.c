@@ -3,12 +3,19 @@
 #include <simplelog.h>
 
 #ifndef UNIX_LINUX
+#include <windows.h>
+HWND gb_sdlWindow = 0;
+#else
+#endif 
+
+#ifndef UNIX_LINUX
 int WinMain
 #else
 int main
 #endif
 (int argc, char *argv[]) {	
 	int ret = 0;
+	SDL_SysWMinfo info = {0};
 	SDL_Window *win = 0;
 	int running = 1;
 	SDL_Event e = {0};
@@ -37,7 +44,8 @@ int main
         600,                      // height
         SDL_WINDOW_SHOWN           // flags
     );
-
+	SDL_GetWindowWMInfo(sdl_window, &info);
+	gb_sdlWindow = info.info.win.window;
     if (!win) {
         spllog(4, "SDL_CreateWindow Error: %s\n", SDL_GetError());
         SDL_Quit();
