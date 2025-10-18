@@ -41,7 +41,7 @@
               "RelativeDocumentMoniker": "..\\..\\..\\..\\reserach\\simplelog-topic\\include\\simplelog.h",
               "ToolTip": "D:\\reserach\\simplelog-topic\\include\\simplelog.h",
               "RelativeToolTip": "..\\..\\..\\..\\reserach\\simplelog-topic\\include\\simplelog.h",
-              "ViewState": "AgIAABgAAAAAAAAAAAAAACgAAAASAAAAAAAAAA==",
+              "ViewState": "AgIAAAIBAAAAAAAAAAAAAM8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2025-10-16T14:37:11.76Z",
               "EditorCaption": ""
@@ -56,8 +56,7 @@
               "RelativeToolTip": "..\\src\\udp_server.c",
               "ViewState": "AgIAAAUBAAAAAAAAAAAmwBcBAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
-              "WhenOpened": "2025-10-15T05:42:09.229Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-15T05:42:09.229Z"
             },
             {
               "$type": "Document",
@@ -91,8 +90,7 @@
               "RelativeToolTip": "..\\src\\audio_video_record.c",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAATAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
-              "WhenOpened": "2025-09-22T13:29:45.462Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-22T13:29:45.462Z"
             },
             {
               "$type": "Document",
