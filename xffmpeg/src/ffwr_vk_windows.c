@@ -1,4 +1,5 @@
 #include <SDL.h>
+#include <SDL2/SDL_syswm.h>
 #include <stdio.h>
 #include <simplelog.h>
 #include <libavutil/avassert.h>
@@ -13,6 +14,7 @@
 #include <simplelog.h>
 #include <libavdevice/avdevice.h>
 #include <libavformat/avformat.h>
+#include <pthread.h>
 
 #ifndef UNIX_LINUX
 #include <windows.h>
@@ -23,7 +25,7 @@ HWND gb_sdlWindow = 0;
 
 #ifndef __FFWR_INSTREAM_DEF__
 #define __FFWR_INSTREAM_DEF__
-int ffwr_open_input(FFWR_INSTREAM *pinput, char *name, int mode);
+
 
 typedef struct __FFWR_INSTREAM__ {
     AVFormatContext *fmt_ctx;
@@ -45,6 +47,9 @@ typedef struct __FFWR_INSTREAM__ {
     SwrContext *a_scale;    
 
 } FFWR_INSTREAM;
+#endif
+
+int ffwr_open_input(FFWR_INSTREAM *pinput, char *name, int mode);
 
 int ffwr_open_input(FFWR_INSTREAM *pinput, char *name, int mode) {
     int ret = 0;
@@ -58,13 +63,14 @@ int ffwr_open_input(FFWR_INSTREAM *pinput, char *name, int mode) {
             spllog(4, "--");
             break;
         }
+#if 0        
         iformat = av_find_input_format("dshow");
         if(!iformat) {
             ret = 1;
             spllog(4, "--");
             break;
         }
-
+#endif
 		av_dict_set(&options, "rtbufsize", "50M", 0);       
 
         result = avformat_open_input(&(pinput->fmt_ctx), 
@@ -175,19 +181,20 @@ int ffwr_open_input(FFWR_INSTREAM *pinput, char *name, int mode) {
     } while(0);
     return ret;
 }
-#endif
 
+void *demux_routine(void *arg);
 #ifndef UNIX_LINUX
-int WinMain
+int WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 #else
-int main
+int main (int argc, char *argv[])
 #endif
-(int argc, char *argv[]) {	
+{	
 	int ret = 0;
 	SDL_SysWMinfo info = {0};
 	SDL_Window *win = 0;
 	int running = 1;
 	SDL_Event e = {0};
+    pthread_t thread_id = 0;
 	
 	char cfgpath[1024] = {0};
 	SPL_INPUT_ARG input = {0};
@@ -205,6 +212,9 @@ int main
         return 1;
     }
 
+    ret = pthread_create(&thread_id, 0,
+                                  demux_routine, 0);
+
     win = SDL_CreateWindow(
         "SDL2 Window",            // title
         SDL_WINDOWPOS_CENTERED,   // x
@@ -213,7 +223,7 @@ int main
         600,                      // height
         SDL_WINDOW_SHOWN           // flags
     );
-	SDL_GetWindowWMInfo(sdl_window, &info);
+	SDL_GetWindowWMInfo(win, &info);
 	gb_sdlWindow = info.info.win.window;
     if (!win) {
         spllog(4, "SDL_CreateWindow Error: %s\n", SDL_GetError());
@@ -248,5 +258,12 @@ int main
     SDL_DestroyWindow(win);
     SDL_Quit();
 	spl_finish_log();
+    return 0;
+}
+FFWR_INSTREAM gb_instream;
+void *demux_routine(void *arg) {
+    ffwr_open_input(&gb_instream, 
+        " tcp://127.0.0.1:12345", 
+        0);
     return 0;
 }
