@@ -24,6 +24,9 @@
 HWND gb_sdlWindow = 0;
 #else
 #endif 
+
+#define MEMORY_PADDING   2
+
 typedef enum {
     FFWR_FRAME,
     FFWR_PACKET,
@@ -43,17 +46,6 @@ typedef struct {
     int type;    
 } FFWR_SIZE_TYPE;
 
-/*
-FFWR_SIZE_TYPE *detect = 0;
-detect = (FFWR_SIZE_TYPE *) gen->data;
-int count = 0;
-count = detect->total;
-while(count < gen->pl) {
-    detect = (FFWR_SIZE_TYPE*)((char*)detect + detect->total);
-    count += detect->total;
-}
-*/
-
 typedef struct __FFWR_AvFrame__ {
     FFWR_SIZE_TYPE tt_sz;
     int w;
@@ -65,6 +57,8 @@ typedef struct __FFWR_AvFrame__ {
     int len[AV_NUM_DATA_POINTERS + 1]; 
     uint8_t data[0];
 } FFWR_AvFrame;
+
+
 //int ffwr_mv2_rawframe(FFWR_AvFrame **dst, AVFrame *src);
 FFWR_AvFrame *gb_transfer_avframe = 0;
 
@@ -123,21 +117,11 @@ int ffwr_open_input(FFWR_INSTREAM *pinput, char *name, int mode) {
             break;
         }
 
-    //pinput->fmt_ctx->interrupt_callback.callback = decode_interrupt_cb;
-    //pinput->fmt_ctx->interrupt_callback.opaque = is;
     if (!av_dict_get(options, "scan_all_pmts", NULL, AV_DICT_MATCH_CASE)) {
         av_dict_set(&options, "scan_all_pmts", "1", AV_DICT_DONT_OVERWRITE);
         scan_all_pmts_set = 1;
     }        
-#if 0        
-        iformat = av_find_input_format("dshow");
-        if(!iformat) {
-            ret = 1;
-            spllog(4, "--");
-            break;
-        }
-#endif
-		//av_dict_set(&options, "rtbufsize", "50M", 0);       
+    
 
         result = avformat_open_input(&(pinput->fmt_ctx), "tcp://127.0.0.1:12345",  iformat, &options);
 
@@ -265,8 +249,7 @@ int main (int argc, char *argv[])
 	int running = 1;
 	SDL_Event e = {0};
     pthread_t thread_id = 0;
-    FFWR_AvFrame *p = 0, *p2 = 0;
-    int frame_ready = 0;
+    FFWR_AvFrame *p = 0;
     SDL_Texture *gb_texture = NULL;
     FFWR_SIZE_TYPE *it = 0;
      int step = 0;
@@ -355,113 +338,77 @@ int main (int argc, char *argv[])
     while (running) {
         it = 0;
         p = 0;
-        frame_ready = 0;
+        
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) {
                 running = 0;
             }
         }
-
-#if 0
-        SDL_SetRenderDrawColor(ren, 0, 128, 255, 255); // blue
-        SDL_RenderClear(ren);
-        SDL_RenderPresent(ren);
-#endif
-       
-        if(gb_frame->pl < 1) {
+        if(gb_frame->pl < 1) 
+        {
             pthread_mutex_lock(&gb_FRAME_MTX);
             do {           
-                if(!gb_tsplanVFrame) {
-                    break;
-                }
-                if(!gb_frame) {
-                    break;
-                }  
-                if (gb_tsplanVFrame->pl <= gb_tsplanVFrame->pc) {
+                if (gb_tsplanVFrame->pl <= gb_tsplanVFrame->pc)
+                {
                     break;
                 }          
-               
-                if(gb_tsplanVFrame->pl > 0) {
-                    memcpy(gb_frame->data + gb_frame->pl, 
-                        gb_tsplanVFrame->data + gb_tsplanVFrame->pc,
-                        gb_tsplanVFrame->pl - gb_tsplanVFrame->pc);
+                if(step < 1) 
+                {
+                    if(gb_tsplanVFrame->pl > 0) 
+                    {
+                        step++;
+                        gb_frame->pl = gb_frame->pc = 0;
+                        gb_tsplanVFrame->pl = gb_tsplanVFrame->pc = 0;
+                        break;
+                    }
+                }               
+                memcpy(gb_frame->data + gb_frame->pl, 
+                    gb_tsplanVFrame->data + gb_tsplanVFrame->pc,
+                    gb_tsplanVFrame->pl - gb_tsplanVFrame->pc);
 
-                    gb_frame->pl += gb_tsplanVFrame->pl - gb_tsplanVFrame->pc;
-                    gb_tsplanVFrame->pl = gb_tsplanVFrame->pc = 0;
-                    frame_ready = 1;
-                }
-                
-            
+                gb_frame->pl += gb_tsplanVFrame->pl - gb_tsplanVFrame->pc;
+                gb_tsplanVFrame->pl = gb_tsplanVFrame->pc = 0;
+
             } while(0);
             pthread_mutex_unlock(&gb_FRAME_MTX);
         }
-#if 1
-        if(step < 4) {
-            step++;
+
+
+        if(gb_frame->pl <= gb_frame->pc) 
+        {
             gb_frame->pl = gb_frame->pc = 0;
-        }
-        if(gb_frame->pl <= gb_frame->pc) {
-            gb_frame->pl = gb_frame->pc = 0;
-            continue;
-        } else {
-            it = (FFWR_SIZE_TYPE *) (gb_frame->data + gb_frame->pc);
-            frame_ready = 1;
-        }
-       
-        if(!frame_ready) {
             SDL_Delay(10);
             continue;
-        }
+        } 
 
+        it = (FFWR_SIZE_TYPE *) (gb_frame->data + gb_frame->pc);
+        p = (FFWR_AvFrame *)(gb_frame->data + gb_frame->pc);
+       
         if(!gb_texture) {
             gb_texture = SDL_CreateTexture( ren,
                 SDL_PIXELFORMAT_IYUV,
                 SDL_TEXTUREACCESS_STREAMING,
-                640,
-                480);
+                640, 480);
         }
         if(!gb_texture) {
             exit(1);
         }
-        p = (FFWR_AvFrame *)(gb_frame->data + gb_frame->pc);
-#if 1        
+        
         SDL_UpdateYUVTexture( gb_texture, NULL,
             p->data + p->pos[0], p->linesize[0],
             p->data + p->pos[1], p->linesize[1],
             p->data + p->pos[2], p->linesize[2]
            
         );
-#else
-        //set_sdl_yuv_conversion_mode(gb_dst_draw);
-        spl_vframe(gb_dst_draw);
-        SDL_UpdateYUVTexture( gb_texture, NULL,
-            gb_dst_draw->data[0], gb_dst_draw->linesize[0],
-            gb_dst_draw->data[1], gb_dst_draw->linesize[1],
-            gb_dst_draw->data[2], gb_dst_draw->linesize[2]
-        );        
-#endif        
+      
         spllog(1, "pc render: %d, pts: %d", gb_frame->pc, p->pts);
         SDL_RenderClear(ren);
         SDL_RenderCopy(ren, gb_texture, NULL, NULL);
         SDL_RenderPresent(ren);
-        if(it)
+        if(it) {
             gb_frame->pc += it->total;
+        }
         SDL_Delay(30);
-        
-
-        //gb_dst_draw->linesize[0] = 0;
-        //av_frame_unref(gb_dst_draw);
-        //int tex_w = 0, tex_h = 0;
-        //Uint32 tex_format;
-        //int tex_access;
-//
-        //if (SDL_QueryTexture(gb_texture, &tex_format, &tex_access, &tex_w, &tex_h) == 0) {
-        //    spllog(1, "Texture info: %dx%d, format=0x%x, access=%d\n",
-        //           tex_w, tex_h, tex_format, tex_access);
-        //} else {
-        //    spllog(1, "SDL_QueryTexture failed: %s\n", SDL_GetError());
-        //}
-#endif        
     }
 
     SDL_DestroyRenderer(ren);
@@ -517,11 +464,8 @@ void *demux_routine(void *arg) {
 		    	break;
 		    } 
 
-            //av_frame_copy(gb_instream.vframe, tmp);
-            //av_frame_copy_props(gb_instream.vframe, tmp);    
             convert_frame(tmp, gb_instream.vframe);
 
-            //av_frame_copy_props(gb_instream.vframe, tmp);    
 
             spl_vframe(gb_instream.vframe);
             if(!ffwr_vframe) {
@@ -530,7 +474,6 @@ void *demux_routine(void *arg) {
             else {
                 ffwr_update_vframe(&ffwr_vframe, gb_instream.vframe);
             }
-            //ffwr_mv2_rawframe(&gb_transfer_avframe, gb_instream.vframe);
             pthread_mutex_lock(&gb_FRAME_MTX);
             do {
                 if(!gb_tsplanVFrame) {
@@ -542,231 +485,41 @@ void *demux_routine(void *arg) {
                 if(ffwr_vframe->tt_sz.total < 1) {
                     break;
                 }    
-                if(gb_tsplanVFrame->range > gb_tsplanVFrame->pl + ffwr_vframe->tt_sz.total) {                      
+                if(gb_tsplanVFrame->range > 
+                    gb_tsplanVFrame->pl + ffwr_vframe->tt_sz.total) {                      
                     memcpy(gb_tsplanVFrame->data + gb_tsplanVFrame->pl, 
                         ffwr_vframe, 
                         ffwr_vframe->tt_sz.total);
                     gb_tsplanVFrame->pl += ffwr_vframe->tt_sz.total;
-                    spllog(1, "gb_tsplanVFrame->pl: %d", gb_tsplanVFrame->pl);
+                    spllog(1, "gb_tsplanVFrame->pl: %d", 
+                        gb_tsplanVFrame->pl);
                 } else {
-                    spllog(1, "over range");
+                    gb_tsplanVFrame->pl = 0;
+                    gb_tsplanVFrame->pc = 0;
                 }
-                    //get_buff_size(&gb_tsplanVFrame, gb_instream.vframe);
 
-                    //av_frame_copy(gb_src_draw, gb_instream.vframe);
-                    //av_frame_copy_props(gb_src_draw, gb_instream.vframe);
-                    //gb_src_draw->pts = gb_instream.vframe->pts;
             } while(0);
             pthread_mutex_unlock(&gb_FRAME_MTX);
-            //spl_vframe(gb_instream.vframe);
             av_frame_unref(tmp);
             av_frame_unref(gb_instream.vframe);
         }   
         else if (gb_instream.pkt.stream_index == 1) {
-            result = avcodec_send_packet(gb_instream.a_cctx, &(gb_instream.pkt));
+            result = avcodec_send_packet(
+                gb_instream.a_cctx, &(gb_instream.pkt));
             if(result < 0) {
                 spllog(1, "v_cctx: 0x%p", gb_instream.a_cctx);
                 break;
             }
-		    result = avcodec_receive_frame(gb_instream.a_cctx, gb_instream.a_frame);
+		    result = avcodec_receive_frame(
+                gb_instream.a_cctx, gb_instream.a_frame);
 		    if (result < 0) {
 		    	break;
 		    }  
-            //spl_vframe(gb_instream.a_frame); 
             av_frame_unref(gb_instream.a_frame);          
         }    
     }
     
     return 0;
-}
-#define MEMORY_PADDING   2
-
-int get_buff_size(ffwr_gen_data_st **dst, AVFrame *src) {
-    FFWR_AvFrame *p = 0;
-    int ret = 0;
-    int len = 0;
-    int i = 0;
-    int k = 0;
-    int m = 0;
-    ffwr_gen_data_st *tmp = 0;
-    int total = 0;
-    int t = 0;
-
-    do {
-        if(!src) {
-            ret = 1;
-            break;
-        }
-        if(!dst) {
-            ret = 1;
-            break;
-        }
-        tmp = *dst;
-        if(src->format == 0) {
-            /* AV_PIX_FMT_YUV420P */
-            /* YUV, Y: luminance, U/chrominance: Color (Cr), V/chrominance: Color (Cb)*/
-            while(src->linesize[i]) {
-                k = src->linesize[i];
-                m = (i == 0) ? src->height : ((src->height)/2);
-                len += k * (m + MEMORY_PADDING);
-                ++i;
-            }
-            total = sizeof(ffwr_gen_data_st) + sizeof(FFWR_FRAME);
-            total += len + PADDING_MEMORY;
-            if(!tmp) {
-                int nbe = 10 * total;
-                tmp = (ffwr_gen_data_st*) malloc(nbe);
-                if(!tmp) {
-                    exit(1);
-                }
-                memset(tmp, 0, nbe);
-                tmp->total = nbe;
-                tmp->range = nbe - sizeof(ffwr_gen_data_st);
-                //p = (FFWR_AvFrame *) tmp->data;
-            } else {
-                if( (tmp->range - tmp->pl) < total) {
-                    int add = total * 7 + tmp->total;
-                    tmp = (ffwr_gen_data_st*) realloc(tmp, add);
-                    if(!tmp) {
-                        exit(1);
-                    }      
-                    tmp->total = add;
-                    tmp->range = add - sizeof(ffwr_gen_data_st);
-                    //p = (FFWR_AvFrame *) tmp->data;                                  
-                }
-            }
-            p = (FFWR_AvFrame *) (tmp->data + tmp->pl);  
-            p->tt_sz.type = FFWR_FRAME;
-            p->tt_sz.total = len + sizeof(FFWR_FRAME);
-            p->w = src->width;
-            p->h = src->height;
-            p->fmt = src->format;
-           
-            //av_get_pix_fmt_name(p->fmt);
-            //while(i < AV_NUM_DATA_POINTERS) {
-            //    p->linesize[i] = 0;
-            //    ++i;
-            //}
-
-            memset(p->linesize, 0, sizeof(p->linesize));
-            memset(p->pos, 0, sizeof(p->pos));
-            i = 0;
-            len = 0;
-            while(src->linesize[i] && i < AV_NUM_DATA_POINTERS) 
-            {
-                p->pos[i] = t;
-                p->linesize[i] = src->linesize[i];
-
-                k = src->linesize[i];
-                m = (i == 0) ? src->height : ((src->height)/2);
-                len = k * (m + MEMORY_PADDING);    
-
-                memcpy( p->data + p->pos[i], src->data[i], k * m);
-                t += len;
-                ++i;
-            }   
-            tmp->pl += p->tt_sz.total;
-            *dst = tmp;         
-            break;            
-        }
-        if(src->format == 4) {
-#if 0            
-            /* AV_PIX_FMT_YUV420P */
-            /* YUV, Y: luminance, U/chrominance: Color (Cr), V/chrominance: Color (Cb)*/
-            while(src->linesize[i]) {
-                k = (i == 0) ? src->linesize[i] : (src->linesize[i]/2);
-                len += src->height * k;
-                ++i;
-            }
-            total = sizeof(ffwr_gen_data_st) + sizeof(FFWR_FRAME);
-            total += len + PADDING_MEMORY;
-            if(!tmp) {
-                tmp = (ffwr_gen_data_st*) malloc(total);
-                if(!tmp) {
-                    exit(1);
-                }
-                memset(tmp, 0, total);
-                tmp->total = total;
-                tmp->range = total - sizeof(ffwr_gen_data_st);
-                //p = (FFWR_AvFrame *) tmp->data;
-            } else {
-                if(tmp->total < total) {
-                    tmp = (ffwr_gen_data_st*) realloc(tmp, total);
-                    if(!tmp) {
-                        exit(1);
-                    }      
-                    tmp->total = total;
-                    tmp->range = total - sizeof(ffwr_gen_data_st);
-                    //p = (FFWR_AvFrame *) tmp->data;                                  
-                }
-            }
-            p = (FFWR_AvFrame *) tmp->data;  
-            tmp->pc = 0;
-            tmp->pl = sizeof(FFWR_FRAME) + len;
-            tmp->type = FFWR_FRAME;
-            p->total = len + sizeof(FFWR_FRAME);
-            p->w = src->width;
-            p->h = src->height;
-            p->fmt = src->format;
-            i = 0;
-            //av_get_pix_fmt_name(p->fmt);
-            while(src->linesize[i] && i < AV_NUM_DATA_POINTERS) 
-            {
-                p->linesize[i] = src->linesize[i];
-                k = (i == 0) ? src->linesize[i] : (src->linesize[i]/2);
-                k *= src->height;
-                p->len[i] = k;               
-                memcpy( p->data + t, src->data[i], p->len[i]);
-                t += p->len[i];
-                ++i;
-            }   
-            while(i < AV_NUM_DATA_POINTERS) {
-                p->linesize[i] = 0;
-                ++i;
-            }
-            *dst = tmp;         
-            break;
-#endif            
-        }
-    } while(0);
-
-    return ret;
-}
-
-#if 0
-    if (frame_ready) {
-        SDL_UpdateYUVTexture(
-            texture,
-            NULL,
-            frame->data[0], frame->linesize[0],
-            frame->data[1], frame->linesize[1],
-            frame->data[2], frame->linesize[2]
-        );
-
-        SDL_RenderClear(ren);
-        SDL_RenderCopy(ren, texture, NULL, NULL);
-        SDL_RenderPresent(ren);
-
-        frame_ready = 0;
-    } else {
-        SDL_Delay(10);
-    }
-#endif
-
-static void set_sdl_yuv_conversion_mode(AVFrame *frame)
-{
-#if SDL_VERSION_ATLEAST(2,0,8)
-    SDL_YUV_CONVERSION_MODE mode = SDL_YUV_CONVERSION_AUTOMATIC;
-    if (frame && (frame->format == AV_PIX_FMT_YUV420P || frame->format == AV_PIX_FMT_YUYV422 || frame->format == AV_PIX_FMT_UYVY422)) {
-        if (frame->color_range == AVCOL_RANGE_JPEG)
-            mode = SDL_YUV_CONVERSION_JPEG;
-        else if (frame->colorspace == AVCOL_SPC_BT709)
-            mode = SDL_YUV_CONVERSION_BT709;
-        else if (frame->colorspace == AVCOL_SPC_BT470BG || frame->colorspace == AVCOL_SPC_SMPTE170M)
-            mode = SDL_YUV_CONVERSION_BT601;
-    }
-    SDL_SetYUVConversionMode(mode); /* FIXME: no support for linear transfer */
-#endif
 }
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
@@ -916,6 +669,7 @@ int ffwr_fill_vframe(FFWR_AvFrame *dst, AVFrame *src) {
         i = 0;
         memset(dst->pos, 0, sizeof(dst->pos));
         memset(dst->len, 0, sizeof(dst->len));
+        memset(dst->linesize, 0, sizeof(dst->linesize));
         while(src->linesize[i] && i < AV_NUM_DATA_POINTERS) {
             dst->linesize[i] = src->linesize[i];
             ++i;
@@ -928,7 +682,8 @@ int ffwr_fill_vframe(FFWR_AvFrame *dst, AVFrame *src) {
                 m = (i == 0) ? src->height : ((src->height)/2);
                 dst->len[i] = k * m;
                 pos += k * (m + MEMORY_PADDING);
-                memcpy(dst->data + dst->pos[i], src->data[i], dst->len[i]);
+                memcpy(dst->data + dst->pos[i], 
+                    src->data[i], dst->len[i]);
                 ++i;
             }  
             i = 0;
@@ -979,42 +734,4 @@ int ffwr_create_rawframe(FFWR_AvFrame **dst, AVFrame *src) {
     return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
-#if 0
-int ffwr_mv2_rawframe(FFWR_AvFrame **dst, AVFrame *src) {
-    int ret = 0;
-    FFWR_AvFrame *tmp = 0;
-    int i = 0;
-    unsigned char kond = 0x01;
-    do {
-        if(!dst) {
-            ret = 1;
-            break;
-        }
-        tmp = *dst;
-        if(!tmp) {
 
-        }
-
-        if(tmp) {
-            kond = 0x01;
-            kond &= (tmp->fmt == src->format);
-            kond &= (tmp->w == src->width);
-            kond &= (tmp->h == src->height);
-            if(kond) {
-                for(i = 0; i < AV_NUM_DATA_POINTERS; ++i) {
-                    if(!tmp->linesize[i]) {
-                        break;
-                    }
-                    memcpy(tmp->data + tmp->pos[i], 
-                        src->data[i], 
-                        tmp->pos[i + 1] - tmp->pos[i]);
-                }
-                break;
-            }
-        }
-        *dst = tmp;
-    } while(0);
-    return ret;
-}
-#endif
-/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
