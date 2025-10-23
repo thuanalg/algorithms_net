@@ -17,36 +17,40 @@
 #include <libavformat/avformat.h>
 #include <pthread.h>
 
-#define PADDING_MEMORY  0
-#define FFWR_BUFF_SIZE 12000000
+
 #ifndef UNIX_LINUX
 #include <windows.h>
 HWND gb_sdlWindow = 0;
 #else
 #endif 
-
-#define MEMORY_PADDING   2
-
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+#define MEMORY_PADDING      2
+#define FFWR_BUFF_SIZE      12000000
+#define FFWR_OUTPUT_ARATE   48000
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 typedef enum {
-    FFWR_FRAME,
-    FFWR_PACKET,
+    FFWR_DTYPE_VFRAME,
+    FFWR_DTYPE_PACKET,
 
-    FFWR_END
-} FFWR_DATA_TYPE;
+    FFWR_DTYPE_END
+} FFWR_DATA_TYPE_E;
+
 typedef struct __FFWR_GENERIC_DATA__ {
 	int total; /*Total size*/
-	int range; /*Total size*/
+	int range; /*data range*/
 	int pc; /*Point to the current*/
 	int pl; /*Point to the last*/
 	char data[0]; /*Generic data */
 } ffwr_gen_data_st;
+
+#define ffwr_araw_stream                ffwr_gen_data_st
 
 typedef struct {
     int total;
     int type;    
 } FFWR_SIZE_TYPE;
 
-typedef struct __FFWR_AvFrame__ {
+typedef struct __FFWR_VFrame__ {
     FFWR_SIZE_TYPE tt_sz;
     int w;
     int h;
@@ -56,23 +60,7 @@ typedef struct __FFWR_AvFrame__ {
     int pos[AV_NUM_DATA_POINTERS + 1];   
     int len[AV_NUM_DATA_POINTERS + 1]; 
     uint8_t data[0];
-} FFWR_AvFrame;
-
-
-//int ffwr_mv2_rawframe(FFWR_AvFrame **dst, AVFrame *src);
-FFWR_AvFrame *gb_transfer_avframe = 0;
-
-ffwr_gen_data_st *gb_frame;
-ffwr_gen_data_st *gb_tsplanVFrame;
-static void set_sdl_yuv_conversion_mode(AVFrame *frame);
-int get_buff_size(ffwr_gen_data_st **dst, AVFrame *src);
-int ffwr_fill_vframe(FFWR_AvFrame *dst, AVFrame *src);
-int ffwr_update_vframe(FFWR_AvFrame **dst, AVFrame *src);
-int ffwr_create_rawframe(FFWR_AvFrame **dst, AVFrame *src);
-AVFrame *gb_dst_draw;
-AVFrame *gb_src_draw;
-
-pthread_mutex_t gb_FRAME_MTX = PTHREAD_MUTEX_INITIALIZER;
+} FFWR_VFrame;
 
 #ifndef __FFWR_INSTREAM_DEF__
 #define __FFWR_INSTREAM_DEF__
@@ -99,13 +87,34 @@ typedef struct __FFWR_INSTREAM__ {
 
 } FFWR_INSTREAM;
 #endif
-
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+struct SwrContext *gb_aConvertContext;
+AVFrame *gb_dst_draw;
+AVFrame *gb_src_draw;
+pthread_mutex_t gb_FRAME_MTX = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t gb_AFRAME_MTX = PTHREAD_MUTEX_INITIALIZER;
 FFWR_INSTREAM gb_instream;
-int
-convert_frame(AVFrame *src, AVFrame *dst);
-int ffwr_open_input(FFWR_INSTREAM *pinput, char *name, int mode);
+FFWR_VFrame *gb_transfer_avframe = 0;
+ffwr_gen_data_st *gb_frame;
+ffwr_gen_data_st *gb_tsplanVFrame;
 int scan_all_pmts_set;
-int ffwr_open_input(FFWR_INSTREAM *pinput, char *name, int mode) {
+ffwr_araw_stream *gb_shared_astream;
+ffwr_araw_stream *gb_in_astream;
+SDL_AudioSpec gb_want;
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+static void set_sdl_yuv_conversion_mode(AVFrame *frame);
+int ffwr_fill_vframe(FFWR_VFrame *dst, AVFrame *src);
+int ffwr_update_vframe(FFWR_VFrame **dst, AVFrame *src);
+int ffwr_create_rawvframe(FFWR_VFrame **dst, AVFrame *src);
+int ffwr_convert_vframe(AVFrame *src, AVFrame *dst);
+int ffwr_open_input(FFWR_INSTREAM *pinput, char *name, int mode);
+int ffwr_create_a_swrContext(AVFrame *src, AVFrame *dst);
+int convert_audio_frame( AVFrame *src, AVFrame **outfr);
+int fwr_open_audio_output(int sz);
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+
+int ffwr_open_input(FFWR_INSTREAM *pinput, char *name, int mode) 
+{
     int ret = 0;
     int result = 0;
     AVInputFormat *iformat = 0; 
@@ -235,12 +244,12 @@ int ffwr_open_input(FFWR_INSTREAM *pinput, char *name, int mode) {
     } while(0);
     return ret;
 }
-
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 void *demux_routine(void *arg);
 #ifndef UNIX_LINUX
-int WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 #else
-int main (int argc, char *argv[])
+int main(int argc, char *argv[])
 #endif
 {	
 	int ret = 0;
@@ -249,7 +258,7 @@ int main (int argc, char *argv[])
 	int running = 1;
 	SDL_Event e = {0};
     pthread_t thread_id = 0;
-    FFWR_AvFrame *p = 0;
+    FFWR_VFrame *p = 0;
     SDL_Texture *gb_texture = NULL;
     FFWR_SIZE_TYPE *it = 0;
      int step = 0;
@@ -260,8 +269,12 @@ int main (int argc, char *argv[])
 	snprintf(input.folder, SPL_PATH_FOLDER, "%s", cfgpath);
 	snprintf(input.id_name, 100, "vk_window");
 	ret = spl_init_log_ext(&input);
+
+    if(ret) {
+        exit(1);
+    }    
     avdevice_register_all();
-    
+
     gb_tsplanVFrame = malloc(FFWR_BUFF_SIZE);
     if(!gb_tsplanVFrame) {
         exit(1);
@@ -290,17 +303,30 @@ int main (int argc, char *argv[])
         return 1;
     }
 
-    ret = pthread_create(&thread_id, 0,
-                                  demux_routine, 0);
+    fwr_open_audio_output( 2000000);
 
+    ret = pthread_create(
+        &thread_id, 0, demux_routine, 0);
+#if 0
     win = SDL_CreateWindow(
         "SDL2 Window",            // title
         SDL_WINDOWPOS_UNDEFINED,   // x
         SDL_WINDOWPOS_UNDEFINED,   // y
         640,                      // width
         480,                      // height
-        SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE          // flags
+        SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_VULKAN         // flags
     );
+    //SDL_WINDOW_VULKAN
+#else
+    win = SDL_CreateWindow(
+        "SDL2 Window",            // title
+        SDL_WINDOWPOS_UNDEFINED,   // x
+        SDL_WINDOWPOS_UNDEFINED,   // y
+        640,                      // width
+        480,                      // height
+        SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE       // flags
+    );
+#endif    
 	SDL_GetWindowWMInfo(win, &info);
 	gb_sdlWindow = info.info.win.window;
     if (!win) {
@@ -334,7 +360,7 @@ int main (int argc, char *argv[])
 
     av_frame_get_buffer(gb_src_draw, 32);    
 
-    // main loop
+    
     while (running) {
         it = 0;
         p = 0;
@@ -382,7 +408,7 @@ int main (int argc, char *argv[])
         } 
 
         it = (FFWR_SIZE_TYPE *) (gb_frame->data + gb_frame->pc);
-        p = (FFWR_AvFrame *)(gb_frame->data + gb_frame->pc);
+        p = (FFWR_VFrame *)(gb_frame->data + gb_frame->pc);
        
         if(!gb_texture) {
             gb_texture = SDL_CreateTexture( ren,
@@ -417,12 +443,12 @@ int main (int argc, char *argv[])
 	spl_finish_log();
     return 0;
 }
-
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 void *demux_routine(void *arg) {
     int ret = 0;
     int result = 0;
     AVFrame *tmp = 0;
-    FFWR_AvFrame *ffwr_vframe = 0;
+    FFWR_VFrame *ffwr_vframe = 0;
     
     ret = ffwr_open_input(&gb_instream, 
         "tcp://127.0.0.1:12345", 
@@ -464,27 +490,27 @@ void *demux_routine(void *arg) {
 		    	break;
 		    } 
 
-            convert_frame(tmp, gb_instream.vframe);
+            ffwr_convert_vframe(tmp, gb_instream.vframe);
 
 
             spl_vframe(gb_instream.vframe);
             if(!ffwr_vframe) {
-                ffwr_create_rawframe(&ffwr_vframe, gb_instream.vframe);
+                ffwr_create_rawvframe(&ffwr_vframe, gb_instream.vframe);
+                if(!ffwr_vframe) {
+                    break;
+                }                  
             }
             else {
                 ffwr_update_vframe(&ffwr_vframe, gb_instream.vframe);
+            } 
+            if(ffwr_vframe->tt_sz.total < 1) {
+                break;
+            }  
+            if(!gb_tsplanVFrame) {
+                break;
             }
             pthread_mutex_lock(&gb_FRAME_MTX);
             do {
-                if(!gb_tsplanVFrame) {
-                    break;
-                }
-                if(!ffwr_vframe) {
-                    break;
-                }  
-                if(ffwr_vframe->tt_sz.total < 1) {
-                    break;
-                }    
                 if(gb_tsplanVFrame->range > 
                     gb_tsplanVFrame->pl + ffwr_vframe->tt_sz.total) {                      
                     memcpy(gb_tsplanVFrame->data + gb_tsplanVFrame->pl, 
@@ -515,7 +541,34 @@ void *demux_routine(void *arg) {
 		    if (result < 0) {
 		    	break;
 		    }  
-            av_frame_unref(gb_instream.a_frame);          
+            convert_audio_frame(gb_instream.a_frame, &(gb_instream.a_dstframe));
+            pthread_mutex_lock(&gb_AFRAME_MTX);
+            do {
+                if(gb_shared_astream->range > 
+                    gb_shared_astream->pl + 
+                    gb_instream.a_dstframe->linesize[0]) 
+                {
+                    memcpy(gb_shared_astream->data + gb_shared_astream->pl, 
+                        gb_instream.a_dstframe->data[0], 
+                        gb_instream.a_dstframe->linesize[0]
+                    );
+                    gb_shared_astream->pl += 
+                        gb_instream.a_dstframe->linesize[0];
+                } else {
+                    gb_shared_astream->pl = 0;
+                    gb_shared_astream->pc = 0;
+                    spllog(1, "over audio range");
+                }
+                spllog(1, "(pl, pc, range)=(%d, %d, %d)", 
+                    gb_shared_astream->pl, 
+                    gb_shared_astream->pc, 
+                    gb_shared_astream->range);
+            } while(0);
+            pthread_mutex_unlock(&gb_AFRAME_MTX);
+            spl_vframe(gb_instream.a_dstframe);
+            av_frame_unref(gb_instream.a_dstframe); 
+            av_frame_unref(gb_instream.a_frame);   
+                     
         }    
     }
     
@@ -524,7 +577,7 @@ void *demux_routine(void *arg) {
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 int
-convert_frame(AVFrame *src, AVFrame *dst)
+ffwr_convert_vframe(AVFrame *src, AVFrame *dst)
 {
     int ret = 0;
     //av_frame_get_buffer(src, 32);
@@ -573,17 +626,15 @@ convert_frame(AVFrame *src, AVFrame *dst)
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 int ffwr_get_rawsize_vframe(AVFrame *src) {
     int ret = 0;
-    int k = 0;
-    int m = 0;
+    int h = 0;
     int i = 0;
     if(!src) {
         return ret;
     }
     if(src->format == 0) {
         while(src->linesize[i]) {
-            k = src->linesize[i];
-            m = (i == 0) ? src->height : ((src->height)/2);
-            ret += k * (m + MEMORY_PADDING);
+            h = (i == 0) ? src->height : ((src->height)/2);
+            ret += src->linesize[i] * (h + MEMORY_PADDING);
             spllog(1, "ret: %d", ret);
             ++i;
         }           
@@ -591,11 +642,11 @@ int ffwr_get_rawsize_vframe(AVFrame *src) {
     return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
-int ffwr_update_vframe(FFWR_AvFrame **dst, AVFrame *src) {
+int ffwr_update_vframe(FFWR_VFrame **dst, AVFrame *src) {
     int ret = 0;
     int total = 0;
     int shouldupdate = 1;
-    FFWR_AvFrame *tmp = 0;
+    FFWR_VFrame *tmp = 0;
     do {
         if(!src) {
             ret = 1;
@@ -611,6 +662,9 @@ int ffwr_update_vframe(FFWR_AvFrame **dst, AVFrame *src) {
         }         
         tmp = *dst;
         total = ffwr_get_rawsize_vframe(src);
+        total += sizeof(FFWR_VFrame);
+        spllog(1, "check sz (total, tmp->tt_sz.total)=(%d, %d)",
+            total, tmp->tt_sz.total);
         if(total != tmp->tt_sz.total) {
             break;
         }
@@ -629,7 +683,7 @@ int ffwr_update_vframe(FFWR_AvFrame **dst, AVFrame *src) {
     if(ret) {
         return ret;
     }
-
+    /*spllog(1, "shouldupdate: %d", shouldupdate);*/
     do {
         if(shouldupdate) {
             tmp = realloc(*dst, total);
@@ -639,7 +693,7 @@ int ffwr_update_vframe(FFWR_AvFrame **dst, AVFrame *src) {
             }
         }
         tmp->tt_sz.total = total;
-        tmp->tt_sz.type = FFWR_FRAME;
+        tmp->tt_sz.type = FFWR_DTYPE_VFRAME;
         ret = ffwr_fill_vframe(tmp, src);
         *dst = tmp;
     } while(0);
@@ -647,7 +701,7 @@ int ffwr_update_vframe(FFWR_AvFrame **dst, AVFrame *src) {
     return ret  = 0;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
-int ffwr_fill_vframe(FFWR_AvFrame *dst, AVFrame *src) {
+int ffwr_fill_vframe(FFWR_VFrame *dst, AVFrame *src) {
     int ret = 0;
     int k = 0;
     int m = 0;
@@ -693,9 +747,9 @@ int ffwr_fill_vframe(FFWR_AvFrame *dst, AVFrame *src) {
     return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
-int ffwr_create_rawframe(FFWR_AvFrame **dst, AVFrame *src) {
+int ffwr_create_rawvframe(FFWR_VFrame **dst, AVFrame *src) {
     int ret = 0;
-    FFWR_AvFrame *tmp = 0;
+    FFWR_VFrame *tmp = 0;
     int total = 0;
     int len = 0;
     int k = 0;
@@ -712,8 +766,7 @@ int ffwr_create_rawframe(FFWR_AvFrame **dst, AVFrame *src) {
         tmp = *dst;
         if(src->format == 0) {
             len = ffwr_get_rawsize_vframe(src);
-            total = sizeof(FFWR_FRAME) + len;
-            //total += len + PADDING_MEMORY;
+            total = sizeof(FFWR_VFrame) + len;
             if(!tmp) {    
                 tmp = malloc(total);
                 if(!tmp) {
@@ -723,15 +776,363 @@ int ffwr_create_rawframe(FFWR_AvFrame **dst, AVFrame *src) {
                 memset(tmp, 0, total);
 
                 tmp->tt_sz.total = total;
-                tmp->tt_sz.type = FFWR_FRAME;
+                tmp->tt_sz.type = FFWR_DTYPE_VFRAME;
                 ffwr_fill_vframe(tmp, src);
             }
             *dst = tmp;
-            //ffwr_update_vframe(dst, src);  
             break;
         }
     } while(0);
     return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+int convert_audio_frame( AVFrame *src, AVFrame **outfr)
+{
+    int ret = 0;
+    AVChannelLayout *src_layout = 0;
+    int n = 0;
+    AVFrame *dst = 0;
+    do {
+        if(!src) {
+            ret = 1;
+            break;
+        }    
+        if(!outfr) {
+            ret = 1;
+            break;
+        }
+        dst = *outfr;
+        if(!dst) {
+            dst = av_frame_alloc();
+            if(!dst) {
+                break;
+            }
+          
+        }
 
+        av_channel_layout_default(&dst->ch_layout, 2);
+        dst->format = AV_SAMPLE_FMT_FLT;
+        dst->sample_rate = FFWR_OUTPUT_ARATE;  
+
+        if(!gb_aConvertContext) {
+            ret = ffwr_create_a_swrContext(src, dst);
+            if(ret) {
+                break;
+            }
+        }
+        if(!gb_instream.a_cctx) {
+            ret = 1;
+            break;            
+        }
+        src_layout = &(gb_instream.a_cctx->ch_layout);
+        if(!src_layout) {
+            ret = 1;
+            break;                    
+        }
+
+        dst->nb_samples = av_rescale_rnd(
+            swr_get_delay(gb_aConvertContext, 
+                src->sample_rate) + src->nb_samples, 
+                FFWR_OUTPUT_ARATE, src->sample_rate, AV_ROUND_UP);
+
+        n = av_frame_get_buffer(dst, 0);
+	    if (n < 0) {
+	    	spllog(4, "Error: cannot allocate dst buffer (%d)\n", n);
+            ret = 1;
+	    	break;
+	    }
+        av_channel_layout_copy(&(dst->ch_layout), src_layout);
+	    n = swr_convert(gb_aConvertContext, dst->data, dst->nb_samples,
+	        (const uint8_t **)src->data, src->nb_samples);
+	    if (ret < 0) {
+	    	spllog(4, " Error: swr_convert failed (%d)\n", ret);
+            ret = 1;
+	    	break;
+	    }
+
+	    dst->nb_samples = n;
+	    spllog(1, "Audio convert done: %d samples -> %d samples\n",
+	        src->nb_samples, dst->nb_samples);
+        dst->pts = src->pts;
+        *outfr = dst;
+
+    } while(0);
+
+
+	return ret;
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+
+
+int ffwr_create_a_swrContext(AVFrame *src, AVFrame *dst)
+{
+    int ret = 0;
+    SwrContext *swr = 0;
+    do {
+        if(!src) {
+            ret = 1;
+            break;
+        }
+        if(!dst) {
+            ret = 1;
+            break;
+        }        
+        swr_alloc_set_opts2(
+                &swr,                        // NULL → tạo mới
+                &(dst->ch_layout),         // kênh đầu ra
+                dst->format,          // định dạng sample đầu ra
+                dst->sample_rate,                       // sample rate đầu ra
+                &(src->ch_layout),           // kênh đầu vào
+                src->format,           // định dạng sample đầu vào
+                src->sample_rate,                       // sample rate đầu vào
+                0, NULL                      // log offset, log context
+            );        
+        if(!swr) {
+            ret = 1;
+            break;
+        }
+        ret = swr_init(swr);
+        if(ret < 0) {
+            ret = 1;
+            break;
+        }
+
+        gb_aConvertContext = swr;
+
+    } while(0);
+    return ret;
+}
+#if 0
+Bước 1:
+SDL_AudioSpec want;
+want.freq = FFWR_OUTPUT_ARATE;           // sample rate output
+want.format = AUDIO_F32SYS;  // float 32-bit
+want.channels = 2;           // stereo
+want.samples = 1024;         // buffer size
+want.callback = audio_callback; // callback lấy dữ liệu
+SDL_OpenAudio(&want, NULL);
+want.userdata = &audio_data;  // <<< đây là chỗ truyền
+SDL_PauseAudio(0); // start playback
+
+Bước 2: Convert AVFrame sang định dạng SDL chấp nhận
+
+Nếu input khác sample rate, channel, format, dùng SwrContext:
+
+Tạo SwrContext với swr_alloc_set_opts2().
+
+Chuyển đổi: swr_convert(output_frame, input_frame).
+
+Output frame phải có:
+
+Format đúng SDL (AUDIO_F32SYS → AV_SAMPLE_FMT_FLT)
+
+Channel layout đúng (stereo)
+
+Sample rate đúng (48000 Hz)
+
+Bước 3: Đẩy dữ liệu vào SDL buffer
+
+Trong audio_callback của SDL:
+
+Copy out_frame->data[0] vào buffer.
+
+Dùng linesize[0] để biết số byte cần copy.
+
+SDL thread riêng sẽ play audio tự động, main thread vẫn có thể decode frame tiếp theo.
+void audio_callback(void *userdata, Uint8 *stream, int len) {
+    int copy_len = (len > audio_buf_size - audio_buf_index) ? 
+                   audio_buf_size - audio_buf_index : len;
+    memcpy(stream, audio_buf + audio_buf_index, copy_len);
+    audio_buf_index += copy_len;
+}
+
+
+want.callback = audio_callback;
+want.userdata = &audio_data; // buffer của bạn
+SDL_OpenAudio(&want, NULL);
+SDL_PauseAudio(0); // start playback
+
+void audio_callback(void *userdata, Uint8 *stream, int len) {
+    AudioData *ad = (AudioData*)userdata;
+    
+    if(ad->buf_index >= ad->buf_size) {
+        // buffer hết → phát silence
+        memset(stream, 0, len);
+        return;
+    }
+
+    int copy_len = (len > ad->buf_size - ad->buf_index) ?
+                   ad->buf_size - ad->buf_index : len;
+
+    memcpy(stream, ad->buf + ad->buf_index, copy_len);
+    ad->buf_index += copy_len;
+
+    // nếu SDL muốn nhiều hơn còn lại trong buffer
+    if(copy_len < len)
+        memset(stream + copy_len, 0, len - copy_len);
+}
+-------------->>> AVFilterGraph
+AVFilterGraph + các filter contexts + push/pop frame từ filtergraph.
+SDL_PauseAudio(1); // stop audio
+SDL_CloseAudio();  // close, free resources
+#endif
+#define FFWR_AUDIO_BUF          (1024 * 1024 * 2)
+#define ffwr_malloc(__nn__, __obj__, __type__)                                 \
+	{                                                                      \
+		(__obj__) = (__type__ *)malloc(__nn__);                        \
+		if (__obj__) {                                                 \
+			spllog(0, "[MEM] Malloc: 0x%p.", (__obj__));           \
+			memset((__obj__), 0, (__nn__));                        \
+		} else {                                                       \
+			spllog(0, "Malloc: error.");                           \
+		}                                                              \
+	}
+#define FFWR_MIN(__a__, __b__)  ((__a__) < (__b__)) ? (__a__) : (__b__)
+
+void fwr_open_audio_output_cb(void *user, Uint8 * stream, int len)
+{
+    ffwr_gen_data_st *obj = (ffwr_gen_data_st*) user;
+    int real_len = 0;
+    static int step = 0;
+
+    if(!obj) {
+        return;
+    }
+
+    if( obj->pl <= obj->pc) 
+    {
+        obj->pl = obj->pc = 0;
+        pthread_mutex_lock(&gb_AFRAME_MTX);
+        do {
+            if(gb_shared_astream->pl < 1) {
+                break;
+            }
+            if(step == 0) {
+                if(gb_shared_astream->pl > 0) {
+                    step++;
+                    gb_shared_astream->pc = 0;
+                    gb_shared_astream->pl = 0;
+                    break;
+                }
+            }
+            if(gb_shared_astream->pl < 1) {
+                break;
+            }
+
+            memcpy(obj->data + obj->pl, 
+                gb_shared_astream->data, 
+                gb_shared_astream->pl);
+
+            obj->pl += gb_shared_astream->pl;
+
+            gb_shared_astream->pc = 0;
+            gb_shared_astream->pl = 0;
+        } while(0);
+        pthread_mutex_unlock(&gb_AFRAME_MTX);
+    }
+    
+
+    real_len = FFWR_MIN(len, obj->pl - obj->pc);
+
+
+
+    if(real_len < 1) {
+        memset(stream , 0, len);
+        return;
+    }
+    if (real_len < len) {
+        memset(stream + real_len, 0, len - real_len);
+    }
+    memcpy(stream, obj->data + obj->pc, real_len);
+    obj->pc += real_len;
+ 
+    spllog(1, "(pl, pc, real_len, len)=(%d, %d, %d, %d)", 
+        obj->pl, obj->pc, real_len, len);   
+    if((obj->pc * 2) > obj->pl) {
+        int tlen = obj->pl - obj->pc;
+        if(tlen > 0) {
+            memcpy(obj->data, 
+                obj->data + obj->pc, tlen);
+            obj->pc = 0;
+            obj->pl = tlen;
+            spllog(1, "(pl, pc, real_len, len)=(%d, %d, %d, %d)", 
+                obj->pl, obj->pc, real_len, len); 
+            pthread_mutex_lock(&gb_AFRAME_MTX);
+            do {
+                if(obj->range >= obj->pl + gb_shared_astream->pl) {
+                    memcpy(obj->data + obj->pl, 
+                        gb_shared_astream->data, 
+                        gb_shared_astream->pl);
+
+                    obj->pl += gb_shared_astream->pl;
+                }
+
+                gb_shared_astream->pc = 0;
+                gb_shared_astream->pl = 0;
+            } while(0);
+            pthread_mutex_unlock(&gb_AFRAME_MTX);
+        }
+    }
+    if(obj->pl > 800000 + obj->pc) {
+        obj->pl = obj->pc = 0;
+    }
+}                                            
+//ffwr_araw_stream *gb_shared_astream;
+//ffwr_araw_stream *gb_shared_astream;
+//ffwr_araw_stream *gb_in_astream;
+int init_gen_buff(ffwr_gen_data_st *obj, int sz);
+int fwr_open_audio_output(int sz)
+{
+    int ret = 0;
+    int insz = 3 * sz;
+    do {
+        ffwr_malloc(sz, gb_shared_astream, ffwr_araw_stream);
+        if(!gb_shared_astream) {
+            ret = 1;
+            break;
+        }
+        init_gen_buff(gb_shared_astream, sz);
+
+        ffwr_malloc(insz, gb_in_astream, ffwr_araw_stream);
+        if(!gb_in_astream) {
+            ret = 1;
+            break;
+        }        
+        init_gen_buff(gb_in_astream, insz);
+
+        gb_want.freq = FFWR_OUTPUT_ARATE;
+        gb_want.format = AUDIO_F32SYS;
+        gb_want.channels = 2;
+        gb_want.samples = 2048;        // kích thước buffer SDL
+        gb_want.callback = fwr_open_audio_output_cb;
+        gb_want.userdata = gb_in_astream; // buffer chuẩn hóa của bạn
+
+        ret = SDL_OpenAudio(&gb_want, 0);
+        spllog(1, "ret-SDL_OpenAudio: %d", ret);
+        SDL_PauseAudio(0);           // start audio playback
+    } while(0);
+}
+
+int fwr_clode_audio_output() {
+    int ret = 0;
+    do {
+        SDL_PauseAudio(1); // stop audio
+        SDL_CloseAudio();  // close, free resources
+    } while(0);
+    return ret;
+}
+
+int init_gen_buff(ffwr_gen_data_st *obj, int sz) {
+    int ret = 0;
+    ffwr_gen_data_st *tmp = 0;
+    do {
+        if(!obj) {
+            ret = 1;
+            break;
+        }
+        obj->total = sz;
+        obj->range = sz - sizeof(ffwr_gen_data_st);
+        obj->pl = obj->pc = 0;
+    } while(0);
+    return ret;
+}
