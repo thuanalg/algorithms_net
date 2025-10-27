@@ -1,14 +1,9 @@
 /*#define UNIX_LINUX*/
-<<<<<<< HEAD
 #if 0
 #define UNIX_LINUX
 #endif
 
 
-=======
-#define UNIX_LINUX
-
->>>>>>> 566a96bd6138c748f4fec8fea15df837aaa6c841
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
 #include <stdio.h>
@@ -134,11 +129,7 @@ ffwr_gen_data_st *gb_tsplanVFrame;
 int scan_all_pmts_set;
 ffwr_araw_stream *gb_shared_astream;
 ffwr_araw_stream *gb_in_astream;
-<<<<<<< HEAD
 SDL_AudioSpec gb_want, gb_have;
-=======
-SDL_AudioSpec gb_want;
->>>>>>> 566a96bd6138c748f4fec8fea15df837aaa6c841
 char *gb_input_fmt;
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 static void set_sdl_yuv_conversion_mode(AVFrame *frame);
@@ -314,13 +305,9 @@ int main(int argc, char *argv[])
 	snprintf(input.id_name, 100, "vk_window");
 	ret = spl_init_log_ext(&input);
 #ifndef UNIX_LINUX
-<<<<<<< HEAD
     if(__argc  > 1) {
         gb_input_fmt = __argv[1];
     }
-=======
-    if(argc > 1)
->>>>>>> 566a96bd6138c748f4fec8fea15df837aaa6c841
 #else
     if(argc > 1) {
         gb_input_fmt = argv[1];
