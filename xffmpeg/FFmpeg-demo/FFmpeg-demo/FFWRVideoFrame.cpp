@@ -228,3 +228,4 @@ updateFakeTexture()
 		gb_ffwr_d3dContext->Unmap(gb_ffwr_fakeTexture, 0);
 	}
 }
+// g_window = SDL_CreateWindowFrom((void*)g_hwnd);

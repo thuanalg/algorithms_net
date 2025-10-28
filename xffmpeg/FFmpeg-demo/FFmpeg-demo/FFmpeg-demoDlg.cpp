@@ -104,7 +104,7 @@ BOOL CFFmpegdemoDlg::OnInitDialog()
 	
 	m_vframe.Create(_T("MFCCstatic"), // 
 	    WS_CHILD | WS_VISIBLE | SS_BLACKFRAME, // style
-	    CRect(0, 0, 300, 300), // 
+	    CRect(0, 0, 640, 480), // 
 	    this, //
 	    1001 // ID control
 	);
