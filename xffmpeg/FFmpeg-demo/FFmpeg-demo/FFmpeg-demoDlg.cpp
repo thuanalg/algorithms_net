@@ -178,7 +178,7 @@ MyThreadProc(LPVOID lpParam)
 	// Simulate work
 	for (;;) {
 		PostMessage(gb_hwnd, WM_PAINT, 0, 0);
-		Sleep(500); // sleep for 0.5 second
+		Sleep(30); // sleep for 0.5 second
 	}
 
 	printf("Thread finished.\n");
