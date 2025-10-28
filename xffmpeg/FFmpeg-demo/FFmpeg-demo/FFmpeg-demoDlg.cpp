@@ -100,7 +100,12 @@ BOOL CFFmpegdemoDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
-
+	m_vframe.Create(_T("MFCCstatic"), // 
+	    WS_CHILD | WS_VISIBLE | SS_BLACKFRAME, // style
+	    CRect(0, 0, 300, 300), // 
+	    this, //
+	    1001 // ID control
+	);
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 

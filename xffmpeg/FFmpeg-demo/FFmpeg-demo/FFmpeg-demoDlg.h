@@ -3,7 +3,7 @@
 //
 
 #pragma once
-
+#include "FFWRVideoFrame.h"
 
 // CFFmpegdemoDlg dialog
 class CFFmpegdemoDlg : public CDialogEx
@@ -31,4 +31,7 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+
+private:
+	FFWRVideoFrame m_vframe;
 };

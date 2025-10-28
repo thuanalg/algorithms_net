@@ -186,6 +186,7 @@
   <ItemGroup>
     <ClInclude Include="FFmpeg-demo.h" />
     <ClInclude Include="FFmpeg-demoDlg.h" />
+    <ClInclude Include="FFWRVideoFrame.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
@@ -194,6 +195,7 @@
   <ItemGroup>
     <ClCompile Include="FFmpeg-demo.cpp" />
     <ClCompile Include="FFmpeg-demoDlg.cpp" />
+    <ClCompile Include="FFWRVideoFrame.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
