@@ -39,8 +39,8 @@ FFWRVideoFrame::OnPaint()
 
 HWND gbffwr_hWnd; 
 
-bool
-InitD3D11(HWND hWnd)
+int
+ffwr_InitD3D11(HWND hWnd)
 {
 	gbffwr_hWnd = hWnd;
 
@@ -76,7 +76,7 @@ InitD3D11(HWND hWnd)
 	if (FAILED(hr)) {
 		MessageBox(hWnd, L"Failed to create D3D11 device!", L"Error",
 		    MB_ICONERROR);
-		return false;
+		return 1;
 	}
 
 	// Tạo render target view
@@ -90,5 +90,10 @@ InitD3D11(HWND hWnd)
 	gb_ffwr_d3dContext->OMSetRenderTargets(
 	    1, &gb_ffwr_renderTargetView, nullptr);
 
-	return true;
+	return 0;
+}
+int
+ffwr_CloseD3D11()
+{
+	return 0;
 }

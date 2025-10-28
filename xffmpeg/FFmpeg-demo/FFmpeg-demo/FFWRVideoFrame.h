@@ -9,3 +9,8 @@ protected:
 	DECLARE_MESSAGE_MAP()
 private:
 };
+int
+ffwr_InitD3D11(HWND hWnd);
+
+int
+ffwr_CloseD3D11();

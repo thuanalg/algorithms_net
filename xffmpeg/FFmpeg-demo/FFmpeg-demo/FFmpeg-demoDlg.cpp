@@ -114,8 +114,8 @@ BOOL CFFmpegdemoDlg::OnInitDialog()
 	    0, 
 	    MyThreadProc, // thread function
 	    "HelloThread",
-	    0, // creation flags (0 = chạy ngay)
-	    &dwThreadId // nhận thread ID
+	    0, // 
+	    &dwThreadId // 
 	);
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
