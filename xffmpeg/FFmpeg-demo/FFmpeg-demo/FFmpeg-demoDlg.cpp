@@ -1,4 +1,4 @@
-
+﻿
 // FFmpeg-demoDlg.cpp : implementation file
 //
 
@@ -12,8 +12,9 @@
 #define new DEBUG_NEW
 #endif
 
-
-// CAboutDlg dialog used for App About
+DWORD WINAPI
+MyThreadProc(LPVOID lpParam);
+    // CAboutDlg dialog used for App About
 
 class CAboutDlg : public CDialogEx
 {
@@ -48,7 +49,7 @@ END_MESSAGE_MAP()
 
 // CFFmpegdemoDlg dialog
 
-
+HWND gb_hwnd;
 
 CFFmpegdemoDlg::CFFmpegdemoDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_FFMPEGDEMO_DIALOG, pParent)
@@ -106,6 +107,16 @@ BOOL CFFmpegdemoDlg::OnInitDialog()
 	    this, //
 	    1001 // ID control
 	);
+	gb_hwnd = m_vframe.m_hWnd;
+	HANDLE hThread;
+	DWORD dwThreadId;
+	hThread = CreateThread(NULL, // security attributes
+	    0, 
+	    MyThreadProc, // thread function
+	    "HelloThread",
+	    0, // creation flags (0 = chạy ngay)
+	    &dwThreadId // nhận thread ID
+	);
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -158,3 +169,18 @@ HCURSOR CFFmpegdemoDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+// Thread function — must return DWORD and use WINAPI calling convention
+DWORD WINAPI
+MyThreadProc(LPVOID lpParam)
+{
+	printf("Thread started! Param = %s\n", (char *)lpParam);
+
+	// Simulate work
+	for (;;) {
+		PostMessage(gb_hwnd, WM_PAINT, 0, 0);
+		Sleep(500); // sleep for 0.5 second
+	}
+
+	printf("Thread finished.\n");
+	return 0;
+}

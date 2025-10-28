@@ -6,6 +6,7 @@
 #include "framework.h"
 #include "FFmpeg-demo.h"
 #include "FFmpeg-demoDlg.h"
+#include <simplelog.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -37,9 +38,20 @@ CFFmpegdemoApp theApp;
 
 
 // CFFmpegdemoApp initialization
+void
+init_spllog()
+{
+	int ret = 0;
+	char cfgpath[1024] = {0}; 
+	SPL_INPUT_ARG input = {0};
+	snprintf(input.folder, sizeof(input.folder) - 1, "%s", "D:/zz/ffmpeg-demo/z.cfg");
+	spl_console_log("input.folder: %s.\n", input.folder);
+	ret = spl_init_log_ext(&input);
+}
 
 BOOL CFFmpegdemoApp::InitInstance()
 {
+	init_spllog();
 	// InitCommonControlsEx() is required on Windows XP if an application
 	// manifest specifies use of ComCtl32.dll version 6 or later to enable
 	// visual styles.  Otherwise, any window creation will fail.
@@ -102,6 +114,7 @@ BOOL CFFmpegdemoApp::InitInstance()
 
 	// Since the dialog has been closed, return FALSE so that we exit the
 	//  application, rather than start the application's message pump.
+	spl_finish_log();
 	return FALSE;
 }
 
