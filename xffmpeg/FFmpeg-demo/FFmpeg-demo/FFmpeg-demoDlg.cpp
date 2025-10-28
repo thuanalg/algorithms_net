@@ -101,6 +101,7 @@ BOOL CFFmpegdemoDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
+	
 	m_vframe.Create(_T("MFCCstatic"), // 
 	    WS_CHILD | WS_VISIBLE | SS_BLACKFRAME, // style
 	    CRect(0, 0, 300, 300), // 
@@ -110,6 +111,7 @@ BOOL CFFmpegdemoDlg::OnInitDialog()
 	gb_hwnd = m_vframe.m_hWnd;
 	HANDLE hThread;
 	DWORD dwThreadId;
+	ffwr_InitD3D11(gb_hwnd);
 	hThread = CreateThread(NULL, // security attributes
 	    0, 
 	    MyThreadProc, // thread function
