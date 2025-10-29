@@ -52,9 +52,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 #ifndef LLU
-#define LLU                             unsigned long long
+	#define LLU                             unsigned long long
 #endif
+
+#define FFWR_uchar                       	unsigned char
+#define FFWR_uint                        	unsigned int
+#define FFWR_InitFlags						FFWR_uint
 
 
 #ifndef UNIX_LINUX
@@ -71,11 +76,28 @@ extern "C" {
 #define DLL_API_FFWR_RENDER              
 #endif /*! UNIX_LINUX */
 
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+
+#define FFWR_INIT_TIMER          0x00000001u
+#define FFWR_INIT_AUDIO          0x00000010u
+#define FFWR_INIT_VIDEO          0x00000020u  /**< FFWR_INIT_VIDEO implies FFWR_INIT_EVENTS */
+#define FFWR_INIT_JOYSTICK       0x00000200u  /**< FFWR_INIT_JOYSTICK implies FFWR_INIT_EVENTS */
+#define FFWR_INIT_HAPTIC         0x00001000u
+#define FFWR_INIT_GAMECONTROLLER 0x00002000u  /**< FFWR_INIT_GAMECONTROLLER implies FFWR_INIT_JOYSTICK */
+#define FFWR_INIT_EVENTS         0x00004000u
+#define FFWR_INIT_SENSOR         0x00008000u
+#define FFWR_INIT_NOPARACHUTE    0x00100000u  /**< compatibility; this flag is ignored. */
+#define FFWR_INIT_EVERYTHING ( \
+                FFWR_INIT_TIMER | FFWR_INIT_AUDIO | FFWR_INIT_VIDEO | FFWR_INIT_EVENTS | \
+                FFWR_INIT_JOYSTICK | FFWR_INIT_HAPTIC | FFWR_INIT_GAMECONTROLLER | FFWR_INIT_SENSOR \
+            )
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 typedef enum __FFWR_LOG_ERR_CODE__ {
-	FFWR_NO_ERROR,
+	FFWR_NO_ERR,
+	FFWR_INIT_ERR,
 
 
-	FFWR_END_ERROR,
+	FFWR_END_ERR,
 } FFWR_LOG_ERR_CODE;
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
@@ -98,13 +120,16 @@ typedef struct __FFWR_GENERIC_DATA__ {
 	char data[0]; /*Generic data */
 } FFWR_gen_data_st;
 
-#define FFWR_uchar                       unsigned char
-#define FFWR_uint                        unsigned int
+
 
 
 #if 0
 DLL_API_FFWR_RENDER int
 ffwr_hello();
+
+DLL_API_FFWR_RENDER int
+ffwr_init(FFWR_InitFlags flags);
+
 #endif
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
