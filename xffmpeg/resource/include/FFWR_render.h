@@ -104,7 +104,7 @@ typedef struct __FFWR_GENERIC_DATA__ {
 
 #if 0
 DLL_API_FFWR_RENDER int
-FFWR_local_time_now(FFWR_local_time_st *st_time);
+ffwr_hello();
 #endif
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
