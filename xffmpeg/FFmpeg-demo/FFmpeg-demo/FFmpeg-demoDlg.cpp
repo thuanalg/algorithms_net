@@ -12,6 +12,8 @@
 #define new DEBUG_NEW
 #endif
 
+void xyz(HWND);
+
 DWORD WINAPI
 MyThreadProc(LPVOID lpParam);
     // CAboutDlg dialog used for App About
@@ -109,6 +111,7 @@ BOOL CFFmpegdemoDlg::OnInitDialog()
 	    1001 // ID control
 	);
 	gb_hwnd = m_vframe.m_hWnd;
+	xyz(gb_hwnd);
 	HANDLE hThread;
 	DWORD dwThreadId;
 	ffwr_InitD3D11(gb_hwnd);
@@ -186,3 +189,83 @@ MyThreadProc(LPVOID lpParam)
 	printf("Thread finished.\n");
 	return 0;
 }
+
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_render.h>
+//#include <SDL3/SDL_render_direct3d11.h>
+void
+xyz(HWND hd)
+{
+#if 1
+	SDL_Init(SDL_INIT_VIDEO );
+	bool rs = false;
+	SDL_Window *window = 0;
+	
+	// SDL_GetRendererProperties : ok
+	//	SDL_CreateRenderer: ok
+	//SDL_CreateTexture: ok
+	//SDL_GetRendererName: ok
+	//SDL_UpdateYUVTexture: ok
+	//SDL_CreateWindow()
+	//SDL_CreateWindowFrom: not OK
+	//SDL_CreateWindowWithProperties
+	//SDL_PropertiesID window_props = SDL_CreateProperties();
+	//SDL_SetStringProperty(window_props, " SDL_PROP_WINDOW_WIN32_HWND",
+	//    (const char *)native_window_handle);
+	//SDL_SetStringProperty
+	SDL_PropertiesID window_props = SDL_CreateProperties();
+	rs = SDL_SetPointerProperty(
+	    window_props, SDL_PROP_WINDOW_WIN32_HWND_POINTER, hd);
+	//SDL_SetNumberProperty(window_props, "width", 800);
+	//SDL_SetNumberProperty(window_props, "height", 600);
+	window = SDL_CreateWindowWithProperties(window_props);
+	SDL_DestroyProperties(window_props);
+	// 6. Check for errors
+	if (!window) {
+		// Handle error
+		SDL_Log("Failed to create window: %s", SDL_GetError());
+		return;
+	}
+	SDL_Renderer *renderer = SDL_GetRenderer(window);
+#endif
+}
+
+#if 0
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_properties.h>
+
+// ...
+
+// 1. Get your native window handle. This varies by platform and toolkit.
+//    Example: On Windows, this could be an HWND.
+//    void* native_window_handle = /* ... get your native window handle ... */;
+void* native_window_handle = get_native_window_handle(); // Placeholder
+
+// 2. Create a properties object
+SDL_PropertiesID window_props = SDL_CreateProperties();
+
+// 3. Set the native handle property. The property name depends on the backend.
+//    Common names include SDL_PROP_WINDOW_NATIVE_HANDLE, SDL_PROP_WINDOW_WIN32_HWND, etc.
+//    For example, on Windows:
+SDL_SetStringProperty(window_props, SDL_PROP_WINDOW_WIN32_HWND_POINTER, (const char*)native_window_handle);
+//    For a generic native handle, check SDL's documentation for the correct property name.
+
+// 4. Create the window using the properties object
+SDL_Window* window = SDL_CreateWindowWithProperties(window_props);
+
+// 5. Destroy the properties object after the window is created
+SDL_DestroyProperties(window_props);
+
+// 6. Check for errors
+if (!window) {
+    // Handle error
+    SDL_Log("Failed to create window: %s", SDL_GetError());
+    return 1;
+}
+
+// ... use the window ...
+
+// Remember to destroy the window when done
+SDL_DestroyWindow(window);
+
+#endif
