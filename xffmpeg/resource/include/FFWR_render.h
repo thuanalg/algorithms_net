@@ -52,37 +52,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+#ifndef LLU
 #define LLU                             unsigned long long
-
-#define FFWR_LOG_BASE                    0
-#define FFWR_LOG_DEBUG                   1
-#define FFWR_LOG_INFO                    2
-#define FFWR_LOG_WARNING                 3
-#define FFWR_LOG_ERROR                   4
-#define FFWR_LOG_FATAL                   5
-#define FFWR_LOG_PEAK                    6
-
-#if 0
-#ifndef FFWR_RL_BUF
-#define FFWR_RL_BUF                      50
-#endif
 #endif
 
-#define FFWR_RL_BUF                      256
-#define FFWR_PATH_FOLDER                 (256 + 16)
-#define FFWR_IDD_NAME                    32
-#define FFWR_TOPIC_SIZE                  32
-#define FFWR_MEMO_PADDING                2048
-#define FFWR_SHARED_KEY_LEN              32
-#define FFWR_SHARED_NAME_LEN             64
-#define FFWR_FNAME_LEN                   (FFWR_IDD_NAME + 32)
-#define FFWR_TEMPLATE_LEN                (FFWR_PATH_FOLDER + FFWR_FNAME_LEN + 32)
-#define FFWR_FULLPATH_LEN                (FFWR_TEMPLATE_LEN + 32 + 16)
-#define FFWR_MILLION                     1000000
-#define FFWR_RANGE_YEAR                  10000
-#define FFWR_RANGE_MONTH                 13
-#define FFWR_RANGE_DAY                   32
 
 #ifndef UNIX_LINUX
 #ifndef __FFWR_RENDER_STATIC_LOG__
