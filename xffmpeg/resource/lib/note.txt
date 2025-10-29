@@ -1,0 +1,4 @@
+from msys2
+	gendef msys-simplelog.dll
+from MSVC tool:
+	lib /def:msys-simplelog.def /out:msys-simplelog.lib /machine:x64

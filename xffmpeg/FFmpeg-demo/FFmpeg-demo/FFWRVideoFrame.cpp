@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "FFWRVideoFrame.h"
 
+
 #include <d3d11.h>
 #include <dxgi.h>
 #pragma comment(lib, "d3d11.lib")
@@ -41,7 +42,7 @@ FFWRVideoFrame::OnPaint()
 {
 	CPaintDC dc(this);
 	HRESULT rs;
-
+	spllog(1, "------");
 	if (!gb_ffwr_d3dContext || !gb_ffwr_renderTargetView)
 		return;
 	if (!gb_ffwr_fakeTexture) {
