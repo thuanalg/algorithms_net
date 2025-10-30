@@ -132,6 +132,7 @@ int ffwr_UpdateYUVTexture(
 			Vplane, Vpitch);
 		if(!result) {
 			ret = FFWR_UPDATE_YUV_TEXTURE_ERR;
+			spllog(4, "SDL_UpdateYUVTexture: %s\n", SDL_GetError());
 			break;
 		}
 	} while(0);
