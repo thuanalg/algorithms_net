@@ -122,7 +122,7 @@ int ffwr_UpdateYUVTexture(
 	int result = 0;
 	do {
 		if(!texture) {
-			ret = FFWR_NULL_RENDER_INPUT_ERR;
+			ret = FFWR_NULL_TEXTURE_INPUT_ERR;
 			break;
 		}
 		result = SDL_UpdateYUVTexture(
@@ -166,9 +166,71 @@ ffwr_RenderCopy(void *renderer,
 	const FFWR_Rect *dstrect) 
 {
 	int ret = 0;
+	int result = 0;
 	do {
-		
+		if(!renderer) {
+			ret = FFWR_NULL_RENDER_INPUT_ERR;
+			spllog(4, "Null input.");
+			break;
+		}
+		if(!texture) {
+			ret = FFWR_NULL_TEXTURE_INPUT_ERR;
+			spllog(4, "Null input.");
+			break;
+		}		
+		result = SDL_RenderCopy(renderer, texture, 
+			(SDL_Rect *)srcrect, (SDL_Rect *)dstrect);
+		if(result < 0) {
+			ret = FFWR_RENDERCOPY_ERR;
+			spllog(4, "SDL_RenderCopy: %s\n", SDL_GetError());		
+			break;
+		}
 	} while(0);
 	return ret;
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int	 
+ffwr_RenderPresent(void *renderer)
+{
+	int ret = 0;
+	do {
+		if(!renderer) {
+			ret = FFWR_NULL_RENDER_INPUT_ERR;
+			spllog(4, "Null input.");
+			break;
+		}
+		SDL_RenderPresent(renderer);
+	} while(0);
+	return ret;
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int	
+ffwr_DestroyRenderer(void *renderer)
+{
+	int ret = 0;
+	do {
+		if(!renderer) {
+			ret = FFWR_NULL_RENDER_INPUT_ERR;
+			spllog(4, "Null input.");
+			break;
+		}
+		SDL_DestroyRenderer(renderer);
+	} while(0);
+	return ret;	
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int	
+ffwr_DestroyWindow(void *win)
+{
+	int ret = 0;
+	do {
+		if(!win) {
+			ret = FFWR_NULL_SDL_WIN_INPUT_ERR;
+			spllog(4, "Null input.");
+			break;
+		}
+		SDL_DestroyWindow(win);
+	} while(0);
+	return ret;		
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/

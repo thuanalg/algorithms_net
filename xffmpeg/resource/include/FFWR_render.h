@@ -285,7 +285,10 @@ typedef enum __FFWR_LOG_ERR_CODE__ {
 	FFWR_CREATERENDERER_ERR, 
 	FFWR_NULL_TEXTURE_OUTPUT_ERR, 
 	FFWR_NULL_RENDER_INPUT_ERR, 
-	FFWR_UPDATE_YUV_TEXTURE_ERR, FFWR_RENDERCLEAR_ERR, 
+	FFWR_UPDATE_YUV_TEXTURE_ERR, 
+	FFWR_RENDERCLEAR_ERR, 
+	FFWR_NULL_TEXTURE_INPUT_ERR, 
+	FFWR_RENDERCOPY_ERR, FFWR_NULL_SDL_WIN_INPUT_ERR, 
 
 
 	FFWR_END_ERR,
@@ -353,7 +356,16 @@ ffwr_RenderClear(void *renderer);
 
 DLL_API_FFWR_RENDER int	 
 ffwr_RenderCopy(void *renderer, void* texture,
-                   const FFWR_Rect *srcrect, const FFWR_Rect *dstrect);
+    const FFWR_Rect *srcrect, const FFWR_Rect *dstrect);
+	
+DLL_API_FFWR_RENDER int	 
+ffwr_RenderPresent(void *renderer);
+
+DLL_API_FFWR_RENDER int	
+ffwr_DestroyRenderer(void *renderer);
+	
+DLL_API_FFWR_RENDER int	
+ffwr_DestroyWindow(void *win);
 #endif
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
