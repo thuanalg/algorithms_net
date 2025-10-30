@@ -429,7 +429,7 @@ ffwr_open_input(FFWR_INPUT_ST *info)
 #endif               
         pinput->a_dstframe = av_frame_alloc(); 
         if(!pinput->a_dstframe) {
-            ret = 1;
+            ret = FFWR_AFRAME_ALLOC_ERR;
             spllog(4, "--");
             break;
         }   
