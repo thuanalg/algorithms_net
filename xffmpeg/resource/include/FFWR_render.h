@@ -292,11 +292,50 @@ typedef enum __FFWR_LOG_ERR_CODE__ {
 	FFWR_UPDATE_YUV_TEXTURE_ERR, 
 	FFWR_RENDERCLEAR_ERR, 
 	FFWR_NULL_TEXTURE_INPUT_ERR, 
-	FFWR_RENDERCOPY_ERR, FFWR_NULL_SDL_WIN_INPUT_ERR, 
+	FFWR_RENDERCOPY_ERR, 
+	FFWR_NULL_SDL_WIN_INPUT_ERR, 
+	FFWR_NETWORK_INIT_ERR, 
+	FFWR_SDL_INIT_ERR, 
+	FFWR_NULL_FFWR_INPUT_ST_ERR, 
+	FFWR_MEMORY_ERR, 
+	FFWR_AV_OPEN_INPUT_ERR, 
+	FFWR_AV_FIND_STREAM_INFO_ERR, 
+	FFWR_AV_NB_STREAMS_ERR, 
+	FFWR_NO_VSTREAMS_ERR, 
+	FFWR_NO_VCODEC_ERR, 
+	FFWR_NO_VCONTEXT_ERR, 
+	FFWR_PARAMETERS_TO_CONTEXT_ERR, 
+	FFWR_OPEN_VCODEC_ERR, FFWR_VFRAME_ALLOC_ERR, FFWR_NO_VSTREAM_ERR, 
+	
+	
 
 
 	FFWR_END_ERR,
 } FFWR_LOG_ERR_CODE;
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+#define MEMORY_PADDING      2
+#define FFWR_BUFF_SIZE      12000000
+#define FFWR_OUTPUT_ARATE   48000
+#define FFWR_AUDIO_BUF          (1024 * 1024 * 2)
+#define ffwr_malloc(__nn__, __obj__, __type__)                                 \
+	{                                                                      \
+		(__obj__) = (__type__ *)malloc(__nn__);                        \
+		if (__obj__) {                                                 \
+			spllog(1, "[ffwr-MEM] Malloc: 0x%p.", (__obj__));           \
+			memset((__obj__), 0, (__nn__));                        \
+		} else {                                                       \
+			spllog(5, "Malloc: error.");                           \
+		}                                                              \
+	}
+#define FFWR_MIN(__a__, __b__)  ((__a__) < (__b__)) ? (__a__) : (__b__)
+#define ffwr_free(__obj__)                                                     \
+	{                                                                      \
+		if (__obj__) {                                                 \
+			spllog(1, "[ffwr-MEM] Free: 0x%p.", (__obj__));             \
+			free(__obj__);                                         \
+			(__obj__) = 0;                                         \
+		}                                                              \
+	}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 typedef struct FFWR_Rect
@@ -337,8 +376,14 @@ typedef struct __FFWR_VFrame__ {
     int linesize[FFWR_NUM_DATA_POINTERS];
     int pos[FFWR_NUM_DATA_POINTERS + 1];   
     int len[FFWR_NUM_DATA_POINTERS + 1]; 
-    FFWR_uchar data[0];
+    unsigned char data[0];
 } FFWR_VFrame;
+
+typedef struct {
+	void *ffinfo;
+	char name[1024];
+	int mode;
+} FFWR_INPUT_ST;
 
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
@@ -386,6 +431,11 @@ ffwr_DestroyWindow(void *win);
 
 DLL_API_FFWR_RENDER int	
 ffwr_Quit();
+
+DLL_API_FFWR_RENDER int
+ffwr_open_input(FFWR_INPUT_ST *info);
+
+
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
