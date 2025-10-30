@@ -59,6 +59,7 @@ int
 ffwr_CreateRenderer(void **render, void *window, int index, FFWR_uint flags) {
 	int ret = 0;
 	SDL_Renderer *p = 0;
+	SDL_RendererInfo  info_render = {0};
 	do {
 		if(!window) {
 			ret = FFWR_NULL_WINDOW_ERR;
@@ -73,10 +74,22 @@ ffwr_CreateRenderer(void **render, void *window, int index, FFWR_uint flags) {
 		p = SDL_CreateRenderer(window, index, flags);
 		if(!p) {
 			ret = FFWR_CREATERENDERER_ERR;
+			spllog(4, "SDL_CreateRenderer: %s\n", SDL_GetError());
 			break;
 		}
+		SDL_GetRendererInfo(p, &info_render);
+		spllog(1, "Renderer: %s", info_render.name);
 		*render = p;
 	} while(0);
+	return ret;
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int ffwr__CreateTexture(void **texture, 
+	void *renderer, 
+	FFWR_PixelFormat format, 
+	FFWR_TextureAccess access, int w, int h)
+{
+	int ret = 0;
 	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
