@@ -48,6 +48,7 @@
 #endif
 #endif
 
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 #ifdef __cplusplus
 extern "C" {
@@ -95,6 +96,9 @@ extern "C" {
 typedef enum __FFWR_LOG_ERR_CODE__ {
 	FFWR_NO_ERR,
 	FFWR_INIT_ERR,
+	FFWR_NULL_HWND_ERR, 
+	FFWR_NULL_INPUT_ERR, 
+	FFWR_CANNOT_CREATE_WIN_ERR,
 
 
 	FFWR_END_ERR,
@@ -123,13 +127,15 @@ typedef struct __FFWR_GENERIC_DATA__ {
 
 
 
-#if 0
+#if 1
 DLL_API_FFWR_RENDER int
 ffwr_hello();
 
 DLL_API_FFWR_RENDER int
 ffwr_init(FFWR_InitFlags flags);
 
+DLL_API_FFWR_RENDER int
+ffwr_CreateWindowFrom(void* hwnd, void **sdl_win);
 #endif
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 

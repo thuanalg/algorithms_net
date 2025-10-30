@@ -41,44 +41,11 @@ void
 FFWRVideoFrame::OnPaint()
 {
 	CPaintDC dc(this);
-	HRESULT rs;
-	spllog(1, "------");
-	if (!gb_ffwr_d3dContext || !gb_ffwr_renderTargetView)
-		return;
-	if (!gb_ffwr_fakeTexture) {
-		createFakeTexture();
-		return;
-	}
-	// Clear màn hình
-	float clearColor[4] = {0, 0, 0, 1};
-	gb_ffwr_d3dContext->ClearRenderTargetView(
-	    gb_ffwr_renderTargetView, clearColor);
-
-	// Update fake texture
-	updateFakeTexture();
-
-	// Lấy back buffer của swapchain
-	ID3D11Texture2D *backBuffer = 0;
-	rs = gb_ffwr_swapChain->GetBuffer(
-	    0, __uuidof(ID3D11Texture2D), (LPVOID *)&backBuffer);
-	if (rs != S_OK) {
-		spllog(4, "error");
-	}
-	// Copy fakeTexture vào back buffer
-	gb_ffwr_d3dContext->CopyResource(backBuffer, gb_ffwr_fakeTexture);
-
-	backBuffer->Release();
-
-	// Swap buffer hiển thị
-	rs = gb_ffwr_swapChain->Present(1, 0);
-	if (rs != S_OK) {
-		spllog(4, "error");
-	}
 }
 
 #endif
 
-
+#if 0
 
 HWND gbffwr_hWnd; 
 
@@ -230,3 +197,4 @@ updateFakeTexture()
 	}
 }
 // g_window = SDL_CreateWindowFrom((void*)g_hwnd);
+#endif

@@ -110,9 +110,12 @@ BOOL CFFmpegdemoDlg::OnInitDialog()
 	    1001 // ID control
 	);
 	gb_hwnd = m_vframe.m_hWnd;
+	int ret = 0;
+	void *win = 0;
+	ret = ffwr_init(FFWR_INIT_AUDIO | FFWR_INIT_VIDEO);
+	ret = ffwr_CreateWindowFrom(gb_hwnd, &win);
 	HANDLE hThread;
 	DWORD dwThreadId;
-	ffwr_InitD3D11(gb_hwnd);
 	hThread = CreateThread(NULL, // security attributes
 	    0, 
 	    MyThreadProc, // thread function

@@ -115,7 +115,6 @@ BOOL CFFmpegdemoApp::InitInstance()
 	// Since the dialog has been closed, return FALSE so that we exit the
 	//  application, rather than start the application's message pump.
 
-	ffwr_CloseD3D11();
 	spl_finish_log();
 	return FALSE;
 }

@@ -99,7 +99,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>D:\x\algorithms_net\xffmpeg\resource\lib;D:\zz\ffmpeg-demo</AdditionalLibraryDirectories>
-      <AdditionalDependencies>msys-simplelog.lib;</AdditionalDependencies>
+      <AdditionalDependencies>msys-simplelog.lib;libffwr_render.lib</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
