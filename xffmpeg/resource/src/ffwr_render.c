@@ -2,6 +2,48 @@
 #include <ffwr_render.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_syswm.h>
+#include <stdio.h>
+#include <simplelog.h>
+#include <libavutil/avassert.h>
+#include <libavutil/channel_layout.h>
+#include <libavutil/opt.h>
+#include <libavutil/mathematics.h>
+#include <libavutil/timestamp.h>
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
+#include <libswresample/swresample.h>
+#include <simplelog.h>
+#include <libavdevice/avdevice.h>
+#include <libavformat/avformat.h>
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+#ifndef __FFWR_INSTREAM_DEF__
+#define __FFWR_INSTREAM_DEF__
+
+
+typedef struct __FFWR_INSTREAM__ {
+    AVFormatContext *fmt_ctx;
+
+    AVStream *v_st;
+    AVCodec *v_codec;
+    AVCodecContext *v_cctx;
+    AVPacket pkt;
+    AVFrame *vframe;
+    SwsContext *vscale;
+    
+
+    AVStream *a_st;
+    AVCodec *a_codec;
+    AVCodecContext *a_cctx;
+    AVPacket a_pkt;
+    AVFrame *a_frame;
+    AVFrame *a_dstframe;
+    SwrContext *a_scale;    
+
+} FFWR_INSTREAM;
+#endif
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int
 ffwr_hello() {

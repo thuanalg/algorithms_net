@@ -62,6 +62,8 @@ extern "C" {
 #define FFWR_uint                        	unsigned int
 #define FFWR_InitFlags						FFWR_uint
 
+
+
 ///#ifndef Uint8
 ///typedef Uint8 unsigned char
 ///#endif 	
@@ -95,6 +97,8 @@ extern "C" {
                 FFWR_INIT_TIMER | FFWR_INIT_AUDIO | FFWR_INIT_VIDEO | FFWR_INIT_EVENTS | \
                 FFWR_INIT_JOYSTICK | FFWR_INIT_HAPTIC | FFWR_INIT_GAMECONTROLLER | FFWR_INIT_SENSOR \
             )
+
+#define FFWR_NUM_DATA_POINTERS 8
 
 /**
  * Flags used when creating a rendering context
@@ -302,29 +306,42 @@ typedef struct FFWR_Rect
 } FFWR_Rect;
 
 
-typedef struct __FFWR_CALLBACL_DATA__ {
-	int total;
-	int eventid;
-	/*int range;*/
-	int pc;
-	int pl;
-	char data[0];
-} FFWR_CALLBACL_DATA;
+typedef enum {
+    FFWR_DTYPE_VFRAME,
+    FFWR_DTYPE_PACKET,
 
-typedef int (*FFWR_CALLBACL_FUNCTION)(void *);
+    FFWR_DTYPE_END
+} FFWR_DATA_TYPE_E;
 
 typedef struct __FFWR_GENERIC_DATA__ {
 	int total; /*Total size*/
-	int range; /*Total size*/
+	int range; /*data range*/
 	int pc; /*Point to the current*/
 	int pl; /*Point to the last*/
 	char data[0]; /*Generic data */
-} FFWR_gen_data_st;
+} ffwr_gen_data_st;
+
+#define ffwr_araw_stream                ffwr_gen_data_st
+
+typedef struct {
+    int total;
+    int type;    
+} FFWR_SIZE_TYPE;
+
+typedef struct __FFWR_VFrame__ {
+    FFWR_SIZE_TYPE tt_sz;
+    int w;
+    int h;
+    int fmt;
+    int pts;
+    int linesize[FFWR_NUM_DATA_POINTERS];
+    int pos[FFWR_NUM_DATA_POINTERS + 1];   
+    int len[FFWR_NUM_DATA_POINTERS + 1]; 
+    FFWR_uchar data[0];
+} FFWR_VFrame;
 
 
-
-
-#if 1
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 DLL_API_FFWR_RENDER int
 ffwr_hello();
@@ -370,7 +387,6 @@ ffwr_DestroyWindow(void *win);
 DLL_API_FFWR_RENDER int	
 ffwr_Quit();
 
-#endif
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 #ifdef __cplusplus
