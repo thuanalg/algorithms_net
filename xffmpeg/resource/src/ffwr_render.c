@@ -416,6 +416,7 @@ ffwr_open_input(FFWR_INPUT_ST *info)
         }   
 		result = avcodec_open2(pinput->a_cctx, pinput->a_codec, 0);
 		if (result < 0) {
+			ret = FFWR_OPEN_ACODEC_ERR;
             spllog(4, "--");
 			break;
 		} 
