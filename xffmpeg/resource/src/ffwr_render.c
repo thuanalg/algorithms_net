@@ -398,7 +398,7 @@ ffwr_open_input(FFWR_INPUT_ST *info)
             pinput->a_st->codecpar->codec_id);
 
         if(!pinput->a_codec) {
-            ret = 1;
+            ret = FFWR_NO_ACONTEXT_ERR;
             spllog(4, "--");
             break;
         }      
