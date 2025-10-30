@@ -94,12 +94,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>D:\x\SDL\include;D:\x\algorithms_net\xffmpeg\resource\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\x\algorithms_net\xffmpeg\resource\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>D:\x\algorithms_net\xffmpeg\resource\lib;D:\zz\ffmpeg-demo</AdditionalLibraryDirectories>
-      <AdditionalDependencies>msys-simplelog.lib;SDL3.lib</AdditionalDependencies>
+      <AdditionalDependencies>msys-simplelog.lib;</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
