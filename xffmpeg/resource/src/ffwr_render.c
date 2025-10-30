@@ -55,4 +55,29 @@ ffwr_CreateWindowFrom(void* hwnd, void **sdl_win) {
 	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int
+ffwr_CreateRenderer(void **render, void *window, int index, FFWR_uint flags) {
+	int ret = 0;
+	SDL_Renderer *p = 0;
+	do {
+		if(!window) {
+			ret = FFWR_NULL_WINDOW_ERR;
+			spllog(4, "Null input.");
+			break;
+		}	
+		if(!render) {
+			ret = FFWR_NULL_RENDER_OUTPUT_ERR;
+			spllog(4, "Null output.");
+			break;
+		}		
+		p = SDL_CreateRenderer(window, index, flags);
+		if(!p) {
+			ret = FFWR_CREATERENDERER_ERR;
+			break;
+		}
+		*render = p;
+	} while(0);
+	return ret;
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/

@@ -92,13 +92,30 @@ extern "C" {
                 FFWR_INIT_TIMER | FFWR_INIT_AUDIO | FFWR_INIT_VIDEO | FFWR_INIT_EVENTS | \
                 FFWR_INIT_JOYSTICK | FFWR_INIT_HAPTIC | FFWR_INIT_GAMECONTROLLER | FFWR_INIT_SENSOR \
             )
+
+/**
+ * Flags used when creating a rendering context
+ */
+typedef enum FFWR_RendererFlags
+{
+    FFWR_RENDERER_SOFTWARE = 0x00000001,         /**< The renderer is a software fallback */
+    FFWR_RENDERER_ACCELERATED = 0x00000002,      /**< The renderer uses hardware
+                                                     acceleration */
+    FFWR_RENDERER_PRESENTVSYNC = 0x00000004,     /**< Present is synchronized
+                                                     with the refresh rate */
+    FFWR_RENDERER_TARGETTEXTURE = 0x00000008     /**< The renderer supports
+                                                     rendering to texture */
+} FFWR_RendererFlags;
+
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 typedef enum __FFWR_LOG_ERR_CODE__ {
 	FFWR_NO_ERR,
 	FFWR_INIT_ERR,
 	FFWR_NULL_HWND_ERR, 
 	FFWR_NULL_INPUT_ERR, 
-	FFWR_CANNOT_CREATE_WIN_ERR,
+	FFWR_CANNOT_CREATE_WIN_ERR, 
+	FFWR_NULL_WINDOW_ERR, 
+	FFWR_NULL_RENDER_OUTPUT_ERR, FFWR_CREATERENDERER_ERR, 
 
 
 	FFWR_END_ERR,
@@ -128,6 +145,7 @@ typedef struct __FFWR_GENERIC_DATA__ {
 
 
 #if 1
+
 DLL_API_FFWR_RENDER int
 ffwr_hello();
 
@@ -135,7 +153,12 @@ DLL_API_FFWR_RENDER int
 ffwr_init(FFWR_InitFlags flags);
 
 DLL_API_FFWR_RENDER int
-ffwr_CreateWindowFrom(void* hwnd, void **sdl_win);
+ffwr_CreateWindowFrom(void* hwnd, void **sdlwin);
+
+DLL_API_FFWR_RENDER int
+ffwr_CreateRenderer(void **render, 
+	void *window, int index, FFWR_uint flags);
+	
 #endif
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
