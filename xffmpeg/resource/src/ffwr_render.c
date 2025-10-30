@@ -404,7 +404,7 @@ ffwr_open_input(FFWR_INPUT_ST *info)
         }      
         pinput->a_cctx  = avcodec_alloc_context3(pinput->a_codec);
         if(!pinput->a_cctx) {
-            ret = 1;
+            ret = FFWR_ALLOC_ACONTEX_ERR;
             spllog(4, "--a_cctx");
             break;
         }   
