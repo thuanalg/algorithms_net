@@ -410,7 +410,7 @@ ffwr_open_input(FFWR_INPUT_ST *info)
         }   
         result = avcodec_parameters_to_context(pinput->a_cctx, pinput->a_st->codecpar);
         if(result < 0) {
-            ret = 1;
+            ret = FFWR_PARAMETERS_TO_ACONTEXT_ERR;
             spllog(4, "--");
             break;
         }   
