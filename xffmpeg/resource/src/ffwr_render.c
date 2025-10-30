@@ -140,4 +140,35 @@ int ffwr_UpdateYUVTexture(
 }
 						 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int ffwr_RenderClear(void *renderer) {
+	int ret = 0;
+	int result = 0;
+	do {
+		if(!renderer) {
+			ret = FFWR_NULL_RENDER_INPUT_ERR;
+			spllog(4, "Null input.");
+			break;
+		}
+		result = SDL_RenderClear(renderer);
+		if(result < 0) {
+			ret = FFWR_RENDERCLEAR_ERR;
+			spllog(4, "SDL_RenderClear: %s\n", SDL_GetError());
+			break;
+		}
+	} while(0);
+	return ret;
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int	 
+ffwr_RenderCopy(void *renderer, 
+	void* texture, 
+	const FFWR_Rect *srcrect, 
+	const FFWR_Rect *dstrect) 
+{
+	int ret = 0;
+	do {
+		
+	} while(0);
+	return ret;
+}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
