@@ -62,6 +62,9 @@ extern "C" {
 #define FFWR_uint                        	unsigned int
 #define FFWR_InitFlags						FFWR_uint
 
+///#ifndef Uint8
+///typedef Uint8 unsigned char
+///#endif 	
 
 #ifndef UNIX_LINUX
 #ifndef __FFWR_RENDER_STATIC_LOG__
@@ -278,12 +281,23 @@ typedef enum __FFWR_LOG_ERR_CODE__ {
 	FFWR_NULL_INPUT_ERR, 
 	FFWR_CANNOT_CREATE_WIN_ERR, 
 	FFWR_NULL_WINDOW_ERR, 
-	FFWR_NULL_RENDER_OUTPUT_ERR, FFWR_CREATERENDERER_ERR, 
+	FFWR_NULL_RENDER_OUTPUT_ERR, 
+	FFWR_CREATERENDERER_ERR, 
+	FFWR_NULL_TEXTURE_OUTPUT_ERR, 
+	FFWR_NULL_RENDER_INPUT_ERR, 
+	FFWR_UPDATE_YUV_TEXTURE_ERR,
 
 
 	FFWR_END_ERR,
 } FFWR_LOG_ERR_CODE;
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+
+typedef struct FFWR_Rect
+{
+    int x, y;
+    int w, h;
+} FFWR_Rect;
+
 
 typedef struct __FFWR_CALLBACL_DATA__ {
 	int total;
@@ -323,10 +337,16 @@ ffwr_CreateRenderer(void **render,
 	void *window, int index, FFWR_uint flags);
 
 DLL_API_FFWR_RENDER int	
-	ffwr__CreateTexture(void **texture, 
+ffwr_CreateTexture(void **texture, 
 	void *renderer, 
 	FFWR_PixelFormat format, 
 	FFWR_TextureAccess access, int w, int h);
+
+DLL_API_FFWR_RENDER int	
+ffwr_UpdateYUVTexture(void *texture, const FFWR_Rect *rect,
+                         const FFWR_uchar *Yplane, int Ypitch,
+                         const FFWR_uchar *Uplane, int Upitch,
+                         const FFWR_uchar *Vplane, int Vpitch);	
 	
 #endif
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/

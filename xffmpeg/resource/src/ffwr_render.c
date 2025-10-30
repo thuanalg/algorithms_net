@@ -84,13 +84,59 @@ ffwr_CreateRenderer(void **render, void *window, int index, FFWR_uint flags) {
 	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-int ffwr__CreateTexture(void **texture, 
+int ffwr_CreateTexture(void **texture, 
 	void *renderer, 
 	FFWR_PixelFormat format, 
 	FFWR_TextureAccess access, int w, int h)
 {
 	int ret = 0;
+	SDL_Texture *p = 0;
+	do {
+		if(!texture) {
+			ret = FFWR_NULL_TEXTURE_OUTPUT_ERR;
+			spllog(4, "Null output.");
+			break;
+		}	
+		if(!renderer) {
+			ret = FFWR_NULL_RENDER_INPUT_ERR;
+			spllog(4, "Null input.");
+			break;
+		}		
+		p = SDL_CreateTexture(renderer, format, access, w, h);
+		if(!p) {
+			spllog(4, "SDL_CreateTexture: %s\n", SDL_GetError());
+			break;
+		}
+		*texture = p;
+	} while(0);
 	return ret;
 }
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int ffwr_UpdateYUVTexture(
+	void *texture, const FFWR_Rect *rect,  
+	const FFWR_uchar *Yplane,  int Ypitch, 
+	const FFWR_uchar *Uplane,  int Upitch, 
+	const FFWR_uchar *Vplane, int Vpitch) 
+{
+	int ret = 0;
+	int result = 0;
+	do {
+		if(!texture) {
+			ret = FFWR_NULL_RENDER_INPUT_ERR;
+			break;
+		}
+		result = SDL_UpdateYUVTexture(
+			texture, (SDL_Rect *)rect, 
+			Yplane, Ypitch, 
+			Uplane, Upitch, 
+			Vplane, Vpitch);
+		if(!result) {
+			ret = FFWR_UPDATE_YUV_TEXTURE_ERR;
+			break;
+		}
+	} while(0);
+	return ret;
+}
+						 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
