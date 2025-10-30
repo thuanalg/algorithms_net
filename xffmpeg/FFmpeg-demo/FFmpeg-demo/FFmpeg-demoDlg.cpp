@@ -109,11 +109,7 @@ BOOL CFFmpegdemoDlg::OnInitDialog()
 	    this, //
 	    1001 // ID control
 	);
-	gb_hwnd = m_vframe.m_hWnd;
-	int ret = 0;
-	void *win = 0;
-	ret = ffwr_init(FFWR_INIT_AUDIO | FFWR_INIT_VIDEO);
-	ret = ffwr_CreateWindowFrom(gb_hwnd, &win);
+	m_vframe.create_sdlwin();
 	HANDLE hThread;
 	DWORD dwThreadId;
 	hThread = CreateThread(NULL, // security attributes

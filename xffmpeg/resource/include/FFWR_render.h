@@ -366,6 +366,10 @@ ffwr_DestroyRenderer(void *renderer);
 	
 DLL_API_FFWR_RENDER int	
 ffwr_DestroyWindow(void *win);
+
+DLL_API_FFWR_RENDER int	
+ffwr_Quit();
+
 #endif
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 

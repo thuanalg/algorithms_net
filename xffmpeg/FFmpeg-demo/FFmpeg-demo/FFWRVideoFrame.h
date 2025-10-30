@@ -7,16 +7,26 @@
 class FFWRVideoFrame : public CStatic
 {
 public:
+	FFWRVideoFrame();
+	virtual ~FFWRVideoFrame();
+
+/*---------------------------------*/
+
+	static int sdl_init;
+	static unsigned int sdl_flag;
+	static void *sdl_texture;
+	static void *sdl_render;
+	static void sdl_quit();
+
+/*---------------------------------*/
+	void create_sdlwin();
+
+
 protected:
 	afx_msg void OnPaint();
 	DECLARE_MESSAGE_MAP()
 private:
+	void *sdl_window;
 };
-#if 0
-int
-ffwr_InitD3D11(HWND hWnd);
 
-int
-ffwr_CloseD3D11();
-#endif
 
