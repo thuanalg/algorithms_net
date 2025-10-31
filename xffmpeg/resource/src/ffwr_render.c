@@ -78,6 +78,9 @@ convert_audio_frame( AVFrame *src, AVFrame **outfr);
 
 static int 
 ffwr_fill_vframe(FFWR_VFrame *dst, AVFrame *src);
+
+static int 
+ffwr_create_a_swrContext(AVFrame *src, AVFrame *dst);
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 /* Variables */
@@ -994,15 +997,15 @@ int ffwr_create_a_swrContext(AVFrame *src, AVFrame *dst)
             break;
         }        
         swr_alloc_set_opts2(
-                &swr,                        	// NULL → tạo mới
-                &(dst->ch_layout),         		// kênh đầu ra
-                dst->format,          			// định dạng sample đầu ra
-                dst->sample_rate,               // sample rate đầu ra
-                &(src->ch_layout),           	// kênh đầu vào
-                src->format,           			// định dạng sample đầu vào
-                src->sample_rate,               // sample rate đầu vào
-                0, NULL                      	// log offset, log context
-            );        
+            &swr,                        	// NULL → tạo mới
+            &(dst->ch_layout),         		// kênh đầu ra
+            dst->format,          			// định dạng sample đầu ra
+            dst->sample_rate,               // sample rate đầu ra
+            &(src->ch_layout),           	// kênh đầu vào
+            src->format,           			// định dạng sample đầu vào
+            src->sample_rate,               // sample rate đầu vào
+            0, NULL                      	// log offset, log context
+        );        
         if(!swr) {
             ret = 1;
             break;
