@@ -533,8 +533,9 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
     if(ret) {
         return 0;
     }
-
+	spllog(1, "while(1)");
     tmp = av_frame_alloc();
+	spllog(1, "av_frame_alloc");
     tmp->width = 640;
     tmp->height = 480;
     tmp->format = 4;
@@ -551,6 +552,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
     av_frame_get_buffer(gb_instream.vframe, 32);       
 
     while(1) {
+		spllog(1, "while(1)");
         runnung = ffwr_get_running();
         if(!runnung) {
             break;
@@ -624,6 +626,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 		    if (result < 0) {
 		    	break;
 		    }  
+#if 0			
             convert_audio_frame(gb_instream.a_frame, 
                 &(gb_instream.a_dstframe));
             spl_mutex_lock(ffwr_gb_FRAME_MTX);
@@ -649,6 +652,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
                     gb_shared_astream->pc, 
                     gb_shared_astream->range);
             } while(0);
+#endif			
             spl_mutex_unlock(ffwr_gb_FRAME_MTX);
             spl_vframe(gb_instream.a_dstframe);
             av_frame_unref(gb_instream.a_dstframe); 
@@ -749,6 +753,7 @@ ffwr_convert_vframe(AVFrame *src, AVFrame *dst)
 int ffwr_gb_running = 1;
 int ffwr_get_running() {
     int ret = 0;
+	spllog(1, "ffwr_gb_FRAME_MTX: %p", ffwr_gb_FRAME_MTX);
     spl_mutex_lock(ffwr_gb_FRAME_MTX);
         ret = ffwr_gb_running;
     spl_mutex_unlock(ffwr_gb_FRAME_MTX);

@@ -30,6 +30,7 @@ HWND gb_sdlWindow = 0;
 void *gb_sdlWindow = 0;
 #endif 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+
 #define MEMORY_PADDING      2
 #define FFWR_BUFF_SIZE      12000000
 #define FFWR_OUTPUT_ARATE   48000
@@ -53,6 +54,7 @@ void *gb_sdlWindow = 0;
 			(__obj__) = 0;                                         \
 		}                                                              \
 	}
+
 #define ffwr_frame_unref(__fr__) if(__fr__) {av_frame_unref(__fr__);}
 #define ffwr_frame_free(__fr__) if(__fr__) {av_frame_free(__fr__);}
 #define ffwr_packet_unref(__pkt__) if(__pkt__) {av_packet_unref(__pkt__);}
