@@ -6,16 +6,35 @@
 #include <dxgi.h>
 #pragma comment(lib, "d3d11.lib")
 
-
+//void *gb_texture = 0;
+//void *render = 0;
 
 BEGIN_MESSAGE_MAP(FFWRVideoFrame, CStatic)
 ON_WM_PAINT()
 END_MESSAGE_MAP()
 
-void
-FFWRVideoFrame::OnPaint()
+
+
+void FFWRVideoFrame::OnPaint()
 {
 	spllog(1, "---");
+	if (!this->sdl_window) {
+		spllog(4, "sdl_window null");
+		return;
+	}
+	if (!this->sdl_window) {
+		spllog(4, "sdl_window null");
+		return;
+	}
+	if (!FFWRVideoFrame::sdl_render) {
+		spllog(4, "FFWRVideoFrame::sdl_render null");
+		return;
+	}
+	if (!FFWRVideoFrame::sdl_texture) {
+		spllog(4, "FFWRVideoFrame::sdl_texture null");
+		return;
+	}
+	spllog(1, "window, sdl_render, sdl_texture");
 }
 
 FFWRVideoFrame::FFWRVideoFrame()
