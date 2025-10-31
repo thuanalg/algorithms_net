@@ -15,7 +15,7 @@ END_MESSAGE_MAP()
 void
 FFWRVideoFrame::OnPaint()
 {
-	CPaintDC dc(this);
+	spllog(1, "---");
 }
 
 FFWRVideoFrame::FFWRVideoFrame()
