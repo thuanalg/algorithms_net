@@ -585,7 +585,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 
 
             spl_vframe(gb_instream.vframe);
-#if 0			
+#if 1			
             if(!ffwr_vframe) {
                 ffwr_create_rawvframe(&ffwr_vframe, gb_instream.vframe);
                 if(!ffwr_vframe) {
