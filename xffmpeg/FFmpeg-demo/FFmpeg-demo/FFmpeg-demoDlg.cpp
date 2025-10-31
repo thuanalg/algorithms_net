@@ -71,7 +71,7 @@ END_MESSAGE_MAP()
 
 
 // CFFmpegdemoDlg message handlers
-
+FFWR_INPUT_ST mfcinfo;
 BOOL CFFmpegdemoDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
@@ -110,6 +110,7 @@ BOOL CFFmpegdemoDlg::OnInitDialog()
 	    1001 // ID control
 	);
 	m_vframe.create_sdlwin();
+
 	HANDLE hThread;
 	DWORD dwThreadId;
 	hThread = CreateThread(NULL, // security attributes
@@ -119,6 +120,9 @@ BOOL CFFmpegdemoDlg::OnInitDialog()
 	    0, // 
 	    &dwThreadId // 
 	);
+	snprintf(mfcinfo.name, sizeof(mfcinfo.name), "%s", 
+		"tcp://127.0.0.1:12345");
+	ffwr_create_demux(&mfcinfo);
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 

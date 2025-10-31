@@ -500,6 +500,18 @@ int
 ffwr_create_demux(void *obj)
 {
 	int ret = 0;
+#ifndef UNIX_LINUX
+	HANDLE hThread = 0;
+	DWORD dwThreadId = 0;
+	hThread = CreateThread(NULL, // security attributes
+	    0, 
+	    ffwr_demux_routine, // thread function
+	    "HelloThread",
+	    0, // 
+	    &dwThreadId // 
+	);
+#else
+#endif	
 	return ret;
 }
 
@@ -513,8 +525,9 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
     AVFrame *tmp = 0;
     FFWR_VFrame *ffwr_vframe = 0;
     int runnung = 0;
-	FFWR_INPUT_ST *info = (FFWR_INPUT_ST *)lpParam;
+	FFWR_INPUT_ST *info = 0;
     
+	info = (FFWR_INPUT_ST *)lpParam;
     ret = ffwr_open_input(info);
     if(ret) {
         return 0;
@@ -561,6 +574,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 
 
             spl_vframe(gb_instream.vframe);
+#if 0			
             if(!ffwr_vframe) {
                 ffwr_create_rawvframe(&ffwr_vframe, gb_instream.vframe);
                 if(!ffwr_vframe) {
@@ -593,6 +607,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 
             } while(0);
             spl_mutex_unlock(ffwr_gb_FRAME_MTX);
+#endif			
             av_frame_unref(tmp);
             av_frame_unref(gb_instream.vframe);
         }   
