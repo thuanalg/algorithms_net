@@ -25,6 +25,10 @@
 #endif
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+#define ffwr_frame_unref(__fr__) if(__fr__) {av_frame_unref(__fr__);}
+#define ffwr_frame_free(__fr__) if(__fr__) {av_frame_free(__fr__);}
+#define ffwr_packet_unref(__pkt__) if(__pkt__) {av_packet_unref(__pkt__);}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 #ifndef __FFWR_INSTREAM_DEF__
 #define __FFWR_INSTREAM_DEF__
@@ -69,6 +73,11 @@ ffwr_create_rawvframe(FFWR_VFrame **dst, AVFrame *src);
 static int 
 ffwr_update_vframe(FFWR_VFrame **dst, AVFrame *src);
 
+static int 
+convert_audio_frame( AVFrame *src, AVFrame **outfr);
+
+static int 
+ffwr_fill_vframe(FFWR_VFrame *dst, AVFrame *src);
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 /* Variables */
@@ -77,6 +86,8 @@ static int ffwr_get_running();
 static int ffwr_set_running(int v);
 void *ffwr_gb_FRAME_MTX;
 ffwr_gen_data_st *gb_tsplanVFrame;
+ffwr_araw_stream *gb_shared_astream;
+struct SwrContext *gb_aConvertContext;
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int
@@ -847,8 +858,166 @@ int ffwr_update_vframe(FFWR_VFrame **dst, AVFrame *src) {
     return ret  = 0;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int convert_audio_frame( AVFrame *src, AVFrame **outfr)
+{
+    int ret = 0;
+    AVChannelLayout *src_layout = 0;
+    int n = 0;
+    AVFrame *dst = 0;
+    do {
+        if(!src) {
+            ret = 1;
+            break;
+        }    
+        if(!outfr) {
+            ret = 1;
+            break;
+        }
+        dst = *outfr;
+        if(!dst) {
+            dst = av_frame_alloc();
+            if(!dst) {
+                break;
+            }
+          
+        }
+
+        av_channel_layout_default(&dst->ch_layout, 2);
+        dst->format = AV_SAMPLE_FMT_FLT;
+        dst->sample_rate = FFWR_OUTPUT_ARATE;  
+
+        if(!gb_aConvertContext) {
+            ret = ffwr_create_a_swrContext(src, dst);
+            if(ret) {
+                break;
+            }
+        }
+        if(!gb_instream.a_cctx) {
+            ret = 1;
+            break;            
+        }
+        src_layout = &(gb_instream.a_cctx->ch_layout);
+        if(!src_layout) {
+            ret = 1;
+            break;                    
+        }
+
+        dst->nb_samples = av_rescale_rnd(
+            swr_get_delay(gb_aConvertContext, 
+                src->sample_rate) + src->nb_samples, 
+                FFWR_OUTPUT_ARATE, src->sample_rate, AV_ROUND_UP);
+
+        n = av_frame_get_buffer(dst, 0);
+	    if (n < 0) {
+	    	spllog(4, "Error: cannot allocate dst buffer (%d)\n", n);
+            ret = 1;
+	    	break;
+	    }
+        av_channel_layout_copy(&(dst->ch_layout), src_layout);
+	    n = swr_convert(gb_aConvertContext, dst->data, dst->nb_samples,
+	        (const uint8_t **)src->data, src->nb_samples);
+	    if (ret < 0) {
+	    	spllog(4, " Error: swr_convert failed (%d)\n", ret);
+            ret = 1;
+	    	break;
+	    }
+
+	    dst->nb_samples = n;
+	    spllog(1, "Audio convert done: %d samples -> %d samples\n",
+	        src->nb_samples, dst->nb_samples);
+        dst->pts = src->pts;
+        *outfr = dst;
+
+    } while(0);
+
+
+	return ret;
+}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int ffwr_fill_vframe(FFWR_VFrame *dst, AVFrame *src) {
+    int ret = 0;
+    int k = 0;
+    int m = 0;
+    int i = 0;
+    int pos = 0;
+    do {
+        if(!src) {
+            ret = 1;
+            break;
+        }
+        if(!dst) {
+            ret = 1;
+            break;
+        }  
+        dst->w = src->width;
+        dst->h = src->height;
+        dst->fmt = src->format;
+        dst->pts = src->pts;
+        i = 0;
+        memset(dst->pos, 0, sizeof(dst->pos));
+        memset(dst->len, 0, sizeof(dst->len));
+        memset(dst->linesize, 0, sizeof(dst->linesize));
+        while(src->linesize[i] && i < AV_NUM_DATA_POINTERS) {
+            dst->linesize[i] = src->linesize[i];
+            ++i;
+        }              
+        if(src->format == 0) {
+            i = 0;
+            while(src->linesize[i]) {
+                dst->pos[i] = pos;
+                k = src->linesize[i];
+                m = (i == 0) ? src->height : ((src->height)/2);
+                dst->len[i] = k * m;
+                pos += k * (m + MEMORY_PADDING);
+                memcpy(dst->data + dst->pos[i], 
+                    src->data[i], dst->len[i]);
+                ++i;
+            }  
+            i = 0;
+            
+        }
+    } while(0);
+    return ret;
+}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int ffwr_create_a_swrContext(AVFrame *src, AVFrame *dst)
+{
+    int ret = 0;
+    SwrContext *swr = 0;
+    do {
+        if(!src) {
+            ret = 1;
+            break;
+        }
+        if(!dst) {
+            ret = 1;
+            break;
+        }        
+        swr_alloc_set_opts2(
+                &swr,                        	// NULL → tạo mới
+                &(dst->ch_layout),         		// kênh đầu ra
+                dst->format,          			// định dạng sample đầu ra
+                dst->sample_rate,               // sample rate đầu ra
+                &(src->ch_layout),           	// kênh đầu vào
+                src->format,           			// định dạng sample đầu vào
+                src->sample_rate,               // sample rate đầu vào
+                0, NULL                      	// log offset, log context
+            );        
+        if(!swr) {
+            ret = 1;
+            break;
+        }
+        ret = swr_init(swr);
+        if(ret < 0) {
+            ret = 1;
+            break;
+        }
+
+        gb_aConvertContext = swr;
+
+    } while(0);
+    return ret;
+}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
