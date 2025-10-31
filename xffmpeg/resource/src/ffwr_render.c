@@ -52,16 +52,23 @@ typedef struct __FFWR_INSTREAM__ {
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 static int
 ffwr_convert_vframe(AVFrame *src, AVFrame *dst);
+
 #ifndef UNIX_LINUX
 static DWORD WINAPI 
 ffwr_demux_routine(LPVOID lpParam);
 #else	
 #endif
+
+static int 
+ffwr_get_rawsize_vframe(AVFrame *src);
+static int 
+ffwr_create_rawvframe(FFWR_VFrame **dst, AVFrame *src);
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 static FFWR_INSTREAM gb_instream;
 static int ffwr_get_running();
 static int ffwr_set_running(int v);
 void *ffwr_gb_FRAME_MTX;
+ffwr_gen_data_st *gb_tsplanVFrame;
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int
 ffwr_hello() {
@@ -580,7 +587,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 		    }  
             convert_audio_frame(gb_instream.a_frame, 
                 &(gb_instream.a_dstframe));
-            spl_mutex_lock(&gb_AFRAME_MTX);
+            spl_mutex_lock(ffwr_gb_FRAME_MTX);
             do {
                 if(gb_shared_astream->range > 
                     gb_shared_astream->pl + 
@@ -603,7 +610,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
                     gb_shared_astream->pc, 
                     gb_shared_astream->range);
             } while(0);
-            spl_mutex_unlock(&gb_AFRAME_MTX);
+            spl_mutex_unlock(ffwr_gb_FRAME_MTX);
             spl_vframe(gb_instream.a_dstframe);
             av_frame_unref(gb_instream.a_dstframe); 
             av_frame_unref(gb_instream.a_frame);   
@@ -716,6 +723,60 @@ int ffwr_set_running(int v) {
     return 0;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int ffwr_get_rawsize_vframe(AVFrame *src) {
+    int ret = 0;
+    int h = 0;
+    int i = 0;
+    if(!src) {
+        return ret;
+    }
+    if(src->format == 0) {
+        while(src->linesize[i]) {
+            h = (i == 0) ? src->height : ((src->height)/2);
+            ret += src->linesize[i] * (h + MEMORY_PADDING);
+            spllog(1, "ret: %d", ret);
+            ++i;
+        }           
+    }
+    return ret;
+}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int ffwr_create_rawvframe(FFWR_VFrame **dst, AVFrame *src) {
+    int ret = 0;
+    FFWR_VFrame *tmp = 0;
+    int total = 0;
+    int len = 0;
+    int k = 0;
+    int i = 0;
+    do {
+        if(!src) {
+            ret = 1;
+            break;
+        }
+        if(!dst) {
+            ret = 1;
+            break;
+        }
+        tmp = *dst;
+        if(src->format == 0) {
+            len = ffwr_get_rawsize_vframe(src);
+            total = sizeof(FFWR_VFrame) + len;
+            if(!tmp) {    
+				ffwr_malloc(total, tmp, FFWR_VFrame);
+                if(!tmp) {
+                    ret = 1;
+                    break;
+                }
+
+                tmp->tt_sz.total = total;
+                tmp->tt_sz.type = FFWR_DTYPE_VFRAME;
+                ffwr_fill_vframe(tmp, src);
+            }
+            *dst = tmp;
+            break;
+        }
+    } while(0);
+    return ret;
+}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
