@@ -81,6 +81,13 @@ ffwr_fill_vframe(FFWR_VFrame *dst, AVFrame *src);
 
 static int 
 ffwr_create_a_swrContext(AVFrame *src, AVFrame *dst);
+
+static int 
+ffwr_mutex_lock(void *mtx);
+
+static int 
+ffwr_mutex_unlock(void *mtx);
+
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 /* Variables */
@@ -594,7 +601,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
             if(!gb_tsplanVFrame) {
                 break;
             }
-            spl_mutex_lock(ffwr_gb_FRAME_MTX);
+            ffwr_mutex_lock(ffwr_gb_FRAME_MTX);
             do {
                 if(gb_tsplanVFrame->range > 
                     gb_tsplanVFrame->pl + ffwr_vframe->tt_sz.total) {                      
@@ -610,7 +617,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
                 }
 
             } while(0);
-            spl_mutex_unlock(ffwr_gb_FRAME_MTX);
+            ffwr_mutex_unlock(ffwr_gb_FRAME_MTX);
 #endif			
             av_frame_unref(tmp);
             av_frame_unref(gb_instream.vframe);
@@ -630,7 +637,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 #if 0			
             convert_audio_frame(gb_instream.a_frame, 
                 &(gb_instream.a_dstframe));
-            spl_mutex_lock(ffwr_gb_FRAME_MTX);
+            ffwr_mutex_lock(ffwr_gb_FRAME_MTX);
             do {
                 if(gb_shared_astream->range > 
                     gb_shared_astream->pl + 
@@ -653,8 +660,8 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
                     gb_shared_astream->pc, 
                     gb_shared_astream->range);
             } while(0);
+            ffwr_mutex_unlock(ffwr_gb_FRAME_MTX);
 #endif			
-            spl_mutex_unlock(ffwr_gb_FRAME_MTX);
             spl_vframe(gb_instream.a_dstframe);
             av_frame_unref(gb_instream.a_dstframe); 
             av_frame_unref(gb_instream.a_frame);   
@@ -755,16 +762,16 @@ int ffwr_gb_running = 1;
 int ffwr_get_running() {
     int ret = 0;
 	spllog(1, "ffwr_gb_FRAME_MTX: %p", ffwr_gb_FRAME_MTX);
-    spl_mutex_lock(ffwr_gb_FRAME_MTX);
+    ffwr_mutex_lock(ffwr_gb_FRAME_MTX);
         ret = ffwr_gb_running;
-    spl_mutex_unlock(ffwr_gb_FRAME_MTX);
+    ffwr_mutex_unlock(ffwr_gb_FRAME_MTX);
     return ret;;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int ffwr_set_running(int v) {
-    spl_mutex_lock(ffwr_gb_FRAME_MTX);
+    ffwr_mutex_lock(ffwr_gb_FRAME_MTX);
         ffwr_gb_running = v;
-    spl_mutex_unlock(ffwr_gb_FRAME_MTX);
+    ffwr_mutex_unlock(ffwr_gb_FRAME_MTX);
     return 0;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
@@ -1044,5 +1051,55 @@ int ffwr_create_a_swrContext(AVFrame *src, AVFrame *dst)
     return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int ffwr_mutex_lock(void *mtx) {
+	int ret = 0;
+#ifndef UNIX_LINUX
+	DWORD err = 0;
+#else
+	int err = 0;
+#endif		
+	do {
+		if(!mtx) {
+			ret = FFWR_MUTEX_NULL;
+			spllog(4, "FFWR_MUTEX_NULL");
+		}
+#ifndef UNIX_LINUX		
+		err = WaitForSingleObject(mtx, INFINITE);
+		if (err != WAIT_OBJECT_0) {
+			ret = FFWR_WIN32_MUTEX_RELEASE;
+			spllog(4, "WaitForSingleObject");
+			break;
+		}		
+#else
+#endif	
+	} while(0);
+	return ret;
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int ffwr_mutex_unlock(void *mtx) {
+	int ret = 0;
+#ifndef UNIX_LINUX
+	DWORD done = 0;
+#else
+	int err = 0;
+#endif
+	do {
+		if(!mtx) {
+			ret = FFWR_MUTEX_NULL;
+			spllog(4, "FFWR_MUTEX_NULL");
+		}		
+#ifndef UNIX_LINUX
+		done = ReleaseMutex(mtx);
+		if (!done) {
+			ret = FFWR_WIN32_MUTEX_RELEASE;
+			spllog(4, "ReleaseMutex, GetLastError() %d", 
+				(int)GetLastError());
+			break;
+		}		
+#else
+#endif	
+	} while(0);
+	return ret;
+}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/

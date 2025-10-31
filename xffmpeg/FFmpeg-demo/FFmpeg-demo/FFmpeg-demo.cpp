@@ -46,6 +46,7 @@ init_spllog()
 	SPL_INPUT_ARG input = {0};
 	snprintf(input.folder, sizeof(input.folder) - 1, "%s", "D:/zz/ffmpeg-demo/z.cfg");
 	spl_console_log("input.folder: %s.\n", input.folder);
+	snprintf(input.id_name, sizeof(input.id_name), "%s", "ffwr-win");
 	ret = spl_init_log_ext(&input);
 }
 
