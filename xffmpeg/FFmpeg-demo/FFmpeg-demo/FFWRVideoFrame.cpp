@@ -58,10 +58,26 @@ void FFWRVideoFrame::OnPaint()
 		return;
 	}
 	spllog(1, "window, sdl_render, sdl_texture");
-	spl_mutex_lock(ref_ffwr_mtx);
-	do {
-	} while (0);
-	spl_mutex_unlock(ref_ffwr_mtx);
+	if (gb_frame->pl < 1) {
+		spl_mutex_lock(ref_ffwr_mtx);
+		do {
+			memcpy(gb_frame->data + gb_frame->pl,
+			    gb_tsplanVFrame->data + gb_tsplanVFrame->pc,
+			    gb_tsplanVFrame->pl - gb_tsplanVFrame->pc);
+
+			gb_frame->pl +=
+			    gb_tsplanVFrame->pl - gb_tsplanVFrame->pc;
+			gb_tsplanVFrame->pl = gb_tsplanVFrame->pc = 0;
+		} while (0);
+		spl_mutex_unlock(ref_ffwr_mtx);
+	}
+	if (gb_frame->pl <= gb_frame->pc) {
+		gb_frame->pl = gb_frame->pc = 0;
+		return;
+	}
+
+	it = (FFWR_SIZE_TYPE *)(gb_frame->data + gb_frame->pc);
+	p = (FFWR_VFrame *)(gb_frame->data + gb_frame->pc);
 }
 
 FFWRVideoFrame::FFWRVideoFrame()
