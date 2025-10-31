@@ -50,6 +50,7 @@ typedef struct __FFWR_INSTREAM__ {
 } FFWR_INSTREAM;
 #endif
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+/* Functions */
 static int
 ffwr_convert_vframe(AVFrame *src, AVFrame *dst);
 
@@ -61,14 +62,22 @@ ffwr_demux_routine(LPVOID lpParam);
 
 static int 
 ffwr_get_rawsize_vframe(AVFrame *src);
+
 static int 
 ffwr_create_rawvframe(FFWR_VFrame **dst, AVFrame *src);
+
+static int 
+ffwr_update_vframe(FFWR_VFrame **dst, AVFrame *src);
+
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+
+/* Variables */
 static FFWR_INSTREAM gb_instream;
 static int ffwr_get_running();
 static int ffwr_set_running(int v);
 void *ffwr_gb_FRAME_MTX;
 ffwr_gen_data_st *gb_tsplanVFrame;
+
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int
 ffwr_hello() {
@@ -777,6 +786,65 @@ int ffwr_create_rawvframe(FFWR_VFrame **dst, AVFrame *src) {
         }
     } while(0);
     return ret;
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int ffwr_update_vframe(FFWR_VFrame **dst, AVFrame *src) {
+    int ret = 0;
+    int total = 0;
+    int shouldupdate = 1;
+    FFWR_VFrame *tmp = 0;
+    do {
+        if(!src) {
+            ret = 1;
+            break;
+        }
+        if(!dst) {
+            ret = 1;
+            break;
+        } 
+        if(! (*dst)) {
+            ret = 1;
+            break;
+        }         
+        tmp = *dst;
+        total = ffwr_get_rawsize_vframe(src);
+        total += sizeof(FFWR_VFrame);
+        spllog(1, "check sz (total, tmp->tt_sz.total)=(%d, %d)",
+            total, tmp->tt_sz.total);
+        if(total != tmp->tt_sz.total) {
+            break;
+        }
+        if(tmp->fmt != src->format) {
+            break;            
+        }
+        if(tmp->w != src->width) {
+            break;            
+        }
+        if(tmp->h != src->height) {
+            break;            
+        }        
+        shouldupdate = 0;
+    } while(0);
+
+    if(ret) {
+        return ret;
+    }
+    /*spllog(1, "shouldupdate: %d", shouldupdate);*/
+    do {
+        if(shouldupdate) {
+            tmp = realloc(*dst, total);
+            if(!tmp) {
+                ret = 1;
+                break;
+            }
+        }
+        tmp->tt_sz.total = total;
+        tmp->tt_sz.type = FFWR_DTYPE_VFRAME;
+        ret = ffwr_fill_vframe(tmp, src);
+        *dst = tmp;
+    } while(0);
+
+    return ret  = 0;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
