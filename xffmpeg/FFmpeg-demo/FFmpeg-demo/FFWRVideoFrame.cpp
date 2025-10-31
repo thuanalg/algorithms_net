@@ -17,7 +17,6 @@ void *ref_ffwr_mtx = 0;
 
 void FFWRVideoFrame::OnPaint()
 {
-	spllog(1, "---");
 	if (!ref_ffwr_mtx) {
 		ref_ffwr_mtx = ffwr_mutex_data();
 		if (!ref_ffwr_mtx) {
