@@ -78,6 +78,22 @@ void FFWRVideoFrame::OnPaint()
 
 	it = (FFWR_SIZE_TYPE *)(gb_frame->data + gb_frame->pc);
 	p = (FFWR_VFrame *)(gb_frame->data + gb_frame->pc);
+	ffwr_UpdateYUVTexture(FFWRVideoFrame::sdl_texture, 
+		0,
+	    p->data + p->pos[0],  p->linesize[0], 
+		p->data + p->pos[1], p->linesize[1],
+	    p->data + p->pos[2], p->linesize[2]
+
+	);
+	spllog(1, "pc render: %d, pts: %d", gb_frame->pc, p->pts);
+	ffwr_RenderClear(FFWRVideoFrame::sdl_render);
+	ffwr_RenderCopy(FFWRVideoFrame::sdl_render, 
+		FFWRVideoFrame::sdl_texture,
+	    0, 0);
+	ffwr_RenderPresent(FFWRVideoFrame::sdl_render);
+	if (it) {
+		gb_frame->pc += it->total;
+	}
 }
 
 FFWRVideoFrame::FFWRVideoFrame()
