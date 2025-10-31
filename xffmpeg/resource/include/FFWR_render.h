@@ -417,10 +417,12 @@ ffwr_CreateTexture(void **texture,
 	FFWR_TextureAccess access, int w, int h);
 
 DLL_API_FFWR_RENDER int	
-ffwr_UpdateYUVTexture(void *texture, const FFWR_Rect *rect,
-                         const FFWR_uchar *Yplane, int Ypitch,
-                         const FFWR_uchar *Uplane, int Upitch,
-                         const FFWR_uchar *Vplane, int Vpitch);	
+ffwr_UpdateYUVTexture(
+		void *texture, const FFWR_Rect *rect,
+        const FFWR_uchar *Yplane, int Ypitch,
+        const FFWR_uchar *Uplane, int Upitch,
+        const FFWR_uchar *Vplane, int Vpitch
+	);	
 	
 DLL_API_FFWR_RENDER int 
 ffwr_RenderClear(void *renderer);
