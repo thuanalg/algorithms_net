@@ -313,6 +313,8 @@ typedef enum __FFWR_LOG_ERR_CODE__ {
 	FFWR_PARAMETERS_TO_ACONTEXT_ERR, 
 	FFWR_OPEN_ACODEC_ERR, 
 	FFWR_AFRAME_ALLOC_ERR, 
+	FFWR_WIN_CREATE_MUTEX_ERR,
+	
 	
 	
 
@@ -442,7 +444,8 @@ ffwr_Quit();
 DLL_API_FFWR_RENDER int
 ffwr_open_input(FFWR_INPUT_ST *info);
 
-
+DLL_API_FFWR_RENDER int
+ffwr_create_demux(void *);
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
