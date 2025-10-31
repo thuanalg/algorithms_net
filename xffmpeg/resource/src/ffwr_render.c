@@ -375,7 +375,8 @@ ffwr_open_input(FFWR_INPUT_ST *info)
 		if (!av_dict_get(options, "scan_all_pmts", NULL, AV_DICT_MATCH_CASE)) {
 			av_dict_set(&options, "scan_all_pmts", "1", AV_DICT_DONT_OVERWRITE);
 		}        
-    
+		
+		spllog(1, "name: %s", name);
 
         result = avformat_open_input(&(pinput->fmt_ctx), name,  iformat, &options);
 
@@ -489,7 +490,7 @@ ffwr_open_input(FFWR_INPUT_ST *info)
             spllog(4, "--");
             break;
         }   
-           
+        spllog(1, "openInout OK, ret: %d", ret);
     } while(0);
     return ret;
 }
@@ -506,7 +507,7 @@ ffwr_create_demux(void *obj)
 	hThread = CreateThread(NULL, // security attributes
 	    0, 
 	    ffwr_demux_routine, // thread function
-	    "HelloThread",
+	    obj,
 	    0, // 
 	    &dwThreadId // 
 	);
