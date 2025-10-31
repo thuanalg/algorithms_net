@@ -109,6 +109,7 @@ BOOL CFFmpegdemoDlg::OnInitDialog()
 	    this, //
 	    1001 // ID control
 	);
+	gb_hwnd = m_vframe.m_hWnd;
 	m_vframe.create_sdlwin();
 
 	HANDLE hThread;
@@ -179,7 +180,7 @@ HCURSOR CFFmpegdemoDlg::OnQueryDragIcon()
 DWORD WINAPI
 MyThreadProc(LPVOID lpParam)
 {
-	printf("Thread started! Param = %s\n", (char *)lpParam);
+	spllog(1, "Thread started! Param = %s\n", (char *)lpParam);
 
 	// Simulate work
 	for (;;) {
@@ -187,6 +188,5 @@ MyThreadProc(LPVOID lpParam)
 		Sleep(30); // sleep for 0.5 second
 	}
 
-	printf("Thread finished.\n");
 	return 0;
 }
