@@ -13,11 +13,17 @@ BEGIN_MESSAGE_MAP(FFWRVideoFrame, CStatic)
 ON_WM_PAINT()
 END_MESSAGE_MAP()
 
-
+void *ref_ffwr_mtx = 0;
 
 void FFWRVideoFrame::OnPaint()
 {
 	spllog(1, "---");
+	if (!ref_ffwr_mtx) {
+		ref_ffwr_mtx = ffwr_mutex_data();
+		if (!ref_ffwr_mtx) {
+			spllog(4, "ref_ffwr_mtx null");
+		}
+	}
 	if (!this->sdl_window) {
 		spllog(4, "sdl_window null");
 		return;

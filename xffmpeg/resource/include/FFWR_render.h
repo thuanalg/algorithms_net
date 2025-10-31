@@ -452,6 +452,8 @@ ffwr_open_input(FFWR_INPUT_ST *info);
 DLL_API_FFWR_RENDER int
 ffwr_create_demux(void *);
 
+DLL_API_FFWR_RENDER void*
+ffwr_mutex_data();
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 #ifdef __cplusplus
