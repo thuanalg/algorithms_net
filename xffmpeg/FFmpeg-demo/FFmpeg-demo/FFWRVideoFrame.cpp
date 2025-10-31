@@ -17,10 +17,21 @@ void *ref_ffwr_mtx = 0;
 
 void FFWRVideoFrame::OnPaint()
 {
+	FFWR_VFrame *p = 0;
+	FFWR_SIZE_TYPE *it = 0;
+	ffwr_gen_data_st *gb_frame = 0;
+
+	gb_frame = ffwr_gb_frame();
+	if (!gb_frame) {
+		spllog(4, "gb_frame null");
+		return;
+	}
+
 	if (!ref_ffwr_mtx) {
 		ref_ffwr_mtx = ffwr_mutex_data();
 		if (!ref_ffwr_mtx) {
 			spllog(4, "ref_ffwr_mtx null");
+			return;
 		}
 	}
 	if (!this->sdl_window) {
@@ -40,6 +51,10 @@ void FFWRVideoFrame::OnPaint()
 		return;
 	}
 	spllog(1, "window, sdl_render, sdl_texture");
+	spl_mutex_lock(ref_ffwr_mtx);
+	do {
+	} while (0);
+	spl_mutex_unlock(ref_ffwr_mtx);
 }
 
 FFWRVideoFrame::FFWRVideoFrame()

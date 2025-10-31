@@ -454,6 +454,9 @@ ffwr_create_demux(void *);
 
 DLL_API_FFWR_RENDER void*
 ffwr_mutex_data();
+
+DLL_API_FFWR_RENDER ffwr_gen_data_st*
+ffwr_gb_frame();
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 #ifdef __cplusplus
