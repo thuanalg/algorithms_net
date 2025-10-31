@@ -365,8 +365,9 @@ ffwr_open_input(FFWR_INPUT_ST *info)
         }
 		name = info->name;
 		mode = info->mode;
-		sz = sizeof(FFWR_INSTREAM);
-		ffwr_malloc(sz, pinput, FFWR_INSTREAM);
+		
+		pinput = &gb_instream;
+		
 		if(!pinput) {
 			ret = FFWR_MEMORY_ERR;
 			break;

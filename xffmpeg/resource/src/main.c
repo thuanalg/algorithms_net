@@ -12,6 +12,8 @@ int main(int argc, char *argv[]) {
 	snprintf(input.id_name, 100, "tvk_wind");
 	ret = spl_init_log_ext(&input);
 	
+	ffwr_init(FFWR_INIT_AUDIO | FFWR_INIT_VIDEO);
+	
 	snprintf(mfcinfo.name, sizeof(mfcinfo.name), "%s", 
 		"tcp://127.0.0.1:12345");
 	ffwr_create_demux(&mfcinfo);	
