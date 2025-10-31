@@ -20,10 +20,17 @@ void FFWRVideoFrame::OnPaint()
 	FFWR_VFrame *p = 0;
 	FFWR_SIZE_TYPE *it = 0;
 	ffwr_gen_data_st *gb_frame = 0;
+	ffwr_gen_data_st *gb_tsplanVFrame = 0;
 
 	gb_frame = ffwr_gb_frame();
 	if (!gb_frame) {
-		spllog(4, "gb_frame null");
+		spllog(3, "gb_frame null");
+		return;
+	}
+
+	gb_tsplanVFrame = ffwr_gb_shared_vframe();
+	if (!gb_tsplanVFrame) {
+		spllog(3, "gb_tsplanVFrame null");
 		return;
 	}
 
