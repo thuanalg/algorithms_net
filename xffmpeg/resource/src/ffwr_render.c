@@ -98,6 +98,7 @@ void *ffwr_gb_FRAME_MTX;
 ffwr_gen_data_st *gb_tsplanVFrame;
 ffwr_araw_stream *gb_shared_astream;
 struct SwrContext *gb_aConvertContext;
+ffwr_gen_data_st *gb_frame;
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int
@@ -528,12 +529,11 @@ ffwr_create_demux(void *obj)
 #ifndef UNIX_LINUX
 DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 {
-#if 1
     int ret = 0;
     int result = 0;
     AVFrame *tmp = 0;
     FFWR_VFrame *ffwr_vframe = 0;
-    int runnung = 0;
+    int running = 0;
 	FFWR_INPUT_ST *info = 0;
     
 	info = (FFWR_INPUT_ST *)lpParam;
@@ -541,7 +541,6 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
     if(ret) {
         return 0;
     }
-	spllog(1, "while(1)");
     tmp = av_frame_alloc();
 	spllog(1, "av_frame_alloc");
     tmp->width = 640;
@@ -558,11 +557,31 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
     gb_instream.vframe->format = 4;
     gb_instream.vframe->pts = 0;
     av_frame_get_buffer(gb_instream.vframe, 32);       
+	
+	/*-----------------*/
+	ffwr_malloc(FFWR_BUFF_SIZE, gb_tsplanVFrame, ffwr_gen_data_st);
+    if(!gb_tsplanVFrame) {
+        exit(1);
+    }
+    //memset(gb_tsplanVFrame, 0, FFWR_BUFF_SIZE);
+    gb_tsplanVFrame->total = FFWR_BUFF_SIZE;
+    gb_tsplanVFrame->range = gb_tsplanVFrame->total -sizeof(ffwr_gen_data_st);
 
+    //gb_frame = malloc(FFWR_BUFF_SIZE);
+    ffwr_malloc(FFWR_BUFF_SIZE, gb_frame, ffwr_gen_data_st);
+    if(!gb_frame) {
+        exit(1);
+    }
+    //memset(gb_frame, 0, FFWR_BUFF_SIZE);
+
+    gb_frame->total = FFWR_BUFF_SIZE;
+    gb_frame->range = gb_frame->total -sizeof(ffwr_gen_data_st);    
+	
+	/*-----------------*/
+	
     while(1) {
-		spllog(1, "while(1)");
-        runnung = ffwr_get_running();
-        if(!runnung) {
+        running = ffwr_get_running();
+        if(!running) {
             break;
         }
         av_packet_unref(&(gb_instream.pkt));
@@ -578,6 +597,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
             }
 		    result = avcodec_receive_frame(gb_instream.v_cctx, tmp);
 		    if (result < 0) {
+				spllog(4, "avcodec_receive_frame");
 		    	break;
 		    } 
 
@@ -589,6 +609,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
             if(!ffwr_vframe) {
                 ffwr_create_rawvframe(&ffwr_vframe, gb_instream.vframe);
                 if(!ffwr_vframe) {
+					spllog(4, "ffwr_vframe");
                     break;
                 }                  
             }
@@ -596,9 +617,11 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
                 ffwr_update_vframe(&ffwr_vframe, gb_instream.vframe);
             } 
             if(ffwr_vframe->tt_sz.total < 1) {
+				spllog(4, "ffwr_vframe->tt_sz.total");
                 break;
             }  
             if(!gb_tsplanVFrame) {
+				spllog(4, "gb_tsplanVFrame");
                 break;
             }
             ffwr_mutex_lock(ffwr_gb_FRAME_MTX);
@@ -626,12 +649,13 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
             result = avcodec_send_packet(
                 gb_instream.a_cctx, &(gb_instream.pkt));
             if(result < 0) {
-                spllog(1, "v_cctx: 0x%p", gb_instream.a_cctx);
+                spllog(4, "avcodec_send_packet");
                 break;
             }
 		    result = avcodec_receive_frame(
                 gb_instream.a_cctx, gb_instream.a_frame);
 		    if (result < 0) {
+				spllog(4, "avcodec_receive_frame");
 		    	break;
 		    }  
 #if 0			
@@ -668,6 +692,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
                      
         }    
     }
+	
 
     if(gb_instream.vframe) {
         ffwr_frame_free(&(gb_instream.vframe));
@@ -704,8 +729,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
     gb_instream.a_cctx = 0;
     avformat_close_input(&(gb_instream.fmt_ctx));
     gb_instream.fmt_ctx = 0;
-#else    
-#endif	
+	
 	return 0;
 }
 #endif
@@ -761,7 +785,6 @@ ffwr_convert_vframe(AVFrame *src, AVFrame *dst)
 int ffwr_gb_running = 1;
 int ffwr_get_running() {
     int ret = 0;
-	spllog(1, "ffwr_gb_FRAME_MTX: %p", ffwr_gb_FRAME_MTX);
     ffwr_mutex_lock(ffwr_gb_FRAME_MTX);
         ret = ffwr_gb_running;
     ffwr_mutex_unlock(ffwr_gb_FRAME_MTX);
