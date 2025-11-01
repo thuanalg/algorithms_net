@@ -42,19 +42,19 @@ void FFWRVideoFrame::OnPaint()
 			return;
 		}
 	}
-	if (!this->sdl_window) {
+	if (!sdl_winrentext.sdl_window) {
 		spllog(4, "sdl_window null");
 		return;
 	}
-	if (!this->sdl_window) {
+	if (!sdl_winrentext.sdl_window) {
 		spllog(4, "sdl_window null");
 		return;
 	}
-	if (!this->sdl_render) {
+	if (!sdl_winrentext.sdl_render) {
 		spllog(4, "FFWRVideoFrame::sdl_render null");
 		return;
 	}
-	if (!this->sdl_texture) {
+	if (!sdl_winrentext.sdl_texture) {
 		spllog(4, "FFWRVideoFrame::sdl_texture null");
 		return;
 	}
@@ -78,19 +78,19 @@ void FFWRVideoFrame::OnPaint()
 	}
 	it = (FFWR_SIZE_TYPE *)(gb_frame->data + gb_frame->pc);
 	p = (FFWR_VFrame *)(gb_frame->data + gb_frame->pc);
-	ffwr_UpdateYUVTexture(
-		FFWRVideoFrame::sdl_texture, 0,
+	ffwr_UpdateYUVTexture(sdl_winrentext.sdl_texture, 0,
 	    p->data + p->pos[0],  p->linesize[0], 
 		p->data + p->pos[1], p->linesize[1],
 	    p->data + p->pos[2], p->linesize[2]
 
 	);
 	spllog(1, "pc render: %d, pts: %d", gb_frame->pc, p->pts);
-	ffwr_RenderClear(FFWRVideoFrame::sdl_render);
-	ffwr_RenderCopy(FFWRVideoFrame::sdl_render, 
-		FFWRVideoFrame::sdl_texture,
+	ffwr_RenderClear(sdl_winrentext.sdl_render);
+	ffwr_RenderCopy(
+	    sdl_winrentext.sdl_render, 
+		sdl_winrentext.sdl_texture,
 	    0, 0);
-	ffwr_RenderPresent(FFWRVideoFrame::sdl_render);
+	ffwr_RenderPresent(sdl_winrentext.sdl_render);
 	if (it) {
 		gb_frame->pc += it->total;
 	}
@@ -99,7 +99,7 @@ void FFWRVideoFrame::OnPaint()
 FFWRVideoFrame::FFWRVideoFrame()
 {
 	int ret = 0;
-	sdl_window = 0;
+	sdl_winrentext.sdl_window = 0;
 	if (!sdl_init) {
 		ret = ffwr_init(FFWRVideoFrame::sdl_flag);
 		if (ret) {
@@ -107,8 +107,8 @@ FFWRVideoFrame::FFWRVideoFrame()
 		}
 		sdl_init = 1;
 	}
-	sdl_render = 0;
-	sdl_texture = 0;
+	sdl_winrentext.sdl_render = 0;
+	sdl_winrentext.sdl_texture = 0;
 }
 
 FFWRVideoFrame::~FFWRVideoFrame()
@@ -141,26 +141,26 @@ FFWRVideoFrame::create_sdlwin()
 		spllog(4, "Error");
 		return;
 	}
-	this->sdl_window = win;
-	if (!this->sdl_texture) {
+	sdl_winrentext.sdl_window = win;
+	if (!sdl_winrentext.sdl_texture) {
 		void *render = 0;
 		ret = ffwr_CreateRenderer(&render, win, -1, FFWR_RENDERER_ACCELERATED);
 		if (ret) {
 			spllog(4, "Error");
 			return;
 		}
-		this->sdl_render = render;
+		sdl_winrentext.sdl_render = render;
 	}
-	if (!this->sdl_texture) {
+	if (!sdl_winrentext.sdl_texture) {
 		void *texture = 0;
-		ret = ffwr_CreateTexture(&texture, this->sdl_render,
+		ret = ffwr_CreateTexture(&texture, sdl_winrentext.sdl_render,
 		    FFWR_PIXELFORMAT_IYUV, FFWR_TEXTUREACCESS_STREAMING, 640,
 		    480);
 		if (ret) {
 			spllog(4, "Error");
 			return;		
 		}
-		this->sdl_texture = texture;
+		sdl_winrentext.sdl_texture = texture;
 	}
 }
 LRESULT

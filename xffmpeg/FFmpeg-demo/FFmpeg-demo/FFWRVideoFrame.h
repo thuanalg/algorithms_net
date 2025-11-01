@@ -29,9 +29,9 @@ protected:
 	afx_msg LRESULT OnFFWRMessage(WPARAM wParam, LPARAM lParam);
 	DECLARE_MESSAGE_MAP()
 private:
-	void *sdl_window;
-	void *sdl_render;
-	void *sdl_texture;
+	//void *sdl_window;
+	//void *sdl_render;
+	//void *sdl_texture;
 	void clearSDLWinRenderContext();
 	FFWR_RENDER_OBJECTS sdl_winrentext;
 };
