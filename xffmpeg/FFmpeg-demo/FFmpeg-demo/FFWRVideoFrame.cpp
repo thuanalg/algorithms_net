@@ -78,8 +78,8 @@ void FFWRVideoFrame::OnPaint()
 	}
 	it = (FFWR_SIZE_TYPE *)(gb_frame->data + gb_frame->pc);
 	p = (FFWR_VFrame *)(gb_frame->data + gb_frame->pc);
-	ffwr_UpdateYUVTexture(FFWRVideoFrame::sdl_texture, 
-		0,
+	ffwr_UpdateYUVTexture(
+		FFWRVideoFrame::sdl_texture, 0,
 	    p->data + p->pos[0],  p->linesize[0], 
 		p->data + p->pos[1], p->linesize[1],
 	    p->data + p->pos[2], p->linesize[2]
@@ -124,6 +124,13 @@ FFWRVideoFrame::sdl_quit()
 		ffwr_Quit();
 	}
 }
+
+void
+FFWRVideoFrame::sdl_Init()
+{
+	ffwr_init(FFWRVideoFrame::sdl_flag);
+}
+
 void
 FFWRVideoFrame::create_sdlwin()
 {
@@ -163,7 +170,3 @@ FFWRVideoFrame::OnFFWRMessage(WPARAM wParam, LPARAM lParam)
 }
 int FFWRVideoFrame::sdl_init = 0;
 unsigned int FFWRVideoFrame::sdl_flag = (FFWR_INIT_AUDIO | FFWR_INIT_VIDEO);
-
-
-//void *FFWRVideoFrame::sdl_texture = 0;
-//void *FFWRVideoFrame::sdl_render = 0;
