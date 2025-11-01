@@ -34,4 +34,8 @@ protected:
 
 private:
 	FFWRVideoFrame m_vframe;
+
+public:
+  afx_msg void OnBnClickedCancel();
+  afx_msg void OnBnClickedStop();
 };

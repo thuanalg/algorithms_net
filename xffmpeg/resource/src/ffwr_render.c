@@ -102,8 +102,7 @@ ffwr_clode_audio_output();
 
 /* Variables */
 static FFWR_INSTREAM gb_instream;
-static int ffwr_get_running();
-static int ffwr_set_running(int v);
+
 void *ffwr_gb_VFRAME_MTX;
 void *ffwr_gb_AFRAME_MTX;
 ffwr_gen_data_st *gb_tsplanVFrame;

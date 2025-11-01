@@ -473,6 +473,12 @@ ffwr_gb_shared_vframe();
 
 DLL_API_FFWR_RENDER int 
 ffwr_open_audio_output(int sz);
+
+DLL_API_FFWR_RENDER int 
+ffwr_get_running();
+
+DLL_API_FFWR_RENDER int 
+ffwr_set_running(int v);
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 #ifdef __cplusplus

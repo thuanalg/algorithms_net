@@ -57,7 +57,8 @@ demux_callback_gui(void *obj)
 	if (!p) {
 		return 1;
 	}
-	PostMessage((HWND)p->native_drawing, WM_FFWR_MESSAGE, 0, (LPARAM)obj);
+	PostMessage((HWND)(p->native_drawing), 
+		WM_FFWR_MESSAGE, 0, (LPARAM)obj);
 	return 0;
 }
 
@@ -78,7 +79,9 @@ BEGIN_MESSAGE_MAP(CFFmpegdemoDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-END_MESSAGE_MAP()
+	ON_BN_CLICKED(IDCANCEL, &CFFmpegdemoDlg::OnBnClickedCancel)
+	ON_BN_CLICKED(IDSTOP, &CFFmpegdemoDlg::OnBnClickedStop)
+	END_MESSAGE_MAP()
 
 
 // CFFmpegdemoDlg message handlers
@@ -202,4 +205,19 @@ MyThreadProc(LPVOID lpParam)
 	}
 
 	return 0;
+}
+
+void
+CFFmpegdemoDlg::OnBnClickedCancel()
+{
+	// TODO: Add your control notification handler code here
+	CDialogEx::OnCancel();
+	//ffwr_set_running(0);
+}
+
+void
+CFFmpegdemoDlg::OnBnClickedStop()
+{
+	// TODO: Add your control notification handler code here
+	ffwr_set_running(0);
 }
