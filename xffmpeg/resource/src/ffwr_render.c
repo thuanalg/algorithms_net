@@ -105,11 +105,16 @@ static FFWR_INSTREAM gb_instream;
 
 void *ffwr_gb_VFRAME_MTX;
 void *ffwr_gb_AFRAME_MTX;
-ffwr_gen_data_st *gb_tsplanVFrame;
+
+ffwr_gen_data_st *st_shared_vframe;
+ffwr_gen_data_st *st_renderVFrame;
+
 ffwr_araw_stream *gb_shared_astream;
-struct SwrContext *gb_aConvertContext;
-ffwr_gen_data_st *gb_renderVFrame;
 static ffwr_araw_stream *gb_in_astream;
+
+struct SwrContext *gb_aConvertContext;
+
+
 SDL_AudioSpec gb_want, gb_have;
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int
@@ -579,23 +584,23 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
     av_frame_get_buffer(gb_instream.vframe, 32);       
 	
 	/*-----------------*/
-	ffwr_malloc(FFWR_BUFF_SIZE, gb_tsplanVFrame, ffwr_gen_data_st);
-    if(!gb_tsplanVFrame) {
+	ffwr_malloc(FFWR_BUFF_SIZE, st_shared_vframe, ffwr_gen_data_st);
+    if(!st_shared_vframe) {
         exit(1);
     }
-    //memset(gb_tsplanVFrame, 0, FFWR_BUFF_SIZE);
-    gb_tsplanVFrame->total = FFWR_BUFF_SIZE;
-    gb_tsplanVFrame->range = gb_tsplanVFrame->total -sizeof(ffwr_gen_data_st);
+    //memset(st_shared_vframe, 0, FFWR_BUFF_SIZE);
+    st_shared_vframe->total = FFWR_BUFF_SIZE;
+    st_shared_vframe->range = st_shared_vframe->total -sizeof(ffwr_gen_data_st);
 
-    //gb_renderVFrame = malloc(FFWR_BUFF_SIZE);
-    ffwr_malloc(FFWR_BUFF_SIZE, gb_renderVFrame, ffwr_gen_data_st);
-    if(!gb_renderVFrame) {
+    //st_renderVFrame = malloc(FFWR_BUFF_SIZE);
+    ffwr_malloc(FFWR_BUFF_SIZE, st_renderVFrame, ffwr_gen_data_st);
+    if(!st_renderVFrame) {
         exit(1);
     }
-    //memset(gb_renderVFrame, 0, FFWR_BUFF_SIZE);
+    //memset(st_renderVFrame, 0, FFWR_BUFF_SIZE);
 
-    gb_renderVFrame->total = FFWR_BUFF_SIZE;
-    gb_renderVFrame->range = gb_renderVFrame->total -sizeof(ffwr_gen_data_st);    
+    st_renderVFrame->total = FFWR_BUFF_SIZE;
+    st_renderVFrame->range = st_renderVFrame->total -sizeof(ffwr_gen_data_st);    
 	
 	/*-----------------*/
 	ffwr_open_audio_output( 2000000);
@@ -643,23 +648,23 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 				spllog(4, "ffwr_vframe->tt_sz.total");
                 break;
             }  
-            if(!gb_tsplanVFrame) {
-				spllog(4, "gb_tsplanVFrame");
+            if(!st_shared_vframe) {
+				spllog(4, "st_shared_vframe");
                 break;
             }
             spl_mutex_lock(ffwr_gb_VFRAME_MTX);
             do {
-                if(gb_tsplanVFrame->range > 
-                    gb_tsplanVFrame->pl + ffwr_vframe->tt_sz.total) {                      
-                    memcpy(gb_tsplanVFrame->data + gb_tsplanVFrame->pl, 
+                if(st_shared_vframe->range > 
+                    st_shared_vframe->pl + ffwr_vframe->tt_sz.total) {                      
+                    memcpy(st_shared_vframe->data + st_shared_vframe->pl, 
                         ffwr_vframe, 
                         ffwr_vframe->tt_sz.total);
-                    gb_tsplanVFrame->pl += ffwr_vframe->tt_sz.total;
-                    spllog(1, "gb_tsplanVFrame->pl: %d", 
-                        gb_tsplanVFrame->pl);
+                    st_shared_vframe->pl += ffwr_vframe->tt_sz.total;
+                    spllog(1, "st_shared_vframe->pl: %d", 
+                        st_shared_vframe->pl);
                 } else {
-                    gb_tsplanVFrame->pl = 0;
-                    gb_tsplanVFrame->pc = 0;
+                    st_shared_vframe->pl = 0;
+                    st_shared_vframe->pc = 0;
                 }
 
             } while(0);
@@ -1163,13 +1168,13 @@ ffwr_mutex_data()
 ffwr_gen_data_st*
 ffwr_gb_renderVFrame()
 {
-	return gb_renderVFrame;
+	return st_renderVFrame;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 ffwr_gen_data_st*
 ffwr_gb_shared_vframe()
 {
-	return gb_tsplanVFrame;
+	return st_shared_vframe;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int ffwr_open_audio_output(int sz)
