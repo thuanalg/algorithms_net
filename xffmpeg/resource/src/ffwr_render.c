@@ -761,6 +761,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 		info->sz_type.type = FFWR_DEMUX_THREAD_EXIT;
 		info->cb(info);
 	}
+	
 	return 0;
 }
 #endif
@@ -1360,5 +1361,13 @@ ffwr_destroy_render_objects(FFWR_RENDER_OBJECTS *p)
 	} while(0);
 	return ret;
 }
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+void ffwr_clear_gb_var() {
+    ffwr_free(gb_tsplanVFrame);
+    ffwr_free(gb_frame);
+    ffwr_free(gb_shared_astream);
+    ffwr_free(gb_in_astream);
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
