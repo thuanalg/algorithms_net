@@ -108,7 +108,7 @@ void *ffwr_gb_AFRAME_MTX;
 ffwr_gen_data_st *gb_tsplanVFrame;
 ffwr_araw_stream *gb_shared_astream;
 struct SwrContext *gb_aConvertContext;
-ffwr_gen_data_st *gb_frame;
+ffwr_gen_data_st *gb_renderVFrame;
 static ffwr_araw_stream *gb_in_astream;
 SDL_AudioSpec gb_want, gb_have;
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
@@ -587,15 +587,15 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
     gb_tsplanVFrame->total = FFWR_BUFF_SIZE;
     gb_tsplanVFrame->range = gb_tsplanVFrame->total -sizeof(ffwr_gen_data_st);
 
-    //gb_frame = malloc(FFWR_BUFF_SIZE);
-    ffwr_malloc(FFWR_BUFF_SIZE, gb_frame, ffwr_gen_data_st);
-    if(!gb_frame) {
+    //gb_renderVFrame = malloc(FFWR_BUFF_SIZE);
+    ffwr_malloc(FFWR_BUFF_SIZE, gb_renderVFrame, ffwr_gen_data_st);
+    if(!gb_renderVFrame) {
         exit(1);
     }
-    //memset(gb_frame, 0, FFWR_BUFF_SIZE);
+    //memset(gb_renderVFrame, 0, FFWR_BUFF_SIZE);
 
-    gb_frame->total = FFWR_BUFF_SIZE;
-    gb_frame->range = gb_frame->total -sizeof(ffwr_gen_data_st);    
+    gb_renderVFrame->total = FFWR_BUFF_SIZE;
+    gb_renderVFrame->range = gb_renderVFrame->total -sizeof(ffwr_gen_data_st);    
 	
 	/*-----------------*/
 	ffwr_open_audio_output( 2000000);
@@ -1161,9 +1161,9 @@ ffwr_mutex_data()
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 ffwr_gen_data_st*
-ffwr_gb_frame()
+ffwr_gb_renderVFrame()
 {
-	return gb_frame;
+	return gb_renderVFrame;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 ffwr_gen_data_st*

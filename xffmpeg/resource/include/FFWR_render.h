@@ -475,7 +475,7 @@ DLL_API_FFWR_RENDER void*
 ffwr_mutex_data();
 
 DLL_API_FFWR_RENDER ffwr_gen_data_st*
-ffwr_gb_frame();
+ffwr_gb_renderVFrame();
 
 DLL_API_FFWR_RENDER ffwr_gen_data_st*
 ffwr_gb_shared_vframe();
