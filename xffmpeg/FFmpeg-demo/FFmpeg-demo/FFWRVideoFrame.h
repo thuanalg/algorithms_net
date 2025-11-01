@@ -32,7 +32,7 @@ private:
 	//void *sdl_window;
 	//void *sdl_render;
 	//void *sdl_texture;
-	void clearSDLWinRenderContext();
+	//void clearSDLWinRenderContext();
 	FFWR_RENDER_OBJECTS sdl_winrentext;
 };
 

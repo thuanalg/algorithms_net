@@ -173,11 +173,11 @@ FFWRVideoFrame::OnFFWRMessage(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-void
-FFWRVideoFrame::clearSDLWinRenderContext()
-{
-
-}
+//void
+//FFWRVideoFrame::clearSDLWinRenderContext()
+//{
+//
+//}
 
 int FFWRVideoFrame::sdl_init = 0;
 unsigned int FFWRVideoFrame::sdl_flag = (FFWR_INIT_AUDIO | FFWR_INIT_VIDEO);
