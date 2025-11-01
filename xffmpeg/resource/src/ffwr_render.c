@@ -750,6 +750,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
     gb_instream.fmt_ctx = 0;
 	ffwr_clode_audio_output();
 	if(info->cb) {
+		info->sz_type.type = FFWR_DEMUX_THREAD_EXIT;
 		info->cb(info);
 	}
 	return 0;
