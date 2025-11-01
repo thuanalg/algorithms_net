@@ -1129,7 +1129,7 @@ int spl_mutex_unlock(void *mtx) {
 #endif
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 void*
-spl_mutex_data() 
+ffwr_mutex_data() 
 {
 	return ffwr_gb_FRAME_MTX;
 }
