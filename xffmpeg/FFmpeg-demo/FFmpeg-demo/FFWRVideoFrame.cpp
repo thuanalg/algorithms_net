@@ -168,7 +168,7 @@ FFWRVideoFrame::OnFFWRMessage(WPARAM wParam, LPARAM lParam)
 {
 	FFWR_INPUT_ST *p = (FFWR_INPUT_ST *)lParam;
 	if (p && p->sz_type.type == FFWR_DEMUX_THREAD_EXIT) {
-		ffwr_clear_render_object(&sdl_winrentext);
+		ffwr_destroy_render_objects(&sdl_winrentext);
 	}
 	return 0;
 }

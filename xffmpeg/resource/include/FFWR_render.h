@@ -490,7 +490,7 @@ DLL_API_FFWR_RENDER int
 ffwr_set_running(int v);
 
 DLL_API_FFWR_RENDER int 
-ffwr_clear_render_object(FFWR_RENDER_OBJECTS *);
+ffwr_destroy_render_objects(FFWR_RENDER_OBJECTS *);
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 #ifdef __cplusplus

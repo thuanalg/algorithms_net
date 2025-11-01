@@ -1322,7 +1322,7 @@ int ffwr_clode_audio_output() {
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int 
-ffwr_clear_render_object(FFWR_RENDER_OBJECTS *p) 
+ffwr_destroy_render_objects(FFWR_RENDER_OBJECTS *p) 
 {
 	int ret = 0;
 	do {
