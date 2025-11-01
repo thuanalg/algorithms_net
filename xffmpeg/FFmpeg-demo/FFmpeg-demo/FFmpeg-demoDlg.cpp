@@ -13,6 +13,7 @@
 #endif
 
 
+
 DWORD WINAPI
 MyThreadProc(LPVOID lpParam);
     // CAboutDlg dialog used for App About
@@ -52,6 +53,11 @@ END_MESSAGE_MAP()
 int
 demux_callback_gui(void *obj)
 {
+	FFWR_INPUT_ST *p = (FFWR_INPUT_ST *)obj;
+	if (!p) {
+		return 1;
+	}
+	PostMessage((HWND)p->native_drawing, WM_FFWR_MESSAGE, 0, (LPARAM)obj);
 	return 0;
 }
 

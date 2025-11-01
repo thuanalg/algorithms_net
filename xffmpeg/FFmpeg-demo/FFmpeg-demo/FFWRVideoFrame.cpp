@@ -6,8 +6,12 @@
 #include <dxgi.h>
 #pragma comment(lib, "d3d11.lib")
 
+
+
+
 BEGIN_MESSAGE_MAP(FFWRVideoFrame, CStatic)
 ON_WM_PAINT()
+ON_MESSAGE(WM_FFWR_MESSAGE, &FFWRVideoFrame::OnFFWRMessage)
 END_MESSAGE_MAP()
 
 void *ref_ffwr_mtx = 0;
@@ -149,6 +153,11 @@ FFWRVideoFrame::create_sdlwin()
 		}
 		FFWRVideoFrame::sdl_texture = texture;
 	}
+}
+LRESULT
+FFWRVideoFrame::OnFFWRMessage(WPARAM wParam, LPARAM lParam)
+{
+	return 0;
 }
 int FFWRVideoFrame::sdl_init = 0;
 unsigned int FFWRVideoFrame::sdl_flag = (FFWR_INIT_AUDIO | FFWR_INIT_VIDEO);

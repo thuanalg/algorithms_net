@@ -3,7 +3,8 @@
 #include <simplelog.h>
 #include <ffwr_render.h>
 
-//#include <SDL3/SDL_syswm.h>
+#define WM_FFWR_MESSAGE (WM_USER + 10)
+
 class FFWRVideoFrame : public CStatic
 {
 public:
@@ -24,6 +25,7 @@ public:
 
 protected:
 	afx_msg void OnPaint();
+	afx_msg LRESULT OnFFWRMessage(WPARAM wParam, LPARAM lParam);
 	DECLARE_MESSAGE_MAP()
 private:
 	void *sdl_window;
