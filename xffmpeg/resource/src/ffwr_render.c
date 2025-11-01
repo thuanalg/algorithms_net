@@ -111,7 +111,6 @@ ffwr_gen_data_st *st_renderVFrame;
 
 ffwr_araw_stream *gb_shared_astream;
 static ffwr_araw_stream *gb_in_astream;
-
 struct SwrContext *gb_aConvertContext;
 
 
@@ -1079,7 +1078,7 @@ int ffwr_create_a_swrContext(AVFrame *src, AVFrame *dst)
         if(!dst) {
             ret = 1;
             break;
-        }        
+        }  
         swr_alloc_set_opts2(
             &swr,                        	// NULL → tạo mới
             &(dst->ch_layout),         		// kênh đầu ra
@@ -1103,6 +1102,9 @@ int ffwr_create_a_swrContext(AVFrame *src, AVFrame *dst)
         gb_aConvertContext = swr;
 
     } while(0);
+	if(ret) {
+		spllog(4, "ret");
+	}
     return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
