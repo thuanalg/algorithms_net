@@ -1331,17 +1331,20 @@ ffwr_clear_render_object(FFWR_RENDER_OBJECTS *p)
 			break;
 		}
 		if(p->sdl_texture) {
-			//
+			spllog(1, "sdl_texture: %p", p->sdl_texture);
+			SDL_DestroyTexture(p->sdl_texture);
 		}
 		if(p->sdl_render) {
+			spllog(1, "sdl_render: %p", p->sdl_render);
 			SDL_DestroyRenderer(p->sdl_render);
 		}
-		if(p->sdl_win) {
-			SDL_DestroyWindow(p->sdl_win);
+		if(p->sdl_window) {
+			spllog(1, "sdl_window: %p", p->sdl_window);
+			SDL_DestroyWindow(p->sdl_window);
 		}		
 		p->sdl_texture = 0;;
 		p->sdl_render = 0;;
-		p->sdl_win = 0;;
+		p->sdl_window = 0;;
 	} while(0);
 	return ret;
 }
