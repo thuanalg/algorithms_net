@@ -89,18 +89,26 @@ spl_mutex_lock(void *mtx);
 static int 
 spl_mutex_unlock(void *mtx);
 #endif
+
+static int 
+ffwr_init_gen_buff(ffwr_gen_data_st *obj, int sz);
+
+static void 
+ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len);
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 /* Variables */
 static FFWR_INSTREAM gb_instream;
 static int ffwr_get_running();
 static int ffwr_set_running(int v);
-void *ffwr_gb_FRAME_MTX;
+void *ffwr_gb_VFRAME_MTX;
+void *ffwr_gb_AFRAME_MTX;
 ffwr_gen_data_st *gb_tsplanVFrame;
 ffwr_araw_stream *gb_shared_astream;
 struct SwrContext *gb_aConvertContext;
 ffwr_gen_data_st *gb_frame;
-
+static ffwr_araw_stream *gb_in_astream;
+SDL_AudioSpec gb_want, gb_have;
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int
 ffwr_hello() {
@@ -133,11 +141,16 @@ ffwr_init(FFWR_InitFlags flags) {
 			break;
 		}
 #ifndef UNIX_LINUX
-		ffwr_gb_FRAME_MTX = CreateMutexA(0, 0, 0);
-		if(!ffwr_gb_FRAME_MTX) {
+		ffwr_gb_VFRAME_MTX = CreateMutexA(0, 0, 0);
+		if(!ffwr_gb_VFRAME_MTX) {
 			ret = FFWR_WIN_CREATE_MUTEX_ERR;
 			break;
 		}
+		ffwr_gb_AFRAME_MTX = CreateMutexA(0, 0, 0);
+		if(!ffwr_gb_AFRAME_MTX) {
+			ret = FFWR_WIN_CREATE_MUTEX_ERR;
+			break;
+		}		
 #else	
 #endif
 	} while(0);
@@ -625,7 +638,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 				spllog(4, "gb_tsplanVFrame");
                 break;
             }
-            spl_mutex_lock(ffwr_gb_FRAME_MTX);
+            spl_mutex_lock(ffwr_gb_VFRAME_MTX);
             do {
                 if(gb_tsplanVFrame->range > 
                     gb_tsplanVFrame->pl + ffwr_vframe->tt_sz.total) {                      
@@ -641,7 +654,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
                 }
 
             } while(0);
-            spl_mutex_unlock(ffwr_gb_FRAME_MTX);
+            spl_mutex_unlock(ffwr_gb_VFRAME_MTX);
 #endif			
             av_frame_unref(tmp);
             av_frame_unref(gb_instream.vframe);
@@ -662,7 +675,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 #if 0			
             convert_audio_frame(gb_instream.a_frame, 
                 &(gb_instream.a_dstframe));
-            spl_mutex_lock(ffwr_gb_FRAME_MTX);
+            spl_mutex_lock(ffwr_gb_VFRAME_MTX);
             do {
                 if(gb_shared_astream->range > 
                     gb_shared_astream->pl + 
@@ -685,7 +698,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
                     gb_shared_astream->pc, 
                     gb_shared_astream->range);
             } while(0);
-            spl_mutex_unlock(ffwr_gb_FRAME_MTX);
+            spl_mutex_unlock(ffwr_gb_VFRAME_MTX);
 #endif			
             spl_vframe(gb_instream.a_dstframe);
             av_frame_unref(gb_instream.a_dstframe); 
@@ -786,16 +799,16 @@ ffwr_convert_vframe(AVFrame *src, AVFrame *dst)
 int ffwr_gb_running = 1;
 int ffwr_get_running() {
     int ret = 0;
-    spl_mutex_lock(ffwr_gb_FRAME_MTX);
+    spl_mutex_lock(ffwr_gb_VFRAME_MTX);
         ret = ffwr_gb_running;
-    spl_mutex_unlock(ffwr_gb_FRAME_MTX);
+    spl_mutex_unlock(ffwr_gb_VFRAME_MTX);
     return ret;;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int ffwr_set_running(int v) {
-    spl_mutex_lock(ffwr_gb_FRAME_MTX);
+    spl_mutex_lock(ffwr_gb_VFRAME_MTX);
         ffwr_gb_running = v;
-    spl_mutex_unlock(ffwr_gb_FRAME_MTX);
+    spl_mutex_unlock(ffwr_gb_VFRAME_MTX);
     return 0;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
@@ -1131,7 +1144,7 @@ int spl_mutex_unlock(void *mtx) {
 void*
 ffwr_mutex_data() 
 {
-	return ffwr_gb_FRAME_MTX;
+	return ffwr_gb_VFRAME_MTX;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 ffwr_gen_data_st*
@@ -1145,4 +1158,150 @@ ffwr_gb_shared_vframe()
 {
 	return gb_tsplanVFrame;
 }
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int ffwr_open_audio_output(int sz)
+{
+    int ret = 0;
+    int insz = 3 * sz;
+    do {
+        ffwr_malloc(sz, gb_shared_astream, ffwr_araw_stream);
+        if(!gb_shared_astream) {
+            ret = 1;
+            break;
+        }
+        ffwr_init_gen_buff(gb_shared_astream, sz);
+
+        ffwr_malloc(insz, gb_in_astream, ffwr_araw_stream);
+        if(!gb_in_astream) {
+            ret = 1;
+            break;
+        }        
+        ffwr_init_gen_buff(gb_in_astream, insz);
+
+        gb_want.freq = FFWR_OUTPUT_ARATE;
+        gb_want.format = AUDIO_F32SYS;
+        gb_want.channels = 2;
+        gb_want.samples = 4096;        // kích thước buffer SDL
+        gb_want.callback = ffwr_open_audio_output_cb;
+        gb_want.userdata = gb_in_astream; // buffer chuẩn hóa của bạn
+#if 0
+        ret = SDL_OpenAudio(&gb_want, 0);
+        spllog(1, "ret-SDL_OpenAudio: %d", ret);
+        SDL_PauseAudio(0);           // start audio playback
+#else
+        SDL_AudioDeviceID dev = SDL_OpenAudioDevice(0, 0, &gb_want, &gb_have, 
+            0);
+        if(!dev) {
+            printf("SDL_OpenAudioDevice failed: %s\n", SDL_GetError());
+        }
+        SDL_PauseAudioDevice(dev, 0); // bật playback
+#endif
+    } while(0);
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int ffwr_init_gen_buff(ffwr_gen_data_st *obj, int sz) 
+{
+    int ret = 0;
+    ffwr_gen_data_st *tmp = 0;
+    do {
+        if(!obj) {
+            ret = 1;
+            break;
+        }
+        obj->total = sz;
+        obj->range = sz - sizeof(ffwr_gen_data_st);
+        obj->pl = obj->pc = 0;
+    } while(0);
+    return ret;
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+void ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len)
+{
+    ffwr_gen_data_st *obj = (ffwr_gen_data_st*) user;
+    int real_len = 0;
+    static int step = 0;
+
+    if(!obj) {
+        return;
+    }
+
+    if( obj->pl <= obj->pc) 
+    {
+        obj->pl = obj->pc = 0;
+        spl_mutex_lock(ffwr_gb_AFRAME_MTX);
+        do {
+            if(gb_shared_astream->pl < 1) {
+                break;
+            }
+            if(step == 0) {
+                if(gb_shared_astream->pl > 0) {
+                    step++;
+                    gb_shared_astream->pc = 0;
+                    gb_shared_astream->pl = 0;
+                    break;
+                }
+            }
+            if(gb_shared_astream->pl < 1) {
+                break;
+            }
+
+            memcpy(obj->data + obj->pl, 
+                gb_shared_astream->data, 
+                gb_shared_astream->pl);
+
+            obj->pl += gb_shared_astream->pl;
+
+            gb_shared_astream->pc = 0;
+            gb_shared_astream->pl = 0;
+        } while(0);
+        spl_mutex_unlock(ffwr_gb_AFRAME_MTX);
+    }
+    
+
+    real_len = FFWR_MIN(len, obj->pl - obj->pc);
+
+
+
+    if(real_len < 1) {
+        memset(stream , 0, len);
+        return;
+    }
+    if (real_len < len) {
+        memset(stream + real_len, 0, len - real_len);
+    }
+    memcpy(stream, obj->data + obj->pc, real_len);
+    obj->pc += real_len;
+ 
+    spllog(1, "(pl, pc, real_len, len)=(%d, %d, %d, %d)", 
+        obj->pl, obj->pc, real_len, len);   
+    if((obj->pc * 2) > obj->pl) {
+        int tlen = obj->pl - obj->pc;
+        if(tlen > 0) {
+            memcpy(obj->data, 
+                obj->data + obj->pc, tlen);
+            obj->pc = 0;
+            obj->pl = tlen;
+            spllog(1, "(pl, pc, real_len, len)=(%d, %d, %d, %d)", 
+                obj->pl, obj->pc, real_len, len); 
+            spl_mutex_lock(ffwr_gb_AFRAME_MTX);
+            do {
+                if(obj->range >= obj->pl + gb_shared_astream->pl) {
+                    memcpy(obj->data + obj->pl, 
+                        gb_shared_astream->data, 
+                        gb_shared_astream->pl);
+
+                    obj->pl += gb_shared_astream->pl;
+                }
+
+                gb_shared_astream->pc = 0;
+                gb_shared_astream->pl = 0;
+            } while(0);
+            spl_mutex_unlock(ffwr_gb_AFRAME_MTX);
+        }
+    }
+    if(obj->pl > 800000 + obj->pc) {
+        obj->pl = obj->pc = 0;
+    }
+}           
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/

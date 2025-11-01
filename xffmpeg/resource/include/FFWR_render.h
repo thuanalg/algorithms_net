@@ -460,6 +460,9 @@ ffwr_gb_frame();
 
 DLL_API_FFWR_RENDER ffwr_gen_data_st*
 ffwr_gb_shared_vframe();
+
+DLL_API_FFWR_RENDER int 
+ffwr_open_audio_output(int sz);
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 #ifdef __cplusplus
