@@ -49,6 +49,11 @@ END_MESSAGE_MAP()
 
 
 // CFFmpegdemoDlg dialog
+int
+demux_callback_gui(void *obj)
+{
+	return 0;
+}
 
 HWND gb_hwnd;
 
@@ -123,6 +128,8 @@ BOOL CFFmpegdemoDlg::OnInitDialog()
 	);
 	snprintf(mfcinfo.name, sizeof(mfcinfo.name), "%s", 
 		"tcp://127.0.0.1:12345");
+	mfcinfo.native_drawing = m_vframe.m_hWnd;
+	mfcinfo.cb = demux_callback_gui;
 	ffwr_create_demux(&mfcinfo);
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }

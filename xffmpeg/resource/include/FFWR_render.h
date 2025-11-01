@@ -349,6 +349,7 @@ typedef enum __FFWR_LOG_ERR_CODE__ {
 		}                                                              \
 	}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+typedef int (*FFWR_CALLBACL_FN)(void *);
 
 typedef struct FFWR_Rect
 {
@@ -395,6 +396,15 @@ typedef struct {
 	void *ffinfo;
 	char name[1024];
 	int mode;
+	FFWR_CALLBACL_FN cb;
+#ifndef UNIX_LINUX
+	void *native_drawing;
+#else
+#endif
+#if 0
+	FFWR_SIZE_TYPE sz_type;
+	char data[0];
+#endif	
 } FFWR_INPUT_ST;
 
 

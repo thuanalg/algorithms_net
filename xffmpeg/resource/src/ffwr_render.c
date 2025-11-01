@@ -95,6 +95,9 @@ ffwr_init_gen_buff(ffwr_gen_data_st *obj, int sz);
 
 static void 
 ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len);
+
+static int 
+ffwr_clode_audio_output();
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 /* Variables */
@@ -746,7 +749,10 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
     gb_instream.a_cctx = 0;
     avformat_close_input(&(gb_instream.fmt_ctx));
     gb_instream.fmt_ctx = 0;
-	
+	ffwr_clode_audio_output();
+	if(info->cb) {
+		info->cb(info);
+	}
 	return 0;
 }
 #endif
@@ -1306,5 +1312,14 @@ void ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len)
         obj->pl = obj->pc = 0;
     }
 }           
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int ffwr_clode_audio_output() {
+    int ret = 0;
+    do {
+        SDL_PauseAudio(1); // stop audio
+        SDL_CloseAudio();  // close, free resources
+    } while(0);
+    return ret;
+}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
