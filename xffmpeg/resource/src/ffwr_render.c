@@ -109,8 +109,8 @@ void *ffwr_st_AFRAME_MTX;
 ffwr_gen_data_st *st_shared_vframe;
 ffwr_gen_data_st *st_renderVFrame;
 
-ffwr_araw_stream *gb_shared_astream;
-static ffwr_araw_stream *gb_in_astream;
+ffwr_araw_stream *st_SharedAudioBuffer;
+static ffwr_araw_stream *st_AudioBuffer;
 struct SwrContext *gb_aConvertContext;
 
 
@@ -690,26 +690,26 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
                 &(gb_instream.a_dstframe));
             spl_mutex_lock(ffwr_st_VFRAME_MTX);
             do {
-                if(gb_shared_astream->range > 
-                    gb_shared_astream->pl + 
+                if(st_SharedAudioBuffer->range > 
+                    st_SharedAudioBuffer->pl + 
                     gb_instream.a_dstframe->linesize[0]) 
                 {
-                    memcpy(gb_shared_astream->data + 
-                            gb_shared_astream->pl, 
+                    memcpy(st_SharedAudioBuffer->data + 
+                            st_SharedAudioBuffer->pl, 
                         gb_instream.a_dstframe->data[0], 
                         gb_instream.a_dstframe->linesize[0]
                     );
-                    gb_shared_astream->pl += 
+                    st_SharedAudioBuffer->pl += 
                         gb_instream.a_dstframe->linesize[0];
                 } else {
-                    gb_shared_astream->pl = 0;
-                    gb_shared_astream->pc = 0;
+                    st_SharedAudioBuffer->pl = 0;
+                    st_SharedAudioBuffer->pc = 0;
                     spllog(1, "over audio range");
                 }
                 spllog(1, "(pl, pc, range)=(%d, %d, %d)", 
-                    gb_shared_astream->pl, 
-                    gb_shared_astream->pc, 
-                    gb_shared_astream->range);
+                    st_SharedAudioBuffer->pl, 
+                    st_SharedAudioBuffer->pc, 
+                    st_SharedAudioBuffer->range);
             } while(0);
             spl_mutex_unlock(ffwr_st_VFRAME_MTX);
 #endif			
@@ -1184,26 +1184,26 @@ int ffwr_open_audio_output(int sz)
     int ret = 0;
     int insz = 3 * sz;
     do {
-        ffwr_malloc(sz, gb_shared_astream, ffwr_araw_stream);
-        if(!gb_shared_astream) {
+        ffwr_malloc(sz, st_SharedAudioBuffer, ffwr_araw_stream);
+        if(!st_SharedAudioBuffer) {
             ret = 1;
             break;
         }
-        ffwr_init_gen_buff(gb_shared_astream, sz);
+        ffwr_init_gen_buff(st_SharedAudioBuffer, sz);
 
-        ffwr_malloc(insz, gb_in_astream, ffwr_araw_stream);
-        if(!gb_in_astream) {
+        ffwr_malloc(insz, st_AudioBuffer, ffwr_araw_stream);
+        if(!st_AudioBuffer) {
             ret = 1;
             break;
         }        
-        ffwr_init_gen_buff(gb_in_astream, insz);
+        ffwr_init_gen_buff(st_AudioBuffer, insz);
 
         gb_want.freq = FFWR_OUTPUT_ARATE;
         gb_want.format = AUDIO_F32SYS;
         gb_want.channels = 2;
         gb_want.samples = 4096;        // kích thước buffer SDL
         gb_want.callback = ffwr_open_audio_output_cb;
-        gb_want.userdata = gb_in_astream; // buffer chuẩn hóa của bạn
+        gb_want.userdata = st_AudioBuffer; // buffer 
 #if 0
         ret = SDL_OpenAudio(&gb_want, 0);
         spllog(1, "ret-SDL_OpenAudio: %d", ret);
@@ -1250,29 +1250,29 @@ void ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len)
         obj->pl = obj->pc = 0;
         spl_mutex_lock(ffwr_st_AFRAME_MTX);
         do {
-            if(gb_shared_astream->pl < 1) {
+            if(st_SharedAudioBuffer->pl < 1) {
                 break;
             }
             if(step == 0) {
-                if(gb_shared_astream->pl > 0) {
+                if(st_SharedAudioBuffer->pl > 0) {
                     step++;
-                    gb_shared_astream->pc = 0;
-                    gb_shared_astream->pl = 0;
+                    st_SharedAudioBuffer->pc = 0;
+                    st_SharedAudioBuffer->pl = 0;
                     break;
                 }
             }
-            if(gb_shared_astream->pl < 1) {
+            if(st_SharedAudioBuffer->pl < 1) {
                 break;
             }
 
             memcpy(obj->data + obj->pl, 
-                gb_shared_astream->data, 
-                gb_shared_astream->pl);
+                st_SharedAudioBuffer->data, 
+                st_SharedAudioBuffer->pl);
 
-            obj->pl += gb_shared_astream->pl;
+            obj->pl += st_SharedAudioBuffer->pl;
 
-            gb_shared_astream->pc = 0;
-            gb_shared_astream->pl = 0;
+            st_SharedAudioBuffer->pc = 0;
+            st_SharedAudioBuffer->pl = 0;
         } while(0);
         spl_mutex_unlock(ffwr_st_AFRAME_MTX);
     }
@@ -1305,16 +1305,16 @@ void ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len)
                 obj->pl, obj->pc, real_len, len); 
             spl_mutex_lock(ffwr_st_AFRAME_MTX);
             do {
-                if(obj->range >= obj->pl + gb_shared_astream->pl) {
+                if(obj->range >= obj->pl + st_SharedAudioBuffer->pl) {
                     memcpy(obj->data + obj->pl, 
-                        gb_shared_astream->data, 
-                        gb_shared_astream->pl);
+                        st_SharedAudioBuffer->data, 
+                        st_SharedAudioBuffer->pl);
 
-                    obj->pl += gb_shared_astream->pl;
+                    obj->pl += st_SharedAudioBuffer->pl;
                 }
 
-                gb_shared_astream->pc = 0;
-                gb_shared_astream->pl = 0;
+                st_SharedAudioBuffer->pc = 0;
+                st_SharedAudioBuffer->pl = 0;
             } while(0);
             spl_mutex_unlock(ffwr_st_AFRAME_MTX);
         }
