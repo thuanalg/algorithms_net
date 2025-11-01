@@ -1321,4 +1321,29 @@ int ffwr_clode_audio_output() {
     return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int 
+ffwr_clear_render_object(FFWR_RENDER_OBJECTS *p) 
+{
+	int ret = 0;
+	do {
+		if(!p) {
+			ret = FFWR_WIN32_RENDER_OBJECTS_NULL_ERR;
+			break;
+		}
+		if(p->sdl_texture) {
+			//
+		}
+		if(p->sdl_render) {
+			SDL_DestroyRenderer(p->sdl_render);
+		}
+		if(p->sdl_win) {
+			SDL_DestroyWindow(p->sdl_win);
+		}		
+		p->sdl_texture = 0;;
+		p->sdl_render = 0;;
+		p->sdl_win = 0;;
+	} while(0);
+	return ret;
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/

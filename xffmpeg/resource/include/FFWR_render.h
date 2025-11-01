@@ -317,6 +317,7 @@ typedef enum __FFWR_LOG_ERR_CODE__ {
 	FFWR_MUTEX_NULL, 
 	FFWR_WIN32_WAIT_OBJECT, 
 	FFWR_WIN32_MUTEX_RELEASE, 
+	FFWR_WIN32_RENDER_OBJECTS_NULL_ERR, 
 	
 	
 	
@@ -357,10 +358,18 @@ typedef struct FFWR_Rect
     int w, h;
 } FFWR_Rect;
 
+typedef struct __FFWR_RENDER_OBJECTS__
+{
+	void *sdl_window;
+	void *sdl_render;
+	void *sdl_texture;
+} FFWR_RENDER_OBJECTS;
+
 
 typedef enum {
     FFWR_DTYPE_VFRAME,
     FFWR_DTYPE_PACKET,
+    FFWR_DEMUX_THREAD_EXIT,
 
     FFWR_DTYPE_END
 } FFWR_DATA_TYPE_E;
@@ -401,8 +410,8 @@ typedef struct {
 	void *native_drawing;
 #else
 #endif
-#if 0
 	FFWR_SIZE_TYPE sz_type;
+#if 0
 	char data[0];
 #endif	
 } FFWR_INPUT_ST;
@@ -479,6 +488,9 @@ ffwr_get_running();
 
 DLL_API_FFWR_RENDER int 
 ffwr_set_running(int v);
+
+DLL_API_FFWR_RENDER int 
+ffwr_clear_render_object(FFWR_RENDER_OBJECTS *);
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 #ifdef __cplusplus

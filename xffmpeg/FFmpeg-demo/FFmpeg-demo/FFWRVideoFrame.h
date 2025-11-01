@@ -32,6 +32,8 @@ private:
 	void *sdl_window;
 	void *sdl_render;
 	void *sdl_texture;
+	void clearSDLWinRenderContext();
+	FFWR_RENDER_OBJECTS sdl_winrentext;
 };
 
 

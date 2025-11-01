@@ -166,7 +166,18 @@ FFWRVideoFrame::create_sdlwin()
 LRESULT
 FFWRVideoFrame::OnFFWRMessage(WPARAM wParam, LPARAM lParam)
 {
+	FFWR_INPUT_ST *p = (FFWR_INPUT_ST *)lParam;
+	if (p && p->sz_type.type == FFWR_DEMUX_THREAD_EXIT) {
+		clearSDLWinRenderContext();
+	}
 	return 0;
 }
+
+void
+FFWRVideoFrame::clearSDLWinRenderContext()
+{
+
+}
+
 int FFWRVideoFrame::sdl_init = 0;
 unsigned int FFWRVideoFrame::sdl_flag = (FFWR_INIT_AUDIO | FFWR_INIT_VIDEO);
