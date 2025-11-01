@@ -762,7 +762,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
     gb_instream.fmt_ctx = 0;
 	ffwr_clode_audio_output();
 	
-	ffwr_clear_gb_var();
+	//ffwr_clear_gb_var();
 	
 	if(info->cb) {
 		info->sz_type.type = FFWR_DEMUX_THREAD_EXIT;
@@ -1248,6 +1248,13 @@ void ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len)
     ffwr_gen_data_st *obj = (ffwr_gen_data_st*) user;
     int real_len = 0;
     static int step = 0;
+    int running = 0;
+
+	running = ffwr_get_running();
+	
+	if(!running) {
+		return;
+	}
 
     if(!obj) {
         return;
@@ -1365,6 +1372,7 @@ ffwr_destroy_render_objects(FFWR_RENDER_OBJECTS *p)
 		p->sdl_texture = 0;;
 		p->sdl_render = 0;;
 		p->sdl_window = 0;;
+		ffwr_clear_gb_var();
 	} while(0);
 	return ret;
 }
