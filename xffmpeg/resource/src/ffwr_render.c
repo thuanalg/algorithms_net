@@ -104,7 +104,7 @@ ffwr_clode_audio_output();
 static FFWR_INSTREAM gb_instream;
 
 void *ffwr_st_VFRAME_MTX;
-void *ffwr_gb_AFRAME_MTX;
+void *ffwr_st_AFRAME_MTX;
 
 ffwr_gen_data_st *st_shared_vframe;
 ffwr_gen_data_st *st_renderVFrame;
@@ -154,10 +154,10 @@ ffwr_init(FFWR_InitFlags flags) {
 			ret = FFWR_WIN_CREATE_MUTEX_ERR;
 			break;
 		}
-		if(!ffwr_gb_AFRAME_MTX) {
-			ffwr_gb_AFRAME_MTX = CreateMutexA(0, 0, 0);
+		if(!ffwr_st_AFRAME_MTX) {
+			ffwr_st_AFRAME_MTX = CreateMutexA(0, 0, 0);
 		}
-		if(!ffwr_gb_AFRAME_MTX) {
+		if(!ffwr_st_AFRAME_MTX) {
 			ret = FFWR_WIN_CREATE_MUTEX_ERR;
 			break;
 		}		
@@ -1248,7 +1248,7 @@ void ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len)
     if( obj->pl <= obj->pc) 
     {
         obj->pl = obj->pc = 0;
-        spl_mutex_lock(ffwr_gb_AFRAME_MTX);
+        spl_mutex_lock(ffwr_st_AFRAME_MTX);
         do {
             if(gb_shared_astream->pl < 1) {
                 break;
@@ -1274,7 +1274,7 @@ void ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len)
             gb_shared_astream->pc = 0;
             gb_shared_astream->pl = 0;
         } while(0);
-        spl_mutex_unlock(ffwr_gb_AFRAME_MTX);
+        spl_mutex_unlock(ffwr_st_AFRAME_MTX);
     }
     
 
@@ -1303,7 +1303,7 @@ void ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len)
             obj->pl = tlen;
             spllog(1, "(pl, pc, real_len, len)=(%d, %d, %d, %d)", 
                 obj->pl, obj->pc, real_len, len); 
-            spl_mutex_lock(ffwr_gb_AFRAME_MTX);
+            spl_mutex_lock(ffwr_st_AFRAME_MTX);
             do {
                 if(obj->range >= obj->pl + gb_shared_astream->pl) {
                     memcpy(obj->data + obj->pl, 
@@ -1316,7 +1316,7 @@ void ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len)
                 gb_shared_astream->pc = 0;
                 gb_shared_astream->pl = 0;
             } while(0);
-            spl_mutex_unlock(ffwr_gb_AFRAME_MTX);
+            spl_mutex_unlock(ffwr_st_AFRAME_MTX);
         }
     }
     if(obj->pl > 800000 + obj->pc) {
