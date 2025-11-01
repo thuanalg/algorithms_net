@@ -98,6 +98,9 @@ ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len);
 
 static int 
 ffwr_clode_audio_output();
+
+static void 
+ffwr_clear_gb_var();
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 /* Variables */
@@ -110,7 +113,8 @@ ffwr_gen_data_st *st_shared_vframe;
 ffwr_gen_data_st *st_renderVFrame;
 
 ffwr_araw_stream *st_SharedAudioBuffer;
-static ffwr_araw_stream *st_AudioBuffer;
+ffwr_araw_stream *st_AudioBuffer;
+
 struct SwrContext *gb_aConvertContext;
 
 
@@ -757,6 +761,9 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
     avformat_close_input(&(gb_instream.fmt_ctx));
     gb_instream.fmt_ctx = 0;
 	ffwr_clode_audio_output();
+	
+	ffwr_clear_gb_var();
+	
 	if(info->cb) {
 		info->sz_type.type = FFWR_DEMUX_THREAD_EXIT;
 		info->cb(info);
@@ -1363,10 +1370,10 @@ ffwr_destroy_render_objects(FFWR_RENDER_OBJECTS *p)
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 void ffwr_clear_gb_var() {
-    ffwr_free(gb_tsplanVFrame);
-    ffwr_free(gb_frame);
-    ffwr_free(gb_shared_astream);
-    ffwr_free(gb_in_astream);
+    ffwr_free(st_shared_vframe);
+    ffwr_free(st_renderVFrame);
+    ffwr_free(st_SharedAudioBuffer);
+    ffwr_free(st_AudioBuffer);
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
