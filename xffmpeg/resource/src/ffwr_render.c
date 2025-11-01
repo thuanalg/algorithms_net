@@ -103,7 +103,7 @@ ffwr_clode_audio_output();
 /* Variables */
 static FFWR_INSTREAM gb_instream;
 
-void *ffwr_gb_VFRAME_MTX;
+void *ffwr_st_VFRAME_MTX;
 void *ffwr_gb_AFRAME_MTX;
 
 ffwr_gen_data_st *st_shared_vframe;
@@ -147,10 +147,10 @@ ffwr_init(FFWR_InitFlags flags) {
 			break;
 		}
 #ifndef UNIX_LINUX
-		if(!ffwr_gb_VFRAME_MTX) {
-			ffwr_gb_VFRAME_MTX = CreateMutexA(0, 0, 0);
+		if(!ffwr_st_VFRAME_MTX) {
+			ffwr_st_VFRAME_MTX = CreateMutexA(0, 0, 0);
 		}
-		if(!ffwr_gb_VFRAME_MTX) {
+		if(!ffwr_st_VFRAME_MTX) {
 			ret = FFWR_WIN_CREATE_MUTEX_ERR;
 			break;
 		}
@@ -651,7 +651,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 				spllog(4, "st_shared_vframe");
                 break;
             }
-            spl_mutex_lock(ffwr_gb_VFRAME_MTX);
+            spl_mutex_lock(ffwr_st_VFRAME_MTX);
             do {
                 if(st_shared_vframe->range > 
                     st_shared_vframe->pl + ffwr_vframe->tt_sz.total) {                      
@@ -667,7 +667,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
                 }
 
             } while(0);
-            spl_mutex_unlock(ffwr_gb_VFRAME_MTX);
+            spl_mutex_unlock(ffwr_st_VFRAME_MTX);
 #endif			
             av_frame_unref(tmp);
             av_frame_unref(gb_instream.vframe);
@@ -688,7 +688,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 #if 1			
             convert_audio_frame(gb_instream.a_frame, 
                 &(gb_instream.a_dstframe));
-            spl_mutex_lock(ffwr_gb_VFRAME_MTX);
+            spl_mutex_lock(ffwr_st_VFRAME_MTX);
             do {
                 if(gb_shared_astream->range > 
                     gb_shared_astream->pl + 
@@ -711,7 +711,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
                     gb_shared_astream->pc, 
                     gb_shared_astream->range);
             } while(0);
-            spl_mutex_unlock(ffwr_gb_VFRAME_MTX);
+            spl_mutex_unlock(ffwr_st_VFRAME_MTX);
 #endif			
             spl_vframe(gb_instream.a_dstframe);
             av_frame_unref(gb_instream.a_dstframe); 
@@ -816,16 +816,16 @@ ffwr_convert_vframe(AVFrame *src, AVFrame *dst)
 int ffwr_gb_running = 1;
 int ffwr_get_running() {
     int ret = 0;
-    spl_mutex_lock(ffwr_gb_VFRAME_MTX);
+    spl_mutex_lock(ffwr_st_VFRAME_MTX);
         ret = ffwr_gb_running;
-    spl_mutex_unlock(ffwr_gb_VFRAME_MTX);
+    spl_mutex_unlock(ffwr_st_VFRAME_MTX);
     return ret;;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int ffwr_set_running(int v) {
-    spl_mutex_lock(ffwr_gb_VFRAME_MTX);
+    spl_mutex_lock(ffwr_st_VFRAME_MTX);
         ffwr_gb_running = v;
-    spl_mutex_unlock(ffwr_gb_VFRAME_MTX);
+    spl_mutex_unlock(ffwr_st_VFRAME_MTX);
     return 0;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
@@ -1164,7 +1164,7 @@ int spl_mutex_unlock(void *mtx) {
 void*
 ffwr_mutex_data() 
 {
-	return ffwr_gb_VFRAME_MTX;
+	return ffwr_st_VFRAME_MTX;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 ffwr_gen_data_st*
