@@ -592,6 +592,9 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
     gb_frame->range = gb_frame->total -sizeof(ffwr_gen_data_st);    
 	
 	/*-----------------*/
+	ffwr_open_audio_output( 2000000);
+	/*-----------------*/
+	
 	
     while(1) {
         running = ffwr_get_running();
@@ -672,7 +675,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 				spllog(4, "avcodec_receive_frame");
 		    	break;
 		    }  
-#if 0			
+#if 1			
             convert_audio_frame(gb_instream.a_frame, 
                 &(gb_instream.a_dstframe));
             spl_mutex_lock(ffwr_gb_VFRAME_MTX);
