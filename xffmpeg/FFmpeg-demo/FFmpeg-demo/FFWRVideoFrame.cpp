@@ -6,9 +6,6 @@
 #include <dxgi.h>
 #pragma comment(lib, "d3d11.lib")
 
-//void *gb_texture = 0;
-//void *render = 0;
-
 BEGIN_MESSAGE_MAP(FFWRVideoFrame, CStatic)
 ON_WM_PAINT()
 END_MESSAGE_MAP()
@@ -75,7 +72,6 @@ void FFWRVideoFrame::OnPaint()
 		gb_frame->pl = gb_frame->pc = 0;
 		return;
 	}
-
 	it = (FFWR_SIZE_TYPE *)(gb_frame->data + gb_frame->pc);
 	p = (FFWR_VFrame *)(gb_frame->data + gb_frame->pc);
 	ffwr_UpdateYUVTexture(FFWRVideoFrame::sdl_texture, 
