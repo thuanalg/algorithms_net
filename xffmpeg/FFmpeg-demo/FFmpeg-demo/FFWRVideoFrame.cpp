@@ -50,11 +50,11 @@ void FFWRVideoFrame::OnPaint()
 		spllog(4, "sdl_window null");
 		return;
 	}
-	if (!FFWRVideoFrame::sdl_render) {
+	if (!this->sdl_render) {
 		spllog(4, "FFWRVideoFrame::sdl_render null");
 		return;
 	}
-	if (!FFWRVideoFrame::sdl_texture) {
+	if (!this->sdl_texture) {
 		spllog(4, "FFWRVideoFrame::sdl_texture null");
 		return;
 	}
@@ -107,6 +107,8 @@ FFWRVideoFrame::FFWRVideoFrame()
 		}
 		sdl_init = 1;
 	}
+	sdl_render = 0;
+	sdl_texture = 0;
 }
 
 FFWRVideoFrame::~FFWRVideoFrame()
@@ -133,25 +135,25 @@ FFWRVideoFrame::create_sdlwin()
 		return;
 	}
 	this->sdl_window = win;
-	if (!FFWRVideoFrame::sdl_texture) {
+	if (!this->sdl_texture) {
 		void *render = 0;
 		ret = ffwr_CreateRenderer(&render, win, -1, FFWR_RENDERER_ACCELERATED);
 		if (ret) {
 			spllog(4, "Error");
 			return;
 		}
-		FFWRVideoFrame::sdl_render = render;
+		this->sdl_render = render;
 	}
-	if (!FFWRVideoFrame::sdl_texture) {
+	if (!this->sdl_texture) {
 		void *texture = 0;
-		ret = ffwr_CreateTexture(&texture, FFWRVideoFrame::sdl_render,
+		ret = ffwr_CreateTexture(&texture, this->sdl_render,
 		    FFWR_PIXELFORMAT_IYUV, FFWR_TEXTUREACCESS_STREAMING, 640,
 		    480);
 		if (ret) {
 			spllog(4, "Error");
 			return;		
 		}
-		FFWRVideoFrame::sdl_texture = texture;
+		this->sdl_texture = texture;
 	}
 }
 LRESULT
@@ -161,5 +163,7 @@ FFWRVideoFrame::OnFFWRMessage(WPARAM wParam, LPARAM lParam)
 }
 int FFWRVideoFrame::sdl_init = 0;
 unsigned int FFWRVideoFrame::sdl_flag = (FFWR_INIT_AUDIO | FFWR_INIT_VIDEO);
-void *FFWRVideoFrame::sdl_texture = 0;
-void *FFWRVideoFrame::sdl_render = 0;
+
+
+//void *FFWRVideoFrame::sdl_texture = 0;
+//void *FFWRVideoFrame::sdl_render = 0;

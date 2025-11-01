@@ -15,8 +15,8 @@ public:
 
 	static int sdl_init;
 	static unsigned int sdl_flag;
-	static void *sdl_texture;
-	static void *sdl_render;
+	//static void *sdl_texture;
+	//static void *sdl_render;
 	static void sdl_quit();
 
 /*---------------------------------*/
@@ -29,6 +29,8 @@ protected:
 	DECLARE_MESSAGE_MAP()
 private:
 	void *sdl_window;
+	void *sdl_render;
+	void *sdl_texture;
 };
 
 
