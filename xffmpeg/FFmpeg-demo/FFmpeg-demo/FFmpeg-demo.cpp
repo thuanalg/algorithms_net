@@ -115,7 +115,7 @@ BOOL CFFmpegdemoApp::InitInstance()
 
 	// Since the dialog has been closed, return FALSE so that we exit the
 	//  application, rather than start the application's message pump.
-
+	FFWRVideoFrame::sdl_Quit();
 	spl_finish_log();
 	return FALSE;
 }

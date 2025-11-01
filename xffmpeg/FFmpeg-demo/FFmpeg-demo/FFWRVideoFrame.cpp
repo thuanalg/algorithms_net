@@ -116,7 +116,7 @@ FFWRVideoFrame::~FFWRVideoFrame()
 }
 
 void
-FFWRVideoFrame::sdl_quit()
+FFWRVideoFrame::sdl_Quit()
 {
 	if (FFWRVideoFrame::sdl_init) {
 

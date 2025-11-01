@@ -17,7 +17,7 @@ public:
 	static unsigned int sdl_flag;
 	//static void *sdl_texture;
 	//static void *sdl_render;
-	static void sdl_quit();
+	static void sdl_Quit();
 	static void sdl_Init();
 
 /*---------------------------------*/

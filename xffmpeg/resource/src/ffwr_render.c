@@ -143,12 +143,16 @@ ffwr_init(FFWR_InitFlags flags) {
 			break;
 		}
 #ifndef UNIX_LINUX
-		ffwr_gb_VFRAME_MTX = CreateMutexA(0, 0, 0);
+		if(!ffwr_gb_VFRAME_MTX) {
+			ffwr_gb_VFRAME_MTX = CreateMutexA(0, 0, 0);
+		}
 		if(!ffwr_gb_VFRAME_MTX) {
 			ret = FFWR_WIN_CREATE_MUTEX_ERR;
 			break;
 		}
-		ffwr_gb_AFRAME_MTX = CreateMutexA(0, 0, 0);
+		if(!ffwr_gb_AFRAME_MTX) {
+			ffwr_gb_AFRAME_MTX = CreateMutexA(0, 0, 0);
+		}
 		if(!ffwr_gb_AFRAME_MTX) {
 			ret = FFWR_WIN_CREATE_MUTEX_ERR;
 			break;

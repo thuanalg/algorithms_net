@@ -425,6 +425,9 @@ ffwr_hello();
 DLL_API_FFWR_RENDER int
 ffwr_init(FFWR_InitFlags flags);
 
+DLL_API_FFWR_RENDER int	
+ffwr_Quit();
+
 DLL_API_FFWR_RENDER int
 ffwr_CreateWindowFrom(void* hwnd, void **sdlwin);
 
@@ -461,9 +464,6 @@ ffwr_DestroyRenderer(void *renderer);
 	
 DLL_API_FFWR_RENDER int	
 ffwr_DestroyWindow(void *win);
-
-DLL_API_FFWR_RENDER int	
-ffwr_Quit();
 
 DLL_API_FFWR_RENDER int
 ffwr_open_input(FFWR_INPUT_ST *info);
