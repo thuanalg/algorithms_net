@@ -359,11 +359,11 @@ typedef struct FFWR_Rect
 } FFWR_Rect;
 
 typedef struct __FFWR_RENDER_OBJECTS__
-{
+{	
 	void *sdl_window;
 	void *sdl_render;
 	void *sdl_texture;
-	void *demux;
+	void *native_window;
 } FFWR_RENDER_OBJECTS;
 
 
@@ -412,11 +412,14 @@ typedef struct {
 #else
 #endif
 	FFWR_SIZE_TYPE sz_type;
-#if 0
 	char data[0];
-#endif	
 } FFWR_INPUT_ST;
 
+typedef struct __FFWR_DEMUX_OBJS__ {
+	FFWR_RENDER_OBJECTS render_objects;
+	void *inner_demux;
+	FFWR_INPUT_ST *input;
+} FFWR_DEMUX_OBJS;
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
@@ -492,6 +495,16 @@ ffwr_set_running(int v);
 
 DLL_API_FFWR_RENDER int 
 ffwr_destroy_render_objects(FFWR_RENDER_OBJECTS *);
+
+
+
+
+
+DLL_API_FFWR_RENDER int 
+ffwr_create_demux_objects(FFWR_DEMUX_OBJS *);
+DLL_API_FFWR_RENDER int 
+ffwr_destroy_demux_objects(FFWR_DEMUX_OBJS *);
+
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 #ifdef __cplusplus
