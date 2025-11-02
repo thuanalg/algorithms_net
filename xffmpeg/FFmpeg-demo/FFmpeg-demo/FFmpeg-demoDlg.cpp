@@ -201,7 +201,7 @@ MyThreadProc(LPVOID lpParam)
 	// Simulate work
 	for (;;) {
 		PostMessage(gb_hwnd, WM_PAINT, 0, 0);
-		Sleep(30); // sleep for 0.5 second
+		Sleep(31); // sleep for 0.5 second
 	}
 
 	return 0;

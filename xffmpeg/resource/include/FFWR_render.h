@@ -363,6 +363,7 @@ typedef struct __FFWR_RENDER_OBJECTS__
 	void *sdl_window;
 	void *sdl_render;
 	void *sdl_texture;
+	void *demux;
 } FFWR_RENDER_OBJECTS;
 
 
