@@ -103,6 +103,9 @@ ffwr_clode_audio_output();
 
 static void 
 ffwr_clear_gb_var();
+
+static int
+ffwr_open_instream(FFWR_INSTREAM *instr) ;
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 /* Variables */
@@ -1387,7 +1390,26 @@ void ffwr_clear_gb_var() {
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int 
-ffwr_create_demux_objects(FFWR_DEMUX_OBJS *obj) {return 0;}
+ffwr_create_demux_objects(FFWR_DEMUX_OBJS *obj) 
+{
+	int ret = 0;
+	FFWR_INSTREAM *p = 0;
+	int sz = sizeof(FFWR_INSTREAM);
+	do {
+		if(!obj) {
+			ret = FFWR_DEMUX_OBJS_NULL_ERR;
+			spllog(4, "FFWR_DEMUX_OBJS_NULL_ERR");
+			break;
+		}	
+		ffwr_malloc(sz, p, FFWR_INSTREAM);
+		if(!p) {
+			ret = FFWR_MALLOC_ERR;
+			spllog(4, "FFWR_MALLOC_ERR");
+			break;
+		}
+	} while(0);
+	return ret;
+}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int 
 ffwr_destroy_demux_objects(FFWR_DEMUX_OBJS *obj) {return 0;}
@@ -1400,22 +1422,33 @@ ffwr_get_demux_data(FFWR_DEMUX_OBJS *obj, FFWR_DEMUX_DATA **out)
 	do {
 		if(!obj) {
 			ret = FFWR_DEMUX_OBJS_NULL_ERR;
+			spllog(4, "FFWR_DEMUX_OBJS_NULL_ERR");
 			break;
 		}		
 		if(!out) {
-			ret = FFWR_DEMUX_DATA_NULL_ERR;
+			ret = FFWR_DEMUX_DATA_OUT_NULL_ERR;
+			spllog(4, "FFWR_DEMUX_DATA_OUT_NULL_ERR");
 			break;
 		}
 		*out = 0;
 		demux = (FFWR_INSTREAM *) obj->inner_demux;
 		if(!demux) {
 			ret = FFWR_INSTREAM_NULL_ERR;
+			spllog(4, "FFWR_INSTREAM_NULL_ERR");
 			break;
 		}
 		*out = demux->buffer;
 	} while(0);
 	return ret;
 }
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int
+ffwr_open_instream(FFWR_INSTREAM *instr)
+{
+	return 0;
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
