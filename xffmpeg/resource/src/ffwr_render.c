@@ -1588,6 +1588,8 @@ ffwr_open_render_sdl_pipe(FFWR_DEMUX_OBJS *obj)
 {
 	int ret = 0;
 	FFWR_RENDER_OBJECTS *p = 0;
+	SDL_Window *win = 0;
+	SDL_Renderer *ren = 0;
 	do {
 		if(!obj) {
 			ret = FFWR_DEMUX_OBJS_NULL_ERR;
@@ -1600,6 +1602,21 @@ ffwr_open_render_sdl_pipe(FFWR_DEMUX_OBJS *obj)
 			spllog(4, "FFWR_NATIVE_WINDOW_NULL_ERR");
 			break;			
 		}
+		
+		p->sdl_window = SDL_CreateWindowFrom(p->native_window);
+		if(!p->sdl_window) {
+			ret = FFWR_CANNOT_CREATE_WIN_ERR;
+			spllog(4, "SDL_CreateWindowFrom: %s\n", SDL_GetError());
+			break;
+		}
+		win = (SDL_Window *) p->sdl_window;
+		ren = SDL_CreateRenderer(win, -1, p->ren_flags);
+		if(!ren) {
+			ret = FFWR_CREATERENDERER_ERR;
+			spllog(4, "SDL_CreateRenderer: %s\n", SDL_GetError());
+			break;
+		}
+		p->sdl_render = ren;
 	} while(0);
 	return ret;
 }
