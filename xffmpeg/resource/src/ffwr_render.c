@@ -1617,6 +1617,7 @@ ffwr_open_render_sdl_pipe(FFWR_DEMUX_OBJS *obj)
 			break;
 		}
 		p->sdl_render = ren;
+		
 	} while(0);
 	return ret;
 }

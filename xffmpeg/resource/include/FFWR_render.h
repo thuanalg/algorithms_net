@@ -367,6 +367,11 @@ typedef struct FFWR_Rect
 typedef struct __FFWR_RENDER_OBJECTS__
 {	
 	unsigned int ren_flags;
+	FFWR_PixelFormat format;
+	FFWR_TextureAccess access;
+	int w; 
+	int h;	
+	
 	void *sdl_window;
 	void *sdl_render;
 	void *sdl_texture;
