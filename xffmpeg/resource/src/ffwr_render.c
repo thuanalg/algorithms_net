@@ -1487,6 +1487,39 @@ ffwr_open_instream(FFWR_DEMUX_OBJS *obj)
             spllog(4, "FFWR_NO_VSTREAMS_ERR");
             break;
         }		
+        pinput->v_codec = avcodec_find_decoder(
+            pinput->v_st->codecpar->codec_id);
+        if(!pinput->v_codec) {
+            ret = FFWR_NO_VCODEC_ERR;
+            spllog(4, "--");
+            break;
+        }        
+        pinput->v_cctx  = avcodec_alloc_context3(pinput->v_codec);
+        if(!pinput->v_cctx) {
+            ret = FFWR_NO_VCONTEXT_ERR;
+            spllog(4, "--");
+            break;
+        }    
+        result = avcodec_parameters_to_context(pinput->v_cctx, pinput->v_st->codecpar);
+        if(result < 0) {
+            ret = FFWR_PARAMETERS_TO_CONTEXT_ERR;
+            spllog(4, "--");
+            break;
+        }
+		result = avcodec_open2(pinput->v_cctx, pinput->v_codec, 0);
+		if (result < 0) {
+			ret = FFWR_OPEN_VCODEC_ERR;
+            spllog(4, "avcodec_open2, result: %d", result);
+			break;
+		}        
+        pinput->vframe = av_frame_alloc(); 
+        if(!pinput->vframe) {
+            ret = FFWR_VFRAME_ALLOC_ERR;
+            spllog(4, "--");
+            break;
+        }
+            
+        /*------------------------------*/		
 	} while(0);
 	return ret;
 }
