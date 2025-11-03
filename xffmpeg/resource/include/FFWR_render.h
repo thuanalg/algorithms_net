@@ -318,6 +318,9 @@ typedef enum __FFWR_LOG_ERR_CODE__ {
 	FFWR_WIN32_WAIT_OBJECT, 
 	FFWR_WIN32_MUTEX_RELEASE, 
 	FFWR_WIN32_RENDER_OBJECTS_NULL_ERR, 
+	FFWR_DEMUX_OBJS_NULL_ERR, 
+	FFWR_DEMUX_DATA_NULL_ERR, 
+	FFWR_INSTREAM_NULL_ERR,
 	
 	
 	
@@ -518,6 +521,9 @@ ffwr_create_demux_objects(FFWR_DEMUX_OBJS *);
 
 DLL_API_FFWR_RENDER int 
 ffwr_destroy_demux_objects(FFWR_DEMUX_OBJS *);
+
+DLL_API_FFWR_RENDER int 
+ffwr_get_demux_data(FFWR_DEMUX_OBJS *obj, FFWR_DEMUX_DATA **out);
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 

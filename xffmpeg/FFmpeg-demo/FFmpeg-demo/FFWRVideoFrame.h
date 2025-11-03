@@ -34,6 +34,7 @@ private:
 	//void *sdl_texture;
 	//void clearSDLWinRenderContext();
 	FFWR_RENDER_OBJECTS sdl_winrentext;
+  FFWR_DEMUX_OBJS *obj;
 };
 
 
