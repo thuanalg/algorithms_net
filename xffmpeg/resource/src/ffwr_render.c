@@ -1491,19 +1491,19 @@ ffwr_open_instream(FFWR_DEMUX_OBJS *obj)
             pinput->v_st->codecpar->codec_id);
         if(!pinput->v_codec) {
             ret = FFWR_NO_VCODEC_ERR;
-            spllog(4, "--");
+            spllog(4, "FFWR_NO_VCODEC_ERR");
             break;
         }        
         pinput->v_cctx  = avcodec_alloc_context3(pinput->v_codec);
         if(!pinput->v_cctx) {
             ret = FFWR_NO_VCONTEXT_ERR;
-            spllog(4, "--");
+            spllog(4, "FFWR_NO_VCONTEXT_ERR");
             break;
         }    
         result = avcodec_parameters_to_context(pinput->v_cctx, pinput->v_st->codecpar);
         if(result < 0) {
             ret = FFWR_PARAMETERS_TO_CONTEXT_ERR;
-            spllog(4, "--");
+            spllog(4, "FFWR_PARAMETERS_TO_CONTEXT_ERR");
             break;
         }
 		result = avcodec_open2(pinput->v_cctx, pinput->v_codec, 0);
@@ -1515,11 +1515,61 @@ ffwr_open_instream(FFWR_DEMUX_OBJS *obj)
         pinput->vframe = av_frame_alloc(); 
         if(!pinput->vframe) {
             ret = FFWR_VFRAME_ALLOC_ERR;
-            spllog(4, "--");
+            spllog(4, "FFWR_VFRAME_ALLOC_ERR");
             break;
         }
             
         /*------------------------------*/		
+        if(pinput->fmt_ctx->nb_streams > 1) {
+            pinput->a_st = pinput->fmt_ctx->streams[1];
+        } else {
+			break;
+		}
+        if(!pinput->a_st) {
+            ret = FFWR_NO_VSTREAM_ERR;
+            spllog(1, "FFWR_NO_VSTREAM_ERR");
+            break;
+        }
+		
+        pinput->a_codec = avcodec_find_decoder(
+            pinput->a_st->codecpar->codec_id);
+
+        if(!pinput->a_codec) {
+            ret = FFWR_NO_ACONTEXT_ERR;
+            spllog(4, "FFWR_NO_ACONTEXT_ERR");
+            break;
+        }      
+        pinput->a_cctx  = avcodec_alloc_context3(pinput->a_codec);
+        if(!pinput->a_cctx) {
+            ret = FFWR_ALLOC_ACONTEX_ERR;
+            spllog(4, "FFWR_ALLOC_ACONTEX_ERR");
+            break;
+        }   
+        result = avcodec_parameters_to_context(pinput->a_cctx, pinput->a_st->codecpar);
+        if(result < 0) {
+            ret = FFWR_PARAMETERS_TO_ACONTEXT_ERR;
+            spllog(4, "FFWR_PARAMETERS_TO_ACONTEXT_ERR");
+            break;
+        }   
+		result = avcodec_open2(pinput->a_cctx, pinput->a_codec, 0);
+		if (result < 0) {
+			ret = FFWR_OPEN_ACODEC_ERR;
+            spllog(4, "FFWR_OPEN_ACODEC_ERR");
+			break;
+		} 
+        pinput->a_frame = av_frame_alloc(); 
+        if(!pinput->a_frame) {
+            ret = FFWR_AFRAME_ALLOC_ERR;
+            spllog(4, "FFWR_AFRAME_ALLOC_ERR");
+            break;
+        }   
+        pinput->a_dstframe = av_frame_alloc(); 
+        if(!pinput->a_dstframe) {
+            ret = FFWR_AFRAME_ALLOC_ERR;
+            spllog(4, "FFWR_AFRAME_ALLOC_ERR");
+            break;
+        }   
+        spllog(1, "openInout OK, ret: %d", ret);		
 	} while(0);
 	return ret;
 }
