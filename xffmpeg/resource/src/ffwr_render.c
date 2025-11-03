@@ -112,6 +112,9 @@ ffwr_open_render_sdl_pipe(FFWR_DEMUX_OBJS *obj) ;
 
 static int 
 ffwr_create_sync_buff(FFWR_DEMUX_OBJS *obj) ;
+
+static void*
+ffwr_create_mutex(char *name);
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 /* Variables */
@@ -1638,11 +1641,33 @@ int
 ffwr_create_sync_buff(FFWR_DEMUX_OBJS *obj) 
 {
 	int ret = 0;
+	FFWR_DEMUX_DATA *p = 0;
 	do {
-		
+		if(!obj) {
+			ret = FFWR_DEMUX_OBJS_NULL_ERR;
+			spllog(4, "FFWR_DEMUX_OBJS_NULL_ERR");
+			break;
+		}
+		p = &(obj->buffer);
+		p->mtx_vbuf = ffwr_create_mutex(0);
+		p->mtx_abuf = ffwr_create_mutex(0);
 	} while(0);
 	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+void*
+ffwr_create_mutex(char *name)
+{
+	void *ret = 0;
+#ifndef UNIX_LINUX
+	ret = CreateMutexA(0, 0, name);
+	if(!ret) {
+		spllog(4, "GetLastError(): %d", 
+		GetLastError());
+	}
+#else
+#endif	
+	return ret;
+}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
