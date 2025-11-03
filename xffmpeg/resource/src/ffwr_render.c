@@ -109,6 +109,9 @@ ffwr_open_instream(FFWR_DEMUX_OBJS *obj) ;
 
 static int
 ffwr_open_render_sdl_pipe(FFWR_DEMUX_OBJS *obj) ;
+
+static int 
+ffwr_create_sync_buff(FFWR_DEMUX_OBJS *obj) ;
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 /* Variables */
@@ -1404,7 +1407,8 @@ ffwr_create_demux_objects(FFWR_DEMUX_OBJS *obj)
 			spllog(4, "ffwr_open_render_sdl_pipe");
 			break;
 		}
-		ret = ffwr_open_instream(obj);
+		ret = ffwr_create_sync_buff(obj);
+		//ret = ffwr_open_instream(obj);
 	} while(0);
 	return ret;
 }
@@ -1591,7 +1595,9 @@ ffwr_open_render_sdl_pipe(FFWR_DEMUX_OBJS *obj)
 	SDL_Window *win = 0;
 	SDL_Renderer *ren = 0;
 	SDL_Texture *texture = 0;
-	do {
+	
+	do 
+	{
 		if(!obj) {
 			ret = FFWR_DEMUX_OBJS_NULL_ERR;
 			spllog(4, "FFWR_DEMUX_OBJS_NULL_ERR");
@@ -1625,10 +1631,17 @@ ffwr_open_render_sdl_pipe(FFWR_DEMUX_OBJS *obj)
 			break;
 		}			
 		p->sdl_texture =  texture;
-	} while(0);
+	} 
+	while(0);
+	
 	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int 
+ffwr_create_sync_buff(FFWR_DEMUX_OBJS *obj) 
+{
+	return 0;
+}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
