@@ -1646,6 +1646,7 @@ ffwr_create_sync_buff(FFWR_DEMUX_OBJS *obj)
 	int ret = 0;
 	FFWR_DEMUX_DATA *p = 0;
 	void *mtx = 0;
+	ffwr_gen_data_st *buf = 0;
 	do {
 		if(!obj) {
 			ret = FFWR_DEMUX_OBJS_NULL_ERR;
@@ -1666,6 +1667,35 @@ ffwr_create_sync_buff(FFWR_DEMUX_OBJS *obj)
 			break;
 		}		
 		p->mtx_abuf = mtx;
+		/*-----*/
+		buf = 0;
+		ret = ffwr_create_genbuff(&buf, p->vbuf_size);
+		if(ret) {
+			break;
+		}
+		p->vbuf = buf;
+
+		buf = 0;
+		ret = ffwr_create_genbuff(&buf, p->vbuf_size);
+		if(ret) {
+			break;
+		}
+		p->shared_vbuf = buf;
+
+		buf = 0;
+		ret = ffwr_create_genbuff(&buf, p->abuf_size);
+		if(ret) {
+			break;
+		}
+		p->abuf = buf;		
+		
+		buf = 0;
+		ret = ffwr_create_genbuff(&buf, p->abuf_size);
+		if(ret) {
+			break;
+		}
+		p->shared_abuf = buf;
+		
 	} while(0);
 	return ret;
 }
