@@ -51,7 +51,7 @@ typedef struct __FFWR_INSTREAM__ {
     AVFrame *a_dstframe;
     SwrContext *a_scale;    
 	
-	FFWR_DEMUX_DATA *buffer;
+	//FFWR_DEMUX_DATA *buffer;
 
 } FFWR_INSTREAM;
 #endif
@@ -1408,6 +1408,10 @@ ffwr_create_demux_objects(FFWR_DEMUX_OBJS *obj)
 			break;
 		}
 		ret = ffwr_create_sync_buff(obj);
+		if(ret) {
+			spllog(4, "ffwr_create_sync_buff");
+			break;
+		}		
 		//ret = ffwr_open_instream(obj);
 	} while(0);
 	return ret;
@@ -1432,14 +1436,7 @@ ffwr_get_demux_data(FFWR_DEMUX_OBJS *obj, FFWR_DEMUX_DATA **out)
 			spllog(4, "FFWR_DEMUX_DATA_OUT_NULL_ERR");
 			break;
 		}
-		*out = 0;
-		demux = (FFWR_INSTREAM *) obj->inner_demux;
-		if(!demux) {
-			ret = FFWR_INSTREAM_NULL_ERR;
-			spllog(4, "FFWR_INSTREAM_NULL_ERR");
-			break;
-		}
-		*out = demux->buffer;
+		*out = &(obj->buffer);
 	} while(0);
 	return ret;
 }
@@ -1640,7 +1637,11 @@ ffwr_open_render_sdl_pipe(FFWR_DEMUX_OBJS *obj)
 int 
 ffwr_create_sync_buff(FFWR_DEMUX_OBJS *obj) 
 {
-	return 0;
+	int ret = 0;
+	do {
+		
+	} while(0);
+	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
