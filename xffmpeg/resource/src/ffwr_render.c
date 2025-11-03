@@ -105,7 +105,7 @@ static void
 ffwr_clear_gb_var();
 
 static int
-ffwr_open_instream(FFWR_INSTREAM *instr) ;
+ffwr_open_instream(FFWR_DEMUX_OBJS *obj) ;
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 /* Variables */
@@ -1401,6 +1401,7 @@ ffwr_create_demux_objects(FFWR_DEMUX_OBJS *obj)
 			spllog(4, "FFWR_DEMUX_OBJS_NULL_ERR");
 			break;
 		}	
+		
 		ffwr_malloc(sz, inner_demux, FFWR_INSTREAM);
 		if(!inner_demux) {
 			ret = FFWR_MALLOC_ERR;
@@ -1444,8 +1445,26 @@ ffwr_get_demux_data(FFWR_DEMUX_OBJS *obj, FFWR_DEMUX_DATA **out)
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int
-ffwr_open_instream(FFWR_INSTREAM *instr)
+ffwr_open_instream(FFWR_DEMUX_OBJS *obj)
 {
+	int ret = 0;
+	FFWR_INSTREAM *inner_demux = 0;
+	int sz = sizeof(FFWR_INSTREAM);
+	do {
+		if(!obj) {
+			ret = FFWR_DEMUX_OBJS_NULL_ERR;
+			spllog(4, "FFWR_DEMUX_OBJS_NULL_ERR");
+			break;
+		}	
+		
+		ffwr_malloc(sz, inner_demux, FFWR_INSTREAM);
+		if(!inner_demux) {
+			ret = FFWR_MALLOC_ERR;
+			spllog(4, "FFWR_MALLOC_ERR");
+			break;
+		}
+		obj->inner_demux = inner_demux;
+	} while(0);
 	return 0;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
