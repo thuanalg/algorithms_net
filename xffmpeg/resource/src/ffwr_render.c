@@ -1642,6 +1642,7 @@ ffwr_create_sync_buff(FFWR_DEMUX_OBJS *obj)
 {
 	int ret = 0;
 	FFWR_DEMUX_DATA *p = 0;
+	void *mtx = 0;
 	do {
 		if(!obj) {
 			ret = FFWR_DEMUX_OBJS_NULL_ERR;
@@ -1649,8 +1650,19 @@ ffwr_create_sync_buff(FFWR_DEMUX_OBJS *obj)
 			break;
 		}
 		p = &(obj->buffer);
-		p->mtx_vbuf = ffwr_create_mutex(0);
-		p->mtx_abuf = ffwr_create_mutex(0);
+		mtx = ffwr_create_mutex(0);
+		if(!mtx) {
+			ret = FFWR_CREATE_MUTEX_NULL_ERR;
+			break;
+		}
+		p->mtx_vbuf = mtx;
+		
+		mtx = ffwr_create_mutex(0);
+		if(!mtx) {
+			ret = FFWR_CREATE_MUTEX_NULL_ERR;
+			break;
+		}		
+		p->mtx_abuf = mtx;
 	} while(0);
 	return ret;
 }
