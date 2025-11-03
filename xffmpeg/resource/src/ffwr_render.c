@@ -1718,16 +1718,23 @@ ffwr_create_mutex(char *name)
 int ffwr_create_genbuff(ffwr_gen_data_st **obj, int sz) 
 {
     int ret = 0;
-    //ffwr_gen_data_st *tmp = 0;
-    //do {
-    //    if(!obj) {
-    //        ret = 1;
-    //        break;
-    //    }
-    //    obj->total = sz;
-    //    obj->range = sz - sizeof(ffwr_gen_data_st);
-    //    obj->pl = obj->pc = 0;
-    //} while(0);
+    ffwr_gen_data_st *tmp = 0;
+    do {
+		if(!obj) {
+			ret = FFWR_GEN_DATA_NULL_ERR;
+			spllog(4, "FFWR_GEN_DATA_NULL_ERR");
+			break;
+		}
+		ffwr_malloc(sz, tmp, ffwr_gen_data_st);
+		if(!tmp) {
+			ret = FFWR_MALLOC_ERR;
+			break;
+		}
+        tmp->total = sz;
+        tmp->range = sz - sizeof(ffwr_gen_data_st);
+        tmp->pl = tmp->pc = 0;
+		*obj = tmp;
+    } while(0);
     return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
