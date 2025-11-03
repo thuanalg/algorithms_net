@@ -358,6 +358,7 @@ typedef struct FFWR_Rect
     int w, h;
 } FFWR_Rect;
 
+
 typedef struct __FFWR_RENDER_OBJECTS__
 {	
 	void *sdl_window;
@@ -384,6 +385,18 @@ typedef struct __FFWR_GENERIC_DATA__ {
 } ffwr_gen_data_st;
 
 #define ffwr_araw_stream                ffwr_gen_data_st
+
+typedef struct __FFWR_DEMUX_DATA__
+{
+    ffwr_gen_data_st * vbuf; /*video buffer*/
+    ffwr_gen_data_st * shared_vbuf; /*video shared buffer*/
+    void *mtx_vbuf; /*Mutex shared buffer*/
+	
+    ffwr_gen_data_st * abuf; /*audio buffer*/
+    ffwr_gen_data_st * shared_abuf; /*audio shared buffer*/
+    void *mtx_abuf; /*Mutex shared audio buffer*/
+	
+} FFWR_DEMUX_DATA;
 
 typedef struct {
     int total;
@@ -502,6 +515,7 @@ ffwr_destroy_render_objects(FFWR_RENDER_OBJECTS *);
 
 DLL_API_FFWR_RENDER int 
 ffwr_create_demux_objects(FFWR_DEMUX_OBJS *);
+
 DLL_API_FFWR_RENDER int 
 ffwr_destroy_demux_objects(FFWR_DEMUX_OBJS *);
 
