@@ -63,6 +63,9 @@ ffwr_convert_vframe(AVFrame *src, AVFrame *dst);
 #ifndef UNIX_LINUX
 static DWORD WINAPI 
 ffwr_demux_routine(LPVOID lpParam);
+
+static DWORD WINAPI 
+ffwr_demux_routine_ext(LPVOID lpParam);
 #else	
 #endif
 
@@ -118,6 +121,9 @@ ffwr_create_mutex(char *name);
 
 static int 
 ffwr_create_genbuff(ffwr_gen_data_st **obj, int sz) ;
+
+static int
+ffwr_create_demux_ext(void *obj);
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 /* Variables */
@@ -572,6 +578,12 @@ ffwr_create_demux(void *obj)
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 #ifndef UNIX_LINUX
+DWORD WINAPI ffwr_demux_routine_ext(LPVOID lpParam)
+{
+	int ret = 0;
+	return ret;
+}
+
 DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 {
     int ret = 0;
@@ -1418,13 +1430,20 @@ ffwr_create_demux_objects(FFWR_DEMUX_OBJS *obj)
 			spllog(4, "ffwr_create_sync_buff");
 			break;
 		}		
-		//ret = ffwr_open_instream(obj);
+		ret = ffwr_create_demux_ext(obj);
+		if(ret) {
+			spllog(4, "ffwr_create_demux_ext");
+			break;
+		}			
 	} while(0);
 	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int 
-ffwr_destroy_demux_objects(FFWR_DEMUX_OBJS *obj) {return 0;}
+ffwr_destroy_demux_objects(FFWR_DEMUX_OBJS *obj) 
+{
+	return 0;
+}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int 
 ffwr_get_demux_data(FFWR_DEMUX_OBJS *obj, FFWR_DEMUX_DATA **out) 
@@ -1738,5 +1757,23 @@ int ffwr_create_genbuff(ffwr_gen_data_st **obj, int sz)
     return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int
+ffwr_create_demux_ext(void *obj)
+{
+	int ret = 0;
+#ifndef UNIX_LINUX
+	HANDLE hThread = 0;
+	DWORD dwThreadId = 0;
+	hThread = CreateThread(NULL, // security attributes
+	    0, 
+	    ffwr_demux_routine_ext, // thread function
+	    obj,
+	    0, // 
+	    &dwThreadId // 
+	);
+#else
+#endif	
+	return ret;
+}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
