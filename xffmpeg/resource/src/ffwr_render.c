@@ -1435,9 +1435,14 @@ ffwr_get_demux_data(FFWR_DEMUX_OBJS *obj, FFWR_DEMUX_DATA **out)
 int
 ffwr_open_instream(FFWR_DEMUX_OBJS *obj)
 {
+	int result = 0;
 	int ret = 0;
-	FFWR_INSTREAM *inner_demux = 0;
+	FFWR_INSTREAM *pinput = 0;
 	int sz = sizeof(FFWR_INSTREAM);
+    AVInputFormat *iformat = 0; 
+	char *name = 0;
+    AVDictionary *options = 0;	
+	
 	do {
 		if(!obj) {
 			ret = FFWR_DEMUX_OBJS_NULL_ERR;
@@ -1445,15 +1450,45 @@ ffwr_open_instream(FFWR_DEMUX_OBJS *obj)
 			break;
 		}	
 		
-		ffwr_malloc(sz, inner_demux, FFWR_INSTREAM);
-		if(!inner_demux) {
+		ffwr_malloc(sz, pinput, FFWR_INSTREAM);
+		if(!pinput) {
 			ret = FFWR_MALLOC_ERR;
 			spllog(4, "FFWR_MALLOC_ERR");
 			break;
 		}
-		obj->inner_demux = inner_demux;
+		//obj->inner_demux = pinput;
+		if (!av_dict_get(options, "scan_all_pmts", NULL, AV_DICT_MATCH_CASE)) {
+			av_dict_set(&options, "scan_all_pmts", "1", AV_DICT_DONT_OVERWRITE);
+		}        
+		name = obj->input.name;
+		spllog(1, "name: %s", name);
+
+        result = avformat_open_input(&(pinput->fmt_ctx), name,  iformat, &options);
+
+        if(result < 0) {
+            ret = FFWR_AV_OPEN_INPUT_ERR;
+            spllog(4, "FFWR_AV_OPEN_INPUT_ERR");
+            break;
+        }	
+        result = avformat_find_stream_info(pinput->fmt_ctx, 0);
+        if(result < 0) {
+            ret = FFWR_AV_FIND_STREAM_INFO_ERR;
+            spllog(4, "FFWR_AV_FIND_STREAM_INFO_ERR");
+            break;
+        }
+        if(pinput->fmt_ctx->nb_streams < 1) {
+            ret = FFWR_AV_NB_STREAMS_ERR;
+            spllog(4, "FFWR_AV_NB_STREAMS_ERR");
+            break;
+        }
+        pinput->v_st = pinput->fmt_ctx->streams[0];
+        if(!pinput->v_st) {
+            ret = FFWR_NO_VSTREAMS_ERR;
+            spllog(4, "FFWR_NO_VSTREAMS_ERR");
+            break;
+        }		
 	} while(0);
-	return 0;
+	return ret;
 }
 #if 0
    int ret = 0;
