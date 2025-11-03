@@ -1393,7 +1393,7 @@ int
 ffwr_create_demux_objects(FFWR_DEMUX_OBJS *obj) 
 {
 	int ret = 0;
-	FFWR_INSTREAM *p = 0;
+	FFWR_INSTREAM *inner_demux = 0;
 	int sz = sizeof(FFWR_INSTREAM);
 	do {
 		if(!obj) {
@@ -1401,12 +1401,13 @@ ffwr_create_demux_objects(FFWR_DEMUX_OBJS *obj)
 			spllog(4, "FFWR_DEMUX_OBJS_NULL_ERR");
 			break;
 		}	
-		ffwr_malloc(sz, p, FFWR_INSTREAM);
-		if(!p) {
+		ffwr_malloc(sz, inner_demux, FFWR_INSTREAM);
+		if(!inner_demux) {
 			ret = FFWR_MALLOC_ERR;
 			spllog(4, "FFWR_MALLOC_ERR");
 			break;
 		}
+		obj->inner_demux = inner_demux;
 	} while(0);
 	return ret;
 }

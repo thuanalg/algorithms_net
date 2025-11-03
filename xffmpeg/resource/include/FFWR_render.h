@@ -435,7 +435,7 @@ typedef struct {
 typedef struct __FFWR_DEMUX_OBJS__ {
 	FFWR_RENDER_OBJECTS render_objects;
 	void *inner_demux;
-	FFWR_INPUT_ST *input;
+	FFWR_INPUT_ST input;
 } FFWR_DEMUX_OBJS;
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
