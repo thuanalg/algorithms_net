@@ -115,6 +115,9 @@ ffwr_create_sync_buff(FFWR_DEMUX_OBJS *obj) ;
 
 static void*
 ffwr_create_mutex(char *name);
+
+static int 
+ffwr_create_genbuff(ffwr_gen_data_st **obj, int sz) ;
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 /* Variables */
@@ -1681,5 +1684,22 @@ ffwr_create_mutex(char *name)
 #endif	
 	return ret;
 }
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int ffwr_create_genbuff(ffwr_gen_data_st **obj, int sz) 
+{
+    int ret = 0;
+    //ffwr_gen_data_st *tmp = 0;
+    //do {
+    //    if(!obj) {
+    //        ret = 1;
+    //        break;
+    //    }
+    //    obj->total = sz;
+    //    obj->range = sz - sizeof(ffwr_gen_data_st);
+    //    obj->pl = obj->pc = 0;
+    //} while(0);
+    return ret;
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
