@@ -127,6 +127,9 @@ ffwr_create_demux_ext(void *obj);
 
 static int 
 ffwr_create_a_swrContext_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame *dst);
+
+static int 
+convert_audio_frame_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame **outfr);
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 /* Variables */
@@ -717,7 +720,7 @@ DWORD WINAPI ffwr_demux_xyz_ext(LPVOID lpParam)
 					break;
 				}  
 #if 1			
-            convert_audio_frame(pgb_instream->a_frame, 
+            convert_audio_frame_ext(pgb_instream, pgb_instream->a_frame, 
                 &(pgb_instream->a_dstframe));
             spl_mutex_lock(amutex);
             do {
