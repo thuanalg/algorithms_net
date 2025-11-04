@@ -23,38 +23,42 @@ void FFWRVideoFrame::OnPaint()
 	ffwr_gen_data_st *gb_frame = 0;
 	ffwr_gen_data_st *gb_tsplanVFrame = 0;
 
-	gb_frame = ffwr_gb_renderVFrame();
+	//gb_frame = ffwr_gb_renderVFrame();
+	gb_frame = obj_demux.buffer.vbuf;
 	if (!gb_frame) {
 		spllog(3, "gb_frame null");
 		return;
 	}
 
-	gb_tsplanVFrame = ffwr_gb_shared_vframe();
+	//gb_tsplanVFrame = ffwr_gb_shared_vframe();	
+	gb_tsplanVFrame = obj_demux.buffer.shared_vbuf;
 	if (!gb_tsplanVFrame) {
+		gb_tsplanVFrame = obj_demux.buffer.shared_vbuf;
 		spllog(3, "gb_tsplanVFrame null");
 		return;
 	}
 
 	if (!ref_ffwr_mtx) {
-		ref_ffwr_mtx = ffwr_mutex_data();
+		//ref_ffwr_mtx = ffwr_mutex_data();
+		ref_ffwr_mtx = obj_demux.buffer.mtx_vbuf;
 		if (!ref_ffwr_mtx) {
 			spllog(4, "ref_ffwr_mtx null");
 			return;
 		}
 	}
-	if (!sdl_winrentext.sdl_window) {
+	//if (!sdl_winrentext.sdl_window) {
+	if (!obj_demux.render_objects.sdl_window) {
 		spllog(4, "sdl_window null");
 		return;
 	}
-	if (!sdl_winrentext.sdl_window) {
-		spllog(4, "sdl_window null");
-		return;
-	}
-	if (!sdl_winrentext.sdl_render) {
+
+	//if (!sdl_winrentext.sdl_render) {
+	if (!obj_demux.render_objects.sdl_render) {
 		spllog(4, "FFWRVideoFrame::sdl_render null");
 		return;
 	}
-	if (!sdl_winrentext.sdl_texture) {
+	//if (!sdl_winrentext.sdl_texture) {
+	if (!obj_demux.render_objects.sdl_texture) {
 		spllog(4, "FFWRVideoFrame::sdl_texture null");
 		return;
 	}
@@ -78,19 +82,18 @@ void FFWRVideoFrame::OnPaint()
 	}
 	it = (FFWR_SIZE_TYPE *)(gb_frame->data + gb_frame->pc);
 	p = (FFWR_VFrame *)(gb_frame->data + gb_frame->pc);
-	ffwr_UpdateYUVTexture(sdl_winrentext.sdl_texture, 0,
+	ffwr_UpdateYUVTexture(obj_demux.render_objects.sdl_texture, 0,
 	    p->data + p->pos[0],  p->linesize[0], 
 		p->data + p->pos[1], p->linesize[1],
 	    p->data + p->pos[2], p->linesize[2]
 
 	);
 	spllog(1, "pc render: %d, pts: %d", gb_frame->pc, p->pts);
-	ffwr_RenderClear(sdl_winrentext.sdl_render);
-	ffwr_RenderCopy(
-	    sdl_winrentext.sdl_render, 
-		sdl_winrentext.sdl_texture,
+	ffwr_RenderClear(obj_demux.render_objects.sdl_render);
+	ffwr_RenderCopy(obj_demux.render_objects.sdl_render, 
+		obj_demux.render_objects.sdl_texture,
 	    0, 0);
-	ffwr_RenderPresent(sdl_winrentext.sdl_render);
+	ffwr_RenderPresent(obj_demux.render_objects.sdl_render);
 	if (it) {
 		gb_frame->pc += it->total;
 	}
@@ -99,6 +102,7 @@ void FFWRVideoFrame::OnPaint()
 FFWRVideoFrame::FFWRVideoFrame()
 {
 	int ret = 0;
+	memset(&obj_demux, 0, sizeof(obj_demux));
 	sdl_winrentext.sdl_window = 0;
 	if (!sdl_init) {
 		ret = ffwr_init(FFWRVideoFrame::sdl_flag);
@@ -107,12 +111,31 @@ FFWRVideoFrame::FFWRVideoFrame()
 		}
 		sdl_init = 1;
 	}
-	sdl_winrentext.sdl_render = 0;
-	sdl_winrentext.sdl_texture = 0;
+
+	//sdl_winrentext.sdl_render = 0;
+	//sdl_winrentext.sdl_texture = 0;
+
+	obj_demux.render_objects.w = 640;
+	obj_demux.render_objects.h = 480;
+	obj_demux.render_objects.format = FFWR_PIXELFORMAT_IYUV;
+	obj_demux.render_objects.access = FFWR_TEXTUREACCESS_STREAMING;
+	obj_demux.render_objects.ren_flags = (FFWR_INIT_AUDIO | FFWR_INIT_VIDEO);
+	obj_demux.buffer.vbuf_size = 12000000;
+	obj_demux.buffer.abuf_size = 12000000;
+	obj_demux.render_objects.native_window = this->m_hWnd;
 }
 
 FFWRVideoFrame::~FFWRVideoFrame()
 {
+}
+
+void
+FFWRVideoFrame::xyz()
+{
+	obj_demux.render_objects.native_window = this->m_hWnd;
+	snprintf(obj_demux.input.name, sizeof(obj_demux.input.name), 
+		"%s", "tcp://127.0.0.1:12345");
+	ffwr_create_demux_objects(&obj_demux);
 }
 
 void

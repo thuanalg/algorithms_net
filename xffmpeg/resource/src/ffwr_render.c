@@ -1994,7 +1994,8 @@ ffwr_open_render_sdl_pipe(FFWR_DEMUX_OBJS *obj)
 			break;
 		}
 		win = (SDL_Window *) p->sdl_window;
-		ren = SDL_CreateRenderer(win, -1, p->ren_flags);
+		//ren = SDL_CreateRenderer(win, -1, p->ren_flags);
+		ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
 		if(!ren) {
 			ret = FFWR_CREATERENDERER_ERR;
 			spllog(4, "SDL_CreateRenderer: %s\n", SDL_GetError());

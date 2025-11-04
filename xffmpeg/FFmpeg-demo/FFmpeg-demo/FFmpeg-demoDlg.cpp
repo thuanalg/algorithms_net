@@ -124,10 +124,13 @@ BOOL CFFmpegdemoDlg::OnInitDialog()
 	    1001 // ID control
 	);
 	gb_hwnd = m_vframe.m_hWnd;
-	m_vframe.create_sdlwin();
+	//m_vframe.create_sdlwin();
+
+	m_vframe.xyz();
 
 	HANDLE hThread;
 	DWORD dwThreadId;
+
 	hThread = CreateThread(NULL, // security attributes
 	    0, 
 	    MyThreadProc, // thread function
@@ -135,11 +138,12 @@ BOOL CFFmpegdemoDlg::OnInitDialog()
 	    0, // 
 	    &dwThreadId // 
 	);
-	snprintf(mfcinfo.name, sizeof(mfcinfo.name), "%s", 
-		"tcp://127.0.0.1:12345");
-	mfcinfo.native_drawing = m_vframe.m_hWnd;
-	mfcinfo.cb = demux_callback_gui;
-	ffwr_create_demux(&mfcinfo);
+
+	//snprintf(mfcinfo.name, sizeof(mfcinfo.name), "%s", 
+	//	"tcp://127.0.0.1:12345");
+	//mfcinfo.native_drawing = m_vframe.m_hWnd;
+	//mfcinfo.cb = demux_callback_gui;
+	//ffwr_create_demux(&mfcinfo);
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
