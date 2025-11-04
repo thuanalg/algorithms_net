@@ -589,6 +589,7 @@ DWORD WINAPI ffwr_demux_xyz_ext(LPVOID lpParam)
 	FFWR_INPUT_ST *info = 0;
 	FFWR_INSTREAM *pgb_instream = 0;
 	ffwr_gen_data_st *pst_renderVFrame = 0, *pst_shared_vframe = 0;	
+	ffwr_gen_data_st *abuf = 0, *shared_abuf = 0;	
 	void *vmutex = 0;
 	void *amutex = 0;
 	do {
@@ -622,29 +623,14 @@ DWORD WINAPI ffwr_demux_xyz_ext(LPVOID lpParam)
 		av_frame_get_buffer(pgb_instream->vframe, 32);       
 	
 		/*-----------------*/
-		ffwr_malloc(FFWR_BUFF_SIZE, st_shared_vframe, ffwr_gen_data_st);
-		if(!st_shared_vframe) {
-			exit(1);
-		}
-		//memset(st_shared_vframe, 0, FFWR_BUFF_SIZE);
-		st_shared_vframe->total = FFWR_BUFF_SIZE;
-		st_shared_vframe->range = st_shared_vframe->total -sizeof(ffwr_gen_data_st);
-	
-		//st_renderVFrame = malloc(FFWR_BUFF_SIZE);
-		ffwr_malloc(FFWR_BUFF_SIZE, st_renderVFrame, ffwr_gen_data_st);
-		if(!st_renderVFrame) {
-			exit(1);
-		}
-		//memset(st_renderVFrame, 0, FFWR_BUFF_SIZE);
-	
-		st_renderVFrame->total = FFWR_BUFF_SIZE;
-		st_renderVFrame->range = st_renderVFrame->total -sizeof(ffwr_gen_data_st);  	
-		
+
 		/*-----------------*/
 		pst_renderVFrame = obj->buffer.vbuf;
 		pst_shared_vframe = obj->buffer.shared_vbuf;
 		vmutex = obj->buffer.mtx_vbuf;
 		amutex = obj->buffer.mtx_abuf;
+		abuf = obj->buffer.abuf;
+		shared_abuf = obj->buffer.shared_abuf;
 		/*-----------------*/
 		//ffwr_open_audio_output( 2000000);
 		/*-----------------*/
@@ -727,31 +713,31 @@ DWORD WINAPI ffwr_demux_xyz_ext(LPVOID lpParam)
 					spllog(4, "avcodec_receive_frame");
 					break;
 				}  
-#if 0			
-            convert_audio_frame(gb_instream.a_frame, 
-                &(gb_instream.a_dstframe));
+#if 1			
+            convert_audio_frame(pgb_instream->a_frame, 
+                &(pgb_instream->a_dstframe));
             spl_mutex_lock(amutex);
             do {
-                if(st_SharedAudioBuffer->range > 
-                    st_SharedAudioBuffer->pl + 
-                    gb_instream.a_dstframe->linesize[0]) 
+                if(shared_abuf->range > 
+                    shared_abuf->pl + 
+                    pgb_instream->a_dstframe->linesize[0]) 
                 {
-                    memcpy(st_SharedAudioBuffer->data + 
-                            st_SharedAudioBuffer->pl, 
-                        gb_instream.a_dstframe->data[0], 
-                        gb_instream.a_dstframe->linesize[0]
+                    memcpy(shared_abuf->data + 
+                            shared_abuf->pl, 
+                        pgb_instream->a_dstframe->data[0], 
+                        pgb_instream->a_dstframe->linesize[0]
                     );
-                    st_SharedAudioBuffer->pl += 
-                        gb_instream.a_dstframe->linesize[0];
+                    shared_abuf->pl += 
+                        pgb_instream->a_dstframe->linesize[0];
                 } else {
-                    st_SharedAudioBuffer->pl = 0;
-                    st_SharedAudioBuffer->pc = 0;
+                    shared_abuf->pl = 0;
+                    shared_abuf->pc = 0;
                     spllog(1, "over audio range");
                 }
                 spllog(1, "(pl, pc, range)=(%d, %d, %d)", 
-                    st_SharedAudioBuffer->pl, 
-                    st_SharedAudioBuffer->pc, 
-                    st_SharedAudioBuffer->range);
+                    shared_abuf->pl, 
+                    shared_abuf->pc, 
+                    shared_abuf->range);
             } while(0);
             spl_mutex_unlock(amutex);
 #endif							
