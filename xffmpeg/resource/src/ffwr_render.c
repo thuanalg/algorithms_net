@@ -587,7 +587,9 @@ DWORD WINAPI ffwr_demux_xyz_ext(LPVOID lpParam)
     FFWR_VFrame *ffwr_vframe = 0;
     int running = 0;
 	FFWR_INPUT_ST *info = 0;
-	FFWR_INSTREAM *pgb_instream = 0;	
+	FFWR_INSTREAM *pgb_instream = 0;
+	ffwr_gen_data_st *pst_renderVFrame = 0, *st_shared_vframe = 0;	
+	void *vmutex = 0;
 	do {
 		if(!obj) {
 			ret = FFWR_DEMUX_OBJS_NULL_ERR;
@@ -618,7 +620,37 @@ DWORD WINAPI ffwr_demux_xyz_ext(LPVOID lpParam)
 		pgb_instream->vframe->pts = 0;
 		av_frame_get_buffer(pgb_instream->vframe, 32);       
 	
-	/*-----------------*/		
+		/*-----------------*/
+		ffwr_malloc(FFWR_BUFF_SIZE, st_shared_vframe, ffwr_gen_data_st);
+		if(!st_shared_vframe) {
+			exit(1);
+		}
+		//memset(st_shared_vframe, 0, FFWR_BUFF_SIZE);
+		st_shared_vframe->total = FFWR_BUFF_SIZE;
+		st_shared_vframe->range = st_shared_vframe->total -sizeof(ffwr_gen_data_st);
+	
+		//st_renderVFrame = malloc(FFWR_BUFF_SIZE);
+		ffwr_malloc(FFWR_BUFF_SIZE, st_renderVFrame, ffwr_gen_data_st);
+		if(!st_renderVFrame) {
+			exit(1);
+		}
+		//memset(st_renderVFrame, 0, FFWR_BUFF_SIZE);
+	
+		st_renderVFrame->total = FFWR_BUFF_SIZE;
+		st_renderVFrame->range = st_renderVFrame->total -sizeof(ffwr_gen_data_st);  	
+		
+		/*-----------------*/
+		pst_renderVFrame = obj->buffer.vbuf;
+		st_shared_vframe = obj->buffer.shared_vbuf;
+		vmutex = obj->buffer.mtx_vbuf;
+		/*-----------------*/
+		//ffwr_open_audio_output( 2000000);
+		/*-----------------*/
+		while(1) 
+		{
+			running = ffwr_get_running_ext(obj);
+		}
+		/*-----------------*/
 	} while(0);
 	return ret;
 }
@@ -889,11 +921,20 @@ ffwr_convert_vframe(AVFrame *src, AVFrame *dst)
     return 0;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int ffwr_gb_running = 1;
 int ffwr_get_running() {
     int ret = 0;
     spl_mutex_lock(ffwr_st_VFRAME_MTX);
         ret = ffwr_gb_running;
+    spl_mutex_unlock(ffwr_st_VFRAME_MTX);
+    return ret;;
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int ffwr_get_running_ext(FFWR_DEMUX_OBJS *obj) {
+    int ret = 0;
+    spl_mutex_lock(ffwr_st_VFRAME_MTX);
+        ret = obj->isstop ? 0 : 1;
     spl_mutex_unlock(ffwr_st_VFRAME_MTX);
     return ret;;
 }
