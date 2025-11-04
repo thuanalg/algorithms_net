@@ -65,7 +65,7 @@ static DWORD WINAPI
 ffwr_demux_routine(LPVOID lpParam);
 
 static DWORD WINAPI 
-ffwr_demux_routine_ext(LPVOID lpParam);
+ffwr_demux_xyz_ext(LPVOID lpParam);
 #else	
 #endif
 
@@ -578,9 +578,29 @@ ffwr_create_demux(void *obj)
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 #ifndef UNIX_LINUX
-DWORD WINAPI ffwr_demux_routine_ext(LPVOID lpParam)
+DWORD WINAPI ffwr_demux_xyz_ext(LPVOID lpParam)
 {
 	int ret = 0;
+	FFWR_DEMUX_OBJS *obj = 0;
+	obj = (FFWR_DEMUX_OBJS *) lpParam;
+    AVFrame *tmp = 0;
+    FFWR_VFrame *ffwr_vframe = 0;
+    int running = 0;
+	FFWR_INPUT_ST *info = 0;	
+	do {
+		if(!obj) {
+			ret = FFWR_DEMUX_OBJS_NULL_ERR;
+			spllog(4, "FFWR_DEMUX_OBJS_NULL_ERR");
+			break;
+		}		
+		ret = ffwr_open_instream(obj);
+		if(ret) {
+			spllog(4, "ffwr_open_instream");
+			break;			
+		}
+		info = &(obj->input);
+		
+	} while(0);
 	return ret;
 }
 
@@ -1420,11 +1440,6 @@ ffwr_create_demux_objects(FFWR_DEMUX_OBJS *obj)
 	FFWR_INSTREAM *inner_demux = 0;
 	int sz = sizeof(FFWR_INSTREAM);
 	do {
-		ret = ffwr_open_render_sdl_pipe(obj);
-		if(ret) {
-			spllog(4, "ffwr_open_render_sdl_pipe");
-			break;
-		}
 		ret = ffwr_create_sync_buff(obj);
 		if(ret) {
 			spllog(4, "ffwr_create_sync_buff");
@@ -1434,7 +1449,12 @@ ffwr_create_demux_objects(FFWR_DEMUX_OBJS *obj)
 		if(ret) {
 			spllog(4, "ffwr_create_demux_ext");
 			break;
-		}			
+		}
+		ret = ffwr_open_render_sdl_pipe(obj);
+		if(ret) {
+			spllog(4, "ffwr_open_render_sdl_pipe");
+			break;
+		}		
 	} while(0);
 	return ret;
 }
@@ -1490,7 +1510,7 @@ ffwr_open_instream(FFWR_DEMUX_OBJS *obj)
 			spllog(4, "FFWR_MALLOC_ERR");
 			break;
 		}
-		//obj->inner_demux = pinput;
+		obj->inner_demux = pinput;
 		if (!av_dict_get(options, "scan_all_pmts", NULL, AV_DICT_MATCH_CASE)) {
 			av_dict_set(&options, "scan_all_pmts", "1", AV_DICT_DONT_OVERWRITE);
 		}        
@@ -1766,7 +1786,7 @@ ffwr_create_demux_ext(void *obj)
 	DWORD dwThreadId = 0;
 	hThread = CreateThread(NULL, // security attributes
 	    0, 
-	    ffwr_demux_routine_ext, // thread function
+	    ffwr_demux_xyz_ext, // thread function
 	    obj,
 	    0, // 
 	    &dwThreadId // 

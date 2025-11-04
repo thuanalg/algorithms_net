@@ -444,6 +444,7 @@ typedef struct {
 } FFWR_INPUT_ST;
 
 typedef struct __FFWR_DEMUX_OBJS__ {
+	int isstop;
 	FFWR_RENDER_OBJECTS render_objects;
 	void *inner_demux;
 	FFWR_DEMUX_DATA buffer;
