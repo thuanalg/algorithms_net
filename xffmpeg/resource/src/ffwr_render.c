@@ -585,10 +585,10 @@ DWORD WINAPI ffwr_demux_xyz_ext(LPVOID lpParam)
 	obj = (FFWR_DEMUX_OBJS *) lpParam;
     AVFrame *tmp = 0;
     FFWR_VFrame *ffwr_vframe = 0;
-    int running = 0;
+    int stopping = 0;
 	FFWR_INPUT_ST *info = 0;
 	FFWR_INSTREAM *pgb_instream = 0;
-	ffwr_gen_data_st *pst_renderVFrame = 0, *st_shared_vframe = 0;	
+	ffwr_gen_data_st *pst_renderVFrame = 0, *pst_shared_vframe = 0;	
 	void *vmutex = 0;
 	void *amutex = 0;
 	do {
@@ -642,7 +642,7 @@ DWORD WINAPI ffwr_demux_xyz_ext(LPVOID lpParam)
 		
 		/*-----------------*/
 		pst_renderVFrame = obj->buffer.vbuf;
-		st_shared_vframe = obj->buffer.shared_vbuf;
+		pst_shared_vframe = obj->buffer.shared_vbuf;
 		vmutex = obj->buffer.mtx_vbuf;
 		amutex = obj->buffer.mtx_abuf;
 		/*-----------------*/
@@ -650,8 +650,8 @@ DWORD WINAPI ffwr_demux_xyz_ext(LPVOID lpParam)
 		/*-----------------*/
 		while(1) 
 		{
-			running = ffwr_get_running_ext(obj);
-			if(!running) {
+			stopping = ffwr_get_stopping(obj);
+			if(stopping) {
 				break;
 			}
 			av_packet_unref(&(pgb_instream->pkt));
@@ -675,7 +675,6 @@ DWORD WINAPI ffwr_demux_xyz_ext(LPVOID lpParam)
 	
 	
 				spl_vframe(pgb_instream->vframe);
-#if 1				
 				if(!ffwr_vframe) {
 					ffwr_create_rawvframe(&ffwr_vframe, pgb_instream->vframe);
 					if(!ffwr_vframe) {
@@ -690,28 +689,27 @@ DWORD WINAPI ffwr_demux_xyz_ext(LPVOID lpParam)
 					spllog(4, "ffwr_vframe->tt_sz.total");
 					break;
 				}  
-				if(!st_shared_vframe) {
-					spllog(4, "st_shared_vframe");
+				if(!pst_shared_vframe) {
+					spllog(4, "pst_shared_vframe");
 					break;
 				}
 				spl_mutex_lock(vmutex);
 				do {
-					if(st_shared_vframe->range > 
-						st_shared_vframe->pl + ffwr_vframe->tt_sz.total) {                      
-						memcpy(st_shared_vframe->data + st_shared_vframe->pl, 
+					if(pst_shared_vframe->range > 
+						pst_shared_vframe->pl + ffwr_vframe->tt_sz.total) {                      
+						memcpy(pst_shared_vframe->data + pst_shared_vframe->pl, 
 							ffwr_vframe, 
 							ffwr_vframe->tt_sz.total);
-						st_shared_vframe->pl += ffwr_vframe->tt_sz.total;
-						spllog(1, "st_shared_vframe->pl: %d", 
-							st_shared_vframe->pl);
+						pst_shared_vframe->pl += ffwr_vframe->tt_sz.total;
+						spllog(1, "pst_shared_vframe->pl: %d", 
+							pst_shared_vframe->pl);
 					} else {
-						st_shared_vframe->pl = 0;
-						st_shared_vframe->pc = 0;
+						pst_shared_vframe->pl = 0;
+						pst_shared_vframe->pc = 0;
 					}
 	
 				} while(0);
 				spl_mutex_unlock(vmutex);
-#endif				
 				av_frame_unref(tmp);
 				av_frame_unref(pgb_instream->vframe);
 			} 			
@@ -997,10 +995,10 @@ int ffwr_get_running() {
     return ret;;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-int ffwr_get_running_ext(FFWR_DEMUX_OBJS *obj) {
+int ffwr_get_stopping(FFWR_DEMUX_OBJS *obj) {
     int ret = 0;
     spl_mutex_lock(obj->buffer.mtx_vbuf);
-        ret = obj->isstop ? 0 : 1;
+        ret = obj->isstop;
     spl_mutex_unlock(obj->buffer.mtx_vbuf);
     return ret;;
 }
@@ -1012,9 +1010,9 @@ int ffwr_set_running(int v) {
     return 0;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-int ffwr_set_running_ext(FFWR_DEMUX_OBJS *obj, int v) {
+int ffwr_set_stopping(FFWR_DEMUX_OBJS *obj, int v) {
     spl_mutex_lock(obj->buffer.mtx_vbuf);
-        obj->isstop = v ? 0 : 1;
+        obj->isstop = v;
     spl_mutex_unlock(obj->buffer.mtx_vbuf);
     return 0;
 }
