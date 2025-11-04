@@ -715,6 +715,46 @@ DWORD WINAPI ffwr_demux_xyz_ext(LPVOID lpParam)
 			}
 			if(pgb_instream->pkt.stream_index == 1) 
 			{
+				result = avcodec_send_packet(
+					pgb_instream->a_cctx, &(pgb_instream->pkt));
+				if(result < 0) {
+					spllog(4, "avcodec_send_packet");
+					break;
+				}
+				result = avcodec_receive_frame(
+					pgb_instream->a_cctx, pgb_instream->a_frame);
+				if (result < 0) {
+					spllog(4, "avcodec_receive_frame");
+					break;
+				}  
+#if 0			
+            convert_audio_frame(gb_instream.a_frame, 
+                &(gb_instream.a_dstframe));
+            spl_mutex_lock(amutex);
+            do {
+                if(st_SharedAudioBuffer->range > 
+                    st_SharedAudioBuffer->pl + 
+                    gb_instream.a_dstframe->linesize[0]) 
+                {
+                    memcpy(st_SharedAudioBuffer->data + 
+                            st_SharedAudioBuffer->pl, 
+                        gb_instream.a_dstframe->data[0], 
+                        gb_instream.a_dstframe->linesize[0]
+                    );
+                    st_SharedAudioBuffer->pl += 
+                        gb_instream.a_dstframe->linesize[0];
+                } else {
+                    st_SharedAudioBuffer->pl = 0;
+                    st_SharedAudioBuffer->pc = 0;
+                    spllog(1, "over audio range");
+                }
+                spllog(1, "(pl, pc, range)=(%d, %d, %d)", 
+                    st_SharedAudioBuffer->pl, 
+                    st_SharedAudioBuffer->pc, 
+                    st_SharedAudioBuffer->range);
+            } while(0);
+            spl_mutex_unlock(amutex);
+#endif							
 				spl_vframe(pgb_instream->a_dstframe);
 				av_frame_unref(pgb_instream->a_dstframe); 
 				av_frame_unref(pgb_instream->a_frame);   				
