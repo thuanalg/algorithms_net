@@ -130,6 +130,9 @@ ffwr_create_a_swrContext_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame *dst);
 
 static int 
 convert_audio_frame_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame **outfr);
+
+static int
+ffwr_convert_vframe_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame *dst);
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 /* Variables */
@@ -663,7 +666,7 @@ DWORD WINAPI ffwr_demux_xyz_ext(LPVOID lpParam)
 					break;
 				} 
 	
-				ffwr_convert_vframe(tmp, pgb_instream->vframe);
+				ffwr_convert_vframe_ext(pgb_instream, tmp, pgb_instream->vframe);
 	
 	
 				spl_vframe(pgb_instream->vframe);
@@ -974,6 +977,54 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 	return 0;
 }
 #endif
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int
+ffwr_convert_vframe_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame *dst)
+{
+    int ret = 0;
+    //av_frame_get_buffer(src, 32);
+    dst->format = 0;
+    dst->width = src->width;
+    dst->height = src->height;
+    av_frame_get_buffer(dst, 32);
+    if (!dst->data[0]) {
+        ret = av_frame_get_buffer(dst, 32);
+        if (ret < 0) {
+            spllog(4, "Error allocating dst buffer\n");
+            return ret;
+        }
+        spllog(1, "av_frame_get_buffer");
+    }
+    
+    if(! (p->vscale)) {
+        p->vscale = sws_getContext(
+	    	src->width, 
+	    	src->height, 
+	    	src->format, 
+	    	dst->width, 
+	    	dst->height, 
+	    	dst->format,
+            SWS_BILINEAR, NULL, NULL, NULL
+        );
+    }
+    if (!p->vscale) {
+        spllog(4, "Error: cannot create sws context\n");
+        return -1;
+    }
+
+    ret = sws_scale(
+        p->vscale,
+        (const uint8_t * const *)src->data,
+        src->linesize,
+        0,
+        src->height,
+        dst->data,
+        dst->linesize
+    );
+    dst->pts = src->pts;
+
+    return 0;
+}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int
 ffwr_convert_vframe(AVFrame *src, AVFrame *dst)
