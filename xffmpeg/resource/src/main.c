@@ -21,8 +21,15 @@ int main(int argc, char *argv[]) {
 		"tcp://127.0.0.1:12345");
 	ffwr_create_demux(&mfcinfo);
 */
+	// FFWR_PIXELFORMAT_IYUV, FFWR_TEXTUREACCESS_STREAMING
+	obj->render_objects.w = 640;
+	obj->render_objects.h = 480;
+	obj->render_objects.format = FFWR_PIXELFORMAT_IYUV;
+	obj->render_objects.access = FFWR_TEXTUREACCESS_STREAMING;
+	obj->render_objects.ren_flags =  (FFWR_INIT_AUDIO | FFWR_INIT_VIDEO);
 	obj->buffer.vbuf_size = obj->buffer.abuf_size = 12000000;
 	pinput = &(obj->input);
+	
 	snprintf(pinput->name, 
 		sizeof(pinput->name), 
 		"%s", "tcp://127.0.0.1:12345");
