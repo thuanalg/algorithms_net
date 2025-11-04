@@ -1266,7 +1266,7 @@ int convert_audio_frame_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame **outfr)
         }
 
         dst->nb_samples = av_rescale_rnd(
-            swr_get_delay(gb_aConvertContext, 
+            swr_get_delay(p->a_scale, 
                 src->sample_rate) + src->nb_samples, 
                 FFWR_OUTPUT_ARATE, src->sample_rate, AV_ROUND_UP);
 
@@ -1277,7 +1277,7 @@ int convert_audio_frame_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame **outfr)
 	    	break;
 	    }
         av_channel_layout_copy(&(dst->ch_layout), src_layout);
-	    n = swr_convert(gb_aConvertContext, dst->data, dst->nb_samples,
+	    n = swr_convert(p->a_scale, dst->data, dst->nb_samples,
 	        (const uint8_t **)src->data, src->nb_samples);
 	    if (ret < 0) {
 	    	spllog(4, " Error: swr_convert failed (%d)\n", ret);
