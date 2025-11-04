@@ -580,7 +580,7 @@ ffwr_create_demux(void *obj)
 #ifndef UNIX_LINUX
 DWORD WINAPI ffwr_demux_xyz_ext(LPVOID lpParam)
 {
-	int ret = 0;
+	int ret = 0, result = 0;
 	FFWR_DEMUX_OBJS *obj = 0;
 	obj = (FFWR_DEMUX_OBJS *) lpParam;
     AVFrame *tmp = 0;
@@ -649,6 +649,70 @@ DWORD WINAPI ffwr_demux_xyz_ext(LPVOID lpParam)
 		while(1) 
 		{
 			running = ffwr_get_running_ext(obj);
+			if(!running) {
+				break;
+			}
+			av_packet_unref(&(pgb_instream->pkt));
+			result = av_read_frame(pgb_instream->fmt_ctx, &(pgb_instream->pkt)); 
+			if(result) {
+				continue;
+			}
+			if(pgb_instream->pkt.stream_index == 0) {
+				result = avcodec_send_packet(pgb_instream->v_cctx, &(pgb_instream->pkt));
+				if(result < 0) {
+					spllog(1, "v_cctx: 0x%p", pgb_instream->v_cctx);
+					break;
+				}
+				result = avcodec_receive_frame(pgb_instream->v_cctx, tmp);
+				if (result < 0) {
+					spllog(4, "avcodec_receive_frame");
+					break;
+				} 
+	
+				ffwr_convert_vframe(tmp, pgb_instream->vframe);
+	
+	
+				spl_vframe(pgb_instream->vframe);
+#if 1				
+				if(!ffwr_vframe) {
+					ffwr_create_rawvframe(&ffwr_vframe, pgb_instream->vframe);
+					if(!ffwr_vframe) {
+						spllog(4, "ffwr_vframe");
+						break;
+					}                  
+				}
+				else {
+					ffwr_update_vframe(&ffwr_vframe, pgb_instream->vframe);
+				} 
+				if(ffwr_vframe->tt_sz.total < 1) {
+					spllog(4, "ffwr_vframe->tt_sz.total");
+					break;
+				}  
+				if(!st_shared_vframe) {
+					spllog(4, "st_shared_vframe");
+					break;
+				}
+				spl_mutex_lock(vmutex);
+				do {
+					if(st_shared_vframe->range > 
+						st_shared_vframe->pl + ffwr_vframe->tt_sz.total) {                      
+						memcpy(st_shared_vframe->data + st_shared_vframe->pl, 
+							ffwr_vframe, 
+							ffwr_vframe->tt_sz.total);
+						st_shared_vframe->pl += ffwr_vframe->tt_sz.total;
+						spllog(1, "st_shared_vframe->pl: %d", 
+							st_shared_vframe->pl);
+					} else {
+						st_shared_vframe->pl = 0;
+						st_shared_vframe->pc = 0;
+					}
+	
+				} while(0);
+				spl_mutex_unlock(vmutex);
+#endif				
+				av_frame_unref(tmp);
+				av_frame_unref(pgb_instream->vframe);
+			} 			
 		}
 		/*-----------------*/
 	} while(0);
