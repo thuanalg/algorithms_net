@@ -586,7 +586,8 @@ DWORD WINAPI ffwr_demux_xyz_ext(LPVOID lpParam)
     AVFrame *tmp = 0;
     FFWR_VFrame *ffwr_vframe = 0;
     int running = 0;
-	FFWR_INPUT_ST *info = 0;	
+	FFWR_INPUT_ST *info = 0;
+	FFWR_INSTREAM *pgb_instream = 0;	
 	do {
 		if(!obj) {
 			ret = FFWR_DEMUX_OBJS_NULL_ERR;
@@ -598,8 +599,26 @@ DWORD WINAPI ffwr_demux_xyz_ext(LPVOID lpParam)
 			spllog(4, "ffwr_open_instream");
 			break;			
 		}
+		pgb_instream = (FFWR_INSTREAM *) obj->inner_demux;
 		info = &(obj->input);
+		tmp = av_frame_alloc();
+		spllog(1, "av_frame_alloc");
+		tmp->width = 640;
+		tmp->height = 480;
+		tmp->format = 4;
+		tmp->pts = 0;
+	
+		av_frame_get_buffer(tmp, 32);
 		
+		//SDL_CreateWindowFrom
+	
+		pgb_instream->vframe->width = 640;
+		pgb_instream->vframe->height = 480;
+		pgb_instream->vframe->format = 4;
+		pgb_instream->vframe->pts = 0;
+		av_frame_get_buffer(pgb_instream->vframe, 32);       
+	
+	/*-----------------*/		
 	} while(0);
 	return ret;
 }
