@@ -1437,8 +1437,6 @@ int
 ffwr_create_demux_objects(FFWR_DEMUX_OBJS *obj) 
 {
 	int ret = 0;
-	FFWR_INSTREAM *inner_demux = 0;
-	int sz = sizeof(FFWR_INSTREAM);
 	do {
 		ret = ffwr_create_sync_buff(obj);
 		if(ret) {
