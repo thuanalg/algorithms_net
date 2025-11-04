@@ -590,6 +590,7 @@ DWORD WINAPI ffwr_demux_xyz_ext(LPVOID lpParam)
 	FFWR_INSTREAM *pgb_instream = 0;
 	ffwr_gen_data_st *pst_renderVFrame = 0, *st_shared_vframe = 0;	
 	void *vmutex = 0;
+	void *amutex = 0;
 	do {
 		if(!obj) {
 			ret = FFWR_DEMUX_OBJS_NULL_ERR;
@@ -643,6 +644,7 @@ DWORD WINAPI ffwr_demux_xyz_ext(LPVOID lpParam)
 		pst_renderVFrame = obj->buffer.vbuf;
 		st_shared_vframe = obj->buffer.shared_vbuf;
 		vmutex = obj->buffer.mtx_vbuf;
+		amutex = obj->buffer.mtx_abuf;
 		/*-----------------*/
 		//ffwr_open_audio_output( 2000000);
 		/*-----------------*/
