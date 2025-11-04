@@ -542,6 +542,9 @@ ffwr_get_demux_data(FFWR_DEMUX_OBJS *obj, FFWR_DEMUX_DATA **out);
 
 DLL_API_FFWR_RENDER int 
 ffwr_get_running_ext(FFWR_DEMUX_OBJS *obj);
+
+DLL_API_FFWR_RENDER int 
+ffwr_set_running_ext(FFWR_DEMUX_OBJS *obj, int v);
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 #ifdef __cplusplus

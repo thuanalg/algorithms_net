@@ -933,9 +933,9 @@ int ffwr_get_running() {
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int ffwr_get_running_ext(FFWR_DEMUX_OBJS *obj) {
     int ret = 0;
-    spl_mutex_lock(ffwr_st_VFRAME_MTX);
+    spl_mutex_lock(obj->buffer.mtx_vbuf);
         ret = obj->isstop ? 0 : 1;
-    spl_mutex_unlock(ffwr_st_VFRAME_MTX);
+    spl_mutex_unlock(obj->buffer.mtx_vbuf);
     return ret;;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
@@ -943,6 +943,13 @@ int ffwr_set_running(int v) {
     spl_mutex_lock(ffwr_st_VFRAME_MTX);
         ffwr_gb_running = v;
     spl_mutex_unlock(ffwr_st_VFRAME_MTX);
+    return 0;
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int ffwr_set_running_ext(FFWR_DEMUX_OBJS *obj, int v) {
+    spl_mutex_lock(obj->buffer.mtx_vbuf);
+        obj->isstop = v ? 0 : 1;
+    spl_mutex_unlock(obj->buffer.mtx_vbuf);
     return 0;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
