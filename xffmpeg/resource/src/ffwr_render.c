@@ -712,7 +712,13 @@ DWORD WINAPI ffwr_demux_xyz_ext(LPVOID lpParam)
 				spl_mutex_unlock(vmutex);
 				av_frame_unref(tmp);
 				av_frame_unref(pgb_instream->vframe);
-			} 			
+			}
+			if(pgb_instream->pkt.stream_index == 1) 
+			{
+				spl_vframe(pgb_instream->a_dstframe);
+				av_frame_unref(pgb_instream->a_dstframe); 
+				av_frame_unref(pgb_instream->a_frame);   				
+			}
 		}
 		/*-----------------*/
 	} while(0);
