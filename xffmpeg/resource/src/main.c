@@ -7,19 +7,30 @@ int main(int argc, char *argv[]) {
 	int ret = 0;
 	char cfgpath[1024] = {0};
 	SPL_INPUT_ARG input = {0};
+	FFWR_DEMUX_OBJS test_demux = {0};
+	FFWR_DEMUX_OBJS *obj = &test_demux;
+	FFWR_INPUT_ST *pinput = 0;
 	snprintf(cfgpath, 1024, "z.cfg");
 	snprintf(input.folder, SPL_PATH_FOLDER, "%s", cfgpath);
-	snprintf(input.id_name, 100, "tvk_wind");
+	snprintf(input.id_name, 100, "x");
 	ret = spl_init_log_ext(&input);
-	
+/*	
 	ffwr_init(FFWR_INIT_AUDIO | FFWR_INIT_VIDEO);
 	
 	snprintf(mfcinfo.name, sizeof(mfcinfo.name), "%s", 
 		"tcp://127.0.0.1:12345");
-	ffwr_create_demux(&mfcinfo);	
+	ffwr_create_demux(&mfcinfo);
+*/
+	obj->buffer.vbuf_size = obj->buffer.abuf_size = 12000000;
+	pinput = &(obj->input);
+	snprintf(pinput->name, 
+		sizeof(pinput->name), 
+		"%s", "tcp://127.0.0.1:12345");
+	ret = ffwr_create_demux_objects(obj);
 	while(1) {
 		spl_sleep(1);
 	}
+	
 	spl_finish_log();
 	return 0;
 }

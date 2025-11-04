@@ -1645,8 +1645,8 @@ ffwr_open_render_sdl_pipe(FFWR_DEMUX_OBJS *obj)
 		}	
 		p = &(obj->render_objects);
 		if(!p->native_window) {
-			ret = FFWR_NATIVE_WINDOW_NULL_ERR;
-			spllog(4, "FFWR_NATIVE_WINDOW_NULL_ERR");
+			ret = 0;
+			spllog(1, "For test none of GUI!");
 			break;			
 		}
 		
