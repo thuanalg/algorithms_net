@@ -61,7 +61,7 @@ typedef struct __FFWR_INSTREAM__ {
 #ifndef UNIX_LINUX
 
 static DWORD WINAPI 
-ffwr_demux_xyz_ext(LPVOID lpParam);
+ffwr_demux_routine(LPVOID lpParam);
 #else	
 #endif
 
@@ -401,181 +401,8 @@ ffwr_Quit() {
 	SDL_Quit();
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-
-//int
-//ffwr_open_input(FFWR_INPUT_ST *info) 
-//{
-//    int ret = 0;
-//    int result = 0;
-//    AVInputFormat *iformat = 0; 
-//    AVDictionary *options = 0;
-//	char *name = 0;
-//	int mode = -1;
-//	int sz = 0;
-//	FFWR_INSTREAM *pinput = 0;
-//    do {
-//        if(!info) {
-//            ret = FFWR_NULL_FFWR_INPUT_ST_ERR;
-//            spllog(4, "FFWR_NULL_FFWR_INPUT_ST_ERR");
-//            break;
-//        }
-//		name = info->name;
-//		mode = info->mode;
-//		
-//		pinput = &gb_instream;
-//		
-//		if(!pinput) {
-//			ret = FFWR_MEMORY_ERR;
-//			break;
-//		}
-//		info->ffinfo = pinput;
-//		if (!av_dict_get(options, "scan_all_pmts", NULL, AV_DICT_MATCH_CASE)) {
-//			av_dict_set(&options, "scan_all_pmts", "1", AV_DICT_DONT_OVERWRITE);
-//		}        
-//		
-//		spllog(1, "name: %s", name);
-//
-//        result = avformat_open_input(&(pinput->fmt_ctx), name,  iformat, &options);
-//
-//        if(result < 0) {
-//            ret = FFWR_AV_OPEN_INPUT_ERR;
-//            spllog(4, "--");
-//            break;
-//        }
-//
-//
-//        result = avformat_find_stream_info(pinput->fmt_ctx, 0);
-//        if(result < 0) {
-//            ret = FFWR_AV_FIND_STREAM_INFO_ERR;
-//            spllog(4, "--");
-//            break;
-//        }
-//        if(pinput->fmt_ctx->nb_streams < 1) {
-//            ret = FFWR_AV_NB_STREAMS_ERR;
-//            spllog(4, "--");
-//            break;
-//        }
-//        pinput->v_st = pinput->fmt_ctx->streams[0];
-//        if(!pinput->v_st) {
-//            ret = FFWR_NO_VSTREAMS_ERR;
-//            spllog(4, "--");
-//            break;
-//        }
-//#if 1        
-//        pinput->v_codec = avcodec_find_decoder(
-//            pinput->v_st->codecpar->codec_id);
-//        if(!pinput->v_codec) {
-//            ret = FFWR_NO_VCODEC_ERR;
-//            spllog(4, "--");
-//            break;
-//        }        
-//        pinput->v_cctx  = avcodec_alloc_context3(pinput->v_codec);
-//        if(!pinput->v_cctx) {
-//            ret = FFWR_NO_VCONTEXT_ERR;
-//            spllog(4, "--");
-//            break;
-//        }    
-//        result = avcodec_parameters_to_context(pinput->v_cctx, pinput->v_st->codecpar);
-//        if(result < 0) {
-//            ret = FFWR_PARAMETERS_TO_CONTEXT_ERR;
-//            spllog(4, "--");
-//            break;
-//        }
-//		result = avcodec_open2(pinput->v_cctx, pinput->v_codec, 0);
-//		if (result < 0) {
-//			ret = FFWR_OPEN_VCODEC_ERR;
-//            spllog(4, "avcodec_open2, result: %d", result);
-//			break;
-//		}        
-//#endif            
-//        pinput->vframe = av_frame_alloc(); 
-//        if(!pinput->vframe) {
-//            ret = FFWR_VFRAME_ALLOC_ERR;
-//            spllog(4, "--");
-//            break;
-//        }
-//            
-//        /*------------------------------*/
-//
-//        if(pinput->fmt_ctx->nb_streams > 1) {
-//            pinput->a_st = pinput->fmt_ctx->streams[1];
-//        } else {
-//			break;
-//		}
-//        if(!pinput->a_st) {
-//            ret = FFWR_NO_VSTREAM_ERR;
-//            spllog(1, "---");
-//            break;
-//        }
-//#if 1        
-//        pinput->a_codec = avcodec_find_decoder(
-//            pinput->a_st->codecpar->codec_id);
-//
-//        if(!pinput->a_codec) {
-//            ret = FFWR_NO_ACONTEXT_ERR;
-//            spllog(4, "--");
-//            break;
-//        }      
-//        pinput->a_cctx  = avcodec_alloc_context3(pinput->a_codec);
-//        if(!pinput->a_cctx) {
-//            ret = FFWR_ALLOC_ACONTEX_ERR;
-//            spllog(4, "--a_cctx");
-//            break;
-//        }   
-//        result = avcodec_parameters_to_context(pinput->a_cctx, pinput->a_st->codecpar);
-//        if(result < 0) {
-//            ret = FFWR_PARAMETERS_TO_ACONTEXT_ERR;
-//            spllog(4, "--");
-//            break;
-//        }   
-//		result = avcodec_open2(pinput->a_cctx, pinput->a_codec, 0);
-//		if (result < 0) {
-//			ret = FFWR_OPEN_ACODEC_ERR;
-//            spllog(4, "--");
-//			break;
-//		} 
-//        pinput->a_frame = av_frame_alloc(); 
-//        if(!pinput->a_frame) {
-//            ret = FFWR_AFRAME_ALLOC_ERR;
-//            spllog(4, "--");
-//            break;
-//        }   
-//#endif               
-//        pinput->a_dstframe = av_frame_alloc(); 
-//        if(!pinput->a_dstframe) {
-//            ret = FFWR_AFRAME_ALLOC_ERR;
-//            spllog(4, "--");
-//            break;
-//        }   
-//        spllog(1, "openInout OK, ret: %d", ret);
-//    } while(0);
-//    return ret;
-//}
-/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-
-
-//int
-//ffwr_create_demux(void *obj)
-//{
-//	int ret = 0;
-//#ifndef UNIX_LINUX
-//	HANDLE hThread = 0;
-//	DWORD dwThreadId = 0;
-//	hThread = CreateThread(NULL, // security attributes
-//	    0, 
-//	    ffwr_demux_routine, // thread function
-//	    obj,
-//	    0, // 
-//	    &dwThreadId // 
-//	);
-//#else
-//#endif	
-//	return ret;
-//}
-
-/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 #ifndef UNIX_LINUX
-DWORD WINAPI ffwr_demux_xyz_ext(LPVOID lpParam)
+DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 {
 	int ret = 0, result = 0;
 	FFWR_DEMUX_OBJS *obj = 0;
@@ -1789,7 +1616,7 @@ ffwr_create_demux_ext(void *obj)
 	DWORD dwThreadId = 0;
 	hThread = CreateThread(NULL, // security attributes
 	    0, 
-	    ffwr_demux_xyz_ext, // thread function
+	    ffwr_demux_routine, // thread function
 	    obj,
 	    0, // 
 	    &dwThreadId // 
