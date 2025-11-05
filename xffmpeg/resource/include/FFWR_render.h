@@ -505,14 +505,10 @@ ffwr_open_input(FFWR_INPUT_ST *info);
 DLL_API_FFWR_RENDER int
 ffwr_create_demux(void *);
 
-DLL_API_FFWR_RENDER void*
-ffwr_mutex_data();
 
-DLL_API_FFWR_RENDER ffwr_gen_data_st*
-ffwr_gb_renderVFrame();
 
-DLL_API_FFWR_RENDER ffwr_gen_data_st*
-ffwr_gb_shared_vframe();
+
+
 
 DLL_API_FFWR_RENDER int 
 ffwr_open_audio_output(int sz);
