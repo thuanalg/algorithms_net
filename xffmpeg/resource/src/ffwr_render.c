@@ -94,8 +94,8 @@ spl_mutex_unlock(void *mtx);
 static int 
 ffwr_init_gen_buff(ffwr_gen_data_st *obj, int sz);
 
-//static void 
-//ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len);
+static void 
+ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len);
 
 static int 
 ffwr_clode_audio_output();
@@ -1151,7 +1151,7 @@ int spl_mutex_unlock(void *mtx) {
 
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-/*
+
 int ffwr_open_audio_output(int sz)
 {
     int ret = 0;
@@ -1191,7 +1191,7 @@ int ffwr_open_audio_output(int sz)
 #endif
     } while(0);
 }
-*/
+
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int ffwr_init_gen_buff(ffwr_gen_data_st *obj, int sz) 
 {
@@ -1209,54 +1209,59 @@ int ffwr_init_gen_buff(ffwr_gen_data_st *obj, int sz)
     return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-/*
+
 void ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len)
 {
-    ffwr_gen_data_st *obj = (ffwr_gen_data_st*) user;
+    ffwr_gen_data_st *obj = 0;
+	FFWR_DEMUX_OBJS *demux = 0;
     int real_len = 0;
     static int step = 0;
-    int running = 0;
-
-//	running = ffwr_get_running();
+    int stopping = 0;
+	void *amutex = 0;
+	FFWR_DEMUX_DATA *bufffer = 0;
 	
-	if(!running) {
+	demux = (FFWR_DEMUX_OBJS *)user;
+	stopping = ffwr_get_stopping(demux);
+	
+	if(stopping) {
 		return;
 	}
-
+	
     if(!obj) {
         return;
     }
-
+	bufffer = &(demux->buffer);
+	obj = bufffer->abuf;
     if( obj->pl <= obj->pc) 
     {
         obj->pl = obj->pc = 0;
-        spl_mutex_lock(ffwr_st_AFRAME_MTX);
+        spl_mutex_lock(amutex);
         do {
-            if(st_SharedAudioBuffer->pl < 1) {
+            if(bufffer->shared_abuf->pl < 1) {
                 break;
             }
             if(step == 0) {
-                if(st_SharedAudioBuffer->pl > 0) {
+                if(bufffer->shared_abuf->pl > 0) {
                     step++;
-                    st_SharedAudioBuffer->pc = 0;
-                    st_SharedAudioBuffer->pl = 0;
+                    bufffer->shared_abuf->pc = 0;
+                    bufffer->shared_abuf->pl = 0;
                     break;
                 }
             }
-            if(st_SharedAudioBuffer->pl < 1) {
+            if(bufffer->shared_abuf->pl < 1) {
                 break;
             }
 
             memcpy(obj->data + obj->pl, 
-                st_SharedAudioBuffer->data, 
-                st_SharedAudioBuffer->pl);
+                bufffer->shared_abuf->data, 
+                bufffer->shared_abuf->pl);
 
-            obj->pl += st_SharedAudioBuffer->pl;
+            obj->pl += bufffer->shared_abuf->pl;
 
-            st_SharedAudioBuffer->pc = 0;
-            st_SharedAudioBuffer->pl = 0;
+            bufffer->shared_abuf->pc = 0;
+            bufffer->shared_abuf->pl = 0;
         } while(0);
-        spl_mutex_unlock(ffwr_st_AFRAME_MTX);
+        spl_mutex_unlock(amutex);
     }
     
 
@@ -1285,7 +1290,7 @@ void ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len)
             obj->pl = tlen;
             spllog(1, "(pl, pc, real_len, len)=(%d, %d, %d, %d)", 
                 obj->pl, obj->pc, real_len, len); 
-            spl_mutex_lock(ffwr_st_AFRAME_MTX);
+            spl_mutex_lock(amutex);
             do {
                 if(obj->range >= obj->pl + st_SharedAudioBuffer->pl) {
                     memcpy(obj->data + obj->pl, 
@@ -1298,14 +1303,14 @@ void ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len)
                 st_SharedAudioBuffer->pc = 0;
                 st_SharedAudioBuffer->pl = 0;
             } while(0);
-            spl_mutex_unlock(ffwr_st_AFRAME_MTX);
+            spl_mutex_unlock(amutex);
         }
     }
     if(obj->pl > 800000 + obj->pc) {
         obj->pl = obj->pc = 0;
     }
 }         
-*/  
+
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int ffwr_clode_audio_output() {
     int ret = 0;
