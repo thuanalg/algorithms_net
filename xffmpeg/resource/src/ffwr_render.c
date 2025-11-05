@@ -94,8 +94,8 @@ spl_mutex_unlock(void *mtx);
 static int 
 ffwr_init_gen_buff(ffwr_gen_data_st *obj, int sz);
 
-static void 
-ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len);
+//static void 
+//ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len);
 
 static int 
 ffwr_clode_audio_output();
@@ -129,18 +129,9 @@ ffwr_convert_vframe_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame *dst);
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 /* Variables */
-//static FFWR_INSTREAM gb_instream;
-
-void *ffwr_st_VFRAME_MTX;
-void *ffwr_st_AFRAME_MTX;
-
-//ffwr_gen_data_st *st_shared_vframe;
-//ffwr_gen_data_st *st_renderVFrame;
 
 ffwr_araw_stream *st_SharedAudioBuffer;
 ffwr_araw_stream *st_AudioBuffer;
-
-//struct SwrContext *gb_aConvertContext;
 
 
 SDL_AudioSpec gb_want, gb_have;
@@ -176,20 +167,20 @@ ffwr_init(FFWR_InitFlags flags) {
 			break;
 		}
 #ifndef UNIX_LINUX
-		if(!ffwr_st_VFRAME_MTX) {
-			ffwr_st_VFRAME_MTX = CreateMutexA(0, 0, 0);
-		}
-		if(!ffwr_st_VFRAME_MTX) {
-			ret = FFWR_WIN_CREATE_MUTEX_ERR;
-			break;
-		}
-		if(!ffwr_st_AFRAME_MTX) {
-			ffwr_st_AFRAME_MTX = CreateMutexA(0, 0, 0);
-		}
-		if(!ffwr_st_AFRAME_MTX) {
-			ret = FFWR_WIN_CREATE_MUTEX_ERR;
-			break;
-		}		
+//		if(!ffwr_st_VFRAME_MTX) {
+//			ffwr_st_VFRAME_MTX = CreateMutexA(0, 0, 0);
+//		}
+//		if(!ffwr_st_VFRAME_MTX) {
+//			ret = FFWR_WIN_CREATE_MUTEX_ERR;
+//			break;
+//		}
+//		if(!ffwr_st_AFRAME_MTX) {
+//			ffwr_st_AFRAME_MTX = CreateMutexA(0, 0, 0);
+//		}
+//		if(!ffwr_st_AFRAME_MTX) {
+//			ret = FFWR_WIN_CREATE_MUTEX_ERR;
+//			break;
+//		}		
 #else	
 #endif
 	} while(0);
@@ -1160,6 +1151,7 @@ int spl_mutex_unlock(void *mtx) {
 
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+/*
 int ffwr_open_audio_output(int sz)
 {
     int ret = 0;
@@ -1199,6 +1191,7 @@ int ffwr_open_audio_output(int sz)
 #endif
     } while(0);
 }
+*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int ffwr_init_gen_buff(ffwr_gen_data_st *obj, int sz) 
 {
@@ -1216,6 +1209,7 @@ int ffwr_init_gen_buff(ffwr_gen_data_st *obj, int sz)
     return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+/*
 void ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len)
 {
     ffwr_gen_data_st *obj = (ffwr_gen_data_st*) user;
@@ -1310,7 +1304,8 @@ void ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len)
     if(obj->pl > 800000 + obj->pc) {
         obj->pl = obj->pc = 0;
     }
-}           
+}         
+*/  
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int ffwr_clode_audio_output() {
     int ret = 0;
