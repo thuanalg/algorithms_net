@@ -130,8 +130,8 @@ ffwr_convert_vframe_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame *dst);
 
 /* Variables */
 
-ffwr_araw_stream *st_SharedAudioBuffer;
-ffwr_araw_stream *st_AudioBuffer;
+//ffwr_araw_stream *st_SharedAudioBuffer;
+//ffwr_araw_stream *st_AudioBuffer;
 
 
 SDL_AudioSpec gb_want, gb_have;
@@ -1152,31 +1152,31 @@ int spl_mutex_unlock(void *mtx) {
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
-int ffwr_open_audio_output(int sz)
+int ffwr_open_audio_output(FFWR_DEMUX_OBJS *obj, int sz)
 {
     int ret = 0;
     int insz = 3 * sz;
     do {
-        ffwr_malloc(sz, st_SharedAudioBuffer, ffwr_araw_stream);
-        if(!st_SharedAudioBuffer) {
-            ret = 1;
-            break;
-        }
-        ffwr_init_gen_buff(st_SharedAudioBuffer, sz);
-
-        ffwr_malloc(insz, st_AudioBuffer, ffwr_araw_stream);
-        if(!st_AudioBuffer) {
-            ret = 1;
-            break;
-        }        
-        ffwr_init_gen_buff(st_AudioBuffer, insz);
+        //ffwr_malloc(sz, st_SharedAudioBuffer, ffwr_araw_stream);
+        //if(!st_SharedAudioBuffer) {
+        //    ret = 1;
+        //    break;
+        //}
+        //ffwr_init_gen_buff(st_SharedAudioBuffer, sz);
+		//
+        //ffwr_malloc(insz, st_AudioBuffer, ffwr_araw_stream);
+        //if(!st_AudioBuffer) {
+        //    ret = 1;
+        //    break;
+        //}        
+        //ffwr_init_gen_buff(st_AudioBuffer, insz);
 
         gb_want.freq = FFWR_OUTPUT_ARATE;
         gb_want.format = AUDIO_F32SYS;
         gb_want.channels = 2;
         gb_want.samples = 4096;        // kích thước buffer SDL
         gb_want.callback = ffwr_open_audio_output_cb;
-        gb_want.userdata = st_AudioBuffer; // buffer 
+        gb_want.userdata = obj; // buffer 
 #if 0
         ret = SDL_OpenAudio(&gb_want, 0);
         spllog(1, "ret-SDL_OpenAudio: %d", ret);
@@ -1294,16 +1294,16 @@ void ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len)
                 obj->pl, obj->pc, real_len, len); 
             spl_mutex_lock(amutex);
             do {
-                if(obj->range >= obj->pl + st_SharedAudioBuffer->pl) {
+                if(obj->range >= obj->pl + bufffer->shared_abuf->pl) {
                     memcpy(obj->data + obj->pl, 
-                        st_SharedAudioBuffer->data, 
-                        st_SharedAudioBuffer->pl);
+                        bufffer->shared_abuf->data, 
+                        bufffer->shared_abuf->pl);
 
-                    obj->pl += st_SharedAudioBuffer->pl;
+                    obj->pl += bufffer->shared_abuf->pl;
                 }
 
-                st_SharedAudioBuffer->pc = 0;
-                st_SharedAudioBuffer->pl = 0;
+                bufffer->shared_abuf->pc = 0;
+                bufffer->shared_abuf->pl = 0;
             } while(0);
             spl_mutex_unlock(amutex);
         }
@@ -1438,28 +1438,6 @@ ffwr_destroy_demux_objects(FFWR_DEMUX_OBJS *obj)
 		}
 		/*-------*/
 		obj->inner_demux = 0;
-	} while(0);
-	return ret;
-}
-
-/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-int 
-ffwr_get_demux_data(FFWR_DEMUX_OBJS *obj, FFWR_DEMUX_DATA **out) 
-{
-	int ret  = 0;
-	FFWR_INSTREAM *demux = 0;
-	do {
-		if(!obj) {
-			ret = FFWR_DEMUX_OBJS_NULL_ERR;
-			spllog(4, "FFWR_DEMUX_OBJS_NULL_ERR");
-			break;
-		}		
-		if(!out) {
-			ret = FFWR_DEMUX_DATA_OUT_NULL_ERR;
-			spllog(4, "FFWR_DEMUX_DATA_OUT_NULL_ERR");
-			break;
-		}
-		*out = &(obj->buffer);
 	} while(0);
 	return ret;
 }

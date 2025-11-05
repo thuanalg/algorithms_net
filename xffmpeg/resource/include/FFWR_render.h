@@ -513,7 +513,7 @@ ffwr_create_demux(void *);
 
 
 DLL_API_FFWR_RENDER int 
-ffwr_open_audio_output(int sz);
+ffwr_open_audio_output(FFWR_DEMUX_OBJS *, int sz);
 
 
 DLL_API_FFWR_RENDER int 
@@ -528,10 +528,6 @@ ffwr_create_demux_objects(FFWR_DEMUX_OBJS *);
 
 DLL_API_FFWR_RENDER int 
 ffwr_destroy_demux_objects(FFWR_DEMUX_OBJS *);
-
-DLL_API_FFWR_RENDER int 
-ffwr_get_demux_data(FFWR_DEMUX_OBJS *obj, FFWR_DEMUX_DATA **out);
-
 
 DLL_API_FFWR_RENDER int 
 ffwr_get_stopping(FFWR_DEMUX_OBJS *obj);
