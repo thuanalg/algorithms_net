@@ -1418,9 +1418,9 @@ ffwr_destroy_demux_objects(FFWR_DEMUX_OBJS *obj)
 		/*Clear: 
 			typedef struct __FFWR_DEMUX_OBJS__ {
 				int isstop;
-				FFWR_RENDER_OBJECTS render_objects;
+				3. FFWR_RENDER_OBJECTS render_objects;
 				1. void *inner_demux;
-				FFWR_DEMUX_DATA buffer;
+				2. FFWR_DEMUX_DATA buffer;
 				FFWR_INPUT_ST input;
 			} FFWR_DEMUX_OBJS;
 		
@@ -1472,7 +1472,9 @@ ffwr_destroy_demux_objects(FFWR_DEMUX_OBJS *obj)
 		ffwr_free(obj->buffer.abuf);
 		ffwr_free(obj->buffer.shared_abuf);
 		ffwr_destroy_mutex(obj->buffer.mtx_vbuf);
+		obj->buffer.mtx_vbuf = 0;
 		ffwr_destroy_mutex(obj->buffer.mtx_abuf);
+		obj->buffer.mtx_abuf = 0;
 		/*-------*/
 		/*-------*/
 	} while(0);
@@ -1793,6 +1795,16 @@ ffwr_create_demux_ext(void *obj)
 static int 
 ffwr_destroy_mutex(void *obj)
 {
-	
+	int ret = 0;
+	do {
+#ifndef UNIX_LINUX	
+		if(obj) {
+			CloseHandle(obj);
+		}
+#else
+#endif			
+	} while(0);
+
+	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
