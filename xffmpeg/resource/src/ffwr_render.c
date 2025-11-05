@@ -187,9 +187,6 @@ ffwr_convert_vframe_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame *dst);
 
 /* Variables */
 
-//ffwr_araw_stream *st_SharedAudioBuffer;
-//ffwr_araw_stream *st_AudioBuffer;
-
 
 SDL_AudioSpec gb_want, gb_have;
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
