@@ -26,10 +26,25 @@
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 #define ffwr_frame_unref(__fr__) if(__fr__) {av_frame_unref(__fr__);}
-#define ffwr_frame_free(__fr__) if(__fr__) {spllog(1, "av_frame_free: 0x%p", *(__fr__)); av_frame_free(__fr__); }
-#define ffwr_frame_alloc(__fr__) { (__fr__) =  av_frame_alloc(); spllog(1, "av_frame_alloc: 0x%p", (__fr__));}
-#define ffwr_packet_unref(__pkt__) if(__pkt__) {av_packet_unref(__pkt__);}
+#define ffwr_frame_free(__fr__) \
+if(__fr__) {spllog(1, "av_frame_free: 0x%p", *(__fr__)); \
+av_frame_free(__fr__); }
 
+#define ffwr_frame_alloc(__fr__) { (__fr__) =  av_frame_alloc(); \
+spllog(1, "av_frame_alloc: 0x%p", (__fr__));}
+
+#define ffwr_packet_unref(__pkt__) \
+	if(__pkt__) {av_packet_unref(__pkt__);}
+
+
+#define ffwr_avcodec_alloc_context3(__ret__, __codec__) \
+{(__ret__) = avcodec_alloc_context3(__codec__); \
+spllog(1, "avcodec_alloc_context: 0x%p", (__ret__));}
+
+#define ffwr_avcodec_free_context(__obj__) \
+	{if((__obj__) && *(__obj__)) \
+	{ spllog(1, "avcodec_free_context: 0x%p", *(__obj__)); \
+	avcodec_free_context(__obj__); }};
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 #ifndef __FFWR_INSTREAM_DEF__
@@ -1284,6 +1299,12 @@ ffwr_destroy_demux_objects(FFWR_DEMUX_OBJS *obj)
 			swr_free(&(inner_demux->a_scale));
 			inner_demux->a_scale = 0;
 		}
+		if(inner_demux->v_cctx) {
+			ffwr_avcodec_free_context(&(inner_demux->v_cctx));
+		}
+		if(inner_demux->a_cctx) {
+			ffwr_avcodec_free_context(&(inner_demux->a_cctx));
+		}		
 		ffwr_free(obj->inner_demux);
 		/*-------*/
 		/*Clear: FFWR_DEMUX_DATA
@@ -1378,7 +1399,8 @@ ffwr_open_instream(FFWR_DEMUX_OBJS *obj)
             spllog(4, "FFWR_NO_VCODEC_ERR");
             break;
         }        
-        pinput->v_cctx  = avcodec_alloc_context3(pinput->v_codec);
+        //pinput->v_cctx  = avcodec_alloc_context3(pinput->v_codec);
+        ffwr_avcodec_alloc_context3(pinput->v_cctx, pinput->v_codec);
         if(!pinput->v_cctx) {
             ret = FFWR_NO_VCONTEXT_ERR;
             spllog(4, "FFWR_NO_VCONTEXT_ERR");
@@ -1423,7 +1445,8 @@ ffwr_open_instream(FFWR_DEMUX_OBJS *obj)
             spllog(4, "FFWR_NO_ACONTEXT_ERR");
             break;
         }      
-        pinput->a_cctx  = avcodec_alloc_context3(pinput->a_codec);
+        //pinput->a_cctx  = avcodec_alloc_context3(pinput->a_codec);
+        ffwr_avcodec_alloc_context3(pinput->a_cctx, pinput->a_codec);
         if(!pinput->a_cctx) {
             ret = FFWR_ALLOC_ACONTEX_ERR;
             spllog(4, "FFWR_ALLOC_ACONTEX_ERR");
