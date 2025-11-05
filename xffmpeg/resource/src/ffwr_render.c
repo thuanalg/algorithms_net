@@ -1480,8 +1480,11 @@ ffwr_open_render_sdl_pipe(FFWR_DEMUX_OBJS *obj)
 			spllog(1, "For test none of GUI!");
 			break;			
 		}
-		
-		p->sdl_window = SDL_CreateWindowFrom(p->native_window);
+#define ffwr_SDL_CreateWindowFrom(__sdl__, __native__) {\
+	(__sdl__) = SDL_CreateWindowFrom(__native__);\
+	spllog(1, "Create Window: 0x%p", (__sdl__));\
+}
+		ffwr_SDL_CreateWindowFrom(p->sdl_window, p->native_window);
 		if(!p->sdl_window) {
 			ret = FFWR_CANNOT_CREATE_WIN_ERR;
 			spllog(4, "SDL_CreateWindowFrom: %s\n", SDL_GetError());
@@ -1489,8 +1492,11 @@ ffwr_open_render_sdl_pipe(FFWR_DEMUX_OBJS *obj)
 		}
 		win = (SDL_Window *) p->sdl_window;
 		//ren = SDL_CreateRenderer(win, -1, p->ren_flags);
-//#define ffwr		
-		ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
+#define ffwr_SDL_CreateWindowFrom(__ren__, __v0__,  __v1__,  __v2__) {\
+	(__ren__) = SDL_CreateRenderer((__v0__),  (__v1__),  (__v2__));\
+	spllog(1, "Create Renderer: 0x%p", (__ren__));\
+}	
+		ffwr_SDL_CreateWindowFrom(ren, win, -1, SDL_RENDERER_ACCELERATED);
 		if(!ren) {
 			ret = FFWR_CREATERENDERER_ERR;
 			spllog(4, "SDL_CreateRenderer: %s\n", SDL_GetError());
