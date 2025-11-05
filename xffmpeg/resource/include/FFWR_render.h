@@ -431,14 +431,9 @@ typedef struct __FFWR_VFrame__ {
 } FFWR_VFrame;
 
 typedef struct {
-	void *ffinfo;
 	char name[1024];
 	int mode;
 	FFWR_CALLBACL_FN cb;
-#ifndef UNIX_LINUX
-	void *native_drawing;
-#else
-#endif
 	FFWR_SIZE_TYPE sz_type;
 	char data[0];
 } FFWR_INPUT_ST;
@@ -499,25 +494,22 @@ ffwr_DestroyRenderer(void *renderer);
 DLL_API_FFWR_RENDER int	
 ffwr_DestroyWindow(void *win);
 
-
-/*
-DLL_API_FFWR_RENDER int
-ffwr_open_input(FFWR_INPUT_ST *info);
-
-DLL_API_FFWR_RENDER int
-ffwr_create_demux(void *);
-
-*/
-
-
-
-
 DLL_API_FFWR_RENDER int 
 ffwr_open_audio_output(FFWR_DEMUX_OBJS *, int sz);
 
 
 DLL_API_FFWR_RENDER int 
 ffwr_destroy_render_objects(FFWR_RENDER_OBJECTS *);
+
+
+
+
+
+
+
+
+
+
 
 
 

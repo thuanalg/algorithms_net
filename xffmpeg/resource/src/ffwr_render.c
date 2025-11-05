@@ -112,6 +112,9 @@ ffwr_create_sync_buff(FFWR_DEMUX_OBJS *obj) ;
 static void*
 ffwr_create_mutex(char *name);
 
+static int
+ffwr_destroy_mutex(void *obj);
+
 static int 
 ffwr_create_genbuff(ffwr_gen_data_st **obj, int sz) ;
 
@@ -1412,6 +1415,17 @@ ffwr_destroy_demux_objects(FFWR_DEMUX_OBJS *obj)
 			spllog(4, "FFWR_DEMUX_OBJS_NULL_ERR");
 			break;
 		}	
+		/*Clear: 
+			typedef struct __FFWR_DEMUX_OBJS__ {
+				int isstop;
+				FFWR_RENDER_OBJECTS render_objects;
+				1. void *inner_demux;
+				FFWR_DEMUX_DATA buffer;
+				FFWR_INPUT_ST input;
+			} FFWR_DEMUX_OBJS;
+		
+		*/
+		/*Clear: inner_demux*/
 		inner_demux = (FFWR_INSTREAM *) obj->inner_demux;
 		if(inner_demux->vframe) {
 			ffwr_frame_free(&(inner_demux->vframe));
@@ -1436,8 +1450,31 @@ ffwr_destroy_demux_objects(FFWR_DEMUX_OBJS *obj)
 			swr_free(&(inner_demux->a_scale));
 			inner_demux->a_scale = 0;
 		}
-		/*-------*/
 		obj->inner_demux = 0;
+		/*-------*/
+		/*Clear: FFWR_DEMUX_DATA
+			typedef struct __FFWR_DEMUX_DATA__
+			{
+				int vbuf_size;
+				ffwr_gen_data_st * vbuf; 
+				ffwr_gen_data_st * shared_vbuf; 
+				void *mtx_vbuf; 
+				
+				int abuf_size;
+				ffwr_gen_data_st * abuf;
+				ffwr_gen_data_st * shared_abuf; 
+				void *; 
+				
+			} FFWR_DEMUX_DATA;
+		*/
+		ffwr_free(obj->buffer.vbuf);
+		ffwr_free(obj->buffer.shared_vbuf);
+		ffwr_free(obj->buffer.abuf);
+		ffwr_free(obj->buffer.shared_abuf);
+		ffwr_destroy_mutex(obj->buffer.mtx_vbuf);
+		ffwr_destroy_mutex(obj->buffer.mtx_abuf);
+		/*-------*/
+		/*-------*/
 	} while(0);
 	return ret;
 }
@@ -1753,4 +1790,9 @@ ffwr_create_demux_ext(void *obj)
 	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+static int 
+ffwr_destroy_mutex(void *obj)
+{
+	
+}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
