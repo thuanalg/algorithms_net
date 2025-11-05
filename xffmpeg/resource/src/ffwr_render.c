@@ -1729,6 +1729,7 @@ ffwr_destroy_render_objects(FFWR_RENDER_OBJECTS *p)
 			ret = FFWR_WIN32_RENDER_OBJECTS_NULL_ERR;
 			break;
 		}
+		/*------------*/
 		if(p->sdl_texture) {
 			spllog(1, "sdl_texture: %p", p->sdl_texture);
 			SDL_DestroyTexture(p->sdl_texture);
@@ -1783,7 +1784,15 @@ ffwr_create_demux_objects(FFWR_DEMUX_OBJS *obj)
 int 
 ffwr_destroy_demux_objects(FFWR_DEMUX_OBJS *obj) 
 {
-	return 0;
+	int ret = 0;
+	do {
+		if(!obj) {
+			ret = FFWR_DEMUX_OBJS_NULL_ERR;
+			spllog(4, "FFWR_DEMUX_OBJS_NULL_ERR");
+			break;
+		}	
+	} while(0);
+	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int 
