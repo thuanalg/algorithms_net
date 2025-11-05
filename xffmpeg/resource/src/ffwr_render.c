@@ -82,6 +82,21 @@ swr_alloc_set_opts2( (__v0__), (__v1__), (__v2__), \
 	spllog(1, "close avformat: 0x%p", *(__fmt__));\
 	avformat_close_input(__fmt__);\
 }
+
+#define ffwr_SDL_DestroyWindow(__win__) {\
+	spllog(1, "Destroy Window: 0x%p", (__win__));\
+	SDL_DestroyWindow(__win__);(__win__) = 0;\
+}
+
+#define ffwr_SDL_DestroyTexture(__texture__) {\
+	spllog(1, "Destroy Texture: 0x%p", (__texture__));\
+	SDL_DestroyTexture(__texture__);(__texture__) = 0;\
+}
+
+#define ffwr_SDL_DestroyRenderer(__ren__) {\
+	spllog(1, "Destroy Renderer: 0x%p", (__ren__));\
+	SDL_DestroyRenderer(__ren__);(__ren__) = 0;\
+}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 #ifndef __FFWR_INSTREAM_DEF__
@@ -1140,16 +1155,13 @@ ffwr_destroy_render_objects(FFWR_RENDER_OBJECTS *p)
 		}
 		/*------------*/
 		if(p->sdl_texture) {
-			spllog(1, "sdl_texture: %p", p->sdl_texture);
-			SDL_DestroyTexture(p->sdl_texture);
+			ffwr_SDL_DestroyTexture(p->sdl_texture);
 		}
 		if(p->sdl_render) {
-			spllog(1, "sdl_render: %p", p->sdl_render);
-			SDL_DestroyRenderer(p->sdl_render);
+			ffwr_SDL_DestroyRenderer(p->sdl_render);
 		}
 		if(p->sdl_window) {
-			spllog(1, "sdl_window: %p", p->sdl_window);
-			SDL_DestroyWindow(p->sdl_window);
+			ffwr_SDL_DestroyWindow(p->sdl_window);
 		}		
 		p->sdl_texture = 0;;
 		p->sdl_render = 0;;

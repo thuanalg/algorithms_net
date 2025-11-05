@@ -457,6 +457,10 @@ ffwr_init(FFWR_InitFlags flags);
 DLL_API_FFWR_RENDER int	
 ffwr_Quit();
 
+
+
+
+
 DLL_API_FFWR_RENDER int	
 ffwr_UpdateYUVTexture(
 		void *texture, const FFWR_Rect *rect,
@@ -474,6 +478,12 @@ ffwr_RenderCopy(void *renderer, void* texture,
 	
 DLL_API_FFWR_RENDER int	 
 ffwr_RenderPresent(void *renderer);
+
+
+
+
+
+
 
 DLL_API_FFWR_RENDER int	
 ffwr_DestroyRenderer(void *renderer);
