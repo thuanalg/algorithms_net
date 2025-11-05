@@ -499,13 +499,15 @@ ffwr_DestroyRenderer(void *renderer);
 DLL_API_FFWR_RENDER int	
 ffwr_DestroyWindow(void *win);
 
+
+/*
 DLL_API_FFWR_RENDER int
 ffwr_open_input(FFWR_INPUT_ST *info);
 
 DLL_API_FFWR_RENDER int
 ffwr_create_demux(void *);
 
-
+*/
 
 
 

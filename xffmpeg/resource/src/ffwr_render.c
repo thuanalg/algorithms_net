@@ -61,8 +61,8 @@ static int
 ffwr_convert_vframe(AVFrame *src, AVFrame *dst);
 
 #ifndef UNIX_LINUX
-static DWORD WINAPI 
-ffwr_demux_routine(LPVOID lpParam);
+//static DWORD WINAPI 
+//ffwr_demux_routine(LPVOID lpParam);
 
 static DWORD WINAPI 
 ffwr_demux_xyz_ext(LPVOID lpParam);
@@ -414,176 +414,177 @@ ffwr_Quit() {
 	SDL_Quit();
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-int
-ffwr_open_input(FFWR_INPUT_ST *info) 
-{
-    int ret = 0;
-    int result = 0;
-    AVInputFormat *iformat = 0; 
-    AVDictionary *options = 0;
-	char *name = 0;
-	int mode = -1;
-	int sz = 0;
-	FFWR_INSTREAM *pinput = 0;
-    do {
-        if(!info) {
-            ret = FFWR_NULL_FFWR_INPUT_ST_ERR;
-            spllog(4, "FFWR_NULL_FFWR_INPUT_ST_ERR");
-            break;
-        }
-		name = info->name;
-		mode = info->mode;
-		
-		pinput = &gb_instream;
-		
-		if(!pinput) {
-			ret = FFWR_MEMORY_ERR;
-			break;
-		}
-		info->ffinfo = pinput;
-		if (!av_dict_get(options, "scan_all_pmts", NULL, AV_DICT_MATCH_CASE)) {
-			av_dict_set(&options, "scan_all_pmts", "1", AV_DICT_DONT_OVERWRITE);
-		}        
-		
-		spllog(1, "name: %s", name);
 
-        result = avformat_open_input(&(pinput->fmt_ctx), name,  iformat, &options);
-
-        if(result < 0) {
-            ret = FFWR_AV_OPEN_INPUT_ERR;
-            spllog(4, "--");
-            break;
-        }
-
-
-        result = avformat_find_stream_info(pinput->fmt_ctx, 0);
-        if(result < 0) {
-            ret = FFWR_AV_FIND_STREAM_INFO_ERR;
-            spllog(4, "--");
-            break;
-        }
-        if(pinput->fmt_ctx->nb_streams < 1) {
-            ret = FFWR_AV_NB_STREAMS_ERR;
-            spllog(4, "--");
-            break;
-        }
-        pinput->v_st = pinput->fmt_ctx->streams[0];
-        if(!pinput->v_st) {
-            ret = FFWR_NO_VSTREAMS_ERR;
-            spllog(4, "--");
-            break;
-        }
-#if 1        
-        pinput->v_codec = avcodec_find_decoder(
-            pinput->v_st->codecpar->codec_id);
-        if(!pinput->v_codec) {
-            ret = FFWR_NO_VCODEC_ERR;
-            spllog(4, "--");
-            break;
-        }        
-        pinput->v_cctx  = avcodec_alloc_context3(pinput->v_codec);
-        if(!pinput->v_cctx) {
-            ret = FFWR_NO_VCONTEXT_ERR;
-            spllog(4, "--");
-            break;
-        }    
-        result = avcodec_parameters_to_context(pinput->v_cctx, pinput->v_st->codecpar);
-        if(result < 0) {
-            ret = FFWR_PARAMETERS_TO_CONTEXT_ERR;
-            spllog(4, "--");
-            break;
-        }
-		result = avcodec_open2(pinput->v_cctx, pinput->v_codec, 0);
-		if (result < 0) {
-			ret = FFWR_OPEN_VCODEC_ERR;
-            spllog(4, "avcodec_open2, result: %d", result);
-			break;
-		}        
-#endif            
-        pinput->vframe = av_frame_alloc(); 
-        if(!pinput->vframe) {
-            ret = FFWR_VFRAME_ALLOC_ERR;
-            spllog(4, "--");
-            break;
-        }
-            
-        /*------------------------------*/
-
-        if(pinput->fmt_ctx->nb_streams > 1) {
-            pinput->a_st = pinput->fmt_ctx->streams[1];
-        } else {
-			break;
-		}
-        if(!pinput->a_st) {
-            ret = FFWR_NO_VSTREAM_ERR;
-            spllog(1, "---");
-            break;
-        }
-#if 1        
-        pinput->a_codec = avcodec_find_decoder(
-            pinput->a_st->codecpar->codec_id);
-
-        if(!pinput->a_codec) {
-            ret = FFWR_NO_ACONTEXT_ERR;
-            spllog(4, "--");
-            break;
-        }      
-        pinput->a_cctx  = avcodec_alloc_context3(pinput->a_codec);
-        if(!pinput->a_cctx) {
-            ret = FFWR_ALLOC_ACONTEX_ERR;
-            spllog(4, "--a_cctx");
-            break;
-        }   
-        result = avcodec_parameters_to_context(pinput->a_cctx, pinput->a_st->codecpar);
-        if(result < 0) {
-            ret = FFWR_PARAMETERS_TO_ACONTEXT_ERR;
-            spllog(4, "--");
-            break;
-        }   
-		result = avcodec_open2(pinput->a_cctx, pinput->a_codec, 0);
-		if (result < 0) {
-			ret = FFWR_OPEN_ACODEC_ERR;
-            spllog(4, "--");
-			break;
-		} 
-        pinput->a_frame = av_frame_alloc(); 
-        if(!pinput->a_frame) {
-            ret = FFWR_AFRAME_ALLOC_ERR;
-            spllog(4, "--");
-            break;
-        }   
-#endif               
-        pinput->a_dstframe = av_frame_alloc(); 
-        if(!pinput->a_dstframe) {
-            ret = FFWR_AFRAME_ALLOC_ERR;
-            spllog(4, "--");
-            break;
-        }   
-        spllog(1, "openInout OK, ret: %d", ret);
-    } while(0);
-    return ret;
-}
+//int
+//ffwr_open_input(FFWR_INPUT_ST *info) 
+//{
+//    int ret = 0;
+//    int result = 0;
+//    AVInputFormat *iformat = 0; 
+//    AVDictionary *options = 0;
+//	char *name = 0;
+//	int mode = -1;
+//	int sz = 0;
+//	FFWR_INSTREAM *pinput = 0;
+//    do {
+//        if(!info) {
+//            ret = FFWR_NULL_FFWR_INPUT_ST_ERR;
+//            spllog(4, "FFWR_NULL_FFWR_INPUT_ST_ERR");
+//            break;
+//        }
+//		name = info->name;
+//		mode = info->mode;
+//		
+//		pinput = &gb_instream;
+//		
+//		if(!pinput) {
+//			ret = FFWR_MEMORY_ERR;
+//			break;
+//		}
+//		info->ffinfo = pinput;
+//		if (!av_dict_get(options, "scan_all_pmts", NULL, AV_DICT_MATCH_CASE)) {
+//			av_dict_set(&options, "scan_all_pmts", "1", AV_DICT_DONT_OVERWRITE);
+//		}        
+//		
+//		spllog(1, "name: %s", name);
+//
+//        result = avformat_open_input(&(pinput->fmt_ctx), name,  iformat, &options);
+//
+//        if(result < 0) {
+//            ret = FFWR_AV_OPEN_INPUT_ERR;
+//            spllog(4, "--");
+//            break;
+//        }
+//
+//
+//        result = avformat_find_stream_info(pinput->fmt_ctx, 0);
+//        if(result < 0) {
+//            ret = FFWR_AV_FIND_STREAM_INFO_ERR;
+//            spllog(4, "--");
+//            break;
+//        }
+//        if(pinput->fmt_ctx->nb_streams < 1) {
+//            ret = FFWR_AV_NB_STREAMS_ERR;
+//            spllog(4, "--");
+//            break;
+//        }
+//        pinput->v_st = pinput->fmt_ctx->streams[0];
+//        if(!pinput->v_st) {
+//            ret = FFWR_NO_VSTREAMS_ERR;
+//            spllog(4, "--");
+//            break;
+//        }
+//#if 1        
+//        pinput->v_codec = avcodec_find_decoder(
+//            pinput->v_st->codecpar->codec_id);
+//        if(!pinput->v_codec) {
+//            ret = FFWR_NO_VCODEC_ERR;
+//            spllog(4, "--");
+//            break;
+//        }        
+//        pinput->v_cctx  = avcodec_alloc_context3(pinput->v_codec);
+//        if(!pinput->v_cctx) {
+//            ret = FFWR_NO_VCONTEXT_ERR;
+//            spllog(4, "--");
+//            break;
+//        }    
+//        result = avcodec_parameters_to_context(pinput->v_cctx, pinput->v_st->codecpar);
+//        if(result < 0) {
+//            ret = FFWR_PARAMETERS_TO_CONTEXT_ERR;
+//            spllog(4, "--");
+//            break;
+//        }
+//		result = avcodec_open2(pinput->v_cctx, pinput->v_codec, 0);
+//		if (result < 0) {
+//			ret = FFWR_OPEN_VCODEC_ERR;
+//            spllog(4, "avcodec_open2, result: %d", result);
+//			break;
+//		}        
+//#endif            
+//        pinput->vframe = av_frame_alloc(); 
+//        if(!pinput->vframe) {
+//            ret = FFWR_VFRAME_ALLOC_ERR;
+//            spllog(4, "--");
+//            break;
+//        }
+//            
+//        /*------------------------------*/
+//
+//        if(pinput->fmt_ctx->nb_streams > 1) {
+//            pinput->a_st = pinput->fmt_ctx->streams[1];
+//        } else {
+//			break;
+//		}
+//        if(!pinput->a_st) {
+//            ret = FFWR_NO_VSTREAM_ERR;
+//            spllog(1, "---");
+//            break;
+//        }
+//#if 1        
+//        pinput->a_codec = avcodec_find_decoder(
+//            pinput->a_st->codecpar->codec_id);
+//
+//        if(!pinput->a_codec) {
+//            ret = FFWR_NO_ACONTEXT_ERR;
+//            spllog(4, "--");
+//            break;
+//        }      
+//        pinput->a_cctx  = avcodec_alloc_context3(pinput->a_codec);
+//        if(!pinput->a_cctx) {
+//            ret = FFWR_ALLOC_ACONTEX_ERR;
+//            spllog(4, "--a_cctx");
+//            break;
+//        }   
+//        result = avcodec_parameters_to_context(pinput->a_cctx, pinput->a_st->codecpar);
+//        if(result < 0) {
+//            ret = FFWR_PARAMETERS_TO_ACONTEXT_ERR;
+//            spllog(4, "--");
+//            break;
+//        }   
+//		result = avcodec_open2(pinput->a_cctx, pinput->a_codec, 0);
+//		if (result < 0) {
+//			ret = FFWR_OPEN_ACODEC_ERR;
+//            spllog(4, "--");
+//			break;
+//		} 
+//        pinput->a_frame = av_frame_alloc(); 
+//        if(!pinput->a_frame) {
+//            ret = FFWR_AFRAME_ALLOC_ERR;
+//            spllog(4, "--");
+//            break;
+//        }   
+//#endif               
+//        pinput->a_dstframe = av_frame_alloc(); 
+//        if(!pinput->a_dstframe) {
+//            ret = FFWR_AFRAME_ALLOC_ERR;
+//            spllog(4, "--");
+//            break;
+//        }   
+//        spllog(1, "openInout OK, ret: %d", ret);
+//    } while(0);
+//    return ret;
+//}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 
-int
-ffwr_create_demux(void *obj)
-{
-	int ret = 0;
-#ifndef UNIX_LINUX
-	HANDLE hThread = 0;
-	DWORD dwThreadId = 0;
-	hThread = CreateThread(NULL, // security attributes
-	    0, 
-	    ffwr_demux_routine, // thread function
-	    obj,
-	    0, // 
-	    &dwThreadId // 
-	);
-#else
-#endif	
-	return ret;
-}
+//int
+//ffwr_create_demux(void *obj)
+//{
+//	int ret = 0;
+//#ifndef UNIX_LINUX
+//	HANDLE hThread = 0;
+//	DWORD dwThreadId = 0;
+//	hThread = CreateThread(NULL, // security attributes
+//	    0, 
+//	    ffwr_demux_routine, // thread function
+//	    obj,
+//	    0, // 
+//	    &dwThreadId // 
+//	);
+//#else
+//#endif	
+//	return ret;
+//}
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 #ifndef UNIX_LINUX
@@ -760,222 +761,223 @@ DWORD WINAPI ffwr_demux_xyz_ext(LPVOID lpParam)
 	return ret;
 }
 
-DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
-{
-    int ret = 0;
-    int result = 0;
-    AVFrame *tmp = 0;
-    FFWR_VFrame *ffwr_vframe = 0;
-    int running = 0;
-	FFWR_INPUT_ST *info = 0;
-    
-	info = (FFWR_INPUT_ST *)lpParam;
-    ret = ffwr_open_input(info);
-    if(ret) {
-        return 0;
-    }
-    tmp = av_frame_alloc();
-	spllog(1, "av_frame_alloc");
-    tmp->width = 640;
-    tmp->height = 480;
-    tmp->format = 4;
-    tmp->pts = 0;
-
-    av_frame_get_buffer(tmp, 32);
-    
-    //SDL_CreateWindowFrom
-
-    gb_instream.vframe->width = 640;
-    gb_instream.vframe->height = 480;
-    gb_instream.vframe->format = 4;
-    gb_instream.vframe->pts = 0;
-    av_frame_get_buffer(gb_instream.vframe, 32);       
-	
-	/*-----------------*/
-	ffwr_malloc(FFWR_BUFF_SIZE, st_shared_vframe, ffwr_gen_data_st);
-    if(!st_shared_vframe) {
-        exit(1);
-    }
-    //memset(st_shared_vframe, 0, FFWR_BUFF_SIZE);
-    st_shared_vframe->total = FFWR_BUFF_SIZE;
-    st_shared_vframe->range = st_shared_vframe->total -sizeof(ffwr_gen_data_st);
-
-    //st_renderVFrame = malloc(FFWR_BUFF_SIZE);
-    ffwr_malloc(FFWR_BUFF_SIZE, st_renderVFrame, ffwr_gen_data_st);
-    if(!st_renderVFrame) {
-        exit(1);
-    }
-    //memset(st_renderVFrame, 0, FFWR_BUFF_SIZE);
-
-    st_renderVFrame->total = FFWR_BUFF_SIZE;
-    st_renderVFrame->range = st_renderVFrame->total -sizeof(ffwr_gen_data_st);    
-	
-	/*-----------------*/
-	ffwr_open_audio_output( 2000000);
-	/*-----------------*/
-	
-	
-    while(1) {
-        running = ffwr_get_running();
-        if(!running) {
-            break;
-        }
-        av_packet_unref(&(gb_instream.pkt));
-        result = av_read_frame(gb_instream.fmt_ctx, &(gb_instream.pkt)); 
-        if(result) {
-            continue;
-        }
-        if(gb_instream.pkt.stream_index == 0) {
-            result = avcodec_send_packet(gb_instream.v_cctx, &(gb_instream.pkt));
-            if(result < 0) {
-                spllog(1, "v_cctx: 0x%p", gb_instream.v_cctx);
-                break;
-            }
-		    result = avcodec_receive_frame(gb_instream.v_cctx, tmp);
-		    if (result < 0) {
-				spllog(4, "avcodec_receive_frame");
-		    	break;
-		    } 
-
-            ffwr_convert_vframe(tmp, gb_instream.vframe);
-
-
-            spl_vframe(gb_instream.vframe);
-#if 1			
-            if(!ffwr_vframe) {
-                ffwr_create_rawvframe(&ffwr_vframe, gb_instream.vframe);
-                if(!ffwr_vframe) {
-					spllog(4, "ffwr_vframe");
-                    break;
-                }                  
-            }
-            else {
-                ffwr_update_vframe(&ffwr_vframe, gb_instream.vframe);
-            } 
-            if(ffwr_vframe->tt_sz.total < 1) {
-				spllog(4, "ffwr_vframe->tt_sz.total");
-                break;
-            }  
-            if(!st_shared_vframe) {
-				spllog(4, "st_shared_vframe");
-                break;
-            }
-            spl_mutex_lock(ffwr_st_VFRAME_MTX);
-            do {
-                if(st_shared_vframe->range > 
-                    st_shared_vframe->pl + ffwr_vframe->tt_sz.total) {                      
-                    memcpy(st_shared_vframe->data + st_shared_vframe->pl, 
-                        ffwr_vframe, 
-                        ffwr_vframe->tt_sz.total);
-                    st_shared_vframe->pl += ffwr_vframe->tt_sz.total;
-                    spllog(1, "st_shared_vframe->pl: %d", 
-                        st_shared_vframe->pl);
-                } else {
-                    st_shared_vframe->pl = 0;
-                    st_shared_vframe->pc = 0;
-                }
-
-            } while(0);
-            spl_mutex_unlock(ffwr_st_VFRAME_MTX);
-#endif			
-            av_frame_unref(tmp);
-            av_frame_unref(gb_instream.vframe);
-        }   
-        else if (gb_instream.pkt.stream_index == 1) {
-            result = avcodec_send_packet(
-                gb_instream.a_cctx, &(gb_instream.pkt));
-            if(result < 0) {
-                spllog(4, "avcodec_send_packet");
-                break;
-            }
-		    result = avcodec_receive_frame(
-                gb_instream.a_cctx, gb_instream.a_frame);
-		    if (result < 0) {
-				spllog(4, "avcodec_receive_frame");
-		    	break;
-		    }  
-#if 1			
-            convert_audio_frame(gb_instream.a_frame, 
-                &(gb_instream.a_dstframe));
-            spl_mutex_lock(ffwr_st_VFRAME_MTX);
-            do {
-                if(st_SharedAudioBuffer->range > 
-                    st_SharedAudioBuffer->pl + 
-                    gb_instream.a_dstframe->linesize[0]) 
-                {
-                    memcpy(st_SharedAudioBuffer->data + 
-                            st_SharedAudioBuffer->pl, 
-                        gb_instream.a_dstframe->data[0], 
-                        gb_instream.a_dstframe->linesize[0]
-                    );
-                    st_SharedAudioBuffer->pl += 
-                        gb_instream.a_dstframe->linesize[0];
-                } else {
-                    st_SharedAudioBuffer->pl = 0;
-                    st_SharedAudioBuffer->pc = 0;
-                    spllog(1, "over audio range");
-                }
-                spllog(1, "(pl, pc, range)=(%d, %d, %d)", 
-                    st_SharedAudioBuffer->pl, 
-                    st_SharedAudioBuffer->pc, 
-                    st_SharedAudioBuffer->range);
-            } while(0);
-            spl_mutex_unlock(ffwr_st_VFRAME_MTX);
-#endif			
-            spl_vframe(gb_instream.a_dstframe);
-            av_frame_unref(gb_instream.a_dstframe); 
-            av_frame_unref(gb_instream.a_frame);   
-                     
-        }    
-    }
-	
-
-    if(gb_instream.vframe) {
-        ffwr_frame_free(&(gb_instream.vframe));
-        gb_instream.vframe = 0;
-    }
-    if(gb_instream.a_dstframe) {
-        ffwr_frame_free(&(gb_instream.a_dstframe)); 
-        gb_instream.a_dstframe = 0;
-    }
-    if(gb_instream.a_frame) {
-        ffwr_frame_free(&(gb_instream.a_frame));   
-        gb_instream.a_frame = 0;
-    }
-    if(tmp) {
-        ffwr_frame_free(&tmp);
-        tmp = 0;
-    }
-    
-    ffwr_packet_unref(&(gb_instream.pkt));
-    ffwr_free(ffwr_vframe);
-
-    if(gb_instream.vscale) {
-        sws_freeContext(gb_instream.vscale);
-        gb_instream.vscale = 0;
-    }
-    if(gb_aConvertContext) {
-        swr_free(&gb_aConvertContext);
-        gb_aConvertContext = 0;
-    }
-    
-    avcodec_free_context(&(gb_instream.v_cctx));
-    gb_instream.v_cctx = 0;
-    avcodec_free_context(&(gb_instream.a_cctx));
-    gb_instream.a_cctx = 0;
-    avformat_close_input(&(gb_instream.fmt_ctx));
-    gb_instream.fmt_ctx = 0;
-	ffwr_clode_audio_output();
-	
-	//ffwr_clear_gb_var();
-	
-	if(info->cb) {
-		info->sz_type.type = FFWR_DEMUX_THREAD_EXIT;
-		info->cb(info);
-	}
-	
-	return 0;
-}
+//DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
+//{
+//    int ret = 0;
+//    int result = 0;
+//    AVFrame *tmp = 0;
+//    FFWR_VFrame *ffwr_vframe = 0;
+//    int running = 0;
+//	FFWR_INPUT_ST *info = 0;
+//    
+//	info = (FFWR_INPUT_ST *)lpParam;
+//    ret = ffwr_open_input(info);
+//    if(ret) {
+//        return 0;
+//    }
+//    tmp = av_frame_alloc();
+//	spllog(1, "av_frame_alloc");
+//    tmp->width = 640;
+//    tmp->height = 480;
+//    tmp->format = 4;
+//    tmp->pts = 0;
+//
+//    av_frame_get_buffer(tmp, 32);
+//    
+//    //SDL_CreateWindowFrom
+//
+//    gb_instream.vframe->width = 640;
+//    gb_instream.vframe->height = 480;
+//    gb_instream.vframe->format = 4;
+//    gb_instream.vframe->pts = 0;
+//    av_frame_get_buffer(gb_instream.vframe, 32);       
+//	
+//	/*-----------------*/
+//	ffwr_malloc(FFWR_BUFF_SIZE, st_shared_vframe, ffwr_gen_data_st);
+//    if(!st_shared_vframe) {
+//        exit(1);
+//    }
+//    //memset(st_shared_vframe, 0, FFWR_BUFF_SIZE);
+//    st_shared_vframe->total = FFWR_BUFF_SIZE;
+//    st_shared_vframe->range = st_shared_vframe->total -sizeof(ffwr_gen_data_st);
+//
+//    //st_renderVFrame = malloc(FFWR_BUFF_SIZE);
+//    ffwr_malloc(FFWR_BUFF_SIZE, st_renderVFrame, ffwr_gen_data_st);
+//    if(!st_renderVFrame) {
+//        exit(1);
+//    }
+//    //memset(st_renderVFrame, 0, FFWR_BUFF_SIZE);
+//
+//    st_renderVFrame->total = FFWR_BUFF_SIZE;
+//    st_renderVFrame->range = st_renderVFrame->total -sizeof(ffwr_gen_data_st);    
+//	
+//	/*-----------------*/
+//	ffwr_open_audio_output( 2000000);
+//	/*-----------------*/
+//	
+//	
+//    while(1) {
+//        running = ffwr_get_running();
+//        if(!running) {
+//            break;
+//        }
+//        av_packet_unref(&(gb_instream.pkt));
+//        result = av_read_frame(gb_instream.fmt_ctx, &(gb_instream.pkt)); 
+//        if(result) {
+//            continue;
+//        }
+//        if(gb_instream.pkt.stream_index == 0) {
+//            result = avcodec_send_packet(gb_instream.v_cctx, &(gb_instream.pkt));
+//            if(result < 0) {
+//                spllog(1, "v_cctx: 0x%p", gb_instream.v_cctx);
+//                break;
+//            }
+//		    result = avcodec_receive_frame(gb_instream.v_cctx, tmp);
+//		    if (result < 0) {
+//				spllog(4, "avcodec_receive_frame");
+//		    	break;
+//		    } 
+//
+//            ffwr_convert_vframe(tmp, gb_instream.vframe);
+//
+//
+//            spl_vframe(gb_instream.vframe);
+//#if 1			
+//            if(!ffwr_vframe) {
+//                ffwr_create_rawvframe(&ffwr_vframe, gb_instream.vframe);
+//                if(!ffwr_vframe) {
+//					spllog(4, "ffwr_vframe");
+//                    break;
+//                }                  
+//            }
+//            else {
+//                ffwr_update_vframe(&ffwr_vframe, gb_instream.vframe);
+//            } 
+//            if(ffwr_vframe->tt_sz.total < 1) {
+//				spllog(4, "ffwr_vframe->tt_sz.total");
+//                break;
+//            }  
+//            if(!st_shared_vframe) {
+//				spllog(4, "st_shared_vframe");
+//                break;
+//            }
+//            spl_mutex_lock(ffwr_st_VFRAME_MTX);
+//            do {
+//                if(st_shared_vframe->range > 
+//                    st_shared_vframe->pl + ffwr_vframe->tt_sz.total) {                      
+//                    memcpy(st_shared_vframe->data + st_shared_vframe->pl, 
+//                        ffwr_vframe, 
+//                        ffwr_vframe->tt_sz.total);
+//                    st_shared_vframe->pl += ffwr_vframe->tt_sz.total;
+//                    spllog(1, "st_shared_vframe->pl: %d", 
+//                        st_shared_vframe->pl);
+//                } else {
+//                    st_shared_vframe->pl = 0;
+//                    st_shared_vframe->pc = 0;
+//                }
+//
+//            } while(0);
+//            spl_mutex_unlock(ffwr_st_VFRAME_MTX);
+//#endif			
+//            av_frame_unref(tmp);
+//            av_frame_unref(gb_instream.vframe);
+//        }   
+//        else if (gb_instream.pkt.stream_index == 1) {
+//            result = avcodec_send_packet(
+//                gb_instream.a_cctx, &(gb_instream.pkt));
+//            if(result < 0) {
+//                spllog(4, "avcodec_send_packet");
+//                break;
+//            }
+//		    result = avcodec_receive_frame(
+//                gb_instream.a_cctx, gb_instream.a_frame);
+//		    if (result < 0) {
+//				spllog(4, "avcodec_receive_frame");
+//		    	break;
+//		    }  
+//#if 1			
+//            convert_audio_frame(gb_instream.a_frame, 
+//                &(gb_instream.a_dstframe));
+//            spl_mutex_lock(ffwr_st_VFRAME_MTX);
+//            do {
+//                if(st_SharedAudioBuffer->range > 
+//                    st_SharedAudioBuffer->pl + 
+//                    gb_instream.a_dstframe->linesize[0]) 
+//                {
+//                    memcpy(st_SharedAudioBuffer->data + 
+//                            st_SharedAudioBuffer->pl, 
+//                        gb_instream.a_dstframe->data[0], 
+//                        gb_instream.a_dstframe->linesize[0]
+//                    );
+//                    st_SharedAudioBuffer->pl += 
+//                        gb_instream.a_dstframe->linesize[0];
+//                } else {
+//                    st_SharedAudioBuffer->pl = 0;
+//                    st_SharedAudioBuffer->pc = 0;
+//                    spllog(1, "over audio range");
+//                }
+//                spllog(1, "(pl, pc, range)=(%d, %d, %d)", 
+//                    st_SharedAudioBuffer->pl, 
+//                    st_SharedAudioBuffer->pc, 
+//                    st_SharedAudioBuffer->range);
+//            } while(0);
+//            spl_mutex_unlock(ffwr_st_VFRAME_MTX);
+//#endif			
+//            spl_vframe(gb_instream.a_dstframe);
+//            av_frame_unref(gb_instream.a_dstframe); 
+//            av_frame_unref(gb_instream.a_frame);   
+//                     
+//        }    
+//    }
+//	
+//
+//    if(gb_instream.vframe) {
+//        ffwr_frame_free(&(gb_instream.vframe));
+//        gb_instream.vframe = 0;
+//    }
+//    if(gb_instream.a_dstframe) {
+//        ffwr_frame_free(&(gb_instream.a_dstframe)); 
+//        gb_instream.a_dstframe = 0;
+//    }
+//    if(gb_instream.a_frame) {
+//        ffwr_frame_free(&(gb_instream.a_frame));   
+//        gb_instream.a_frame = 0;
+//    }
+//    if(tmp) {
+//        ffwr_frame_free(&tmp);
+//        tmp = 0;
+//    }
+//    
+//    ffwr_packet_unref(&(gb_instream.pkt));
+//    ffwr_free(ffwr_vframe);
+//
+//    if(gb_instream.vscale) {
+//        sws_freeContext(gb_instream.vscale);
+//        gb_instream.vscale = 0;
+//    }
+//    if(gb_aConvertContext) {
+//        swr_free(&gb_aConvertContext);
+//        gb_aConvertContext = 0;
+//    }
+//    
+//    avcodec_free_context(&(gb_instream.v_cctx));
+//    gb_instream.v_cctx = 0;
+//    avcodec_free_context(&(gb_instream.a_cctx));
+//    gb_instream.a_cctx = 0;
+//    avformat_close_input(&(gb_instream.fmt_ctx));
+//    gb_instream.fmt_ctx = 0;
+//	ffwr_clode_audio_output();
+//	
+//	//ffwr_clear_gb_var();
+//	
+//	if(info->cb) {
+//		info->sz_type.type = FFWR_DEMUX_THREAD_EXIT;
+//		info->cb(info);
+//	}
+//	
+//	return 0;
+//}
+#else
 #endif
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int
@@ -1554,24 +1556,8 @@ int spl_mutex_unlock(void *mtx) {
 	return ret;
 }
 #endif
-/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-void*
-ffwr_mutex_data() 
-{
-	return ffwr_st_VFRAME_MTX;
-}
-/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-ffwr_gen_data_st*
-ffwr_gb_renderVFrame()
-{
-	return st_renderVFrame;
-}
-/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-ffwr_gen_data_st*
-ffwr_gb_shared_vframe()
-{
-	return st_shared_vframe;
-}
+
+
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int ffwr_open_audio_output(int sz)
 {
