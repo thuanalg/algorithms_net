@@ -97,6 +97,21 @@ swr_alloc_set_opts2( (__v0__), (__v1__), (__v2__), \
 	spllog(1, "Destroy Renderer: 0x%p", (__ren__));\
 	SDL_DestroyRenderer(__ren__);(__ren__) = 0;\
 }
+
+#define ffwr_SDL_CreateWindowFrom(__sdl__, __native__) {\
+	(__sdl__) = SDL_CreateWindowFrom(__native__);\
+	spllog(1, "Create Window: 0x%p", (__sdl__));\
+}
+
+#define ffwr_SDL_CreateRenderer(__ren__, __v0__,  __v1__,  __v2__) {\
+	(__ren__) = SDL_CreateRenderer((__v0__),  (__v1__),  (__v2__));\
+	spllog(1, "Create Renderer: 0x%p", (__ren__));\
+}
+
+#define ffwr_SDL_CreateTexture( __texture__,__ren__, __v0__,  __v1__,  __v2__, __v3__) {\
+	(__texture__) = SDL_CreateTexture( (__ren__), (__v0__),  (__v1__),  (__v2__), (__v3__));\
+	spllog(1, "Create Texture: 0x%p", (__texture__));\
+}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 #ifndef __FFWR_INSTREAM_DEF__
@@ -1480,10 +1495,7 @@ ffwr_open_render_sdl_pipe(FFWR_DEMUX_OBJS *obj)
 			spllog(1, "For test none of GUI!");
 			break;			
 		}
-#define ffwr_SDL_CreateWindowFrom(__sdl__, __native__) {\
-	(__sdl__) = SDL_CreateWindowFrom(__native__);\
-	spllog(1, "Create Window: 0x%p", (__sdl__));\
-}
+
 		ffwr_SDL_CreateWindowFrom(p->sdl_window, p->native_window);
 		if(!p->sdl_window) {
 			ret = FFWR_CANNOT_CREATE_WIN_ERR;
@@ -1492,11 +1504,8 @@ ffwr_open_render_sdl_pipe(FFWR_DEMUX_OBJS *obj)
 		}
 		win = (SDL_Window *) p->sdl_window;
 		//ren = SDL_CreateRenderer(win, -1, p->ren_flags);
-#define ffwr_SDL_CreateWindowFrom(__ren__, __v0__,  __v1__,  __v2__) {\
-	(__ren__) = SDL_CreateRenderer((__v0__),  (__v1__),  (__v2__));\
-	spllog(1, "Create Renderer: 0x%p", (__ren__));\
-}	
-		ffwr_SDL_CreateWindowFrom(ren, win, -1, SDL_RENDERER_ACCELERATED);
+	
+		ffwr_SDL_CreateRenderer(ren, win, -1, SDL_RENDERER_ACCELERATED);
 		if(!ren) {
 			ret = FFWR_CREATERENDERER_ERR;
 			spllog(4, "SDL_CreateRenderer: %s\n", SDL_GetError());
@@ -1504,10 +1513,7 @@ ffwr_open_render_sdl_pipe(FFWR_DEMUX_OBJS *obj)
 		}
 		p->sdl_render = ren;
 
-#define ffwr_SDL_CreateTexture( __texture__,__ren__, __v0__,  __v1__,  __v2__, __v3__) {\
-	(__texture__) = SDL_CreateTexture( (__ren__), (__v0__),  (__v1__),  (__v2__), (__v3__));\
-	spllog(1, "Create Texture: 0x%p", (__texture__));\
-}		
+		
         ffwr_SDL_CreateTexture(texture, ren,
             p->format, p->access, p->w, p->h);		
 		if(!texture) {
