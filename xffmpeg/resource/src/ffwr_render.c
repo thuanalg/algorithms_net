@@ -242,88 +242,88 @@ ffwr_init(FFWR_InitFlags flags) {
 	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-int
-ffwr_CreateWindowFrom(void* hwnd, void **sdl_win) {
-	int ret  = 0;
-	void *p = 0;
-	do {
-		if(!hwnd) {
-			ret = FFWR_NULL_HWND_ERR;
-			spllog(4, "Null input.");
-			break;
-		}
-		if(!sdl_win) {
-			ret = FFWR_NULL_INPUT_ERR;
-			spllog(4, "Null output.");
-			break;
-		}	
-		p = SDL_CreateWindowFrom(hwnd);
-		if(!p) {
-			ret = FFWR_CANNOT_CREATE_WIN_ERR;
-			spllog(4, "SDL_CreateWindowFrom: %s\n", SDL_GetError());
-			break;
-		}
-		*sdl_win = p;
-	} while(0);
-	return ret;
-}
+//int
+//ffwr_CreateWindowFrom(void* hwnd, void **sdl_win) {
+//	int ret  = 0;
+//	void *p = 0;
+//	do {
+//		if(!hwnd) {
+//			ret = FFWR_NULL_HWND_ERR;
+//			spllog(4, "Null input.");
+//			break;
+//		}
+//		if(!sdl_win) {
+//			ret = FFWR_NULL_INPUT_ERR;
+//			spllog(4, "Null output.");
+//			break;
+//		}	
+//		p = SDL_CreateWindowFrom(hwnd);
+//		if(!p) {
+//			ret = FFWR_CANNOT_CREATE_WIN_ERR;
+//			spllog(4, "SDL_CreateWindowFrom: %s\n", SDL_GetError());
+//			break;
+//		}
+//		*sdl_win = p;
+//	} while(0);
+//	return ret;
+//}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-int
-ffwr_CreateRenderer(void **render, void *window, int index, FFWR_uint flags) {
-	int ret = 0;
-	SDL_Renderer *p = 0;
-	SDL_RendererInfo  info_render = {0};
-	do {
-		if(!window) {
-			ret = FFWR_NULL_WINDOW_ERR;
-			spllog(4, "Null input.");
-			break;
-		}	
-		if(!render) {
-			ret = FFWR_NULL_RENDER_OUTPUT_ERR;
-			spllog(4, "Null output.");
-			break;
-		}		
-		p = SDL_CreateRenderer(window, index, flags);
-		if(!p) {
-			ret = FFWR_CREATERENDERER_ERR;
-			spllog(4, "SDL_CreateRenderer: %s\n", SDL_GetError());
-			break;
-		}
-		SDL_GetRendererInfo(p, &info_render);
-		spllog(1, "Renderer: %s", info_render.name);
-		*render = p;
-	} while(0);
-	return ret;
-}
+//int
+//ffwr_CreateRenderer(void **render, void *window, int index, FFWR_uint flags) {
+//	int ret = 0;
+//	SDL_Renderer *p = 0;
+//	SDL_RendererInfo  info_render = {0};
+//	do {
+//		if(!window) {
+//			ret = FFWR_NULL_WINDOW_ERR;
+//			spllog(4, "Null input.");
+//			break;
+//		}	
+//		if(!render) {
+//			ret = FFWR_NULL_RENDER_OUTPUT_ERR;
+//			spllog(4, "Null output.");
+//			break;
+//		}		
+//		p = SDL_CreateRenderer(window, index, flags);
+//		if(!p) {
+//			ret = FFWR_CREATERENDERER_ERR;
+//			spllog(4, "SDL_CreateRenderer: %s\n", SDL_GetError());
+//			break;
+//		}
+//		SDL_GetRendererInfo(p, &info_render);
+//		spllog(1, "Renderer: %s", info_render.name);
+//		*render = p;
+//	} while(0);
+//	return ret;
+//}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-int ffwr_CreateTexture(void **texture, 
-	void *renderer, 
-	FFWR_PixelFormat format, 
-	FFWR_TextureAccess access, int w, int h)
-{
-	int ret = 0;
-	SDL_Texture *p = 0;
-	do {
-		if(!texture) {
-			ret = FFWR_NULL_TEXTURE_OUTPUT_ERR;
-			spllog(4, "Null output.");
-			break;
-		}	
-		if(!renderer) {
-			ret = FFWR_NULL_RENDER_INPUT_ERR;
-			spllog(4, "Null input.");
-			break;
-		}		
-		p = SDL_CreateTexture(renderer, format, access, w, h);
-		if(!p) {
-			spllog(4, "SDL_CreateTexture: %s\n", SDL_GetError());
-			break;
-		}
-		*texture = p;
-	} while(0);
-	return ret;
-}
+//int ffwr_CreateTexture(void **texture, 
+//	void *renderer, 
+//	FFWR_PixelFormat format, 
+//	FFWR_TextureAccess access, int w, int h)
+//{
+//	int ret = 0;
+//	SDL_Texture *p = 0;
+//	do {
+//		if(!texture) {
+//			ret = FFWR_NULL_TEXTURE_OUTPUT_ERR;
+//			spllog(4, "Null output.");
+//			break;
+//		}	
+//		if(!renderer) {
+//			ret = FFWR_NULL_RENDER_INPUT_ERR;
+//			spllog(4, "Null input.");
+//			break;
+//		}		
+//		p = SDL_CreateTexture(renderer, format, access, w, h);
+//		if(!p) {
+//			spllog(4, "SDL_CreateTexture: %s\n", SDL_GetError());
+//			break;
+//		}
+//		*texture = p;
+//	} while(0);
+//	return ret;
+//}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int ffwr_UpdateYUVTexture(
 	void *texture, const FFWR_Rect *rect,  
@@ -1558,6 +1558,7 @@ ffwr_open_render_sdl_pipe(FFWR_DEMUX_OBJS *obj)
 		}
 		win = (SDL_Window *) p->sdl_window;
 		//ren = SDL_CreateRenderer(win, -1, p->ren_flags);
+//#define ffwr		
 		ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
 		if(!ren) {
 			ret = FFWR_CREATERENDERER_ERR;
