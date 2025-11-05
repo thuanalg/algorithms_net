@@ -485,11 +485,6 @@ ffwr_RenderPresent(void *renderer);
 
 
 
-//DLL_API_FFWR_RENDER int	
-//ffwr_DestroyRenderer(void *renderer);
-//	
-//DLL_API_FFWR_RENDER int	
-//ffwr_DestroyWindow(void *win);
 
 DLL_API_FFWR_RENDER int 
 ffwr_open_audio_output(FFWR_DEMUX_OBJS *, int sz);
