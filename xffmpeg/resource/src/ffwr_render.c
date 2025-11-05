@@ -100,9 +100,6 @@ ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len);
 static int 
 ffwr_clode_audio_output();
 
-static void 
-ffwr_clear_gb_var();
-
 static int
 ffwr_open_instream(FFWR_DEMUX_OBJS *obj) ;
 
@@ -137,8 +134,8 @@ ffwr_convert_vframe_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame *dst);
 void *ffwr_st_VFRAME_MTX;
 void *ffwr_st_AFRAME_MTX;
 
-ffwr_gen_data_st *st_shared_vframe;
-ffwr_gen_data_st *st_renderVFrame;
+//ffwr_gen_data_st *st_shared_vframe;
+//ffwr_gen_data_st *st_renderVFrame;
 
 ffwr_araw_stream *st_SharedAudioBuffer;
 ffwr_araw_stream *st_AudioBuffer;
@@ -1349,17 +1346,10 @@ ffwr_destroy_render_objects(FFWR_RENDER_OBJECTS *p)
 		p->sdl_texture = 0;;
 		p->sdl_render = 0;;
 		p->sdl_window = 0;;
-		ffwr_clear_gb_var();
 	} while(0);
 	return ret;
 }
-/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-void ffwr_clear_gb_var() {
-    ffwr_free(st_shared_vframe);
-    ffwr_free(st_renderVFrame);
-    ffwr_free(st_SharedAudioBuffer);
-    ffwr_free(st_AudioBuffer);
-}
+
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int 
 ffwr_create_demux_objects(FFWR_DEMUX_OBJS *obj) 
