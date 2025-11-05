@@ -498,8 +498,7 @@ DLL_API_FFWR_RENDER int
 ffwr_open_audio_output(FFWR_DEMUX_OBJS *, int sz);
 
 
-DLL_API_FFWR_RENDER int 
-ffwr_destroy_render_objects(FFWR_RENDER_OBJECTS *);
+
 
 
 
@@ -526,6 +525,10 @@ ffwr_get_stopping(FFWR_DEMUX_OBJS *obj);
 
 DLL_API_FFWR_RENDER int 
 ffwr_set_stopping(FFWR_DEMUX_OBJS *obj, int v);
+
+DLL_API_FFWR_RENDER int 
+ffwr_destroy_render_objects(FFWR_RENDER_OBJECTS *);
+
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 #ifdef __cplusplus
