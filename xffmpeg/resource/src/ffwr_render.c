@@ -955,18 +955,6 @@ int ffwr_create_a_swrContext_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame *dst) {
             ret = 1;
             break;
         }  
-
-        //swr_alloc_set_opts2(
-        //    &swr,                        	// NULL → Create new one
-        //    &(dst->ch_layout),         		// output channel
-        //    dst->format,          			// output format
-        //    dst->sample_rate,               // sample rate output
-        //    &(src->ch_layout),           	// input channel
-        //    src->format,           			// layout of outpu
-        //    src->sample_rate,               // sample rate of input
-        //    0, 
-		//	0                      			// log offset, log context
-        //);  
 		
         ffwr_swr_alloc_set_opts2(
             &swr,                        	// NULL → Create new one
