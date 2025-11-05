@@ -45,6 +45,31 @@ spllog(1, "avcodec_alloc_context: 0x%p", (__ret__));}
 	{if((__obj__) && *(__obj__)) \
 	{ spllog(1, "avcodec_free_context: 0x%p", *(__obj__)); \
 	avcodec_free_context(__obj__); }};
+	
+#define ffwr_sws_getContext(\
+__ret__, __v0__, __v1__, __v2__, __v3__, \
+__v4__, __v5__, __v6__, __v7__, __v8__, __v9__ ) \
+{ (__ret__) = sws_getContext((__v0__), (__v1__), \
+(__v2__), (__v3__), (__v4__), (__v5__), \
+(__v6__), (__v7__), (__v8__), (__v9__)); \
+spllog(1, "alloc vscaleContext: 0x%p", (__ret__));}	
+
+#define ffwr_sws_freeContext(__o__) {if(__o__){ \
+	spllog(1, "sws_freeContext, free vscaleContext: 0x%p", (__o__)); \
+	sws_freeContext(__o__); (__o__) = 0;}\
+}
+
+#define ffwr_swr_alloc_set_opts2( __v0__, __v1__, \
+__v2__, __v3__, __v4__, __v5__, __v6__, __v7__, __v8__) {\
+swr_alloc_set_opts2( (__v0__), (__v1__), (__v2__), \
+(__v3__), (__v4__), (__v5__), (__v6__), \
+(__v7__), (__v8__)); spllog(1, "alloc ascaleContext: 0x%p", *(__v0__));\
+}
+
+#define ffwr_swr_free(__o__) {if((__o__) && (*(__o__))) {\
+	spllog(1, "free ascaleContext: %p", *(__o__));\
+	swr_free(__o__);}\
+}	
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 #ifndef __FFWR_INSTREAM_DEF__
@@ -620,9 +645,21 @@ ffwr_convert_vframe_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame *dst)
         }
         spllog(1, "av_frame_get_buffer");
     }
-    
-    if(! (p->vscale)) {
-        p->vscale = sws_getContext(
+   
+
+
+    if(! (p->vscale)) { 
+        //p->vscale = sws_getContext(
+	    //	src->width, 
+	    //	src->height, 
+	    //	src->format, 
+	    //	dst->width, 
+	    //	dst->height, 
+	    //	dst->format,
+        //    SWS_BILINEAR, NULL, NULL, NULL
+        //);
+        ffwr_sws_getContext(
+			p->vscale,
 	    	src->width, 
 	    	src->height, 
 	    	src->format, 
@@ -918,7 +955,20 @@ int ffwr_create_a_swrContext_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame *dst) {
             ret = 1;
             break;
         }  
-        swr_alloc_set_opts2(
+
+        //swr_alloc_set_opts2(
+        //    &swr,                        	// NULL → Create new one
+        //    &(dst->ch_layout),         		// output channel
+        //    dst->format,          			// output format
+        //    dst->sample_rate,               // sample rate output
+        //    &(src->ch_layout),           	// input channel
+        //    src->format,           			// layout of outpu
+        //    src->sample_rate,               // sample rate of input
+        //    0, 
+		//	0                      			// log offset, log context
+        //);  
+		
+        ffwr_swr_alloc_set_opts2(
             &swr,                        	// NULL → Create new one
             &(dst->ch_layout),         		// output channel
             dst->format,          			// output format
@@ -926,8 +976,9 @@ int ffwr_create_a_swrContext_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame *dst) {
             &(src->ch_layout),           	// input channel
             src->format,           			// layout of outpu
             src->sample_rate,               // sample rate of input
-            0, 0                      		// log offset, log context
-        );        
+            0, 
+			0                      			// log offset, log context
+        );  		
         if(!swr) {
             ret = 1;
             break;
@@ -1009,19 +1060,6 @@ int ffwr_open_audio_output(FFWR_DEMUX_OBJS *obj, int sz)
     int ret = 0;
     int insz = 3 * sz;
     do {
-        //ffwr_malloc(sz, st_SharedAudioBuffer, ffwr_araw_stream);
-        //if(!st_SharedAudioBuffer) {
-        //    ret = 1;
-        //    break;
-        //}
-        //ffwr_init_gen_buff(st_SharedAudioBuffer, sz);
-		//
-        //ffwr_malloc(insz, st_AudioBuffer, ffwr_araw_stream);
-        //if(!st_AudioBuffer) {
-        //    ret = 1;
-        //    break;
-        //}        
-        //ffwr_init_gen_buff(st_AudioBuffer, insz);
 
         gb_want.freq = FFWR_OUTPUT_ARATE;
         gb_want.format = AUDIO_F32SYS;
@@ -1292,11 +1330,12 @@ ffwr_destroy_demux_objects(FFWR_DEMUX_OBJS *obj)
 		ffwr_packet_unref(&(inner_demux->pkt));
 	
 		if(inner_demux->vscale) {
-			sws_freeContext(inner_demux->vscale);
+			ffwr_sws_freeContext(inner_demux->vscale);
 			inner_demux->vscale = 0;
 		}
 		if(inner_demux->a_scale) {
-			swr_free(&(inner_demux->a_scale));
+
+			ffwr_swr_free(&(inner_demux->a_scale));
 			inner_demux->a_scale = 0;
 		}
 		if(inner_demux->v_cctx) {
@@ -1399,8 +1438,8 @@ ffwr_open_instream(FFWR_DEMUX_OBJS *obj)
             spllog(4, "FFWR_NO_VCODEC_ERR");
             break;
         }        
-        //pinput->v_cctx  = avcodec_alloc_context3(pinput->v_codec);
-        ffwr_avcodec_alloc_context3(pinput->v_cctx, pinput->v_codec);
+        ffwr_avcodec_alloc_context3(
+			pinput->v_cctx, pinput->v_codec);
         if(!pinput->v_cctx) {
             ret = FFWR_NO_VCONTEXT_ERR;
             spllog(4, "FFWR_NO_VCONTEXT_ERR");
@@ -1445,8 +1484,8 @@ ffwr_open_instream(FFWR_DEMUX_OBJS *obj)
             spllog(4, "FFWR_NO_ACONTEXT_ERR");
             break;
         }      
-        //pinput->a_cctx  = avcodec_alloc_context3(pinput->a_codec);
-        ffwr_avcodec_alloc_context3(pinput->a_cctx, pinput->a_codec);
+        ffwr_avcodec_alloc_context3(
+			pinput->a_cctx, pinput->a_codec);
         if(!pinput->a_cctx) {
             ret = FFWR_ALLOC_ACONTEX_ERR;
             spllog(4, "FFWR_ALLOC_ACONTEX_ERR");
