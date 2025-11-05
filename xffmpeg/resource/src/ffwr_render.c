@@ -1503,7 +1503,12 @@ ffwr_open_render_sdl_pipe(FFWR_DEMUX_OBJS *obj)
 			break;
 		}
 		p->sdl_render = ren;
-        texture = SDL_CreateTexture(ren,
+
+#define ffwr_SDL_CreateTexture( __texture__,__ren__, __v0__,  __v1__,  __v2__, __v3__) {\
+	(__texture__) = SDL_CreateTexture( (__ren__), (__v0__),  (__v1__),  (__v2__), (__v3__));\
+	spllog(1, "Create Texture: 0x%p", (__texture__));\
+}		
+        ffwr_SDL_CreateTexture(texture, ren,
             p->format, p->access, p->w, p->h);		
 		if(!texture) {
 			spllog(4, "SDL_CreateTexture: %s\n", SDL_GetError());
