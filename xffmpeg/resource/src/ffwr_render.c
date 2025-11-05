@@ -748,6 +748,12 @@ DWORD WINAPI ffwr_demux_xyz_ext(LPVOID lpParam)
 	
 	av_frame_free(&tmp); 
 	ffwr_free(ffwr_vframe);
+	if(obj->input.cb) {
+		obj->input.sz_type.type = FFWR_DEMUX_THREAD_EXIT;
+		obj->input.cb(obj);
+	}
+	
+	//ffwr_free(obj->inner_demux);
 	return ret;
 }
 
@@ -1450,7 +1456,7 @@ ffwr_destroy_demux_objects(FFWR_DEMUX_OBJS *obj)
 			swr_free(&(inner_demux->a_scale));
 			inner_demux->a_scale = 0;
 		}
-		obj->inner_demux = 0;
+		ffwr_free(obj->inner_demux);
 		/*-------*/
 		/*Clear: FFWR_DEMUX_DATA
 			typedef struct __FFWR_DEMUX_DATA__
@@ -1476,6 +1482,7 @@ ffwr_destroy_demux_objects(FFWR_DEMUX_OBJS *obj)
 		ffwr_destroy_mutex(obj->buffer.mtx_abuf);
 		obj->buffer.mtx_abuf = 0;
 		/*-------*/
+		ffwr_destroy_render_objects(&(obj->render_objects));
 		/*-------*/
 	} while(0);
 	return ret;

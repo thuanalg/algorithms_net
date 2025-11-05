@@ -157,41 +157,49 @@ FFWRVideoFrame::sdl_Init()
 void
 FFWRVideoFrame::create_sdlwin()
 {
-	int ret = 0;
-	void *win = 0;
-	ret = ffwr_CreateWindowFrom(this->m_hWnd, &win);
-	if (ret) {
-		spllog(4, "Error");
-		return;
-	}
-	sdl_winrentext.sdl_window = win;
-	if (!sdl_winrentext.sdl_texture) {
-		void *render = 0;
-		ret = ffwr_CreateRenderer(&render, win, -1, FFWR_RENDERER_ACCELERATED);
-		if (ret) {
-			spllog(4, "Error");
-			return;
-		}
-		sdl_winrentext.sdl_render = render;
-	}
-	if (!sdl_winrentext.sdl_texture) {
-		void *texture = 0;
-		ret = ffwr_CreateTexture(&texture, sdl_winrentext.sdl_render,
-		    FFWR_PIXELFORMAT_IYUV, FFWR_TEXTUREACCESS_STREAMING, 640,
-		    480);
-		if (ret) {
-			spllog(4, "Error");
-			return;		
-		}
-		sdl_winrentext.sdl_texture = texture;
-	}
+	//int ret = 0;
+	//void *win = 0;
+	//ret = ffwr_CreateWindowFrom(this->m_hWnd, &win);
+	//if (ret) {
+	//	spllog(4, "Error");
+	//	return;
+	//}
+	//sdl_winrentext.sdl_window = win;
+	//if (!sdl_winrentext.sdl_texture) {
+	//	void *render = 0;
+	//	ret = ffwr_CreateRenderer(&render, win, -1, FFWR_RENDERER_ACCELERATED);
+	//	if (ret) {
+	//		spllog(4, "Error");
+	//		return;
+	//	}
+	//	sdl_winrentext.sdl_render = render;
+	//}
+	//if (!sdl_winrentext.sdl_texture) {
+	//	void *texture = 0;
+	//	ret = ffwr_CreateTexture(&texture, sdl_winrentext.sdl_render,
+	//	    FFWR_PIXELFORMAT_IYUV, FFWR_TEXTUREACCESS_STREAMING, 640,
+	//	    480);
+	//	if (ret) {
+	//		spllog(4, "Error");
+	//		return;		
+	//	}
+	//	sdl_winrentext.sdl_texture = texture;
+	//}
 }
+
+void *
+FFWRVideoFrame::get_demux_obj()
+{
+	return &(this->obj_demux);
+}
+
 LRESULT
 FFWRVideoFrame::OnFFWRMessage(WPARAM wParam, LPARAM lParam)
 {
-	FFWR_INPUT_ST *p = (FFWR_INPUT_ST *)lParam;
-	if (p && p->sz_type.type == FFWR_DEMUX_THREAD_EXIT) {
-		ffwr_destroy_render_objects(&sdl_winrentext);
+	FFWR_DEMUX_OBJS *p = (FFWR_DEMUX_OBJS *)lParam;
+	if (p && p->input.sz_type.type == FFWR_DEMUX_THREAD_EXIT) {
+		ffwr_destroy_demux_objects(p);
+		
 	}
 	return 0;
 }

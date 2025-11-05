@@ -53,12 +53,12 @@ END_MESSAGE_MAP()
 int
 demux_callback_gui(void *obj)
 {
-	//FFWR_INPUT_ST *p = (FFWR_INPUT_ST *)obj;
-	//if (!p) {
-	//	return 1;
-	//}
-	//PostMessage((HWND)(p->native_drawing), 
-	//	WM_FFWR_MESSAGE, 0, (LPARAM)obj);
+	FFWR_DEMUX_OBJS *p = (FFWR_DEMUX_OBJS *)obj;
+	if (!p) {
+		return 1;
+	}
+	PostMessage((HWND)(p->render_objects.native_window), 
+		WM_FFWR_MESSAGE, 0, (LPARAM)obj);
 	return 0;
 }
 
@@ -223,5 +223,9 @@ void
 CFFmpegdemoDlg::OnBnClickedStop()
 {
 	// TODO: Add your control notification handler code here
-	//ffwr_set_running(0);
+	//ffwr_set_stopping(m_vframe., 1);
+	FFWR_DEMUX_OBJS *obj = 0;
+	obj = (FFWR_DEMUX_OBJS *)m_vframe.get_demux_obj();
+	obj->input.cb = demux_callback_gui;
+	ffwr_set_stopping(obj, 1);
 }

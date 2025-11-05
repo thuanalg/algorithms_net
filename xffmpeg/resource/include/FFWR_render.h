@@ -381,7 +381,7 @@ typedef struct __FFWR_RENDER_OBJECTS__
 } FFWR_RENDER_OBJECTS;
 
 
-typedef enum {
+typedef enum __FFWR_DATA_TYPE_E__{
     FFWR_DTYPE_VFRAME,
     FFWR_DTYPE_PACKET,
     FFWR_DEMUX_THREAD_EXIT,
@@ -443,7 +443,7 @@ typedef struct __FFWR_DEMUX_OBJS__ {
 	FFWR_RENDER_OBJECTS render_objects;
 	void *inner_demux;
 	FFWR_DEMUX_DATA buffer;
-	FFWR_INPUT_ST input;
+	FFWR_INPUT_ST input; /*From UI/User.*/
 } FFWR_DEMUX_OBJS;
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/

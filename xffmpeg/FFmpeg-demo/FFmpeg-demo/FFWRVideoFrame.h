@@ -23,6 +23,8 @@ public:
 /*---------------------------------*/
 	void create_sdlwin();
 	void xyz();
+	void *get_demux_obj();
+	
 
 protected:
 	afx_msg void OnPaint();
@@ -35,6 +37,7 @@ private:
 	//void clearSDLWinRenderContext();
 	FFWR_RENDER_OBJECTS sdl_winrentext;
 	FFWR_DEMUX_OBJS obj_demux;
+	
 };
 
 
