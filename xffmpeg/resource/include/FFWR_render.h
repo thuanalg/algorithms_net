@@ -457,19 +457,6 @@ ffwr_init(FFWR_InitFlags flags);
 DLL_API_FFWR_RENDER int	
 ffwr_Quit();
 
-//DLL_API_FFWR_RENDER int
-//ffwr_CreateWindowFrom(void* hwnd, void **sdlwin);
-
-//DLL_API_FFWR_RENDER int
-//ffwr_CreateRenderer(void **render, 
-//	void *window, int index, FFWR_uint flags);
-
-//DLL_API_FFWR_RENDER int	
-//ffwr_CreateTexture(void **texture, 
-//	void *renderer, 
-//	FFWR_PixelFormat format, 
-//	FFWR_TextureAccess access, int w, int h);
-
 DLL_API_FFWR_RENDER int	
 ffwr_UpdateYUVTexture(
 		void *texture, const FFWR_Rect *rect,
