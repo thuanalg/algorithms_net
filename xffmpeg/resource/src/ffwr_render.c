@@ -51,18 +51,14 @@ typedef struct __FFWR_INSTREAM__ {
     AVFrame *a_dstframe;
     SwrContext *a_scale;    
 	
-	//FFWR_DEMUX_DATA *buffer;
 
 } FFWR_INSTREAM;
 #endif
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /* Functions */
-static int
-ffwr_convert_vframe(AVFrame *src, AVFrame *dst);
+
 
 #ifndef UNIX_LINUX
-//static DWORD WINAPI 
-//ffwr_demux_routine(LPVOID lpParam);
 
 static DWORD WINAPI 
 ffwr_demux_xyz_ext(LPVOID lpParam);
@@ -136,7 +132,7 @@ ffwr_convert_vframe_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame *dst);
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 /* Variables */
-static FFWR_INSTREAM gb_instream;
+//static FFWR_INSTREAM gb_instream;
 
 void *ffwr_st_VFRAME_MTX;
 void *ffwr_st_AFRAME_MTX;
@@ -147,7 +143,7 @@ ffwr_gen_data_st *st_renderVFrame;
 ffwr_araw_stream *st_SharedAudioBuffer;
 ffwr_araw_stream *st_AudioBuffer;
 
-struct SwrContext *gb_aConvertContext;
+//struct SwrContext *gb_aConvertContext;
 
 
 SDL_AudioSpec gb_want, gb_have;
@@ -1031,65 +1027,53 @@ ffwr_convert_vframe_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame *dst)
     return 0;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-int
-ffwr_convert_vframe(AVFrame *src, AVFrame *dst)
-{
-    int ret = 0;
-    //av_frame_get_buffer(src, 32);
-    dst->format = 0;
-    dst->width = src->width;
-    dst->height = src->height;
-    av_frame_get_buffer(dst, 32);
-    if (!dst->data[0]) {
-        ret = av_frame_get_buffer(dst, 32);
-        if (ret < 0) {
-            spllog(4, "Error allocating dst buffer\n");
-            return ret;
-        }
-        spllog(1, "av_frame_get_buffer");
-    }
-    
-    if(! (gb_instream.vscale)) {
-        gb_instream.vscale = sws_getContext(
-	    	src->width, 
-	    	src->height, 
-	    	src->format, 
-	    	dst->width, 
-	    	dst->height, 
-	    	dst->format,
-            SWS_BILINEAR, NULL, NULL, NULL
-        );
-    }
-    if (!gb_instream.vscale) {
-        spllog(4, "Error: cannot create sws context\n");
-        return -1;
-    }
-
-    ret = sws_scale(
-        gb_instream.vscale,
-        (const uint8_t * const *)src->data,
-        src->linesize,
-        0,
-        src->height,
-        dst->data,
-        dst->linesize
-    );
-    dst->pts = src->pts;
-
-    return 0;
-}
-/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-/*
-int ffwr_gb_running = 1;
-int ffwr_get_running() {
-    int ret = 0;
-    spl_mutex_lock(ffwr_st_VFRAME_MTX);
-        ret = ffwr_gb_running;
-    spl_mutex_unlock(ffwr_st_VFRAME_MTX);
-    return ret;;
-}
-*/
+//int
+//ffwr_convert_vframe(AVFrame *src, AVFrame *dst)
+//{
+//    int ret = 0;
+//    //av_frame_get_buffer(src, 32);
+//    dst->format = 0;
+//    dst->width = src->width;
+//    dst->height = src->height;
+//    av_frame_get_buffer(dst, 32);
+//    if (!dst->data[0]) {
+//        ret = av_frame_get_buffer(dst, 32);
+//        if (ret < 0) {
+//            spllog(4, "Error allocating dst buffer\n");
+//            return ret;
+//        }
+//        spllog(1, "av_frame_get_buffer");
+//    }
+//    
+//    if(! (gb_instream.vscale)) {
+//        gb_instream.vscale = sws_getContext(
+//	    	src->width, 
+//	    	src->height, 
+//	    	src->format, 
+//	    	dst->width, 
+//	    	dst->height, 
+//	    	dst->format,
+//            SWS_BILINEAR, NULL, NULL, NULL
+//        );
+//    }
+//    if (!gb_instream.vscale) {
+//        spllog(4, "Error: cannot create sws context\n");
+//        return -1;
+//    }
+//
+//    ret = sws_scale(
+//        gb_instream.vscale,
+//        (const uint8_t * const *)src->data,
+//        src->linesize,
+//        0,
+//        src->height,
+//        dst->data,
+//        dst->linesize
+//    );
+//    dst->pts = src->pts;
+//
+//    return 0;
+//}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int ffwr_get_stopping(FFWR_DEMUX_OBJS *obj) {
     int ret = 0;
@@ -1098,15 +1082,7 @@ int ffwr_get_stopping(FFWR_DEMUX_OBJS *obj) {
     spl_mutex_unlock(obj->buffer.mtx_vbuf);
     return ret;;
 }
-/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-/*
-int ffwr_set_running(int v) {
-    spl_mutex_lock(ffwr_st_VFRAME_MTX);
-        ffwr_gb_running = v;
-    spl_mutex_unlock(ffwr_st_VFRAME_MTX);
-    return 0;
-}
-*/
+
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int ffwr_set_stopping(FFWR_DEMUX_OBJS *obj, int v) {
     spl_mutex_lock(obj->buffer.mtx_vbuf);
@@ -1306,81 +1282,81 @@ int convert_audio_frame_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame **outfr)
 	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-int convert_audio_frame( AVFrame *src, AVFrame **outfr)
-{
-    int ret = 0;
-    AVChannelLayout *src_layout = 0;
-    int n = 0;
-    AVFrame *dst = 0;
-    do {
-        if(!src) {
-            ret = 1;
-            break;
-        }    
-        if(!outfr) {
-            ret = 1;
-            break;
-        }
-        dst = *outfr;
-        if(!dst) {
-            dst = av_frame_alloc();
-            if(!dst) {
-                break;
-            }
-          
-        }
-
-        av_channel_layout_default(&dst->ch_layout, 2);
-        dst->format = AV_SAMPLE_FMT_FLT;
-        dst->sample_rate = FFWR_OUTPUT_ARATE;  
-
-        if(!gb_aConvertContext) {
-            ret = ffwr_create_a_swrContext(src, dst);
-            if(ret) {
-                break;
-            }
-        }
-        if(!gb_instream.a_cctx) {
-            ret = 1;
-            break;            
-        }
-        src_layout = &(gb_instream.a_cctx->ch_layout);
-        if(!src_layout) {
-            ret = 1;
-            break;                    
-        }
-
-        dst->nb_samples = av_rescale_rnd(
-            swr_get_delay(gb_aConvertContext, 
-                src->sample_rate) + src->nb_samples, 
-                FFWR_OUTPUT_ARATE, src->sample_rate, AV_ROUND_UP);
-
-        n = av_frame_get_buffer(dst, 0);
-	    if (n < 0) {
-	    	spllog(4, "Error: cannot allocate dst buffer (%d)\n", n);
-            ret = 1;
-	    	break;
-	    }
-        av_channel_layout_copy(&(dst->ch_layout), src_layout);
-	    n = swr_convert(gb_aConvertContext, dst->data, dst->nb_samples,
-	        (const uint8_t **)src->data, src->nb_samples);
-	    if (ret < 0) {
-	    	spllog(4, " Error: swr_convert failed (%d)\n", ret);
-            ret = 1;
-	    	break;
-	    }
-
-	    dst->nb_samples = n;
-	    spllog(1, "Audio convert done: %d samples -> %d samples\n",
-	        src->nb_samples, dst->nb_samples);
-        dst->pts = src->pts;
-        *outfr = dst;
-
-    } while(0);
-
-
-	return ret;
-}
+//int convert_audio_frame( AVFrame *src, AVFrame **outfr)
+//{
+//    int ret = 0;
+//    AVChannelLayout *src_layout = 0;
+//    int n = 0;
+//    AVFrame *dst = 0;
+//    do {
+//        if(!src) {
+//            ret = 1;
+//            break;
+//        }    
+//        if(!outfr) {
+//            ret = 1;
+//            break;
+//        }
+//        dst = *outfr;
+//        if(!dst) {
+//            dst = av_frame_alloc();
+//            if(!dst) {
+//                break;
+//            }
+//          
+//        }
+//
+//        av_channel_layout_default(&dst->ch_layout, 2);
+//        dst->format = AV_SAMPLE_FMT_FLT;
+//        dst->sample_rate = FFWR_OUTPUT_ARATE;  
+//
+//        if(!gb_aConvertContext) {
+//            ret = ffwr_create_a_swrContext(src, dst);
+//            if(ret) {
+//                break;
+//            }
+//        }
+//        if(!gb_instream.a_cctx) {
+//            ret = 1;
+//            break;            
+//        }
+//        src_layout = &(gb_instream.a_cctx->ch_layout);
+//        if(!src_layout) {
+//            ret = 1;
+//            break;                    
+//        }
+//
+//        dst->nb_samples = av_rescale_rnd(
+//            swr_get_delay(gb_aConvertContext, 
+//                src->sample_rate) + src->nb_samples, 
+//                FFWR_OUTPUT_ARATE, src->sample_rate, AV_ROUND_UP);
+//
+//        n = av_frame_get_buffer(dst, 0);
+//	    if (n < 0) {
+//	    	spllog(4, "Error: cannot allocate dst buffer (%d)\n", n);
+//            ret = 1;
+//	    	break;
+//	    }
+//        av_channel_layout_copy(&(dst->ch_layout), src_layout);
+//	    n = swr_convert(gb_aConvertContext, dst->data, dst->nb_samples,
+//	        (const uint8_t **)src->data, src->nb_samples);
+//	    if (ret < 0) {
+//	    	spllog(4, " Error: swr_convert failed (%d)\n", ret);
+//            ret = 1;
+//	    	break;
+//	    }
+//
+//	    dst->nb_samples = n;
+//	    spllog(1, "Audio convert done: %d samples -> %d samples\n",
+//	        src->nb_samples, dst->nb_samples);
+//        dst->pts = src->pts;
+//        *outfr = dst;
+//
+//    } while(0);
+//
+//
+//	return ret;
+//}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int ffwr_fill_vframe(FFWR_VFrame *dst, AVFrame *src) {
     int ret = 0;
@@ -1469,47 +1445,47 @@ int ffwr_create_a_swrContext_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame *dst) {
     return ret;	
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-int ffwr_create_a_swrContext(AVFrame *src, AVFrame *dst)
-{
-    int ret = 0;
-    SwrContext *swr = 0;
-    do {
-        if(!src) {
-            ret = 1;
-            break;
-        }
-        if(!dst) {
-            ret = 1;
-            break;
-        }  
-        swr_alloc_set_opts2(
-            &swr,                        	// NULL → tạo mới
-            &(dst->ch_layout),         		// kênh đầu ra
-            dst->format,          			// định dạng sample đầu ra
-            dst->sample_rate,               // sample rate đầu ra
-            &(src->ch_layout),           	// kênh đầu vào
-            src->format,           			// định dạng sample đầu vào
-            src->sample_rate,               // sample rate đầu vào
-            0, NULL                      	// log offset, log context
-        );        
-        if(!swr) {
-            ret = 1;
-            break;
-        }
-        ret = swr_init(swr);
-        if(ret < 0) {
-            ret = 1;
-            break;
-        }
-
-        gb_aConvertContext = swr;
-
-    } while(0);
-	if(ret) {
-		spllog(4, "ret");
-	}
-    return ret;
-}
+//int ffwr_create_a_swrContext(AVFrame *src, AVFrame *dst)
+//{
+//    int ret = 0;
+//    SwrContext *swr = 0;
+//    do {
+//        if(!src) {
+//            ret = 1;
+//            break;
+//        }
+//        if(!dst) {
+//            ret = 1;
+//            break;
+//        }  
+//        swr_alloc_set_opts2(
+//            &swr,                        	// NULL → tạo mới
+//            &(dst->ch_layout),         		// kênh đầu ra
+//            dst->format,          			// định dạng sample đầu ra
+//            dst->sample_rate,               // sample rate đầu ra
+//            &(src->ch_layout),           	// kênh đầu vào
+//            src->format,           			// định dạng sample đầu vào
+//            src->sample_rate,               // sample rate đầu vào
+//            0, NULL                      	// log offset, log context
+//        );        
+//        if(!swr) {
+//            ret = 1;
+//            break;
+//        }
+//        ret = swr_init(swr);
+//        if(ret < 0) {
+//            ret = 1;
+//            break;
+//        }
+//
+//        gb_aConvertContext = swr;
+//
+//    } while(0);
+//	if(ret) {
+//		spllog(4, "ret");
+//	}
+//    return ret;
+//}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 #if 0
 int spl_mutex_lock(void *mtx) {

@@ -515,14 +515,6 @@ ffwr_create_demux(void *);
 DLL_API_FFWR_RENDER int 
 ffwr_open_audio_output(int sz);
 
-/*
-
-DLL_API_FFWR_RENDER int 
-ffwr_get_running();
-
-DLL_API_FFWR_RENDER int 
-ffwr_set_running(int v);
-*/
 
 DLL_API_FFWR_RENDER int 
 ffwr_destroy_render_objects(FFWR_RENDER_OBJECTS *);
