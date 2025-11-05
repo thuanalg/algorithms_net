@@ -1215,7 +1215,7 @@ void ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len)
     ffwr_gen_data_st *obj = 0;
 	FFWR_DEMUX_OBJS *demux = 0;
     int real_len = 0;
-    static int step = 0;
+    //static int step = 0;
     int stopping = 0;
 	void *amutex = 0;
 	FFWR_DEMUX_DATA *bufffer = 0;
@@ -1227,11 +1227,13 @@ void ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len)
 		return;
 	}
 	
+	bufffer = &(demux->buffer);
+	obj = bufffer->abuf;	
+	
     if(!obj) {
         return;
     }
-	bufffer = &(demux->buffer);
-	obj = bufffer->abuf;
+
     if( obj->pl <= obj->pc) 
     {
         obj->pl = obj->pc = 0;
@@ -1240,17 +1242,17 @@ void ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len)
             if(bufffer->shared_abuf->pl < 1) {
                 break;
             }
-            if(step == 0) {
-                if(bufffer->shared_abuf->pl > 0) {
-                    step++;
-                    bufffer->shared_abuf->pc = 0;
-                    bufffer->shared_abuf->pl = 0;
-                    break;
-                }
-            }
-            if(bufffer->shared_abuf->pl < 1) {
-                break;
-            }
+            //if(step == 0) {
+            //    if(bufffer->shared_abuf->pl > 0) {
+            //        step++;
+            //        bufffer->shared_abuf->pc = 0;
+            //        bufffer->shared_abuf->pl = 0;
+            //        break;
+            //    }
+            //}
+            //if(bufffer->shared_abuf->pl < 1) {
+            //    break;
+            //}
 
             memcpy(obj->data + obj->pl, 
                 bufffer->shared_abuf->data, 
