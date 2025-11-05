@@ -1080,6 +1080,7 @@ ffwr_convert_vframe(AVFrame *src, AVFrame *dst)
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+/*
 int ffwr_gb_running = 1;
 int ffwr_get_running() {
     int ret = 0;
@@ -1088,6 +1089,7 @@ int ffwr_get_running() {
     spl_mutex_unlock(ffwr_st_VFRAME_MTX);
     return ret;;
 }
+*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int ffwr_get_stopping(FFWR_DEMUX_OBJS *obj) {
     int ret = 0;
@@ -1097,12 +1099,14 @@ int ffwr_get_stopping(FFWR_DEMUX_OBJS *obj) {
     return ret;;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+/*
 int ffwr_set_running(int v) {
     spl_mutex_lock(ffwr_st_VFRAME_MTX);
         ffwr_gb_running = v;
     spl_mutex_unlock(ffwr_st_VFRAME_MTX);
     return 0;
 }
+*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int ffwr_set_stopping(FFWR_DEMUX_OBJS *obj, int v) {
     spl_mutex_lock(obj->buffer.mtx_vbuf);
@@ -1625,7 +1629,7 @@ void ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len)
     static int step = 0;
     int running = 0;
 
-	running = ffwr_get_running();
+//	running = ffwr_get_running();
 	
 	if(!running) {
 		return;

@@ -223,5 +223,5 @@ void
 CFFmpegdemoDlg::OnBnClickedStop()
 {
 	// TODO: Add your control notification handler code here
-	ffwr_set_running(0);
+	//ffwr_set_running(0);
 }
