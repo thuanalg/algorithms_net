@@ -26,8 +26,10 @@
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 #define ffwr_frame_unref(__fr__) if(__fr__) {av_frame_unref(__fr__);}
-#define ffwr_frame_free(__fr__) if(__fr__) {av_frame_free(__fr__);}
+#define ffwr_frame_free(__fr__) if(__fr__) {spllog(1, "av_frame_free: 0x%p", *(__fr__)); av_frame_free(__fr__); }
+#define ffwr_frame_alloc(__fr__) { (__fr__) =  av_frame_alloc(); spllog(1, "av_frame_alloc: 0x%p", (__fr__));}
 #define ffwr_packet_unref(__pkt__) if(__pkt__) {av_packet_unref(__pkt__);}
+
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 #ifndef __FFWR_INSTREAM_DEF__
@@ -429,8 +431,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 		}
 		pgb_instream = (FFWR_INSTREAM *) obj->inner_demux;
 		info = &(obj->input);
-		tmp = av_frame_alloc();
-		spllog(1, "av_frame_alloc");
+		ffwr_frame_alloc(tmp);
 		tmp->width = 640;
 		tmp->height = 480;
 		tmp->format = 4;
@@ -573,7 +574,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 		/*-----------------*/
 	} while(0);
 	
-	av_frame_free(&tmp); 
+	ffwr_frame_free(&tmp); 
 	ffwr_free(ffwr_vframe);
 	if(obj->input.cb) {
 		obj->input.sz_type.type = FFWR_DEMUX_THREAD_EXIT;
@@ -784,7 +785,7 @@ int convert_audio_frame_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame **outfr)
         }
         dst = *outfr;
         if(!dst) {
-            dst = av_frame_alloc();
+			ffwr_frame_alloc(dst);
             if(!dst) {
                 break;
             }
@@ -1395,7 +1396,7 @@ ffwr_open_instream(FFWR_DEMUX_OBJS *obj)
             spllog(4, "avcodec_open2, result: %d", result);
 			break;
 		}        
-        pinput->vframe = av_frame_alloc(); 
+		ffwr_frame_alloc(pinput->vframe);
         if(!pinput->vframe) {
             ret = FFWR_VFRAME_ALLOC_ERR;
             spllog(4, "FFWR_VFRAME_ALLOC_ERR");
@@ -1440,13 +1441,13 @@ ffwr_open_instream(FFWR_DEMUX_OBJS *obj)
             spllog(4, "FFWR_OPEN_ACODEC_ERR");
 			break;
 		} 
-        pinput->a_frame = av_frame_alloc(); 
+        ffwr_frame_alloc(pinput->a_frame); 
         if(!pinput->a_frame) {
             ret = FFWR_AFRAME_ALLOC_ERR;
             spllog(4, "FFWR_AFRAME_ALLOC_ERR");
             break;
         }   
-        pinput->a_dstframe = av_frame_alloc(); 
+		ffwr_frame_alloc(pinput->a_dstframe);
         if(!pinput->a_dstframe) {
             ret = FFWR_AFRAME_ALLOC_ERR;
             spllog(4, "FFWR_AFRAME_ALLOC_ERR");
