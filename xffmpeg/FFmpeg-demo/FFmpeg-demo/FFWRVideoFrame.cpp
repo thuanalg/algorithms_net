@@ -62,7 +62,7 @@ void FFWRVideoFrame::OnPaint()
 		spllog(4, "FFWRVideoFrame::sdl_texture null");
 		return;
 	}
-	spllog(1, "window, sdl_render, sdl_texture");
+	//spllog(1, "window, sdl_render, sdl_texture");
 	if (gb_frame->pl < 1) {
 		spl_mutex_lock(ref_ffwr_mtx);
 		do {

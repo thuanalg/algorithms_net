@@ -70,6 +70,18 @@ swr_alloc_set_opts2( (__v0__), (__v1__), (__v2__), \
 	spllog(1, "free ascaleContext: %p", *(__o__));\
 	swr_free(__o__);}\
 }	
+
+#define ffwr_avformat_open_input(__ret__, \
+	__v0__, __v1__, __v2__, __v3__) {\
+	(__ret__) = avformat_open_input((__v0__), \
+		(__v1__), (__v2__), (__v3__));\
+	spllog(1, "open avformat: 0x%p", *(__v0__));\
+}
+
+#define ffwr_avformat_close_input(__fmt__) {\
+	spllog(1, "close avformat: 0x%p", *(__fmt__));\
+	avformat_close_input(__fmt__);\
+}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 #ifndef __FFWR_INSTREAM_DEF__
@@ -1327,11 +1339,17 @@ ffwr_destroy_demux_objects(FFWR_DEMUX_OBJS *obj)
 			inner_demux->a_scale = 0;
 		}
 		if(inner_demux->v_cctx) {
-			ffwr_avcodec_free_context(&(inner_demux->v_cctx));
+			ffwr_avcodec_free_context(
+				&(inner_demux->v_cctx));
 		}
 		if(inner_demux->a_cctx) {
-			ffwr_avcodec_free_context(&(inner_demux->a_cctx));
-		}		
+			ffwr_avcodec_free_context(
+				&(inner_demux->a_cctx));
+		}
+		if(inner_demux->fmt_ctx) {
+			ffwr_avformat_close_input(
+				&(inner_demux->fmt_ctx));
+		}	
 		ffwr_free(obj->inner_demux);
 		/*-------*/
 		/*Clear: FFWR_DEMUX_DATA
@@ -1394,8 +1412,11 @@ ffwr_open_instream(FFWR_DEMUX_OBJS *obj)
 		}        
 		name = obj->input.name;
 		spllog(1, "name: %s", name);
+		
 
-        result = avformat_open_input(&(pinput->fmt_ctx), name,  iformat, &options);
+        ffwr_avformat_open_input(result, 
+			&(pinput->fmt_ctx), 
+			name,  iformat, &options);
 
         if(result < 0) {
             ret = FFWR_AV_OPEN_INPUT_ERR;
