@@ -84,33 +84,33 @@ swr_alloc_set_opts2( (__v0__), (__v1__), (__v2__), \
 }
 
 #define ffwr_SDL_DestroyWindow(__win__) {\
-	spllog(1, "Destroy Window: 0x%p", (__win__));\
+	spllog(1, "Destroy Window-render:: 0x%p", (__win__));\
 	SDL_DestroyWindow(__win__);(__win__) = 0;\
 }
 
 #define ffwr_SDL_DestroyTexture(__texture__) {\
-	spllog(1, "Destroy Texture: 0x%p", (__texture__));\
+	spllog(1, "Destroy Texture-render:: 0x%p", (__texture__));\
 	SDL_DestroyTexture(__texture__);(__texture__) = 0;\
 }
 
 #define ffwr_SDL_DestroyRenderer(__ren__) {\
-	spllog(1, "Destroy Renderer: 0x%p", (__ren__));\
+	spllog(1, "Destroy Renderer-render:: 0x%p", (__ren__));\
 	SDL_DestroyRenderer(__ren__);(__ren__) = 0;\
 }
 
 #define ffwr_SDL_CreateWindowFrom(__sdl__, __native__) {\
 	(__sdl__) = SDL_CreateWindowFrom(__native__);\
-	spllog(1, "Create Window: 0x%p", (__sdl__));\
+	spllog(1, "Create Window-render:: 0x%p", (__sdl__));\
 }
 
 #define ffwr_SDL_CreateRenderer(__ren__, __v0__,  __v1__,  __v2__) {\
 	(__ren__) = SDL_CreateRenderer((__v0__),  (__v1__),  (__v2__));\
-	spllog(1, "Create Renderer: 0x%p", (__ren__));\
+	spllog(1, "Create Renderer-render:: 0x%p", (__ren__));\
 }
 
 #define ffwr_SDL_CreateTexture( __texture__,__ren__, __v0__,  __v1__,  __v2__, __v3__) {\
 	(__texture__) = SDL_CreateTexture( (__ren__), (__v0__),  (__v1__),  (__v2__), (__v3__));\
-	spllog(1, "Create Texture: 0x%p", (__texture__));\
+	spllog(1, "Create Texture-render: 0x%p", (__texture__));\
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
@@ -186,6 +186,9 @@ ffwr_clode_audio_output();
 
 static int
 ffwr_open_instream(FFWR_DEMUX_OBJS *obj) ;
+
+static int
+ffwr_close_instream(FFWR_DEMUX_OBJS *obj) ;
 
 static int
 ffwr_open_render_sdl_pipe(FFWR_DEMUX_OBJS *obj) ;
@@ -574,6 +577,9 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 	
 	ffwr_frame_free(&tmp); 
 	ffwr_free(ffwr_vframe);
+	
+	ffwr_close_instream(obj);
+	
 	if(obj->input.cb) {
 		obj->input.sz_type.type = FFWR_DEMUX_THREAD_EXIT;
 		obj->input.cb(obj);
@@ -1256,6 +1262,8 @@ ffwr_destroy_demux_objects(FFWR_DEMUX_OBJS *obj)
 		
 		*/
 		/*Clear: inner_demux*/
+		ffwr_close_instream(obj);
+#if 0		
 		inner_demux = (FFWR_INSTREAM *) obj->inner_demux;
 		if(inner_demux->vframe) {
 			ffwr_frame_free(&(inner_demux->vframe));
@@ -1294,6 +1302,7 @@ ffwr_destroy_demux_objects(FFWR_DEMUX_OBJS *obj)
 				&(inner_demux->fmt_ctx));
 		}	
 		ffwr_free(obj->inner_demux);
+#endif		
 		/*-------*/
 		/*Clear: FFWR_DEMUX_DATA
 			typedef struct __FFWR_DEMUX_DATA__
@@ -1472,7 +1481,66 @@ ffwr_open_instream(FFWR_DEMUX_OBJS *obj)
 	return ret;
 }
 
+
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int
+ffwr_close_instream(FFWR_DEMUX_OBJS *obj)
+{
+	int ret = 0;
+	FFWR_INSTREAM *inner_demux = 0;
+	
+	do {
+		if(!obj) {
+			ret = FFWR_DEMUX_OBJS_NULL_ERR;
+			spllog(4, "FFWR_DEMUX_OBJS_NULL_ERR");
+			break;
+		}
+		inner_demux = (FFWR_INSTREAM *) obj->inner_demux;
+		if(!inner_demux) {
+			break;
+		}
+		if(inner_demux->vframe) {
+			ffwr_frame_free(&(inner_demux->vframe));
+			inner_demux->vframe = 0;
+		}
+		if(inner_demux->a_dstframe) {
+			ffwr_frame_free(&(inner_demux->a_dstframe)); 
+			inner_demux->a_dstframe = 0;
+		}
+		if(inner_demux->a_frame) {
+			ffwr_frame_free(&(inner_demux->a_frame));   
+			inner_demux->a_frame = 0;
+		}	
+		/*-------*/
+		ffwr_packet_unref(&(inner_demux->pkt));
+	
+		if(inner_demux->vscale) {
+			ffwr_sws_freeContext(inner_demux->vscale);
+			inner_demux->vscale = 0;
+		}
+		if(inner_demux->a_scale) {
+
+			ffwr_swr_free(&(inner_demux->a_scale));
+			inner_demux->a_scale = 0;
+		}
+		if(inner_demux->v_cctx) {
+			ffwr_avcodec_free_context(
+				&(inner_demux->v_cctx));
+		}
+		if(inner_demux->a_cctx) {
+			ffwr_avcodec_free_context(
+				&(inner_demux->a_cctx));
+		}
+		if(inner_demux->fmt_ctx) {
+			ffwr_avformat_close_input(
+				&(inner_demux->fmt_ctx));
+		}	
+		ffwr_free(obj->inner_demux);
+	} while(0);
+	return ret;
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+
 int
 ffwr_open_render_sdl_pipe(FFWR_DEMUX_OBJS *obj)
 {
