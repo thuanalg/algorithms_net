@@ -585,7 +585,6 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 		obj->input.cb(obj);
 	}
 	
-	//ffwr_free(obj->inner_demux);
 	return ret;
 }
 
@@ -1235,8 +1234,6 @@ typedef struct __FFWR_INSTREAM__ {
     AVFrame *a_frame;
     AVFrame *a_dstframe;
     SwrContext *a_scale;    
-	
-	//FFWR_DEMUX_DATA *buffer;
 
 } FFWR_INSTREAM;
 */
@@ -1255,54 +1252,14 @@ ffwr_destroy_demux_objects(FFWR_DEMUX_OBJS *obj)
 			typedef struct __FFWR_DEMUX_OBJS__ {
 				int isstop;
 				3. FFWR_RENDER_OBJECTS render_objects;
-				1. void *inner_demux;
+				1. void *inner_demux = 0; 
+				//Did clear in demux thread.
 				2. FFWR_DEMUX_DATA buffer;
 				FFWR_INPUT_ST input;
 			} FFWR_DEMUX_OBJS;
 		
 		*/
-		/*Clear: inner_demux*/
-		ffwr_close_instream(obj);
-#if 0		
-		inner_demux = (FFWR_INSTREAM *) obj->inner_demux;
-		if(inner_demux->vframe) {
-			ffwr_frame_free(&(inner_demux->vframe));
-			inner_demux->vframe = 0;
-		}
-		if(inner_demux->a_dstframe) {
-			ffwr_frame_free(&(inner_demux->a_dstframe)); 
-			inner_demux->a_dstframe = 0;
-		}
-		if(inner_demux->a_frame) {
-			ffwr_frame_free(&(inner_demux->a_frame));   
-			inner_demux->a_frame = 0;
-		}	
-		/*-------*/
-		ffwr_packet_unref(&(inner_demux->pkt));
-	
-		if(inner_demux->vscale) {
-			ffwr_sws_freeContext(inner_demux->vscale);
-			inner_demux->vscale = 0;
-		}
-		if(inner_demux->a_scale) {
 
-			ffwr_swr_free(&(inner_demux->a_scale));
-			inner_demux->a_scale = 0;
-		}
-		if(inner_demux->v_cctx) {
-			ffwr_avcodec_free_context(
-				&(inner_demux->v_cctx));
-		}
-		if(inner_demux->a_cctx) {
-			ffwr_avcodec_free_context(
-				&(inner_demux->a_cctx));
-		}
-		if(inner_demux->fmt_ctx) {
-			ffwr_avformat_close_input(
-				&(inner_demux->fmt_ctx));
-		}	
-		ffwr_free(obj->inner_demux);
-#endif		
 		/*-------*/
 		/*Clear: FFWR_DEMUX_DATA
 			typedef struct __FFWR_DEMUX_DATA__

@@ -24,9 +24,10 @@ void FFWRVideoFrame::OnPaint()
 	ffwr_gen_data_st *gb_tsplanVFrame = 0;
 
 	//gb_frame = ffwr_gb_renderVFrame();
+
 	gb_frame = obj_demux.buffer.vbuf;
 	if (!gb_frame) {
-		spllog(3, "gb_frame null");
+		spllog(1, "gb_frame null");
 		return;
 	}
 
