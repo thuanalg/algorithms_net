@@ -1281,7 +1281,7 @@ ffwr_destroy_demux_objects(FFWR_DEMUX_OBJS *obj)
 		ffwr_destroy_mutex(obj->buffer.mtx_abuf);
 		obj->buffer.mtx_abuf = 0;
 		/*-------*/
-		ffwr_destroy_render_objects(&(obj->render_objects));
+		//ffwr_destroy_render_objects(&(obj->render_objects));
 		/*-------*/
 	} while(0);
 	return ret;
@@ -1516,32 +1516,34 @@ ffwr_open_render_sdl_pipe(FFWR_DEMUX_OBJS *obj)
 			spllog(1, "For test none of GUI!");
 			break;			
 		}
-
-		ffwr_SDL_CreateWindowFrom(p->sdl_window, p->native_window);
 		if(!p->sdl_window) {
-			ret = FFWR_CANNOT_CREATE_WIN_ERR;
-			spllog(4, "SDL_CreateWindowFrom: %s\n", SDL_GetError());
-			break;
+			ffwr_SDL_CreateWindowFrom(p->sdl_window, p->native_window);
+			if(!p->sdl_window) {
+				ret = FFWR_CANNOT_CREATE_WIN_ERR;
+				spllog(4, "SDL_CreateWindowFrom: %s\n", SDL_GetError());
+				break;
+			}
+			win = (SDL_Window *) p->sdl_window;
 		}
-		win = (SDL_Window *) p->sdl_window;
 		//ren = SDL_CreateRenderer(win, -1, p->ren_flags);
-	
-		ffwr_SDL_CreateRenderer(ren, win, -1, SDL_RENDERER_ACCELERATED);
-		if(!ren) {
-			ret = FFWR_CREATERENDERER_ERR;
-			spllog(4, "SDL_CreateRenderer: %s\n", SDL_GetError());
-			break;
+		if(!p->sdl_render) {
+			ffwr_SDL_CreateRenderer(ren, win, -1, SDL_RENDERER_ACCELERATED);
+			if(!ren) {
+				ret = FFWR_CREATERENDERER_ERR;
+				spllog(4, "SDL_CreateRenderer: %s\n", SDL_GetError());
+				break;
+			}
+			p->sdl_render = ren;
 		}
-		p->sdl_render = ren;
-
-		
-        ffwr_SDL_CreateTexture(texture, ren,
-            p->format, p->access, p->w, p->h);		
-		if(!texture) {
-			spllog(4, "SDL_CreateTexture: %s\n", SDL_GetError());
-			break;
-		}			
-		p->sdl_texture =  texture;
+		if(!p->sdl_texture) {
+			ffwr_SDL_CreateTexture(texture, ren,
+				p->format, p->access, p->w, p->h);		
+			if(!texture) {
+				spllog(4, "SDL_CreateTexture: %s\n", SDL_GetError());
+				break;
+			}			
+			p->sdl_texture =  texture;
+		}
 	} 
 	while(0);
 	
