@@ -411,11 +411,13 @@ typedef struct __FFWR_DEMUX_DATA__
     ffwr_gen_data_st * vbuf; /*video buffer*/
     ffwr_gen_data_st * shared_vbuf; /*video shared buffer*/
     void *mtx_vbuf; /*Mutex shared buffer*/
+    void *sem_vbuf; /*sem shared buffer*/
 	
 	int abuf_size;
     ffwr_gen_data_st * abuf; /*audio buffer*/
     ffwr_gen_data_st * shared_abuf; /*audio shared buffer*/
     void *mtx_abuf; /*Mutex shared audio buffer*/
+    void *sem_abuf; /*sem shared audio buffer*/
 	
 } FFWR_DEMUX_DATA;
 
