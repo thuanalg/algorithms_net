@@ -27,11 +27,11 @@
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 #define ffwr_frame_unref(__fr__) if(__fr__) {av_frame_unref(__fr__);}
 #define ffwr_frame_free(__fr__) \
-if(__fr__) {spllog(1, "av_frame_free: 0x%p", *(__fr__)); \
+if(__fr__) {spllog(1, "av_frame_free frame: 0x%p", *(__fr__)); \
 av_frame_free(__fr__); }
 
 #define ffwr_frame_alloc(__fr__) { (__fr__) =  av_frame_alloc(); \
-spllog(1, "av_frame_alloc: 0x%p", (__fr__));}
+spllog(1, "av_frame_alloc frame: 0x%p", (__fr__));}
 
 #define ffwr_packet_unref(__pkt__) \
 	if(__pkt__) {av_packet_unref(__pkt__);}
@@ -196,11 +196,7 @@ ffwr_open_render_sdl_pipe(FFWR_DEMUX_OBJS *obj) ;
 static int 
 ffwr_create_sync_buff(FFWR_DEMUX_OBJS *obj) ;
 
-static void*
-ffwr_create_mutex(char *name);
 
-static int
-ffwr_destroy_mutex(void *obj);
 
 static int 
 ffwr_create_genbuff(ffwr_gen_data_st **obj, int sz) ;
@@ -295,7 +291,7 @@ int ffwr_UpdateYUVTexture(
 			Yplane, Ypitch, 
 			Uplane, Upitch, 
 			Vplane, Vpitch);
-		if(!result) {
+		if(result < 0) {
 			ret = FFWR_UPDATE_YUV_TEXTURE_ERR;
 			spllog(4, "SDL_UpdateYUVTexture: %s\n", SDL_GetError());
 			break;
@@ -1329,7 +1325,7 @@ ffwr_open_instream(FFWR_DEMUX_OBJS *obj)
 
         if(result < 0) {
             ret = FFWR_AV_OPEN_INPUT_ERR;
-            spllog(4, "FFWR_AV_OPEN_INPUT_ERR");
+            spllog(4, "FFWR_AV_OPEN_INPUT_ERR, name: %s", name);
             break;
         }	
         result = avformat_find_stream_info(pinput->fmt_ctx, 0);
@@ -1669,7 +1665,7 @@ ffwr_create_demux_ext(void *obj)
 	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-static int 
+int 
 ffwr_destroy_mutex(void *obj)
 {
 	int ret = 0;
@@ -1684,4 +1680,83 @@ ffwr_destroy_mutex(void *obj)
 
 	return ret;
 }
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int
+ffwr_create_semaphore(void **outsem, char *name)
+{
+	void *obj = 0;
+	int ret = 0;
+	do {
+		if(!outsem) {
+			ret = FFWR_OUTSEM_NULL_ERR;
+			break;
+		}
+#ifndef UNIX_LINUX	
+/*
+HANDLE CreateSemaphoreA(
+  [in, optional] LPSECURITY_ATTRIBUTES lpSemaphoreAttributes,
+  [in]           LONG                  lInitialCount,
+  [in]           LONG                  lMaximumCount,
+  [in, optional] LPCSTR                lpName
+);
+*/
+		obj = CreateSemaphoreA(0, 0, 1, name);
+		if(!obj) {
+			spllog(4, "GetLastError: %d", 
+			(int)GetLastError());
+			ret = FFWR_WIN_CREATE_SEM_ERR;
+			break;
+		}
+#else
+#endif			
+	} while(0);	
+	return ret;
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int
+ffwr_destroy_semaphore(void *obj)
+{
+	int ret = 0;
+	do {
+		if(!obj) {
+			ret = FFWR_SEM_NULL_ERR;
+			break;
+		}
+#ifndef UNIX_LINUX	
+		if(obj) {
+			int done = 0;
+			done = CloseHandle(obj);
+			if(!done) {
+				ret = FFWR_WIN_CLOSE_SEM_ERR;
+				spllog(4, "GetLastError: %d", 
+					(int)GetLastError());				
+			}
+		}
+#else
+#endif			
+	} while(0);
+	
+	return ret;
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int
+ffwr_semaphore_post(void *obj)
+{
+	int ret = 0;
+	do {
+		if(!obj) {
+			ret = FFWR_SEM_NULL_ERR;
+			break;
+		}
+	} while(0);
+	return ret;
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int
+ffwr_semaphore_wait(void *obj)
+{
+	int ret = 0;
+	return ret;
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/

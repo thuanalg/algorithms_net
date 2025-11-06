@@ -81,6 +81,7 @@ BEGIN_MESSAGE_MAP(CFFmpegdemoDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDCANCEL, &CFFmpegdemoDlg::OnBnClickedCancel)
 	ON_BN_CLICKED(IDSTOP, &CFFmpegdemoDlg::OnBnClickedStop)
+	ON_BN_CLICKED(IDSTART, &CFFmpegdemoDlg::OnBnClickedStart)
 	END_MESSAGE_MAP()
 
 
@@ -116,17 +117,17 @@ BOOL CFFmpegdemoDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
-	
-	m_vframe.Create(_T("MFCCstatic"), // 
+	m_vframe = new FFWRVideoFrame();
+	m_vframe->Create(_T("MFCCstatic"), // 
 	    WS_CHILD | WS_VISIBLE | SS_BLACKFRAME, // style
 	    CRect(0, 0, 640, 480), // 
 	    this, //
 	    1001 // ID control
 	);
-	gb_hwnd = m_vframe.m_hWnd;
+	gb_hwnd = m_vframe->m_hWnd;
 	//m_vframe.create_sdlwin();
 
-	m_vframe.xyz();
+	m_vframe->xyz();
 
 	HANDLE hThread;
 	DWORD dwThreadId;
@@ -225,7 +226,15 @@ CFFmpegdemoDlg::OnBnClickedStop()
 	// TODO: Add your control notification handler code here
 	//ffwr_set_stopping(m_vframe., 1);
 	FFWR_DEMUX_OBJS *obj = 0;
-	obj = (FFWR_DEMUX_OBJS *)m_vframe.get_demux_obj();
+	obj = (FFWR_DEMUX_OBJS *)m_vframe->get_demux_obj();
 	obj->input.cb = demux_callback_gui;
 	ffwr_set_stopping(obj, 1);
+}
+
+void
+CFFmpegdemoDlg::OnBnClickedStart()
+{
+	// TODO: Add your control notification handler code here
+	
+	m_vframe->xyz();
 }

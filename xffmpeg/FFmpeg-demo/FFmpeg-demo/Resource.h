@@ -9,6 +9,8 @@
 #define IDD_FFMPEGDEMO_DIALOG           102
 #define IDR_MAINFRAME                   128
 #define IDSTOP                          1000
+#define IDSTOP2                         1001
+#define IDSTART                         1001
 
 // Next default values for new objects
 // 
