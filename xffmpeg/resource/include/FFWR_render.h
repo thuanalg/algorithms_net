@@ -329,6 +329,7 @@ typedef enum __FFWR_LOG_ERR_CODE__ {
 	FFWR_WIN_CREATE_SEM_ERR, 
 	FFWR_OUTSEM_NULL_ERR,
 	FFWR_WIN_CLOSE_SEM_ERR,
+	FFWR_WIN_OUTMUTEX_NULL_ERR,
 	
 	
 	
@@ -504,8 +505,8 @@ ffwr_open_audio_output(FFWR_DEMUX_OBJS *, int sz);
 
 
 
-DLL_API_FFWR_RENDER void*
-ffwr_create_mutex(char *name);
+DLL_API_FFWR_RENDER int
+ffwr_create_mutex(void **outmutex, char *name);
 
 DLL_API_FFWR_RENDER int
 ffwr_destroy_mutex(void *obj);

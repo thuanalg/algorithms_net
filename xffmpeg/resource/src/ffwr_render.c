@@ -1562,14 +1562,14 @@ ffwr_create_sync_buff(FFWR_DEMUX_OBJS *obj)
 			break;
 		}
 		p = &(obj->buffer);
-		mtx = ffwr_create_mutex(0);
+		ffwr_create_mutex(&mtx, 0);
 		if(!mtx) {
 			ret = FFWR_CREATE_MUTEX_NULL_ERR;
 			break;
 		}
 		p->mtx_vbuf = mtx;
 		
-		mtx = ffwr_create_mutex(0);
+		ffwr_create_mutex(&mtx, 0);
 		if(!mtx) {
 			ret = FFWR_CREATE_MUTEX_NULL_ERR;
 			break;
@@ -1608,18 +1608,29 @@ ffwr_create_sync_buff(FFWR_DEMUX_OBJS *obj)
 	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-void*
-ffwr_create_mutex(char *name)
+int
+ffwr_create_mutex(void **outmutex, char *name)
 {
-	void *ret = 0;
+	void *obj = 0;
+	int ret = 0;
+	do {
+		if(!outmutex) {
+			ret = FFWR_WIN_OUTMUTEX_NULL_ERR;
+			break;
+		}
 #ifndef UNIX_LINUX
-	ret = CreateMutexA(0, 0, name);
-	if(!ret) {
-		spllog(4, "GetLastError(): %d", 
-		GetLastError());
-	}
+		obj = CreateMutexA(0, 0, name);
+		if(!obj) {
+			spllog(4, "GetLastError(): %d", 
+			GetLastError());
+			ret = FFWR_WIN_CREATE_MUTEX_ERR;
+			break;
+		}
+		*outmutex = obj;
 #else
-#endif	
+#endif		
+	} while(0);
+	
 	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
@@ -1707,6 +1718,7 @@ HANDLE CreateSemaphoreA(
 			ret = FFWR_WIN_CREATE_SEM_ERR;
 			break;
 		}
+		*outsem = obj;
 #else
 #endif			
 	} while(0);	
