@@ -1197,16 +1197,16 @@ ffwr_create_demux_objects(FFWR_DEMUX_OBJS *obj)
 			spllog(4, "ffwr_create_sync_buff");
 			break;
 		}		
-		ret = ffwr_create_demux_ext(obj);
-		if(ret) {
-			spllog(4, "ffwr_create_demux_ext");
-			break;
-		}
 		ret = ffwr_open_render_sdl_pipe(obj);
 		if(ret) {
 			spllog(4, "ffwr_open_render_sdl_pipe");
 			break;
-		}		
+		}	
+		ret = ffwr_create_demux_ext(obj);
+		if (ret) {
+			spllog(4, "ffwr_create_demux_ext");
+			break;
+		}
 	} while(0);
 	return ret;
 }

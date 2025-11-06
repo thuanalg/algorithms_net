@@ -137,10 +137,10 @@ FFWRVideoFrame::xyz()
 	obj_demux.isstop = 0;
 	obj_demux.render_objects.native_window = this->m_hWnd;
 	//this->obj_demux.render_objects.
-	//snprintf(obj_demux.input.name, sizeof(obj_demux.input.name), 
-	//	"%s", "tcp://127.0.0.1:12345");
-	snprintf(obj_demux.input.name, sizeof(obj_demux.input.name), "%s",
-	    "C:/Users/DEll/Desktop/A1-TS_00_d.ts");
+	snprintf(obj_demux.input.name, sizeof(obj_demux.input.name), 
+		"%s", "tcp://127.0.0.1:12345");
+	//snprintf(obj_demux.input.name, sizeof(obj_demux.input.name), "%s",
+	//    "C:/Users/DEll/Desktop/A1-TS_00_d.ts");
 	ffwr_create_demux_objects(&obj_demux);
 }
 
