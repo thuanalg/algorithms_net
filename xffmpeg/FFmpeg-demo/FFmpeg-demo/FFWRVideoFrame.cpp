@@ -96,7 +96,13 @@ void FFWRVideoFrame::OnPaint()
 	    0, 0);
 	ffwr_RenderPresent(obj_demux.render_objects.sdl_render);
 	if (it) {
-		gb_frame->pc += it->total;
+		int isstop = 0;
+		isstop = ffwr_get_stopping(&obj_demux);
+		if (isstop) {
+			gb_tsplanVFrame->pl = gb_tsplanVFrame->pc = 0;
+		} else {
+			gb_frame->pc += it->total;
+		}
 	}
 }
 
@@ -134,6 +140,12 @@ void
 FFWRVideoFrame::xyz()
 {
 	//ffwr_set_stopping(&obj_demux, 0);
+	if (obj_demux.buffer.vbuf) {
+		ffwr_gen_data_st *gb_frame = 0;
+		gb_frame = obj_demux.buffer.vbuf;
+		gb_frame->pc = 0;
+		gb_frame->pl = 0;
+	}
 	obj_demux.isstop = 0;
 	obj_demux.render_objects.native_window = this->m_hWnd;
 	//this->obj_demux.render_objects.
@@ -204,7 +216,7 @@ FFWRVideoFrame::OnFFWRMessage(WPARAM wParam, LPARAM lParam)
 {
 	FFWR_DEMUX_OBJS *p = (FFWR_DEMUX_OBJS *)lParam;
 	if (p && p->input.sz_type.type == FFWR_DEMUX_THREAD_EXIT) {
-		ffwr_destroy_demux_objects(p);
+		//ffwr_destroy_demux_objects(p);
 		
 	}
 	return 0;

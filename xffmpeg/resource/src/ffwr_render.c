@@ -1192,16 +1192,20 @@ ffwr_create_demux_objects(FFWR_DEMUX_OBJS *obj)
 {
 	int ret = 0;
 	do {
-		ret = ffwr_create_sync_buff(obj);
-		if(ret) {
-			spllog(4, "ffwr_create_sync_buff");
-			break;
-		}		
-		ret = ffwr_open_render_sdl_pipe(obj);
-		if(ret) {
-			spllog(4, "ffwr_open_render_sdl_pipe");
-			break;
-		}	
+		if(!obj->buffer.vbuf) {
+			ret = ffwr_create_sync_buff(obj);
+			if(ret) {
+				spllog(4, "ffwr_create_sync_buff");
+				break;
+			}	
+		}
+		if(!obj->render_objects.sdl_window) {
+			ret = ffwr_open_render_sdl_pipe(obj);
+			if(ret) {
+				spllog(4, "ffwr_open_render_sdl_pipe");
+				break;
+			}	
+		}
 		ret = ffwr_create_demux_ext(obj);
 		if (ret) {
 			spllog(4, "ffwr_create_demux_ext");
@@ -1281,7 +1285,7 @@ ffwr_destroy_demux_objects(FFWR_DEMUX_OBJS *obj)
 		ffwr_destroy_mutex(obj->buffer.mtx_abuf);
 		obj->buffer.mtx_abuf = 0;
 		/*-------*/
-		//ffwr_destroy_render_objects(&(obj->render_objects));
+		ffwr_destroy_render_objects(&(obj->render_objects));
 		/*-------*/
 	} while(0);
 	return ret;
