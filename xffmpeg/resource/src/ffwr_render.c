@@ -1193,20 +1193,12 @@ ffwr_create_demux_objects(FFWR_DEMUX_OBJS *obj)
 {
 	int ret = 0;
 	do {
-		if(!obj->buffer.vbuf) {
-			ret = ffwr_create_sync_buff(obj);
-			if(ret) {
-				spllog(4, "ffwr_create_sync_buff");
-				break;
-			}	
-		}
-		if(!obj->render_objects.sdl_window) {
-			ret = ffwr_open_render_sdl_pipe(obj);
-			if(ret) {
-				spllog(4, "ffwr_open_render_sdl_pipe");
-				break;
-			}	
-		}
+		ret = ffwr_init_demux_objects(obj);
+		if(ret) {
+			spllog(4, "ffwr_init_demux_objects");
+			break;
+		}	
+		/*-----*/
 		ret = ffwr_create_demux_thread(obj);
 		if (ret) {
 			spllog(4, "ffwr_create_demux_thread");
