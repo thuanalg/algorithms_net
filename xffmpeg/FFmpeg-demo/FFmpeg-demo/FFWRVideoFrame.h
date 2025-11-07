@@ -23,6 +23,7 @@ public:
 /*---------------------------------*/
 	void xyz();
 	void *get_demux_obj();
+	void stopxyx();
 	
 
 protected:
@@ -35,6 +36,7 @@ protected:
 
     BOOL m_bDragging; //
 	CPoint m_ptStart; //
+    int running;
 
   private:
 	FFWR_DEMUX_OBJS obj_demux;

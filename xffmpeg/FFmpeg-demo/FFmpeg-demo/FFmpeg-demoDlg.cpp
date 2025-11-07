@@ -126,8 +126,10 @@ BOOL CFFmpegdemoDlg::OnInitDialog()
 	);
 	gb_hwnd = m_vframe->m_hWnd;
 	//m_vframe.create_sdlwin();
-
-	m_vframe->xyz();
+	FFWR_DEMUX_OBJS *obj = 0;
+	obj = (FFWR_DEMUX_OBJS *)m_vframe->get_demux_obj();
+	obj->input.cb = demux_callback_gui;
+	//m_vframe->xyz();
 
 	HANDLE hThread;
 	DWORD dwThreadId;
@@ -228,13 +230,15 @@ CFFmpegdemoDlg::OnBnClickedStop()
 	FFWR_DEMUX_OBJS *obj = 0;
 	obj = (FFWR_DEMUX_OBJS *)m_vframe->get_demux_obj();
 	obj->input.cb = demux_callback_gui;
-	ffwr_set_stopping(obj, 1);
+	m_vframe->stopxyx();
 }
 
 void
 CFFmpegdemoDlg::OnBnClickedStart()
 {
 	// TODO: Add your control notification handler code here
-	
+	FFWR_DEMUX_OBJS *obj = 0;
+	obj = (FFWR_DEMUX_OBJS *)m_vframe->get_demux_obj();
+	obj->input.cb = demux_callback_gui;	
 	m_vframe->xyz();
 }

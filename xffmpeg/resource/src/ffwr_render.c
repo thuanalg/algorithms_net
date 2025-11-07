@@ -525,11 +525,14 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 						spllog(1, "pst_shared_vframe->pl: %d", 
 							pst_shared_vframe->pl);
 					} else {
-						spllog(1, "over video range");
+						spllog(1, "over video range, (pl, pc)=(%d, %d)",
+						    pst_shared_vframe->pl,
+						    pst_shared_vframe->pc);
 						*pvwait = vwait = 1;
 					}
 				} while(0);
 				spl_mutex_unlock(vmutex);
+
 				av_frame_unref(tmp);
 				av_frame_unref(pgb_instream->vframe);
 				if(vwait) {
@@ -587,7 +590,8 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 		}
 		/*-----------------*/
 	} while(0);
-	
+
+
 	ffwr_frame_free(&tmp); 
 	ffwr_free(ffwr_vframe);
 	
@@ -670,14 +674,27 @@ int ffwr_get_stopping(FFWR_DEMUX_OBJS *obj) {
     spl_mutex_lock(obj->buffer.mtx_vbuf);
         ret = obj->isstop;
     spl_mutex_unlock(obj->buffer.mtx_vbuf);
+	spllog(3, "---ret: %d", ret);
     return ret;;
 }
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int ffwr_set_stopping(FFWR_DEMUX_OBJS *obj, int v) {
+	int rel = 0;
     spl_mutex_lock(obj->buffer.mtx_vbuf);
-        obj->isstop = v;
-    spl_mutex_unlock(obj->buffer.mtx_vbuf);
+	do {
+	    obj->isstop = v;
+	    if (v) {
+		    if (obj->buffer.vwait) {
+			    rel = 1;
+			    obj->buffer.vwait = 0;
+		    }
+	    }
+    } while (0);
+    spl_mutex_unlock(obj->buffer.mtx_vbuf);	
+	if (rel) {
+	    ffwr_semaphore_post(obj->buffer.sem_vbuf);
+    }
     return 0;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/

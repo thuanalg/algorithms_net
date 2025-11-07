@@ -105,7 +105,7 @@ void FFWRVideoFrame::OnPaint()
 	}
 	//if (!sdl_winrentext.sdl_window) {
 	if (!obj_demux.render_objects.sdl_window) {
-		spllog(4, "sdl_window null");
+		//spllog(4, "sdl_window null");
 		return;
 	}
 
@@ -150,17 +150,15 @@ void FFWRVideoFrame::OnPaint()
 	    p->data + p->pos[2], p->linesize[2]
 
 	);
-	spllog(1, "pc render: %d, pts: %d", gb_frame->pc, p->pts);
+	//spllog(1, "pc render: %d, pts: %d", gb_frame->pc, p->pts);
 	ffwr_RenderClear(obj_demux.render_objects.sdl_render);
 	ffwr_RenderCopy(obj_demux.render_objects.sdl_render, 
 		obj_demux.render_objects.sdl_texture,
 	    0, 0);
 	ffwr_RenderPresent(obj_demux.render_objects.sdl_render);
 	if (it) {
-		int isstop = 0;
-		isstop = ffwr_get_stopping(&obj_demux);
-		if (isstop) {
-			gb_tsplanVFrame->pl = gb_tsplanVFrame->pc = 0;
+		if (!running) {
+			//gb_tsplanVFrame->pl = gb_tsplanVFrame->pc = 0;
 		} else {
 			gb_frame->pc += it->total;
 		}
@@ -179,7 +177,7 @@ FFWRVideoFrame::FFWRVideoFrame()
 		}
 		sdl_init = 1;
 	}
-
+	running = 0;
 	obj_demux.render_objects.w = 640;
 	obj_demux.render_objects.h = 480;
 	obj_demux.render_objects.format = FFWR_PIXELFORMAT_IYUV;
@@ -211,11 +209,20 @@ FFWRVideoFrame::xyz()
 	obj_demux.isstop = 0;
 	obj_demux.render_objects.native_window = this->m_hWnd;
 	//this->obj_demux.render_objects.
-	//snprintf(obj_demux.input.name, sizeof(obj_demux.input.name), 
-	//	"%s", "tcp://127.0.0.1:12345");
+
+	obj_demux.buffer.vbuf->pc = 0;
+	obj_demux.buffer.vbuf->pl = 0;
+	obj_demux.buffer.shared_vbuf->pc = 0;
+	obj_demux.buffer.shared_vbuf->pl = 0;
+#if 1
 	snprintf(obj_demux.input.name, sizeof(obj_demux.input.name), "%s",
-	    "C:/Users/DEll/Desktop/A1-TS_00_d.ts");
+	    "C:/Users/DEll/Desktop/A-TS_00_d.ts");
+#else
+	snprintf(obj_demux.input.name, sizeof(obj_demux.input.name),
+	"%s", "tcp://127.0.0.1:12345");
+#endif
 	ret = ffwr_create_demux_objects(&obj_demux);
+	running = 1;
 }
 
 void
@@ -234,6 +241,12 @@ FFWRVideoFrame::sdl_Init()
 	ffwr_init(FFWRVideoFrame::sdl_flag);
 }
 
+void
+FFWRVideoFrame::stopxyx()
+{
+	running = 0;
+	ffwr_set_stopping(&obj_demux, 1);
+}
 
 
 void *
@@ -248,6 +261,7 @@ FFWRVideoFrame::OnFFWRMessage(WPARAM wParam, LPARAM lParam)
 	FFWR_DEMUX_OBJS *p = (FFWR_DEMUX_OBJS *)lParam;
 	if (p && p->input.sz_type.type == FFWR_DEMUX_THREAD_EXIT) {
 		//ffwr_destroy_demux_objects(p);
+		this->running = 0;
 		
 	}
 	return 0;
