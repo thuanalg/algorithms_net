@@ -216,7 +216,7 @@ FFWRVideoFrame::xyz()
 	obj_demux.buffer.shared_vbuf->pl = 0;
 #if 1
 	snprintf(obj_demux.input.name, sizeof(obj_demux.input.name), "%s",
-	    "C:/Users/DEll/Desktop/A-TS_00_d.ts");
+	    "C:/Users/DEll/Desktop/A1-TS_00_d.ts");
 #else
 	snprintf(obj_demux.input.name, sizeof(obj_demux.input.name),
 	"%s", "tcp://127.0.0.1:12345");
