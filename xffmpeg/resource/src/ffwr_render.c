@@ -1296,10 +1296,17 @@ ffwr_destroy_demux_objects(FFWR_DEMUX_OBJS *obj)
 		ffwr_free(obj->buffer.shared_vbuf);
 		ffwr_free(obj->buffer.abuf);
 		ffwr_free(obj->buffer.shared_abuf);
+		
 		ffwr_destroy_mutex(obj->buffer.mtx_vbuf);
 		obj->buffer.mtx_vbuf = 0;
 		ffwr_destroy_mutex(obj->buffer.mtx_abuf);
 		obj->buffer.mtx_abuf = 0;
+		
+		ffwr_destroy_semaphore(obj->buffer.sem_vbuf);
+		obj->buffer.sem_vbuf = 0;
+		ffwr_destroy_semaphore(obj->buffer.sem_abuf);
+		obj->buffer.sem_abuf = 0;	
+		
 		/*-------*/
 		ffwr_destroy_render_objects(&(obj->render_objects));
 		/*-------*/
@@ -1576,6 +1583,7 @@ ffwr_create_sync_buff(FFWR_DEMUX_OBJS *obj)
 	int ret = 0;
 	FFWR_DEMUX_DATA *p = 0;
 	void *mtx = 0;
+	void *sem = 0;
 	ffwr_gen_data_st *buf = 0;
 	do {
 		if(!obj) {
@@ -1597,6 +1605,21 @@ ffwr_create_sync_buff(FFWR_DEMUX_OBJS *obj)
 			break;
 		}		
 		p->mtx_abuf = mtx;
+		/*-----*/
+		sem = 0;
+		ret = ffwr_create_semaphore(&sem, 0);
+		if(ret) {
+			spllog(4, "ffwr_create_semaphore");
+			break;
+		}
+		p->sem_vbuf = sem;
+		sem = 0;
+		ret = ffwr_create_semaphore(&sem, 0);
+		if(ret) {
+			spllog(4, "ffwr_create_semaphore");
+			break;
+		}
+		p->sem_abuf = sem;
 		/*-----*/
 		buf = 0;
 		ret = ffwr_create_genbuff(&buf, p->vbuf_size);
@@ -1780,8 +1803,22 @@ ffwr_semaphore_post(void *obj)
 	do {
 		if(!obj) {
 			ret = FFWR_SEM_NULL_ERR;
+			spllog(4, "FFWR_SEM_NULL_ERR");
 			break;
 		}
+#ifndef UNIX_LINUX
+		if(obj) {
+			int done = 0;
+			done = ReleaseSemaphore(obj, 1, 0);
+			if(!done) {
+				spllog(4, "GetLastError: %d", 
+					(int)GetLastError());
+				ret = FFWR_SEM_RELEASE_ERR;
+				break;
+			}
+		}
+#else
+#endif		
 	} while(0);
 	return ret;
 }
@@ -1790,6 +1827,26 @@ int
 ffwr_semaphore_wait(void *obj)
 {
 	int ret = 0;
+	do {
+		if(!obj) {
+			ret = FFWR_SEM_NULL_ERR;
+			spllog(4, "FFWR_SEM_NULL_ERR");
+			break;
+		}
+#ifndef UNIX_LINUX
+		if(obj) {
+			int err = 0;
+			err = (int)WaitForSingleObject(obj, INFINITE);
+			if (err != WAIT_OBJECT_0) {
+				spllog(4, "GetLastError: %d", 
+					(int)GetLastError());
+				ret = FFWR_SEM_WAIT_ERR;
+				break;
+			}			
+		}
+#else
+#endif			
+	} while(0);	
 	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
