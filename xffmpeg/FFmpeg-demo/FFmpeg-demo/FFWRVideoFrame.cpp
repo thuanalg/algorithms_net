@@ -11,18 +11,72 @@
 
 BEGIN_MESSAGE_MAP(FFWRVideoFrame, CStatic)
 ON_WM_PAINT()
+ON_WM_LBUTTONDOWN()
+ON_WM_MOUSEMOVE()
+ON_WM_LBUTTONUP()
 ON_MESSAGE(WM_FFWR_MESSAGE, &FFWRVideoFrame::OnFFWRMessage)
 END_MESSAGE_MAP()
 
 void *ref_ffwr_mtx = 0;
+void
+FFWRVideoFrame::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	m_bDragging = TRUE;
+	SetCapture();
+	ClientToScreen(&point);
+	m_ptStart = point;
+	CStatic::OnLButtonDown(nFlags, point);
+}
 
+void
+FFWRVideoFrame::OnMouseMove(UINT nFlags, CPoint point)
+{
+	if (m_bDragging) {
+		ClientToScreen(&point);
+		CPoint delta = point - m_ptStart;
+
+		// get current rect
+		CRect rc;
+		GetWindowRect(&rc);
+
+		// new rect = old rect + delta
+		rc.OffsetRect(delta);
+
+		// convert to parent client coordinates
+		GetParent()->ScreenToClient(&rc);
+
+		MoveWindow(&rc);
+		m_ptStart = point;
+	}
+	CStatic::OnMouseMove(nFlags, point);
+}
+
+void
+FFWRVideoFrame::OnLButtonUp(UINT nFlags, CPoint point)
+{
+	if (m_bDragging) {
+		m_bDragging = FALSE;
+		ReleaseCapture();
+	}
+	CStatic::OnLButtonUp(nFlags, point);
+}
 void FFWRVideoFrame::OnPaint()
 {
 	FFWR_VFrame *p = 0;
 	FFWR_SIZE_TYPE *it = 0;
 	ffwr_gen_data_st *gb_frame = 0;
 	ffwr_gen_data_st *gb_tsplanVFrame = 0;
+#if 0
+	CPaintDC dc(this); 
 
+	CBrush brush(RGB(0, 0, 0)); // màu xanh nhạt
+
+	CRect rect;
+	GetClientRect(&rect);
+
+	dc.FillRect(&rect, &brush);
+	return;
+#endif
 	//gb_frame = ffwr_gb_renderVFrame();
 
 	gb_frame = obj_demux.buffer.vbuf;
@@ -109,8 +163,8 @@ void FFWRVideoFrame::OnPaint()
 FFWRVideoFrame::FFWRVideoFrame()
 {
 	int ret = 0;
+	m_bDragging = 0;
 	memset(&obj_demux, 0, sizeof(obj_demux));
-	sdl_winrentext.sdl_window = 0;
 	if (!sdl_init) {
 		ret = ffwr_init(FFWRVideoFrame::sdl_flag);
 		if (ret) {
@@ -119,17 +173,16 @@ FFWRVideoFrame::FFWRVideoFrame()
 		sdl_init = 1;
 	}
 
-	//sdl_winrentext.sdl_render = 0;
-	//sdl_winrentext.sdl_texture = 0;
-
 	obj_demux.render_objects.w = 640;
 	obj_demux.render_objects.h = 480;
 	obj_demux.render_objects.format = FFWR_PIXELFORMAT_IYUV;
 	obj_demux.render_objects.access = FFWR_TEXTUREACCESS_STREAMING;
 	obj_demux.render_objects.ren_flags = (FFWR_INIT_AUDIO | FFWR_INIT_VIDEO);
-	obj_demux.buffer.vbuf_size = 12000000;
-	obj_demux.buffer.abuf_size = 12000000;
+	obj_demux.buffer.vbuf_size = 10000000;
+	obj_demux.buffer.abuf_size = 6000000;
 	obj_demux.render_objects.native_window = this->m_hWnd;
+
+	ffwr_init_demux_objects(&obj_demux);
 }
 
 FFWRVideoFrame::~FFWRVideoFrame()
@@ -139,7 +192,9 @@ FFWRVideoFrame::~FFWRVideoFrame()
 void
 FFWRVideoFrame::xyz()
 {
-	//ffwr_set_stopping(&obj_demux, 0);
+	int ret = 0;
+	ModifyStyle(0, SS_NOTIFY);
+
 	if (obj_demux.buffer.vbuf) {
 		ffwr_gen_data_st *gb_frame = 0;
 		gb_frame = obj_demux.buffer.vbuf;
@@ -153,7 +208,7 @@ FFWRVideoFrame::xyz()
 		"%s", "tcp://127.0.0.1:12345");
 	//snprintf(obj_demux.input.name, sizeof(obj_demux.input.name), "%s",
 	//    "C:/Users/DEll/Desktop/A1-TS_00_d.ts");
-	ffwr_create_demux_objects(&obj_demux);
+	ret = ffwr_create_demux_objects(&obj_demux);
 }
 
 void
@@ -172,38 +227,7 @@ FFWRVideoFrame::sdl_Init()
 	ffwr_init(FFWRVideoFrame::sdl_flag);
 }
 
-void
-FFWRVideoFrame::create_sdlwin()
-{
-	//int ret = 0;
-	//void *win = 0;
-	//ret = ffwr_CreateWindowFrom(this->m_hWnd, &win);
-	//if (ret) {
-	//	spllog(4, "Error");
-	//	return;
-	//}
-	//sdl_winrentext.sdl_window = win;
-	//if (!sdl_winrentext.sdl_texture) {
-	//	void *render = 0;
-	//	ret = ffwr_CreateRenderer(&render, win, -1, FFWR_RENDERER_ACCELERATED);
-	//	if (ret) {
-	//		spllog(4, "Error");
-	//		return;
-	//	}
-	//	sdl_winrentext.sdl_render = render;
-	//}
-	//if (!sdl_winrentext.sdl_texture) {
-	//	void *texture = 0;
-	//	ret = ffwr_CreateTexture(&texture, sdl_winrentext.sdl_render,
-	//	    FFWR_PIXELFORMAT_IYUV, FFWR_TEXTUREACCESS_STREAMING, 640,
-	//	    480);
-	//	if (ret) {
-	//		spllog(4, "Error");
-	//		return;		
-	//	}
-	//	sdl_winrentext.sdl_texture = texture;
-	//}
-}
+
 
 void *
 FFWRVideoFrame::get_demux_obj()

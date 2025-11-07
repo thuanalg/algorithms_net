@@ -447,11 +447,11 @@ typedef struct {
 } FFWR_INPUT_ST;
 
 typedef struct __FFWR_DEMUX_OBJS__ {
-	int isstop;
-	FFWR_RENDER_OBJECTS render_objects;
-	void *inner_demux;
-	FFWR_DEMUX_DATA buffer;
-	FFWR_INPUT_ST input; /*From UI/User.*/
+	int isstop; 		/*Keep for whole life-cycle.*/
+	FFWR_RENDER_OBJECTS render_objects; /*Keep for whole life-cycle.*/
+	void *inner_demux; /*Must be cleared for each session.*/
+	FFWR_DEMUX_DATA buffer;  /*Keep for whole life-cycle.*/
+	FFWR_INPUT_ST input; /*From UI/User, may be changed for whole life-cycle.*/
 } FFWR_DEMUX_OBJS;
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
@@ -532,6 +532,9 @@ ffwr_semaphore_wait(void *obj);
 
 DLL_API_FFWR_RENDER int 
 ffwr_create_demux_objects(FFWR_DEMUX_OBJS *);
+
+DLL_API_FFWR_RENDER int 
+ffwr_init_demux_objects(FFWR_DEMUX_OBJS *);
 
 DLL_API_FFWR_RENDER int 
 ffwr_destroy_demux_objects(FFWR_DEMUX_OBJS *);

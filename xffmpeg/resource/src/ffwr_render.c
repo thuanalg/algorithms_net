@@ -202,7 +202,7 @@ static int
 ffwr_create_genbuff(ffwr_gen_data_st **obj, int sz) ;
 
 static int
-ffwr_create_demux_ext(void *obj);
+ffwr_create_demux_thread(void *obj);
 
 static int 
 ffwr_create_a_swrContext_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame *dst);
@@ -460,6 +460,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 		{
 			stopping = ffwr_get_stopping(obj);
 			if(stopping) {
+				spllog(3, "ffwr_get_stopping");
 				break;
 			}
 			av_packet_unref(&(pgb_instream->pkt));
@@ -1206,10 +1207,33 @@ ffwr_create_demux_objects(FFWR_DEMUX_OBJS *obj)
 				break;
 			}	
 		}
-		ret = ffwr_create_demux_ext(obj);
+		ret = ffwr_create_demux_thread(obj);
 		if (ret) {
-			spllog(4, "ffwr_create_demux_ext");
+			spllog(4, "ffwr_create_demux_thread");
 			break;
+		}
+	} while(0);
+	return ret;
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int 
+ffwr_init_demux_objects(FFWR_DEMUX_OBJS *obj) 
+{
+	int ret = 0;
+	do {
+		if(!obj->buffer.vbuf) {
+			ret = ffwr_create_sync_buff(obj);
+			if(ret) {
+				spllog(4, "ffwr_create_sync_buff");
+				break;
+			}	
+		}
+		if(!obj->render_objects.sdl_window) {
+			ret = ffwr_open_render_sdl_pipe(obj);
+			if(ret) {
+				spllog(4, "ffwr_open_render_sdl_pipe");
+				break;
+			}	
 		}
 	} while(0);
 	return ret;
@@ -1664,7 +1688,7 @@ int ffwr_create_genbuff(ffwr_gen_data_st **obj, int sz)
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int
-ffwr_create_demux_ext(void *obj)
+ffwr_create_demux_thread(void *obj)
 {
 	int ret = 0;
 #ifndef UNIX_LINUX

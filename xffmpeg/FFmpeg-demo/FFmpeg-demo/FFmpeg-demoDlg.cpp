@@ -122,7 +122,7 @@ BOOL CFFmpegdemoDlg::OnInitDialog()
 	    WS_CHILD | WS_VISIBLE | SS_BLACKFRAME, // style
 	    CRect(0, 0, 640, 480), // 
 	    this, //
-	    1001 // ID control
+	    (1001 + 777)// ID control
 	);
 	gb_hwnd = m_vframe->m_hWnd;
 	//m_vframe.create_sdlwin();
@@ -206,7 +206,7 @@ MyThreadProc(LPVOID lpParam)
 	// Simulate work
 	for (;;) {
 		PostMessage(gb_hwnd, WM_PAINT, 0, 0);
-		Sleep(31); // sleep for 0.5 second
+		Sleep(30); // sleep for 0.5 second
 	}
 
 	return 0;

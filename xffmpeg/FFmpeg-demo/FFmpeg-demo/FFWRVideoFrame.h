@@ -21,21 +21,22 @@ public:
 	static void sdl_Init();
 
 /*---------------------------------*/
-	void create_sdlwin();
 	void xyz();
 	void *get_demux_obj();
 	
 
 protected:
+	DECLARE_MESSAGE_MAP()
 	afx_msg void OnPaint();
 	afx_msg LRESULT OnFFWRMessage(WPARAM wParam, LPARAM lParam);
-	DECLARE_MESSAGE_MAP()
-private:
-	//void *sdl_window;
-	//void *sdl_render;
-	//void *sdl_texture;
-	//void clearSDLWinRenderContext();
-	FFWR_RENDER_OBJECTS sdl_winrentext;
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+
+    BOOL m_bDragging; //
+	CPoint m_ptStart; //
+
+  private:
 	FFWR_DEMUX_OBJS obj_demux;
 	
 };
