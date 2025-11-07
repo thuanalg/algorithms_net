@@ -415,6 +415,12 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 	ffwr_gen_data_st *abuf = 0, *shared_abuf = 0;	
 	void *vmutex = 0;
 	void *amutex = 0;
+	void *vsem = 0;
+	void *asem = 0;
+	int vwait = 0;
+	int await = 0;
+	int *pvwait = 0;
+	int *pawait = 0;
 	do {
 		if(!obj) {
 			ret = FFWR_DEMUX_OBJS_NULL_ERR;
@@ -453,11 +459,17 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 		amutex = obj->buffer.mtx_abuf;
 		abuf = obj->buffer.abuf;
 		shared_abuf = obj->buffer.shared_abuf;
+		vsem = obj->buffer.sem_vbuf;
+		asem = obj->buffer.sem_abuf;
+		
+		pvwait = &(obj->buffer.vwait);
+		pawait = &(obj->buffer.await);
 		/*-----------------*/
 		//ffwr_open_audio_output( 2000000);
 		/*-----------------*/
 		while(1) 
 		{
+			vwait = await = 0;
 			stopping = ffwr_get_stopping(obj);
 			if(stopping) {
 				spllog(3, "ffwr_get_stopping");
@@ -466,7 +478,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 			av_packet_unref(&(pgb_instream->pkt));
 			result = av_read_frame(pgb_instream->fmt_ctx, &(pgb_instream->pkt)); 
 			if(result) {
-				continue;
+				break;
 			}
 			if(pgb_instream->pkt.stream_index == 0) {
 				result = avcodec_send_packet(pgb_instream->v_cctx, &(pgb_instream->pkt));
@@ -505,7 +517,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 				spl_mutex_lock(vmutex);
 				do {
 					if(pst_shared_vframe->range > 
-						pst_shared_vframe->pl + ffwr_vframe->tt_sz.total) {                      
+						pst_shared_vframe->pl + (ffwr_vframe->tt_sz.total << 1)) {                      
 						memcpy(pst_shared_vframe->data + pst_shared_vframe->pl, 
 							ffwr_vframe, 
 							ffwr_vframe->tt_sz.total);
@@ -513,14 +525,17 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 						spllog(1, "pst_shared_vframe->pl: %d", 
 							pst_shared_vframe->pl);
 					} else {
-						pst_shared_vframe->pl = 0;
-						pst_shared_vframe->pc = 0;
+						spllog(1, "over video range");
+						*pvwait = vwait = 1;
 					}
-	
 				} while(0);
 				spl_mutex_unlock(vmutex);
 				av_frame_unref(tmp);
 				av_frame_unref(pgb_instream->vframe);
+				if(vwait) {
+					ffwr_semaphore_wait(vsem);
+					vwait = 0;
+				}
 			}
 			if(pgb_instream->pkt.stream_index == 1) 
 			{
@@ -553,20 +568,21 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
                     shared_abuf->pl += 
                         pgb_instream->a_dstframe->linesize[0];
                 } else {
-                    shared_abuf->pl = 0;
-                    shared_abuf->pc = 0;
+					//await = 1;
                     spllog(1, "over audio range");
+					shared_abuf->pc = 0;
+					shared_abuf->pl = 0;
                 }
-                spllog(1, "(pl, pc, range)=(%d, %d, %d)", 
-                    shared_abuf->pl, 
-                    shared_abuf->pc, 
-                    shared_abuf->range);
             } while(0);
             spl_mutex_unlock(amutex);
 #endif							
 				spl_vframe(pgb_instream->a_dstframe);
 				av_frame_unref(pgb_instream->a_dstframe); 
-				av_frame_unref(pgb_instream->a_frame);   				
+				av_frame_unref(pgb_instream->a_frame);   
+				if(await) {
+					ffwr_semaphore_wait(asem);
+					await = 0;
+				}
 			}
 		}
 		/*-----------------*/

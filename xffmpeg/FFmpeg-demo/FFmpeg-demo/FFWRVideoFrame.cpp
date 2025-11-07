@@ -66,6 +66,8 @@ void FFWRVideoFrame::OnPaint()
 	FFWR_SIZE_TYPE *it = 0;
 	ffwr_gen_data_st *gb_frame = 0;
 	ffwr_gen_data_st *gb_tsplanVFrame = 0;
+	int *pvwait = 0;
+	int vwait = 0;
 #if 0
 	CPaintDC dc(this); 
 
@@ -84,7 +86,7 @@ void FFWRVideoFrame::OnPaint()
 		spllog(1, "gb_frame null");
 		return;
 	}
-
+	pvwait = &(obj_demux.buffer.vwait);
 	//gb_tsplanVFrame = ffwr_gb_shared_vframe();	
 	gb_tsplanVFrame = obj_demux.buffer.shared_vbuf;
 	if (!gb_tsplanVFrame) {
@@ -121,6 +123,8 @@ void FFWRVideoFrame::OnPaint()
 	if (gb_frame->pl < 1) {
 		spl_mutex_lock(ref_ffwr_mtx);
 		do {
+			vwait = *pvwait;
+			*pvwait = 0;
 			memcpy(gb_frame->data + gb_frame->pl,
 			    gb_tsplanVFrame->data + gb_tsplanVFrame->pc,
 			    gb_tsplanVFrame->pl - gb_tsplanVFrame->pc);
@@ -130,6 +134,9 @@ void FFWRVideoFrame::OnPaint()
 			gb_tsplanVFrame->pl = gb_tsplanVFrame->pc = 0;
 		} while (0);
 		spl_mutex_unlock(ref_ffwr_mtx);
+		if (vwait) {
+			ffwr_semaphore_post(obj_demux.buffer.sem_vbuf);
+		}
 	}
 	if (gb_frame->pl <= gb_frame->pc) {
 		gb_frame->pl = gb_frame->pc = 0;
@@ -204,10 +211,10 @@ FFWRVideoFrame::xyz()
 	obj_demux.isstop = 0;
 	obj_demux.render_objects.native_window = this->m_hWnd;
 	//this->obj_demux.render_objects.
-	snprintf(obj_demux.input.name, sizeof(obj_demux.input.name), 
-		"%s", "tcp://127.0.0.1:12345");
-	//snprintf(obj_demux.input.name, sizeof(obj_demux.input.name), "%s",
-	//    "C:/Users/DEll/Desktop/A1-TS_00_d.ts");
+	//snprintf(obj_demux.input.name, sizeof(obj_demux.input.name), 
+	//	"%s", "tcp://127.0.0.1:12345");
+	snprintf(obj_demux.input.name, sizeof(obj_demux.input.name), "%s",
+	    "C:/Users/DEll/Desktop/A1-TS_00_d.ts");
 	ret = ffwr_create_demux_objects(&obj_demux);
 }
 
