@@ -62,7 +62,6 @@ demux_callback_gui(void *obj)
 	return 0;
 }
 
-HWND gb_hwnd;
 
 CFFmpegdemoDlg::CFFmpegdemoDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_FFMPEGDEMO_DIALOG, pParent)
@@ -117,21 +116,8 @@ BOOL CFFmpegdemoDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	// TODO: Add extra initialization here
-	m_vframe = new FFWRVideoFrame();
-	m_listFrame.push_back(m_vframe);
-	m_vframe->Create(_T("MFCCstatic"), // 
-	    WS_CHILD | WS_VISIBLE | SS_BLACKFRAME, // style
-	    CRect(0, 0, 640, 480), // 
-	    this, //
-	    (1001 + 777)// ID control
-	);
-	gb_hwnd = m_vframe->m_hWnd;
-	//m_vframe.create_sdlwin();
-	FFWR_DEMUX_OBJS *obj = 0;
-	obj = (FFWR_DEMUX_OBJS *)m_vframe->get_demux_obj();
-	obj->input.cb = demux_callback_gui;
-	//m_vframe->xyz();
+
+	addVideoFrame(4);
 
 	HANDLE hThread;
 	DWORD dwThreadId;
@@ -150,6 +136,28 @@ BOOL CFFmpegdemoDlg::OnInitDialog()
 	//mfcinfo.cb = demux_callback_gui;
 	//ffwr_create_demux(&mfcinfo);
 	return TRUE;  // return TRUE  unless you set the focus to a control
+}
+
+void
+CFFmpegdemoDlg::addVideoFrame(int n)
+{
+	int i = 0;
+	for (i = 0; i < n; ++i) {
+		FFWRVideoFrame *m_vframe;
+
+		CRect rect(640 * i, 0, 640 * (i + 1), 480); 
+		m_vframe = new FFWRVideoFrame();
+		m_listFrame.push_back(m_vframe);
+		m_vframe->Create(_T("MFCCstatic"), //
+		    WS_CHILD | WS_VISIBLE | SS_BLACKFRAME, // style
+		    rect, //
+		    this, //
+		    (1001 + 777 + i) // ID control
+		);
+		FFWR_DEMUX_OBJS *obj = 0;
+		obj = (FFWR_DEMUX_OBJS *)m_vframe->get_demux_obj();
+		obj->input.cb = demux_callback_gui;
+	}
 }
 
 void CFFmpegdemoDlg::OnSysCommand(UINT nID, LPARAM lParam)
@@ -224,6 +232,7 @@ void
 CFFmpegdemoDlg::OnBnClickedCancel()
 {
 	// TODO: Add your control notification handler code here
+	
 	CDialogEx::OnCancel();
 	//ffwr_set_running(0);
 }
@@ -232,19 +241,37 @@ void
 CFFmpegdemoDlg::OnBnClickedStop()
 {
 	// TODO: Add your control notification handler code here
-	//ffwr_set_stopping(m_vframe., 1);
 	FFWR_DEMUX_OBJS *obj = 0;
-	obj = (FFWR_DEMUX_OBJS *)m_vframe->get_demux_obj();
-	obj->input.cb = demux_callback_gui;
-	m_vframe->stopxyx();
+	for (int i = 0; i < this->m_listFrame.size(); ++i) {
+		obj = (FFWR_DEMUX_OBJS *)m_listFrame[i]->get_demux_obj();
+		obj->input.cb = demux_callback_gui;
+		m_listFrame[i]->stopxyx();
+	}
 }
+const char *ghgdhsg[] = {
+	"tcp://127.0.0.1:12345",
+	"C:/Users/DEll/Desktop/A1-TS_00_d.ts",
+	"C:/Users/DEll/Desktop/A1-TS_00_d.ts",
+	"C:/Users/DEll/Desktop/A1-TS_00_d.ts",
+	"C:/Users/DEll/Desktop/A1-TS_00_d.ts",
 
-void
-CFFmpegdemoDlg::OnBnClickedStart()
+};
+
+void CFFmpegdemoDlg::OnBnClickedStart()
 {
 	// TODO: Add your control notification handler code here
 	FFWR_DEMUX_OBJS *obj = 0;
-	obj = (FFWR_DEMUX_OBJS *)m_vframe->get_demux_obj();
-	obj->input.cb = demux_callback_gui;	
-	m_vframe->xyz();
+	for (int i = 0; i < this->m_listFrame.size(); ++i) {
+		obj = (FFWR_DEMUX_OBJS *)m_listFrame[i]->get_demux_obj();
+		obj->input.cb = demux_callback_gui;
+#if 1
+		snprintf(
+		    obj->input.name, sizeof(obj->input.name), "%s", 
+			ghgdhsg[i]);
+#else
+		snprintf(obj_demux.input.name, sizeof(obj_demux.input.name),
+		    "%s", "tcp://127.0.0.1:12345");
+#endif
+		m_listFrame[i]->xyz();
+	}
 }

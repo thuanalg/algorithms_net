@@ -212,13 +212,7 @@ FFWRVideoFrame::xyz()
 	obj_demux.buffer.vbuf->pl = 0;
 	obj_demux.buffer.shared_vbuf->pc = 0;
 	obj_demux.buffer.shared_vbuf->pl = 0;
-#if 1
-	snprintf(obj_demux.input.name, sizeof(obj_demux.input.name), "%s",
-	    "C:/Users/DEll/Desktop/A1-TS_00_d.ts");
-#else
-	snprintf(obj_demux.input.name, sizeof(obj_demux.input.name),
-	"%s", "tcp://127.0.0.1:12345");
-#endif
+
 	ret = ffwr_create_demux_objects(&obj_demux);
 	running = 1;
 }
