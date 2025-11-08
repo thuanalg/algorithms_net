@@ -252,7 +252,7 @@ const char *ghgdhsg[] = {
 	"tcp://127.0.0.1:12345",
 	"C:/Users/DEll/Desktop/A1-TS_00_d.ts",
 	"C:/Users/DEll/Desktop/A1-TS_00_d.ts",
-	"C:/Users/DEll/Desktop/A1-TS_00_d.ts",
+	"C:/Users/DEll/Desktop/A2-TS_00_d.ts",
 	"C:/Users/DEll/Desktop/A1-TS_00_d.ts",
 
 };
