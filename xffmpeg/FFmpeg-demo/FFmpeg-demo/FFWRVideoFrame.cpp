@@ -120,7 +120,7 @@ void FFWRVideoFrame::OnPaint()
 		return;
 	}
 	//spllog(1, "window, sdl_render, sdl_texture");
-	if (gb_frame->pl < 1) {
+	if (gb_frame->pl < 1 && running) {
 		spl_mutex_lock(ref_ffwr_mtx);
 		do {
 			vwait = *pvwait;
@@ -157,9 +157,7 @@ void FFWRVideoFrame::OnPaint()
 	    0, 0);
 	ffwr_RenderPresent(obj_demux.render_objects.sdl_render);
 	if (it) {
-		if (!running) {
-			//gb_tsplanVFrame->pl = gb_tsplanVFrame->pc = 0;
-		} else {
+		if (running) {
 			gb_frame->pc += it->total;
 		}
 	}
@@ -245,6 +243,7 @@ void
 FFWRVideoFrame::stopxyx()
 {
 	running = 0;
+	spllog(3, "ffwr_get_stopping    stop-instream");
 	ffwr_set_stopping(&obj_demux, 1);
 }
 

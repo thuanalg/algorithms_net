@@ -89,6 +89,7 @@ BEGIN_MESSAGE_MAP(CFFmpegdemoDlg, CDialogEx)
 FFWR_INPUT_ST mfcinfo;
 BOOL CFFmpegdemoDlg::OnInitDialog()
 {
+	m_listFrame.clear();
 	CDialogEx::OnInitDialog();
 
 	// Add "About..." menu item to system menu.
@@ -118,6 +119,7 @@ BOOL CFFmpegdemoDlg::OnInitDialog()
 
 	// TODO: Add extra initialization here
 	m_vframe = new FFWRVideoFrame();
+	m_listFrame.push_back(m_vframe);
 	m_vframe->Create(_T("MFCCstatic"), // 
 	    WS_CHILD | WS_VISIBLE | SS_BLACKFRAME, // style
 	    CRect(0, 0, 640, 480), // 
@@ -137,7 +139,7 @@ BOOL CFFmpegdemoDlg::OnInitDialog()
 	hThread = CreateThread(NULL, // security attributes
 	    0, 
 	    MyThreadProc, // thread function
-	    "HelloThread",
+	    this,
 	    0, // 
 	    &dwThreadId // 
 	);
@@ -204,10 +206,14 @@ DWORD WINAPI
 MyThreadProc(LPVOID lpParam)
 {
 	spllog(1, "Thread started! Param = %s\n", (char *)lpParam);
-
-	// Simulate work
+	CFFmpegdemoDlg *p = (CFFmpegdemoDlg *)lpParam;
+	HWND tmp = 0;
 	for (;;) {
-		PostMessage(gb_hwnd, WM_PAINT, 0, 0);
+		for (int i = 0; i < p->m_listFrame.size(); ++i) {
+			tmp = p->m_listFrame[i]->m_hWnd;
+			PostMessage(tmp, WM_PAINT, 0, 0);
+		}
+		
 		Sleep(30); // sleep for 0.5 second
 	}
 

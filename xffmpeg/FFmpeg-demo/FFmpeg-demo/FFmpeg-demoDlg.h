@@ -4,6 +4,11 @@
 
 #pragma once
 #include "FFWRVideoFrame.h"
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <vector>
+using namespace std;
 
 // CFFmpegdemoDlg dialog
 class CFFmpegdemoDlg : public CDialogEx
@@ -11,7 +16,7 @@ class CFFmpegdemoDlg : public CDialogEx
 // Construction
 public:
 	CFFmpegdemoDlg(CWnd* pParent = nullptr);	// standard constructor
-
+	
 // Dialog Data
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_FFMPEGDEMO_DIALOG };
@@ -20,8 +25,8 @@ public:
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
 
-
-// Implementation
+	
+	// Implementation
 protected:
 	HICON m_hIcon;
 
@@ -34,9 +39,11 @@ protected:
 
 private:
 	FFWRVideoFrame *m_vframe;
+	
 
 public:
-  afx_msg void OnBnClickedCancel();
-  afx_msg void OnBnClickedStop();
-  afx_msg void OnBnClickedStart();
+	afx_msg void OnBnClickedCancel();
+	afx_msg void OnBnClickedStop();
+	afx_msg void OnBnClickedStart();
+	std::vector<FFWRVideoFrame *> m_listFrame;
 };

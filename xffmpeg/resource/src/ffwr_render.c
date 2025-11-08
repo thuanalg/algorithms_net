@@ -472,7 +472,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 			vwait = await = 0;
 			stopping = ffwr_get_stopping(obj);
 			if(stopping) {
-				spllog(3, "ffwr_get_stopping");
+				spllog(3, "ffwr_get_stopping    stop-instream");
 				break;
 			}
 			av_packet_unref(&(pgb_instream->pkt));
