@@ -10,6 +10,8 @@
 #include <gdk/gdkwayland.h> // Wayland macros
 #include <simplelog.h>
 
+GtkWidget* create_textview_fixed(const gchar *initial_text, gint width, gint height);
+
 int main(int argc, char *argv[]) {
     int ret = 0;
     char cfgpath[1024] = {0};
@@ -27,11 +29,10 @@ int main(int argc, char *argv[]) {
 
     GdkDisplay *display = gdk_display_get_default();
     if (!display) {
-       spllog(1, "No display found.\n");
+        spllog(1, "No display found.\n");
         return 1;
     }
 
-    // Detect backend using GTK 3 macros
 #ifdef GDK_WINDOWING_X11
     if (GDK_IS_X11_DISPLAY(display)) {
         spllog(1, "GTK is running on X11\n");
@@ -44,9 +45,58 @@ int main(int argc, char *argv[]) {
     }
 #endif
 
+    // Tạo cửa sổ chính
+    GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title(GTK_WINDOW(window), "GTK Two TextViews Example");
+    gtk_window_set_default_size(GTK_WINDOW(window), 1200, 480);
+    g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+
+    // Dùng GtkFixed để đặt vị trí tuyệt đối
+    GtkWidget *fixed = gtk_fixed_new();
+    gtk_container_add(GTK_CONTAINER(window), fixed);
+
+    // Tạo 2 TextView cố định, mỗi cái 600x480
+    GtkWidget *textview1 = create_textview_fixed(
+        "TextView 1: Nội dung hiển thị tĩnh giống CStatic.",
+        600, 480
+    );
+
+    GtkWidget *textview2 = create_textview_fixed(
+        "TextView 2: Nội dung TextView thứ 2.",
+        600, 480
+    );
+
+    // Đặt vị trí tuyệt đối
+    gtk_fixed_put(GTK_FIXED(fixed), textview1, 0, 0);     // TextView 1 bên trái
+    gtk_fixed_put(GTK_FIXED(fixed), textview2, 600 + 10, 0);   // TextView 2 bên phải
+
+    gtk_widget_show_all(window);
+    gtk_main();
+
     spllog(1, "testtt");
     ret = spl_finish_log();
     return 0;
+}
+
+// Hàm tạo TextView cố định
+GtkWidget* create_textview_fixed(const gchar *initial_text, gint width, gint height) {
+    GtkWidget *scrolled_window = gtk_scrolled_window_new(NULL, NULL);
+    gtk_widget_set_size_request(scrolled_window, width, height);
+
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
+                                   GTK_POLICY_AUTOMATIC,
+                                   GTK_POLICY_AUTOMATIC);
+
+    GtkWidget *textview = gtk_text_view_new();
+    gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(textview), GTK_WRAP_WORD);
+    gtk_text_view_set_editable(GTK_TEXT_VIEW(textview), FALSE); // giống CStatic
+    gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(textview), FALSE);
+
+    GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview));
+    gtk_text_buffer_set_text(buffer, initial_text, -1);
+
+    gtk_container_add(GTK_CONTAINER(scrolled_window), textview);
+    return scrolled_window;
 }
 
 
