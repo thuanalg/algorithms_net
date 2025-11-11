@@ -6,11 +6,49 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <gtk/gtk.h>
+#include <gdk/gdkx.h>       // X11 macros
+#include <gdk/gdkwayland.h> // Wayland macros
 #include <simplelog.h>
 
 int main(int argc, char *argv[]) {
+    int ret = 0;
+    char cfgpath[1024] = {0};
+    SPL_INPUT_ARG input = {0};
+
+    snprintf(cfgpath, 1024, "z.cfg");
+    snprintf(input.folder, SPL_PATH_FOLDER, "%s", cfgpath);
+    snprintf(input.id_name, 100, "vk_window");
+    ret = spl_init_log_ext(&input);
+    if (ret) {
+        exit(1);
+    }
+
+    gtk_init(&argc, &argv);
+
+    GdkDisplay *display = gdk_display_get_default();
+    if (!display) {
+       spllog(1, "No display found.\n");
+        return 1;
+    }
+
+    // Detect backend using GTK 3 macros
+#ifdef GDK_WINDOWING_X11
+    if (GDK_IS_X11_DISPLAY(display)) {
+        spllog(1, "GTK is running on X11\n");
+    }
+#endif
+
+#ifdef GDK_WINDOWING_WAYLAND
+    if (GDK_IS_WAYLAND_DISPLAY(display)) {
+        spllog(1, "GTK is running on Wayland\n");
+    }
+#endif
+
+    spllog(1, "testtt");
+    ret = spl_finish_log();
     return 0;
 }
+
 
 #if 0
 #include <gtk/gtk.h>
@@ -52,5 +90,9 @@ int main(int argc, char *argv[]) {
 
     gtk_main();
 }
-
+/* 
+✅ Works in both X11 and Wayland.
+✅ Similar to PostMessage(hwnd, WM_USER, …) — posts asynchronously to the main loop.
+⚠️ Limited to your process; can’t target another app’s window.
+*/
 #endif
