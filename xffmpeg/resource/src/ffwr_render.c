@@ -1,11 +1,6 @@
-#include <simplelog.h>
 #include <ffwr_render.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_syswm.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_syswm.h>
 #include <stdio.h>
-#include <simplelog.h>
+#include <SDL2/SDL.h>
 #include <libavutil/avassert.h>
 #include <libavutil/channel_layout.h>
 #include <libavutil/opt.h>
@@ -20,8 +15,12 @@
 #include <libavformat/avformat.h>
 
 #ifndef UNIX_LINUX
+	#include <SDL2/SDL_syswm.h>
 	#include <windows.h>
 #else
+	#include <pthread.h>
+	#include <SDL2/SDL_mixer.h>
+	#include <SDL2/SDL_video.h>
 #endif
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
@@ -147,6 +146,8 @@ typedef struct __FFWR_INSTREAM__ {
 static DWORD WINAPI 
 ffwr_demux_routine(LPVOID lpParam);
 #else	
+static void *
+ffwr_demux_routine(void *obj);
 #endif
 
 static int 
@@ -179,7 +180,7 @@ static int
 ffwr_init_gen_buff(ffwr_gen_data_st *obj, int sz);
 
 static void 
-ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len);
+ffwr_open_audio_output_cb(void *user, unsigned char * stream, int len);
 
 static int 
 ffwr_clode_audio_output();
@@ -606,6 +607,28 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 }
 
 #else
+void *ffwr_demux_routine(void *lpParam)
+{
+	int ret = 0, result = 0;
+	FFWR_DEMUX_OBJS *obj = 0;
+	obj = (FFWR_DEMUX_OBJS *) lpParam;
+    AVFrame *tmp = 0;
+    FFWR_VFrame *ffwr_vframe = 0;
+    int stopping = 0;
+	FFWR_INPUT_ST *info = 0;
+	FFWR_INSTREAM *pgb_instream = 0;
+	ffwr_gen_data_st *pst_renderVFrame = 0, *pst_shared_vframe = 0;	
+	ffwr_gen_data_st *abuf = 0, *shared_abuf = 0;	
+	void *vmutex = 0;
+	void *amutex = 0;
+	void *vsem = 0;
+	void *asem = 0;
+	int vwait = 0;
+	int await = 0;
+	int *pvwait = 0;
+	int *pawait = 0;	
+	return 0;
+}
 #endif
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int
@@ -1081,7 +1104,7 @@ int ffwr_init_gen_buff(ffwr_gen_data_st *obj, int sz)
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
-void ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len)
+void ffwr_open_audio_output_cb(void *user, unsigned char * stream, int len)
 {
     ffwr_gen_data_st *obj = 0;
 	FFWR_DEMUX_OBJS *demux = 0;

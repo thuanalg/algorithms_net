@@ -30,16 +30,49 @@ void trigger_custom_event(GtkWidget *widget) {
 
 // Callback khi nhận custom_event
 void on_custom_event(GtkWidget *widget, CustomEventData *data, gpointer user_data) {
-    spllog(1, ">>> [on_custom_event] Custom data: %d\n", data->custom_data);
+    spllog(1, ">>> [on_custom_event] Custom data: %d, datadata 0x%p\n", 
+        data->custom_data, data);
 }
 
 // Hàm phát tín hiệu
 gboolean emit_event_later(gpointer widget) {
     CustomEventData data = { .custom_data = 100 };
+    spllog(1, "datadata 0x%p", &data);
     g_signal_emit_by_name(widget, MY_CUSTOM_EVENT_NAME, &data);
     return FALSE; // chỉ chạy 1 lần
 }
 
+int on_send_gui_widget(GtkWidget *widget, void *data) {
+    spllog(1, "(widget, data)=(0x%p, 0x%p)", widget, data);
+    return 0;
+}
+static void on_drag_data_received(GtkWidget *widget, GdkDragContext *context, int x, int y,
+                                  GtkSelectionData *data, unsigned int info, unsigned int time, gpointer user_data)
+{
+    spllog(1, ">>> Drag data received at position (%d, %d)\n", x, y);
+    const gchar *text = (const gchar *)gtk_selection_data_get_data(data);
+    GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(widget));
+    GtkTextIter end_iter;
+
+    gtk_text_buffer_get_end_iter(buffer, &end_iter);
+    gtk_text_buffer_insert(buffer, &end_iter, text, -1);
+}
+// Hàm bắt đầu kéo dữ liệu
+static gboolean on_drag_begin(GtkWidget *widget, GdkDragContext *context, gpointer user_data) {
+    spllog(1, "Drag begin!\n");
+    return FALSE;
+}
+
+// Hàm khi kéo thả dữ liệu vào một widget
+static gboolean on_drag_motion(GtkWidget *widget, GdkDragContext *context, int x, int y, guint time, gpointer user_data) {
+    spllog(1, "Dragging over %d, %d\n", x, y);
+    return TRUE;
+}
+
+// Hàm xử lý khi thả
+static void on_drag_drop(GtkWidget *widget, GdkDragContext *context, int x, int y, guint time, gpointer user_data) {
+    spllog(1, "Drop event at %d, %d\n", x, y);
+}
 GtkWidget *textview1 = 0;
 GtkWidget *textview2 = 0;
 
@@ -98,18 +131,28 @@ int main(int argc, char *argv[]) {
     gtk_fixed_put(GTK_FIXED(fixed), textview1, 0, 0);     // TextView 1 bên trái
     gtk_widget_set_has_window(textview1, TRUE);
     g_signal_connect(textview1, "realize", G_CALLBACK(on_realize), NULL);
-    g_signal_connect(textview1, MY_CUSTOM_EVENT_NAME, G_CALLBACK(on_custom_event), NULL);
+    //g_signal_connect(textview1, MY_CUSTOM_EVENT_NAME, G_CALLBACK(on_custom_event), NULL);
+    gtk_drag_dest_set(textview1, GTK_DEST_DEFAULT_ALL, NULL, 0, GDK_ACTION_COPY);
+    g_signal_connect(textview1, "drag_data_received", G_CALLBACK(on_drag_data_received), NULL);
+    g_signal_connect(textview1, "drag_motion", G_CALLBACK(on_drag_motion), NULL);
+    g_signal_connect(textview1, "drag_drop", G_CALLBACK(on_drag_drop), NULL);
+    g_signal_connect(textview1, "drag_begin", G_CALLBACK(on_drag_begin), NULL);
 
     gtk_fixed_put(GTK_FIXED(fixed), textview2, 600 + 10, 0);   // TextView 2 bên phải
     gtk_widget_set_has_window(textview2, TRUE);
-    g_signal_connect(textview2, "realize", G_CALLBACK(on_realize), NULL);
-    g_signal_connect(textview2, MY_CUSTOM_EVENT_NAME, G_CALLBACK(on_custom_event), NULL);
+    //g_signal_connect(textview2, "realize", G_CALLBACK(on_realize), NULL);
+    //g_signal_connect(textview2, MY_CUSTOM_EVENT_NAME, G_CALLBACK(on_custom_event), NULL);
+    gtk_drag_dest_set(textview2, GTK_DEST_DEFAULT_ALL, NULL, 0, GDK_ACTION_COPY);
+    g_signal_connect(textview2, "drag_data_received", G_CALLBACK(on_drag_data_received), NULL);
+    g_signal_connect(textview2, "drag_motion", G_CALLBACK(on_drag_motion), NULL);
+    g_signal_connect(textview2, "drag_drop", G_CALLBACK(on_drag_drop), NULL);
+    g_signal_connect(textview2, "drag_begin", G_CALLBACK(on_drag_begin), NULL);
 
     gtk_widget_show_all(window);
 
     // Tạo một thread để gửi tín hiệu sau mỗi 1 giây
     pthread_t threadid = 0;
-    pthread_create(&threadid, 0, gtk_sendmessage, 0);
+    //pthread_create(&threadid, 0, gtk_sendmessage, 0);
 
     gtk_main();
     spllog(1, "testtt");
@@ -137,14 +180,19 @@ GtkWidget* create_textview_fixed(const gchar *initial_text, gint width, gint hei
 
     return textview; // Trả luôn TextView, không phải ScrolledWindow
 }
-
+gboolean trigger_custom_event_in_gui_thread(void *widget) {
+    // Gửi event đến GUI thread
+    spllog(1, "(widget)=(0x%p)", widget);
+    return FALSE; // Chạy 1 lần
+}
 void *gtk_sendmessage(void *obj) {
     while(1) {
-        spllog(1, "--");
         spl_milli_sleep(500);
-        emit_event_later(textview1);
+        spllog(1, "================(widget)=(0x%p)", textview1);
+        g_idle_add((GSourceFunc)trigger_custom_event_in_gui_thread, textview1);
         spl_milli_sleep(500);
-        emit_event_later(textview2);
+        spllog(1, "================(widget)=(0x%p)", textview2);
+        g_idle_add((GSourceFunc)trigger_custom_event_in_gui_thread, textview2);
     }
     return 0;
 }
