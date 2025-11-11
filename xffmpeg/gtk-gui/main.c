@@ -1,6 +1,7 @@
 #if 1
     #ifndef UNIX_LINUX
         #define UNIX_LINUX
+        #define GDK_WINDOWING_WAYLAND
     #endif
 #endif
 #include <stdio.h>
@@ -11,14 +12,45 @@
 #include <simplelog.h>
 
 GtkWidget* create_textview_fixed(const gchar *initial_text, gint width, gint height);
+void *gtk_sendmessage(void *obj);
+void on_realize(GtkWidget *widget, gpointer data);
+// Tạo tín hiệu mới "custom_event"
+#define MY_CUSTOM_EVENT_NAME        "custom_event"
+
+static guint custom_event_signal = 0;
+
+typedef struct _CustomEventData {
+    int custom_data;
+} CustomEventData;
+
+void trigger_custom_event(GtkWidget *widget) {
+    CustomEventData data = { .custom_data = 42 };
+    g_signal_emit_by_name(widget, "custom_event", &data);
+}
+
+// Callback khi nhận custom_event
+void on_custom_event(GtkWidget *widget, CustomEventData *data, gpointer user_data) {
+    spllog(1, ">>> [on_custom_event] Custom data: %d\n", data->custom_data);
+}
+
+// Hàm phát tín hiệu
+gboolean emit_event_later(gpointer widget) {
+    CustomEventData data = { .custom_data = 100 };
+    g_signal_emit_by_name(widget, MY_CUSTOM_EVENT_NAME, &data);
+    return FALSE; // chỉ chạy 1 lần
+}
+
+GtkWidget *textview1 = 0;
+GtkWidget *textview2 = 0;
 
 int main(int argc, char *argv[]) {
     int ret = 0;
+    GdkWindow *gdk_window = 0;
     char cfgpath[1024] = {0};
     SPL_INPUT_ARG input = {0};
 
     snprintf(cfgpath, 1024, "z.cfg");
-    snprintf(input.folder, SPL_PATH_FOLDER, "%s", cfgpath);
+    snprintf(input.folder, sizeof(input.folder), "%s", cfgpath);
     snprintf(input.id_name, 100, "vk_window");
     ret = spl_init_log_ext(&input);
     if (ret) {
@@ -33,17 +65,13 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-#ifdef GDK_WINDOWING_X11
-    if (GDK_IS_X11_DISPLAY(display)) {
-        spllog(1, "GTK is running on X11\n");
-    }
-#endif
-
-#ifdef GDK_WINDOWING_WAYLAND
-    if (GDK_IS_WAYLAND_DISPLAY(display)) {
-        spllog(1, "GTK is running on Wayland\n");
-    }
-#endif
+    // Đăng ký tín hiệu custom cho tất cả widget GtkTextView
+    custom_event_signal = g_signal_new(
+        MY_CUSTOM_EVENT_NAME,
+        GTK_TYPE_TEXT_VIEW,   // dùng hẳn macro type của GtkTextView
+        G_SIGNAL_RUN_LAST,
+        0, NULL, NULL, g_cclosure_marshal_VOID__POINTER,
+        G_TYPE_NONE, 1, G_TYPE_POINTER);  // Sử dụng G_TYPE_POINTER để truyền kiểu CustomEventData
 
     // Tạo cửa sổ chính
     GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -56,48 +84,88 @@ int main(int argc, char *argv[]) {
     gtk_container_add(GTK_CONTAINER(window), fixed);
 
     // Tạo 2 TextView cố định, mỗi cái 600x480
-    GtkWidget *textview1 = create_textview_fixed(
+    textview1 = create_textview_fixed(
         "TextView 1: Nội dung hiển thị tĩnh giống CStatic.",
         600, 480
     );
 
-    GtkWidget *textview2 = create_textview_fixed(
+    textview2 = create_textview_fixed(
         "TextView 2: Nội dung TextView thứ 2.",
         600, 480
     );
 
     // Đặt vị trí tuyệt đối
     gtk_fixed_put(GTK_FIXED(fixed), textview1, 0, 0);     // TextView 1 bên trái
+    gtk_widget_set_has_window(textview1, TRUE);
+    g_signal_connect(textview1, "realize", G_CALLBACK(on_realize), NULL);
+    g_signal_connect(textview1, MY_CUSTOM_EVENT_NAME, G_CALLBACK(on_custom_event), NULL);
+
     gtk_fixed_put(GTK_FIXED(fixed), textview2, 600 + 10, 0);   // TextView 2 bên phải
+    gtk_widget_set_has_window(textview2, TRUE);
+    g_signal_connect(textview2, "realize", G_CALLBACK(on_realize), NULL);
+    g_signal_connect(textview2, MY_CUSTOM_EVENT_NAME, G_CALLBACK(on_custom_event), NULL);
 
     gtk_widget_show_all(window);
-    gtk_main();
 
+    // Tạo một thread để gửi tín hiệu sau mỗi 1 giây
+    pthread_t threadid = 0;
+    pthread_create(&threadid, 0, gtk_sendmessage, 0);
+
+    gtk_main();
     spllog(1, "testtt");
     ret = spl_finish_log();
     return 0;
 }
 
-// Hàm tạo TextView cố định
-GtkWidget* create_textview_fixed(const gchar *initial_text, gint width, gint height) {
-    GtkWidget *scrolled_window = gtk_scrolled_window_new(NULL, NULL);
-    gtk_widget_set_size_request(scrolled_window, width, height);
-
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
-                                   GTK_POLICY_AUTOMATIC,
-                                   GTK_POLICY_AUTOMATIC);
-
+GtkWidget* create_textview_fixed(const gchar *initial_text, gint width, gint height)
+{
+    // Tạo TextView
     GtkWidget *textview = gtk_text_view_new();
     gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(textview), GTK_WRAP_WORD);
     gtk_text_view_set_editable(GTK_TEXT_VIEW(textview), FALSE); // giống CStatic
     gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(textview), FALSE);
 
+    // Set kích thước cố định
+    gtk_widget_set_size_request(textview, width, height);
+
+    // Thiết lập GdkWindow riêng (nếu cần)
+    gtk_widget_set_has_window(textview, TRUE);
+
+    // Ghi nội dung vào buffer
     GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview));
     gtk_text_buffer_set_text(buffer, initial_text, -1);
 
-    gtk_container_add(GTK_CONTAINER(scrolled_window), textview);
-    return scrolled_window;
+    return textview; // Trả luôn TextView, không phải ScrolledWindow
 }
+
+void *gtk_sendmessage(void *obj) {
+    while(1) {
+        spllog(1, "--");
+        spl_milli_sleep(500);
+        emit_event_later(textview1);
+        spl_milli_sleep(500);
+        emit_event_later(textview2);
+    }
+    return 0;
+}
+
+void on_realize(GtkWidget *widget, gpointer data) {
+    GdkWindow *gdk_window = gtk_widget_get_window(widget);
+    if (gdk_window) {
+        spllog(1, "GtkTextView now has its own GdkWindow: %p\n", gdk_window);
+        
+        // Nếu sử dụng Wayland, lấy wl_surface từ GdkWindow
+        #ifdef GDK_WINDOWING_WAYLAND
+        if (GDK_IS_WAYLAND_DISPLAY(gdk_display_get_default())) {
+            struct wl_surface *surface = gdk_wayland_window_get_wl_surface(gdk_window);
+            spllog(1, "Native Wayland wl_surface: %p\n", surface);
+        }
+        #endif
+    } else {
+        spllog(1, "GtkTextView does not have a GdkWindow.\n");
+    }
+}
+
 
 
 #if 0
