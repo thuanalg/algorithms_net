@@ -1787,14 +1787,20 @@ ffwr_create_demux_thread(void *obj)
 #ifndef UNIX_LINUX
 	HANDLE hThread = 0;
 	DWORD dwThreadId = 0;
-	hThread = CreateThread(NULL, // security attributes
-	    0, 
-	    ffwr_demux_routine, // thread function
-	    obj,
-	    0, // 
-	    &dwThreadId // 
+	hThread = CreateThread(0, 
+	    0, ffwr_demux_routine, 
+	    obj, 0, &dwThreadId 
 	);
 #else
+	pthread_t threadid = 0;
+	ret = pthread_create(&threadid,
+	    0, ffwr_demux_routine, obj);
+	if(ret) {
+		ret = FFWR_UNIX_PTHREAD_CREATE_ERR;
+		spllog(4, 
+			"pthread_create errno: %d, errtext: %s.", 
+			errno, strerror(errno));		
+	}
 #endif	
 	return ret;
 }
@@ -1825,6 +1831,9 @@ ffwr_destroy_mutex(void *obj)
 		ret = pthread_mutex_destroy(obj);
 		if(ret) {
 			ret = FFWR_LINUX_MUTEX_CLOSE;
+			spllog(4, 
+				"mutex_destroy errno: %d, errtext: %s.", 
+				errno, strerror(errno));
 		}
 		ffwr_free(obj);
 	#endif
@@ -1946,6 +1955,18 @@ ffwr_semaphore_post(void *obj)
 			}
 		}
 #else
+	#ifdef __MACH__
+	#else
+		ret = sem_post(obj);
+		if(ret) 
+		{
+			spllog(4, 
+				"sem_post errno: %d, errtext: %s.", 
+				errno, strerror(errno));
+			ret = FFWR_UNIX_SEM_POST_ERR;
+			break;
+		}
+	#endif
 #endif		
 	} while(0);
 	return ret;
@@ -1973,6 +1994,18 @@ ffwr_semaphore_wait(void *obj)
 			}			
 		}
 #else
+	#ifdef __MACH__
+	#else
+		ret = sem_wait(obj);
+		if(ret) 
+		{
+			spllog(4, 
+				"sem_wait errno: %d, errtext: %s.", 
+				errno, strerror(errno));
+			ret = FFWR_UNIX_SEM_WAIT_ERR;
+			break;
+		}
+	#endif
 #endif			
 	} while(0);	
 	return ret;
