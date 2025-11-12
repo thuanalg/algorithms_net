@@ -492,6 +492,9 @@ void *ffwr_demux_routine(void *lpParam)
 					break;
 				}
 				result = avcodec_receive_frame(pgb_instream->v_cctx, tmp);
+				if(result == AVERROR(EAGAIN) || result == AVERROR_EOF) {
+    				continue;
+				}
 				if (result < 0) {
 					spllog(4, "avcodec_receive_frame");
 					break;
@@ -560,7 +563,7 @@ void *ffwr_demux_routine(void *lpParam)
 					spllog(4, "avcodec_receive_frame");
 					break;
 				}  
-				
+
             	convert_audio_frame_ext(pgb_instream, 
 					pgb_instream->a_frame, 
                 	&(pgb_instream->a_dstframe));
@@ -1384,7 +1387,15 @@ ffwr_open_instream(FFWR_DEMUX_OBJS *obj)
 		}        
 		name = obj->input.name;
 		spllog(1, "name: %s", name);
-		
+#ifndef UNIX_LINUX
+#else
+		//iformat = av_find_input_format("v4l2");
+		//if(!iformat) {
+		//	ret = FFWR_FMT_DEVICES_ERR;
+		//	spllog(4, "err name: %s", "v4l2");
+		//	break;
+		//}
+#endif		
 
         ffwr_avformat_open_input(result, 
 			&(pinput->fmt_ctx), 

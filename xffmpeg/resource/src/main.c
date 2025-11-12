@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
 	
 	snprintf(pinput->name, 
 		sizeof(pinput->name), 
-		"%s", "/home/thuannt/x/FFmpeg/output.ts");
+		"%s", "/home/thuannt/x/FFmpeg/zoutput.mp4");
 	ret = ffwr_create_demux_objects(obj);
 	while(1) {
 		spl_sleep(1);
