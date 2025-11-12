@@ -1729,6 +1729,27 @@ ffwr_create_mutex(void **outmutex, char *name)
 		}
 		*outmutex = obj;
 #else
+		#ifdef __MACH__
+		#else
+		/*Linux*/
+		//pthread_mutex_t *mtx = 0;
+		ffwr_malloc(sizeof(pthread_mutex_t), obj, pthread_mutex_t);
+		if(!obj) {
+			ret = FFWR_LIUX_CREATE_MUTEX_ERR;
+			spllog(4, 
+				"Malloc errno: %d, errtext: %s.", 
+				errno, strerror(errno));
+			break;
+		}
+		ret = pthread_mutex_init(obj, 0);
+		if(ret) {
+			spllog(4, 
+				"pthread_mutex_init errno: %d, errtext: %s.", 
+				errno, strerror(errno));
+			break;			
+		}
+		*outmutex = obj;
+		#endif
 #endif		
 	} while(0);
 	

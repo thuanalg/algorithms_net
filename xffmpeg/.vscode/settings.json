@@ -2,6 +2,11 @@
     "files.associations": {
         "avformat.h": "c",
         "typeinfo": "c",
-        "swscale.h": "c"
+        "swscale.h": "c",
+        "simplelog.h": "c",
+        "sdl.h": "c",
+        "sdl_video.h": "c",
+        "sdl_mixer.h": "c",
+        "avassert.h": "c"
     }
 }
