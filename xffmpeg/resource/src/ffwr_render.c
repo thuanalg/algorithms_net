@@ -560,31 +560,33 @@ void *ffwr_demux_routine(void *lpParam)
 					spllog(4, "avcodec_receive_frame");
 					break;
 				}  
-#if 1			
-            convert_audio_frame_ext(pgb_instream, pgb_instream->a_frame, 
-                &(pgb_instream->a_dstframe));
-            spl_mutex_lock(amutex);
-            do {
-                if(shared_abuf->range > 
-                    shared_abuf->pl + 
-                    pgb_instream->a_dstframe->linesize[0]) 
-                {
-                    memcpy(shared_abuf->data + 
-                            shared_abuf->pl, 
-                        pgb_instream->a_dstframe->data[0], 
-                        pgb_instream->a_dstframe->linesize[0]
-                    );
-                    shared_abuf->pl += 
-                        pgb_instream->a_dstframe->linesize[0];
-                } else {
-					//await = 1;
-                    spllog(1, "over audio range");
-					shared_abuf->pc = 0;
-					shared_abuf->pl = 0;
-                }
-            } while(0);
-            spl_mutex_unlock(amutex);
-#endif							
+				
+            	convert_audio_frame_ext(pgb_instream, 
+					pgb_instream->a_frame, 
+                	&(pgb_instream->a_dstframe));
+
+            	spl_mutex_lock(amutex);
+            	do {
+            	    if(shared_abuf->range > 
+            	        shared_abuf->pl + 
+            	        pgb_instream->a_dstframe->linesize[0]) 
+            	    {
+            	        memcpy(shared_abuf->data + 
+            	                shared_abuf->pl, 
+            	            pgb_instream->a_dstframe->data[0], 
+            	            pgb_instream->a_dstframe->linesize[0]
+            	        );
+            	        shared_abuf->pl += 
+            	            pgb_instream->a_dstframe->linesize[0];
+            	    } else {
+						//await = 1;
+            	        spllog(1, "over audio range");
+						shared_abuf->pc = 0;
+						shared_abuf->pl = 0;
+            	    }
+            	} while(0);
+            	spl_mutex_unlock(amutex);
+
 				spl_vframe(pgb_instream->a_dstframe);
 				av_frame_unref(pgb_instream->a_dstframe); 
 				av_frame_unref(pgb_instream->a_frame);   
