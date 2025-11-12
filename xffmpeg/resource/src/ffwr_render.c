@@ -496,7 +496,8 @@ void *ffwr_demux_routine(void *lpParam)
 					spllog(4, "avcodec_receive_frame");
 					break;
 				} 
-	
+				pgb_instream->vframe->width = obj->render_objects.w;
+				pgb_instream->vframe->height = obj->render_objects.h;
 				ffwr_convert_vframe_ext(pgb_instream, tmp, pgb_instream->vframe);
 	
 	
@@ -618,8 +619,8 @@ ffwr_convert_vframe_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame *dst)
     int ret = 0;
     //av_frame_get_buffer(src, 32);
     dst->format = 0;
-    dst->width = src->width;
-    dst->height = src->height;
+    //dst->width = 600;
+    //dst->height = 480;
     av_frame_get_buffer(dst, 32);
     if (!dst->data[0]) {
         ret = av_frame_get_buffer(dst, 32);
