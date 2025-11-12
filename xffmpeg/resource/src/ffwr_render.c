@@ -1732,10 +1732,9 @@ ffwr_create_mutex(void **outmutex, char *name)
 		#ifdef __MACH__
 		#else
 		/*Linux*/
-		//pthread_mutex_t *mtx = 0;
 		ffwr_malloc(sizeof(pthread_mutex_t), obj, pthread_mutex_t);
 		if(!obj) {
-			ret = FFWR_LIUX_CREATE_MUTEX_ERR;
+			ret = FFWR_LINUX_CREATE_MUTEX_ERR;
 			spllog(4, 
 				"Malloc errno: %d, errtext: %s.", 
 				errno, strerror(errno));
@@ -1744,8 +1743,9 @@ ffwr_create_mutex(void **outmutex, char *name)
 		ret = pthread_mutex_init(obj, 0);
 		if(ret) {
 			spllog(4, 
-				"pthread_mutex_init errno: %d, errtext: %s.", 
+				"mutex_init errno: %d, errtext: %s.", 
 				errno, strerror(errno));
+			ret = FFWR_LINUX_INIT_MUTEX_ERR;
 			break;			
 		}
 		*outmutex = obj;
@@ -1803,11 +1803,30 @@ ffwr_destroy_mutex(void *obj)
 {
 	int ret = 0;
 	do {
+		if(!obj) {
+			ret = FFWR_MUTEX_NULL;
+			break;
+		}
 #ifndef UNIX_LINUX	
 		if(obj) {
-			CloseHandle(obj);
+			int done = 0;
+			done = CloseHandle(obj);
+			if(!done) {
+				spllog(4, "GetLastError(): %d", 
+					GetLastError());
+				ret = FFWR_WIN_MUTEX_CLOSE;
+				break;
+			}
 		}
 #else
+	#ifdef __MACH__
+	#else
+		ret = pthread_mutex_destroy(obj);
+		if(ret) {
+			ret = FFWR_LINUX_MUTEX_CLOSE;
+		}
+		ffwr_free(obj);
+	#endif
 #endif			
 	} while(0);
 
@@ -1842,6 +1861,9 @@ HANDLE CreateSemaphoreA(
 		}
 		*outsem = obj;
 #else
+	#ifdef __MACH__
+	#else
+	#endif
 #endif			
 	} while(0);	
 	return ret;
@@ -1867,6 +1889,9 @@ ffwr_destroy_semaphore(void *obj)
 			}
 		}
 #else
+	#ifdef __MACH__
+	#else
+	#endif
 #endif			
 	} while(0);
 	
