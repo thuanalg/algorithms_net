@@ -19,6 +19,7 @@
 	#include <windows.h>
 #else
 	#include <pthread.h>
+	#include <semaphore.h>
 	#include <SDL2/SDL_mixer.h>
 	#include <SDL2/SDL_video.h>
 #endif
@@ -1863,6 +1864,23 @@ HANDLE CreateSemaphoreA(
 #else
 	#ifdef __MACH__
 	#else
+		ffwr_malloc(sizeof(sem_t), obj, sem_t);
+		if(!obj) {
+			ret = FFWR_LINUX_CREATE_SEM_ERR;
+			spllog(4, 
+				"Malloc errno: %d, errtext: %s.", 
+				errno, strerror(errno));
+			break;
+		}
+		ret = sem_init((sem_t *)obj, 0, 0);
+		if(ret) {
+			spllog(4, 
+				"sem_init errno: %d, errtext: %s.", 
+				errno, strerror(errno));
+			ret = FFWR_LINUX_INIT_SEM_ERR;
+			break;			
+		}
+		*outsem = obj;	
 	#endif
 #endif			
 	} while(0);	
@@ -1891,6 +1909,14 @@ ffwr_destroy_semaphore(void *obj)
 #else
 	#ifdef __MACH__
 	#else
+		ret = sem_destroy(obj);
+		if(ret) 
+		{
+			spllog(4, 
+				"sem_destroy errno: %d, errtext: %s.", 
+				errno, strerror(errno));
+		}
+		ffwr_free(obj);
 	#endif
 #endif			
 	} while(0);
