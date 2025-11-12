@@ -1935,8 +1935,6 @@ ffwr_semaphore_post(void *obj)
 			}
 		}
 #else
-	#ifdef __MACH__
-	#else
 		ret = sem_post(obj);
 		if(ret) 
 		{
@@ -1946,7 +1944,6 @@ ffwr_semaphore_post(void *obj)
 			ret = FFWR_UNIX_SEM_POST_ERR;
 			break;
 		}
-	#endif
 #endif		
 	} while(0);
 	return ret;
@@ -1974,8 +1971,6 @@ ffwr_semaphore_wait(void *obj)
 			}			
 		}
 #else
-	#ifdef __MACH__
-	#else
 		ret = sem_wait(obj);
 		if(ret) 
 		{
@@ -1985,7 +1980,6 @@ ffwr_semaphore_wait(void *obj)
 			ret = FFWR_UNIX_SEM_WAIT_ERR;
 			break;
 		}
-	#endif
 #endif			
 	} while(0);	
 	return ret;
