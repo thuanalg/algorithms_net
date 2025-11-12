@@ -404,6 +404,9 @@ ffwr_Quit() {
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 #ifndef UNIX_LINUX
 DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
+#else
+void *ffwr_demux_routine(void *lpParam)
+#endif
 {
 	int ret = 0, result = 0;
 	FFWR_DEMUX_OBJS *obj = 0;
@@ -607,30 +610,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 	return ret;
 }
 
-#else
-void *ffwr_demux_routine(void *lpParam)
-{
-	int ret = 0, result = 0;
-	FFWR_DEMUX_OBJS *obj = 0;
-	obj = (FFWR_DEMUX_OBJS *) lpParam;
-    AVFrame *tmp = 0;
-    FFWR_VFrame *ffwr_vframe = 0;
-    int stopping = 0;
-	FFWR_INPUT_ST *info = 0;
-	FFWR_INSTREAM *pgb_instream = 0;
-	ffwr_gen_data_st *pst_renderVFrame = 0, *pst_shared_vframe = 0;	
-	ffwr_gen_data_st *abuf = 0, *shared_abuf = 0;	
-	void *vmutex = 0;
-	void *amutex = 0;
-	void *vsem = 0;
-	void *asem = 0;
-	int vwait = 0;
-	int await = 0;
-	int *pvwait = 0;
-	int *pawait = 0;	
-	return 0;
-}
-#endif
+
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int
 ffwr_convert_vframe_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame *dst)
