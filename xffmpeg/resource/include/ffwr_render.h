@@ -36,7 +36,7 @@
 #define FFWR_MIN_AB(a, b) ((a) < (b)) ? (a) : (b)
 #define FFWR_MAX_AB(a, b) ((a) > (b)) ? (a) : (b)
 
-#if 1
+#if 0
 #ifndef UNIX_LINUX
 #define UNIX_LINUX                      
 #endif
