@@ -46,6 +46,7 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
+
 END_MESSAGE_MAP()
 
 
@@ -81,6 +82,7 @@ BEGIN_MESSAGE_MAP(CFFmpegdemoDlg, CDialogEx)
 	ON_BN_CLICKED(IDCANCEL, &CFFmpegdemoDlg::OnBnClickedCancel)
 	ON_BN_CLICKED(IDSTOP, &CFFmpegdemoDlg::OnBnClickedStop)
 	ON_BN_CLICKED(IDSTART, &CFFmpegdemoDlg::OnBnClickedStart)
+	ON_MESSAGE(WM_FFWR_MESSAGE, &CFFmpegdemoDlg::OnFFWRMessage)
 	END_MESSAGE_MAP()
 
 
@@ -117,7 +119,7 @@ BOOL CFFmpegdemoDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 
-	addVideoFrame(8);
+	addVideoFrame(4);
 
 	HANDLE hThread;
 	DWORD dwThreadId;
@@ -130,12 +132,16 @@ BOOL CFFmpegdemoDlg::OnInitDialog()
 	    &dwThreadId // 
 	);
 
-	//snprintf(mfcinfo.name, sizeof(mfcinfo.name), "%s", 
-	//	"tcp://127.0.0.1:12345");
-	//mfcinfo.native_drawing = m_vframe.m_hWnd;
-	//mfcinfo.cb = demux_callback_gui;
-	//ffwr_create_demux(&mfcinfo);
 	return TRUE;  // return TRUE  unless you set the focus to a control
+}
+
+LRESULT
+CFFmpegdemoDlg::OnFFWRMessage(WPARAM wParam, LPARAM lParam)
+{
+	for (int i = 0; i < m_listFrame.size(); ++i) {
+		m_listFrame[i]->render(1);
+	}
+	return 0;
 }
 
 void
@@ -224,11 +230,11 @@ MyThreadProc(LPVOID lpParam)
 	CFFmpegdemoDlg *p = (CFFmpegdemoDlg *)lpParam;
 	HWND tmp = 0;
 	for (;;) {
-		for (int i = 0; i < p->m_listFrame.size(); ++i) {
-			tmp = p->m_listFrame[i]->m_hWnd;
-			PostMessage(tmp, WM_PAINT, 0, 0);
-		}
-		
+		//for (int i = 0; i < p->m_listFrame.size(); ++i) {
+		//	tmp = p->m_listFrame[i]->m_hWnd;
+		//	PostMessage(tmp, WM_PAINT, 0, 0);
+		//}
+		PostMessage(p->m_hWnd, WM_FFWR_MESSAGE, 0, 0);
 		Sleep(30); // sleep for 0.5 second
 	}
 
@@ -256,10 +262,11 @@ CFFmpegdemoDlg::OnBnClickedStop()
 	}
 }
 const char *ghgdhsg[] = {
-	"tcp://127.0.0.1:12345",
-	"C:/Users/DEll/Desktop/A1-TS_00_d.ts",
-	"C:/Users/DEll/Desktop/A1-TS_00_d.ts",
+	//"tcp://127.0.0.1:12345",
 	"C:/Users/DEll/Desktop/A2-TS_00_d.ts",
+	"C:/Users/DEll/Desktop/A2-TS_00_d.ts",
+	"C:/Users/DEll/Desktop/A1-TS_00_d.ts",
+	"C:/Users/DEll/Desktop/A1-TS_00_d.ts",
 	"C:/Users/DEll/Desktop/A1-TS_00_d.ts",
 	"C:/Users/DEll/Desktop/A1-TS_00_d.ts",
 	"C:/Users/DEll/Desktop/A2-TS_00_d.ts",

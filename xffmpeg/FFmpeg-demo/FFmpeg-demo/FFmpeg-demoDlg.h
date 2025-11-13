@@ -36,6 +36,7 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+	afx_msg LRESULT OnFFWRMessage(WPARAM wParam, LPARAM lParam);
 
 private:
 	//FFWRVideoFrame *m_vframe;

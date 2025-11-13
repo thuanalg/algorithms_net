@@ -10,6 +10,7 @@ class FFWRVideoFrame : public CStatic
 public:
 	FFWRVideoFrame();
 	virtual ~FFWRVideoFrame();
+	void render(int increase);
 
 /*---------------------------------*/
 

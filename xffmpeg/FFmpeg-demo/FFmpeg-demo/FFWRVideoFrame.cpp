@@ -62,105 +62,7 @@ FFWRVideoFrame::OnLButtonUp(UINT nFlags, CPoint point)
 }
 void FFWRVideoFrame::OnPaint()
 {
-	FFWR_VFrame *p = 0;
-	FFWR_SIZE_TYPE *it = 0;
-	ffwr_gen_data_st *gb_frame = 0;
-	ffwr_gen_data_st *gb_tsplanVFrame = 0;
-	int *pvwait = 0;
-	int vwait = 0;
-#if 0
-	CPaintDC dc(this); 
-
-	CBrush brush(RGB(0, 0, 0)); // màu xanh nhạt
-
-	CRect rect;
-	GetClientRect(&rect);
-
-	dc.FillRect(&rect, &brush);
-	return;
-#endif
-	//gb_frame = ffwr_gb_renderVFrame();
-
-	gb_frame = obj_demux.buffer.vbuf;
-	if (!gb_frame) {
-		spllog(1, "gb_frame null");
-		return;
-	}
-	pvwait = &(obj_demux.buffer.vwait);
-	//gb_tsplanVFrame = ffwr_gb_shared_vframe();	
-	gb_tsplanVFrame = obj_demux.buffer.shared_vbuf;
-	if (!gb_tsplanVFrame) {
-		gb_tsplanVFrame = obj_demux.buffer.shared_vbuf;
-		spllog(3, "gb_tsplanVFrame null");
-		return;
-	}
-
-	if (!ref_ffwr_mtx) {
-		//ref_ffwr_mtx = ffwr_mutex_data();
-		ref_ffwr_mtx = obj_demux.buffer.mtx_vbuf;
-		if (!ref_ffwr_mtx) {
-			spllog(4, "ref_ffwr_mtx null");
-			return;
-		}
-	}
-	//if (!sdl_winrentext.sdl_window) {
-	if (!obj_demux.render_objects.sdl_window) {
-		//spllog(4, "sdl_window null");
-		return;
-	}
-
-	//if (!sdl_winrentext.sdl_render) {
-	if (!obj_demux.render_objects.sdl_render) {
-		spllog(4, "FFWRVideoFrame::sdl_render null");
-		return;
-	}
-	//if (!sdl_winrentext.sdl_texture) {
-	if (!obj_demux.render_objects.sdl_texture) {
-		spllog(4, "FFWRVideoFrame::sdl_texture null");
-		return;
-	}
-	//spllog(1, "window, sdl_render, sdl_texture");
-	if (gb_frame->pl < 1 && running) {
-		spl_mutex_lock(ref_ffwr_mtx);
-		do {
-			vwait = *pvwait;
-			*pvwait = 0;
-			memcpy(gb_frame->data + gb_frame->pl,
-			    gb_tsplanVFrame->data + gb_tsplanVFrame->pc,
-			    gb_tsplanVFrame->pl - gb_tsplanVFrame->pc);
-
-			gb_frame->pl +=
-			    gb_tsplanVFrame->pl - gb_tsplanVFrame->pc;
-			gb_tsplanVFrame->pl = gb_tsplanVFrame->pc = 0;
-		} while (0);
-		spl_mutex_unlock(ref_ffwr_mtx);
-		if (vwait) {
-			ffwr_semaphore_post(obj_demux.buffer.sem_vbuf);
-		}
-	}
-	if (gb_frame->pl <= gb_frame->pc) {
-		gb_frame->pl = gb_frame->pc = 0;
-		return;
-	}
-	it = (FFWR_SIZE_TYPE *)(gb_frame->data + gb_frame->pc);
-	p = (FFWR_VFrame *)(gb_frame->data + gb_frame->pc);
-	ffwr_UpdateYUVTexture(obj_demux.render_objects.sdl_texture, 0,
-	    p->data + p->pos[0],  p->linesize[0], 
-		p->data + p->pos[1], p->linesize[1],
-	    p->data + p->pos[2], p->linesize[2]
-
-	);
-	//spllog(1, "pc render: %d, pts: %d", gb_frame->pc, p->pts);
-	ffwr_RenderClear(obj_demux.render_objects.sdl_render);
-	ffwr_RenderCopy(obj_demux.render_objects.sdl_render, 
-		obj_demux.render_objects.sdl_texture,
-	    0, 0);
-	ffwr_RenderPresent(obj_demux.render_objects.sdl_render);
-	if (it) {
-		if (running) {
-			gb_frame->pc += it->total;
-		}
-	}
+	render(0);
 }
 
 FFWRVideoFrame::FFWRVideoFrame()
@@ -246,6 +148,108 @@ void *
 FFWRVideoFrame::get_demux_obj()
 {
 	return &(this->obj_demux);
+}
+
+void
+FFWRVideoFrame::render(int increase)
+{
+	FFWR_VFrame *p = 0;
+	FFWR_SIZE_TYPE *it = 0;
+	ffwr_gen_data_st *gb_frame = 0;
+	ffwr_gen_data_st *gb_tsplanVFrame = 0;
+	int *pvwait = 0;
+	int vwait = 0;
+#if 0
+	CPaintDC dc(this); 
+
+	CBrush brush(RGB(0, 0, 0)); // màu xanh nhạt
+
+	CRect rect;
+	GetClientRect(&rect);
+
+	dc.FillRect(&rect, &brush);
+	return;
+#endif
+	// gb_frame = ffwr_gb_renderVFrame();
+
+	gb_frame = obj_demux.buffer.vbuf;
+	if (!gb_frame) {
+		spllog(1, "gb_frame null");
+		return;
+	}
+	pvwait = &(obj_demux.buffer.vwait);
+	// gb_tsplanVFrame = ffwr_gb_shared_vframe();
+	gb_tsplanVFrame = obj_demux.buffer.shared_vbuf;
+	if (!gb_tsplanVFrame) {
+		gb_tsplanVFrame = obj_demux.buffer.shared_vbuf;
+		spllog(3, "gb_tsplanVFrame null");
+		return;
+	}
+
+	if (!ref_ffwr_mtx) {
+		// ref_ffwr_mtx = ffwr_mutex_data();
+		ref_ffwr_mtx = obj_demux.buffer.mtx_vbuf;
+		if (!ref_ffwr_mtx) {
+			spllog(4, "ref_ffwr_mtx null");
+			return;
+		}
+	}
+	// if (!sdl_winrentext.sdl_window) {
+	if (!obj_demux.render_objects.sdl_window) {
+		// spllog(4, "sdl_window null");
+		return;
+	}
+
+	// if (!sdl_winrentext.sdl_render) {
+	if (!obj_demux.render_objects.sdl_render) {
+		spllog(4, "FFWRVideoFrame::sdl_render null");
+		return;
+	}
+	// if (!sdl_winrentext.sdl_texture) {
+	if (!obj_demux.render_objects.sdl_texture) {
+		spllog(4, "FFWRVideoFrame::sdl_texture null");
+		return;
+	}
+	// spllog(1, "window, sdl_render, sdl_texture");
+	if (gb_frame->pl < 1 && running) {
+		spl_mutex_lock(ref_ffwr_mtx);
+		do {
+			vwait = *pvwait;
+			*pvwait = 0;
+			memcpy(gb_frame->data + gb_frame->pl,
+			    gb_tsplanVFrame->data + gb_tsplanVFrame->pc,
+			    gb_tsplanVFrame->pl - gb_tsplanVFrame->pc);
+
+			gb_frame->pl +=
+			    gb_tsplanVFrame->pl - gb_tsplanVFrame->pc;
+			gb_tsplanVFrame->pl = gb_tsplanVFrame->pc = 0;
+		} while (0);
+		spl_mutex_unlock(ref_ffwr_mtx);
+		if (vwait) {
+			ffwr_semaphore_post(obj_demux.buffer.sem_vbuf);
+		}
+	}
+	if (gb_frame->pl <= gb_frame->pc) {
+		gb_frame->pl = gb_frame->pc = 0;
+		return;
+	}
+	it = (FFWR_SIZE_TYPE *)(gb_frame->data + gb_frame->pc);
+	p = (FFWR_VFrame *)(gb_frame->data + gb_frame->pc);
+	ffwr_UpdateYUVTexture(obj_demux.render_objects.sdl_texture, 0,
+	    p->data + p->pos[0], p->linesize[0], p->data + p->pos[1],
+	    p->linesize[1], p->data + p->pos[2], p->linesize[2]
+
+	);
+	// spllog(1, "pc render: %d, pts: %d", gb_frame->pc, p->pts);
+	ffwr_RenderClear(obj_demux.render_objects.sdl_render);
+	ffwr_RenderCopy(obj_demux.render_objects.sdl_render,
+	    obj_demux.render_objects.sdl_texture, 0, 0);
+	ffwr_RenderPresent(obj_demux.render_objects.sdl_render);
+	if (it) {
+		if (running && increase) {
+			gb_frame->pc += it->total;
+		}
+	}
 }
 
 LRESULT
