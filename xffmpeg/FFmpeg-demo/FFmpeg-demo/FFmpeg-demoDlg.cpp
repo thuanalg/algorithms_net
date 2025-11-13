@@ -117,7 +117,7 @@ BOOL CFFmpegdemoDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 
-	addVideoFrame(4);
+	addVideoFrame(8);
 
 	HANDLE hThread;
 	DWORD dwThreadId;
@@ -141,24 +141,31 @@ BOOL CFFmpegdemoDlg::OnInitDialog()
 void
 CFFmpegdemoDlg::addVideoFrame(int n)
 {
-	int i = 0;
-	for (i = 0; i < n; ++i) {
-		FFWRVideoFrame *m_vframe;
+	const int frameWidth = 640;
+	const int frameHeight = 480;
+	const int framesPerRow = 4; // 4 màn hình mỗi hàng
 
-		CRect rect(640 * i, 0, 640 * (i + 1), 480); 
-		m_vframe = new FFWRVideoFrame();
+	for (int i = 0; i < n; ++i) {
+		FFWRVideoFrame *m_vframe = new FFWRVideoFrame();
 		m_listFrame.push_back(m_vframe);
-		m_vframe->Create(_T("MFCCstatic"), //
-		    WS_CHILD | WS_VISIBLE | SS_BLACKFRAME, // style
-		    rect, //
-		    this, //
-		    (1001 + 777 + i) // ID control
-		);
-		FFWR_DEMUX_OBJS *obj = 0;
-		obj = (FFWR_DEMUX_OBJS *)m_vframe->get_demux_obj();
+
+		// Tính vị trí cột và hàng
+		int col = i % framesPerRow;
+		int row = i / framesPerRow;
+
+		CRect rect(frameWidth * col, frameHeight * row,
+		    frameWidth * (col + 1), frameHeight * (row + 1));
+
+		m_vframe->Create(_T("MFCCstatic"),
+		    WS_CHILD | WS_VISIBLE | SS_BLACKFRAME, rect, this,
+		    1001 + 777 + i);
+
+		FFWR_DEMUX_OBJS *obj =
+		    (FFWR_DEMUX_OBJS *)m_vframe->get_demux_obj();
 		obj->input.cb = demux_callback_gui;
 	}
 }
+
 
 void CFFmpegdemoDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
@@ -250,6 +257,12 @@ CFFmpegdemoDlg::OnBnClickedStop()
 }
 const char *ghgdhsg[] = {
 	"tcp://127.0.0.1:12345",
+	"C:/Users/DEll/Desktop/A1-TS_00_d.ts",
+	"C:/Users/DEll/Desktop/A1-TS_00_d.ts",
+	"C:/Users/DEll/Desktop/A2-TS_00_d.ts",
+	"C:/Users/DEll/Desktop/A1-TS_00_d.ts",
+	"C:/Users/DEll/Desktop/A1-TS_00_d.ts",
+	"C:/Users/DEll/Desktop/A2-TS_00_d.ts",
 	"C:/Users/DEll/Desktop/A1-TS_00_d.ts",
 	"C:/Users/DEll/Desktop/A1-TS_00_d.ts",
 	"C:/Users/DEll/Desktop/A2-TS_00_d.ts",
