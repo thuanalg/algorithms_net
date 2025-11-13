@@ -36,7 +36,7 @@
 #define FFWR_MIN_AB(a, b) ((a) < (b)) ? (a) : (b)
 #define FFWR_MAX_AB(a, b) ((a) > (b)) ? (a) : (b)
 
-#if 0
+#if 1
 #ifndef UNIX_LINUX
 #define UNIX_LINUX                      
 #endif
@@ -332,8 +332,15 @@ typedef enum __FFWR_LOG_ERR_CODE__ {
 	FFWR_WIN_OUTMUTEX_NULL_ERR,
 	FFWR_SEM_RELEASE_ERR,
 	FFWR_SEM_WAIT_ERR,
-	
-	
+	FFWR_LINUX_CREATE_MUTEX_ERR, 
+    FFWR_LINUX_INIT_MUTEX_ERR, 
+    FFWR_WIN_MUTEX_CLOSE,
+	FFWR_LINUX_MUTEX_CLOSE, 
+    FFWR_LINUX_CREATE_SEM_ERR, 
+    FFWR_LINUX_INIT_SEM_ERR, 
+    FFWR_UNIX_SEM_POST_ERR, 
+    FFWR_UNIX_SEM_WAIT_ERR, FFWR_UNIX_PTHREAD_CREATE_ERR, FFWR_FMT_DEVICES_ERR, 
+
 	
 	
 	

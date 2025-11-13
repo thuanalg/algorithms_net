@@ -1,11 +1,6 @@
-#include <simplelog.h>
 #include <ffwr_render.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_syswm.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_syswm.h>
 #include <stdio.h>
-#include <simplelog.h>
+#include <SDL2/SDL.h>
 #include <libavutil/avassert.h>
 #include <libavutil/channel_layout.h>
 #include <libavutil/opt.h>
@@ -20,8 +15,13 @@
 #include <libavformat/avformat.h>
 
 #ifndef UNIX_LINUX
+	#include <SDL2/SDL_syswm.h>
 	#include <windows.h>
 #else
+	#include <pthread.h>
+	#include <semaphore.h>
+	#include <SDL2/SDL_mixer.h>
+	#include <SDL2/SDL_video.h>
 #endif
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
@@ -147,6 +147,8 @@ typedef struct __FFWR_INSTREAM__ {
 static DWORD WINAPI 
 ffwr_demux_routine(LPVOID lpParam);
 #else	
+static void *
+ffwr_demux_routine(void *obj);
 #endif
 
 static int 
@@ -179,7 +181,7 @@ static int
 ffwr_init_gen_buff(ffwr_gen_data_st *obj, int sz);
 
 static void 
-ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len);
+ffwr_open_audio_output_cb(void *user, unsigned char * stream, int len);
 
 static int 
 ffwr_clode_audio_output();
@@ -402,6 +404,9 @@ ffwr_Quit() {
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 #ifndef UNIX_LINUX
 DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
+#else
+void *ffwr_demux_routine(void *lpParam)
+#endif
 {
 	int ret = 0, result = 0;
 	FFWR_DEMUX_OBJS *obj = 0;
@@ -487,11 +492,15 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 					break;
 				}
 				result = avcodec_receive_frame(pgb_instream->v_cctx, tmp);
+				if(result == AVERROR(EAGAIN) || result == AVERROR_EOF) {
+    				continue;
+				}
 				if (result < 0) {
 					spllog(4, "avcodec_receive_frame");
 					break;
 				} 
-	
+				pgb_instream->vframe->width = obj->render_objects.w;
+				pgb_instream->vframe->height = obj->render_objects.h;
 				ffwr_convert_vframe_ext(pgb_instream, tmp, pgb_instream->vframe);
 	
 	
@@ -554,31 +563,33 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 					spllog(4, "avcodec_receive_frame");
 					break;
 				}  
-#if 1			
-            convert_audio_frame_ext(pgb_instream, pgb_instream->a_frame, 
-                &(pgb_instream->a_dstframe));
-            spl_mutex_lock(amutex);
-            do {
-                if(shared_abuf->range > 
-                    shared_abuf->pl + 
-                    pgb_instream->a_dstframe->linesize[0]) 
-                {
-                    memcpy(shared_abuf->data + 
-                            shared_abuf->pl, 
-                        pgb_instream->a_dstframe->data[0], 
-                        pgb_instream->a_dstframe->linesize[0]
-                    );
-                    shared_abuf->pl += 
-                        pgb_instream->a_dstframe->linesize[0];
-                } else {
-					//await = 1;
-                    spllog(1, "over audio range");
-					shared_abuf->pc = 0;
-					shared_abuf->pl = 0;
-                }
-            } while(0);
-            spl_mutex_unlock(amutex);
-#endif							
+
+            	convert_audio_frame_ext(pgb_instream, 
+					pgb_instream->a_frame, 
+                	&(pgb_instream->a_dstframe));
+
+            	spl_mutex_lock(amutex);
+            	do {
+            	    if(shared_abuf->range > 
+            	        shared_abuf->pl + 
+            	        pgb_instream->a_dstframe->linesize[0]) 
+            	    {
+            	        memcpy(shared_abuf->data + 
+            	                shared_abuf->pl, 
+            	            pgb_instream->a_dstframe->data[0], 
+            	            pgb_instream->a_dstframe->linesize[0]
+            	        );
+            	        shared_abuf->pl += 
+            	            pgb_instream->a_dstframe->linesize[0];
+            	    } else {
+						//await = 1;
+            	        spllog(1, "over audio range");
+						shared_abuf->pc = 0;
+						shared_abuf->pl = 0;
+            	    }
+            	} while(0);
+            	spl_mutex_unlock(amutex);
+
 				spl_vframe(pgb_instream->a_dstframe);
 				av_frame_unref(pgb_instream->a_dstframe); 
 				av_frame_unref(pgb_instream->a_frame);   
@@ -605,8 +616,7 @@ DWORD WINAPI ffwr_demux_routine(LPVOID lpParam)
 	return ret;
 }
 
-#else
-#endif
+
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int
 ffwr_convert_vframe_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame *dst)
@@ -614,8 +624,8 @@ ffwr_convert_vframe_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame *dst)
     int ret = 0;
     //av_frame_get_buffer(src, 32);
     dst->format = 0;
-    dst->width = src->width;
-    dst->height = src->height;
+    //dst->width = 600;
+    //dst->height = 480;
     av_frame_get_buffer(dst, 32);
     if (!dst->data[0]) {
         ret = av_frame_get_buffer(dst, 32);
@@ -1081,7 +1091,7 @@ int ffwr_init_gen_buff(ffwr_gen_data_st *obj, int sz)
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
-void ffwr_open_audio_output_cb(void *user, Uint8 * stream, int len)
+void ffwr_open_audio_output_cb(void *user, unsigned char * stream, int len)
 {
     ffwr_gen_data_st *obj = 0;
 	FFWR_DEMUX_OBJS *demux = 0;
@@ -1377,7 +1387,15 @@ ffwr_open_instream(FFWR_DEMUX_OBJS *obj)
 		}        
 		name = obj->input.name;
 		spllog(1, "name: %s", name);
-		
+#ifndef UNIX_LINUX
+#else
+		//iformat = av_find_input_format("v4l2");
+		//if(!iformat) {
+		//	ret = FFWR_FMT_DEVICES_ERR;
+		//	spllog(4, "err name: %s", "v4l2");
+		//	break;
+		//}
+#endif		
 
         ffwr_avformat_open_input(result, 
 			&(pinput->fmt_ctx), 
@@ -1706,6 +1724,27 @@ ffwr_create_mutex(void **outmutex, char *name)
 		}
 		*outmutex = obj;
 #else
+		#ifdef __MACH__
+		#else
+		/*Linux*/
+		ffwr_malloc(sizeof(pthread_mutex_t), obj, pthread_mutex_t);
+		if(!obj) {
+			ret = FFWR_LINUX_CREATE_MUTEX_ERR;
+			spllog(4, 
+				"Malloc errno: %d, errtext: %s.", 
+				errno, strerror(errno));
+			break;
+		}
+		ret = pthread_mutex_init(obj, 0);
+		if(ret) {
+			spllog(4, 
+				"mutex_init errno: %d, errtext: %s.", 
+				errno, strerror(errno));
+			ret = FFWR_LINUX_INIT_MUTEX_ERR;
+			break;			
+		}
+		*outmutex = obj;
+		#endif
 #endif		
 	} while(0);
 	
@@ -1742,14 +1781,20 @@ ffwr_create_demux_thread(void *obj)
 #ifndef UNIX_LINUX
 	HANDLE hThread = 0;
 	DWORD dwThreadId = 0;
-	hThread = CreateThread(NULL, // security attributes
-	    0, 
-	    ffwr_demux_routine, // thread function
-	    obj,
-	    0, // 
-	    &dwThreadId // 
+	hThread = CreateThread(0, 
+	    0, ffwr_demux_routine, 
+	    obj, 0, &dwThreadId 
 	);
 #else
+	pthread_t threadid = 0;
+	ret = pthread_create(&threadid,
+	    0, ffwr_demux_routine, obj);
+	if(ret) {
+		ret = FFWR_UNIX_PTHREAD_CREATE_ERR;
+		spllog(4, 
+			"pthread_create errno: %d, errtext: %s.", 
+			errno, strerror(errno));		
+	}
 #endif	
 	return ret;
 }
@@ -1759,11 +1804,33 @@ ffwr_destroy_mutex(void *obj)
 {
 	int ret = 0;
 	do {
+		if(!obj) {
+			ret = FFWR_MUTEX_NULL;
+			break;
+		}
 #ifndef UNIX_LINUX	
 		if(obj) {
-			CloseHandle(obj);
+			int done = 0;
+			done = CloseHandle(obj);
+			if(!done) {
+				spllog(4, "GetLastError(): %d", 
+					GetLastError());
+				ret = FFWR_WIN_MUTEX_CLOSE;
+				break;
+			}
 		}
 #else
+	#ifdef __MACH__
+	#else
+		ret = pthread_mutex_destroy(obj);
+		if(ret) {
+			ret = FFWR_LINUX_MUTEX_CLOSE;
+			spllog(4, 
+				"mutex_destroy errno: %d, errtext: %s.", 
+				errno, strerror(errno));
+		}
+		ffwr_free(obj);
+	#endif
 #endif			
 	} while(0);
 
@@ -1798,6 +1865,26 @@ HANDLE CreateSemaphoreA(
 		}
 		*outsem = obj;
 #else
+	#ifdef __MACH__
+	#else
+		ffwr_malloc(sizeof(sem_t), obj, sem_t);
+		if(!obj) {
+			ret = FFWR_LINUX_CREATE_SEM_ERR;
+			spllog(4, 
+				"Malloc errno: %d, errtext: %s.", 
+				errno, strerror(errno));
+			break;
+		}
+		ret = sem_init((sem_t *)obj, 0, 0);
+		if(ret) {
+			spllog(4, 
+				"sem_init errno: %d, errtext: %s.", 
+				errno, strerror(errno));
+			ret = FFWR_LINUX_INIT_SEM_ERR;
+			break;			
+		}
+		*outsem = obj;	
+	#endif
 #endif			
 	} while(0);	
 	return ret;
@@ -1823,6 +1910,17 @@ ffwr_destroy_semaphore(void *obj)
 			}
 		}
 #else
+	#ifdef __MACH__
+	#else
+		ret = sem_destroy(obj);
+		if(ret) 
+		{
+			spllog(4, 
+				"sem_destroy errno: %d, errtext: %s.", 
+				errno, strerror(errno));
+		}
+		ffwr_free(obj);
+	#endif
 #endif			
 	} while(0);
 	
@@ -1851,6 +1949,15 @@ ffwr_semaphore_post(void *obj)
 			}
 		}
 #else
+		ret = sem_post(obj);
+		if(ret) 
+		{
+			spllog(4, 
+				"sem_post errno: %d, errtext: %s.", 
+				errno, strerror(errno));
+			ret = FFWR_UNIX_SEM_POST_ERR;
+			break;
+		}
 #endif		
 	} while(0);
 	return ret;
@@ -1878,6 +1985,15 @@ ffwr_semaphore_wait(void *obj)
 			}			
 		}
 #else
+		ret = sem_wait(obj);
+		if(ret) 
+		{
+			spllog(4, 
+				"sem_wait errno: %d, errtext: %s.", 
+				errno, strerror(errno));
+			ret = FFWR_UNIX_SEM_WAIT_ERR;
+			break;
+		}
 #endif			
 	} while(0);	
 	return ret;
