@@ -1747,7 +1747,7 @@ ffwr_create_mutex(void **outmutex, char *name)
 		#endif
 #endif		
 	} while(0);
-	
+	spllog(1, "create_mutex: 0x%p", obj);
 	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
@@ -1803,6 +1803,7 @@ int
 ffwr_destroy_mutex(void *obj)
 {
 	int ret = 0;
+	spllog(1, "destroy_mutex: 0x%p", obj);
 	do {
 		if(!obj) {
 			ret = FFWR_MUTEX_NULL;
@@ -1833,7 +1834,7 @@ ffwr_destroy_mutex(void *obj)
 	#endif
 #endif			
 	} while(0);
-
+	
 	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
@@ -1887,6 +1888,7 @@ HANDLE CreateSemaphoreA(
 	#endif
 #endif			
 	} while(0);	
+	spllog(1, "create_semaphore: 0x%p", obj);
 	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
@@ -1894,6 +1896,7 @@ int
 ffwr_destroy_semaphore(void *obj)
 {
 	int ret = 0;
+	spllog(1, "destroy_semaphore: 0x%p", obj);
 	do {
 		if(!obj) {
 			ret = FFWR_SEM_NULL_ERR;
