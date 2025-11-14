@@ -191,7 +191,10 @@ static int
 ffwr_close_instream(FFWR_DEMUX_OBJS *obj) ;
 
 static int
-ffwr_open_render_sdl_pipe(FFWR_DEMUX_OBJS *obj) ;
+ffwr_create_render_objects(FFWR_DEMUX_OBJS *obj) ;
+
+static int
+ffwr_destroy_render_objects(FFWR_RENDER_OBJECTS *);
 
 static int 
 ffwr_create_sync_buff(FFWR_DEMUX_OBJS *obj) ;
@@ -212,6 +215,9 @@ convert_audio_frame(FFWR_INSTREAM *p, AVFrame *src, AVFrame **outfr);
 
 static int
 ffwr_convert_vframe_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame *dst);
+
+static int
+ffwr_init_demux_objects(FFWR_DEMUX_OBJS *);
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 /* Variables */
@@ -1230,7 +1236,7 @@ ffwr_destroy_render_objects(FFWR_RENDER_OBJECTS *p)
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int 
-ffwr_create_demux_objects(FFWR_DEMUX_OBJS *obj) 
+ffwr_open_demux_objects(FFWR_DEMUX_OBJS *obj) 
 {
 	int ret = 0;
 	do {
@@ -1262,9 +1268,9 @@ ffwr_init_demux_objects(FFWR_DEMUX_OBJS *obj)
 			}	
 		}
 		if(!obj->render_objects.sdl_window) {
-			ret = ffwr_open_render_sdl_pipe(obj);
+			ret = ffwr_create_render_objects(obj);
 			if(ret) {
-				spllog(4, "ffwr_open_render_sdl_pipe");
+				spllog(4, "ffwr_create_render_objects");
 				break;
 			}	
 		}
@@ -1571,7 +1577,7 @@ ffwr_close_instream(FFWR_DEMUX_OBJS *obj)
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 int
-ffwr_open_render_sdl_pipe(FFWR_DEMUX_OBJS *obj)
+ffwr_create_render_objects(FFWR_DEMUX_OBJS *obj)
 {
 	int ret = 0;
 	FFWR_RENDER_OBJECTS *p = 0;

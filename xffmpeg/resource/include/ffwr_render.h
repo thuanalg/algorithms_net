@@ -396,7 +396,14 @@ typedef struct __FFWR_RENDER_OBJECTS__
 	void *sdl_render;
 	void *sdl_texture;
 	void *native_window;
+
 } FFWR_RENDER_OBJECTS;
+
+typedef struct __FFWR_AUDIO_OBJECTS__ {
+	unsigned int devid;
+	void *want; /*SDL_AudioSpec*/
+	void *have; /*SDL_AudioSpec*/
+} FFWR_AUDIO_OBJECTS;
 
 
 typedef enum __FFWR_DATA_TYPE_E__{
@@ -463,9 +470,11 @@ typedef struct {
 typedef struct __FFWR_DEMUX_OBJS__ {
 	int isstop; 		/*Keep for whole life-cycle.*/
 	FFWR_RENDER_OBJECTS render_objects; /*Keep for whole life-cycle.*/
+	FFWR_AUDIO_OBJECTS audio; /*Keep for whole life-cycle.*/
 	void *inner_demux; /*Must be cleared for each session.*/
 	FFWR_DEMUX_DATA buffer;  /*Keep for whole life-cycle.*/
 	FFWR_INPUT_ST input; /*From UI/User, may be changed for whole life-cycle.*/
+
 } FFWR_DEMUX_OBJS;
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
@@ -528,6 +537,9 @@ DLL_API_FFWR_RENDER int
 ffwr_destroy_mutex(void *obj);
 
 
+
+
+
 DLL_API_FFWR_RENDER int
 ffwr_create_semaphore(void **outsem, char *name);
 
@@ -543,13 +555,11 @@ ffwr_semaphore_wait(void *obj);
 
 
 
-
+/*ffwr_open_demux_objects, should be run in GUI thread.*/
 DLL_API_FFWR_RENDER int 
-ffwr_create_demux_objects(FFWR_DEMUX_OBJS *);
+ffwr_open_demux_objects(FFWR_DEMUX_OBJS *);
 
-DLL_API_FFWR_RENDER int 
-ffwr_init_demux_objects(FFWR_DEMUX_OBJS *);
-
+/*ffwr_destroy_demux_objects, should be run in GUI thread.*/
 DLL_API_FFWR_RENDER int 
 ffwr_destroy_demux_objects(FFWR_DEMUX_OBJS *);
 
@@ -558,9 +568,6 @@ ffwr_get_stopping(FFWR_DEMUX_OBJS *obj);
 
 DLL_API_FFWR_RENDER int 
 ffwr_set_stopping(FFWR_DEMUX_OBJS *obj, int v);
-
-DLL_API_FFWR_RENDER int 
-ffwr_destroy_render_objects(FFWR_RENDER_OBJECTS *);
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 

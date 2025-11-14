@@ -94,7 +94,7 @@ FFWRVideoFrame::FFWRVideoFrame()
 	obj_demux.buffer.abuf_size = 6000000;
 	obj_demux.render_objects.native_window = this->m_hWnd;
 
-	ffwr_init_demux_objects(&obj_demux);
+	//ffwr_open_demux_objects(&obj_demux);
 }
 
 FFWRVideoFrame::~FFWRVideoFrame()
@@ -117,13 +117,14 @@ FFWRVideoFrame::xyz()
 	obj_demux.isstop = 0;
 	obj_demux.render_objects.native_window = this->m_hWnd;
 	//this->obj_demux.render_objects.
+	if (obj_demux.buffer.vbuf) {
+		obj_demux.buffer.vbuf->pc = 0;
+		obj_demux.buffer.vbuf->pl = 0;
+		obj_demux.buffer.shared_vbuf->pc = 0;
+		obj_demux.buffer.shared_vbuf->pl = 0;
+	}
 
-	obj_demux.buffer.vbuf->pc = 0;
-	obj_demux.buffer.vbuf->pl = 0;
-	obj_demux.buffer.shared_vbuf->pc = 0;
-	obj_demux.buffer.shared_vbuf->pl = 0;
-
-	ret = ffwr_create_demux_objects(&obj_demux);
+	ret = ffwr_open_demux_objects(&obj_demux);
 	running = 1;
 }
 

@@ -110,7 +110,7 @@ void CFFmpegdemoDlg::OnClose()
 		
 		//m_stopped = 1;
 		DWORD dwThreadId;
-		m_hThread = CreateThread(NULL, // security attributes
+		HANDLE hd = CreateThread(NULL, // security attributes
 		    0,
 		    MyThreadStop, // thread function
 		    this,
