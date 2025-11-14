@@ -357,7 +357,7 @@ typedef enum __FFWR_LOG_ERR_CODE__ {
 	{                                                                      \
 		(__obj__) = (__type__ *)malloc(__nn__);                        \
 		if (__obj__) {                                                 \
-			spllog(1, "[ffwr-MEM] Malloc: 0x%p.", (__obj__));           \
+			spllog(0, "[ffwr-MEM] Malloc: 0x%p.", (__obj__));           \
 			memset((__obj__), 0, (__nn__));                        \
 		} else {                                                       \
 			spllog(5, "Malloc: error.");                           \
@@ -367,7 +367,7 @@ typedef enum __FFWR_LOG_ERR_CODE__ {
 #define ffwr_free(__obj__)                                                     \
 	{                                                                      \
 		if (__obj__) {                                                 \
-			spllog(1, "[ffwr-MEM] Free: 0x%p.", (__obj__));             \
+			spllog(0, "[ffwr-MEM] Free: 0x%p.", (__obj__));             \
 			free(__obj__);                                         \
 			(__obj__) = 0;                                         \
 		}                                                              \
