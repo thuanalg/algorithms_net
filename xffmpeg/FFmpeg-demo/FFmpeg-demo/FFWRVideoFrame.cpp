@@ -106,7 +106,6 @@ void
 FFWRVideoFrame::xyz()
 {
 	int ret = 0;
-	ModifyStyle(0, SS_NOTIFY);
 
 	if (obj_demux.buffer.vbuf) {
 		ffwr_gen_data_st *gb_frame = 0;

@@ -218,7 +218,8 @@ CFFmpegdemoDlg::addVideoFrame(int n)
 		    frameWidth * (col + 1), frameHeight * (row + 1));
 
 		m_vframe->Create(_T("MFCCstatic"),
-		    WS_CHILD | WS_VISIBLE | SS_BLACKFRAME, rect, this,
+		    WS_CHILD | WS_VISIBLE | SS_BLACKFRAME | SS_NOTIFY, rect,
+		    this,
 		    1001 + 777 + i);
 
 		FFWR_DEMUX_OBJS *obj =
