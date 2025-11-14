@@ -99,7 +99,7 @@ FFWRVideoFrame::FFWRVideoFrame()
 
 FFWRVideoFrame::~FFWRVideoFrame()
 {
-	ffwr_destroy_demux_objects(&obj_demux);
+	ffwr_close_demux_objects(&obj_demux);
 }
 
 void

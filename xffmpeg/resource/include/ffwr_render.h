@@ -559,9 +559,9 @@ ffwr_semaphore_wait(void *obj);
 DLL_API_FFWR_RENDER int 
 ffwr_open_demux_objects(FFWR_DEMUX_OBJS *);
 
-/*ffwr_destroy_demux_objects, should be run in GUI thread.*/
+/*ffwr_close_demux_objects, should be run in GUI thread.*/
 DLL_API_FFWR_RENDER int 
-ffwr_destroy_demux_objects(FFWR_DEMUX_OBJS *);
+ffwr_close_demux_objects(FFWR_DEMUX_OBJS *);
 
 DLL_API_FFWR_RENDER int 
 ffwr_get_stopping(FFWR_DEMUX_OBJS *obj);

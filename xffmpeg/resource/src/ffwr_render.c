@@ -1301,7 +1301,7 @@ typedef struct __FFWR_INSTREAM__ {
 } FFWR_INSTREAM;
 */
 int 
-ffwr_destroy_demux_objects(FFWR_DEMUX_OBJS *obj) 
+ffwr_close_demux_objects(FFWR_DEMUX_OBJS *obj) 
 {
 	int ret = 0;
 	FFWR_INSTREAM *inner_demux = 0;
