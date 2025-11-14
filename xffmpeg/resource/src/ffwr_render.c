@@ -110,7 +110,7 @@ swr_alloc_set_opts2( (__v0__), (__v1__), (__v2__), \
 
 #define ffwr_SDL_CreateTexture( __texture__,__ren__, __v0__,  __v1__,  __v2__, __v3__) {\
 	(__texture__) = SDL_CreateTexture( (__ren__), (__v0__),  (__v1__),  (__v2__), (__v3__));\
-	spllog(1, "Create Texture-render: 0x%p", (__texture__));\
+	spllog(1, "Create Texture-render:: 0x%p", (__texture__));\
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
