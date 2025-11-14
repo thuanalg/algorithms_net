@@ -51,4 +51,5 @@ public:
 	std::vector<FFWRVideoFrame *> m_listFrame;
 	void addVideoFrame(int n);
 	int OnCloseFFWRFrame();
+	void clearVideoFrames();
 };

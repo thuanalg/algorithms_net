@@ -11,13 +11,20 @@
 
 BEGIN_MESSAGE_MAP(FFWRVideoFrame, CStatic)
 ON_WM_PAINT()
+ON_WM_CLOSE()
 ON_WM_LBUTTONDOWN()
 ON_WM_MOUSEMOVE()
 ON_WM_LBUTTONUP()
 ON_MESSAGE(WM_FFWR_MESSAGE, &FFWRVideoFrame::OnFFWRMessage)
 END_MESSAGE_MAP()
 
-void *ref_ffwr_mtx = 0;
+afx_msg void
+FFWRVideoFrame::OnClose()
+{
+	int a = 0;
+}
+
+
 void
 FFWRVideoFrame::OnLButtonDown(UINT nFlags, CPoint point)
 {
@@ -92,6 +99,7 @@ FFWRVideoFrame::FFWRVideoFrame()
 
 FFWRVideoFrame::~FFWRVideoFrame()
 {
+	ffwr_destroy_demux_objects(&obj_demux);
 }
 
 void
@@ -159,6 +167,7 @@ FFWRVideoFrame::render(int increase)
 	ffwr_gen_data_st *gb_tsplanVFrame = 0;
 	int *pvwait = 0;
 	int vwait = 0;
+	void *ref_ffwr_mtx = 0;
 #if 0
 	CPaintDC dc(this); 
 

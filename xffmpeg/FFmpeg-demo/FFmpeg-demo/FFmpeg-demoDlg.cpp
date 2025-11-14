@@ -119,6 +119,7 @@ void CFFmpegdemoDlg::OnClose()
 		);
 		return;
 	}
+	clearVideoFrames();
 	CDialogEx::OnClose();
 }
 	// CFFmpegdemoDlg message handlers
@@ -177,6 +178,25 @@ CFFmpegdemoDlg::OnFFWRMessage(WPARAM wParam, LPARAM lParam)
 		m_listFrame[i]->render(1);
 	}
 	return 0;
+}
+
+void
+CFFmpegdemoDlg::clearVideoFrames()
+{
+	for (auto frame : m_listFrame) {
+		if (frame) {
+			// 1. Hủy window control
+			if (frame->GetSafeHwnd()) {
+				frame->DestroyWindow();
+			}
+
+			// 2. Delete object
+			delete frame;
+		}
+	}
+
+	// 3. Xóa list
+	m_listFrame.clear();
 }
 
 void
@@ -265,10 +285,6 @@ MyThreadProc(LPVOID lpParam)
 	CFFmpegdemoDlg *p = (CFFmpegdemoDlg *)lpParam;
 	HWND tmp = 0;
 	for (;;) {
-		//for (int i = 0; i < p->m_listFrame.size(); ++i) {
-		//	tmp = p->m_listFrame[i]->m_hWnd;
-		//	PostMessage(tmp, WM_PAINT, 0, 0);
-		//}
 		PostMessage(p->m_hWnd, WM_FFWR_MESSAGE, 0, 0);
 		Sleep(30); // sleep for 0.5 second
 	}
@@ -279,10 +295,7 @@ MyThreadProc(LPVOID lpParam)
 DWORD WINAPI
 MyThreadStop(LPVOID lpParam)
 {
-	spllog(1, "Thread started! Param = %s\n", (char *)lpParam);
 	CFFmpegdemoDlg *p = (CFFmpegdemoDlg *)lpParam;
-	HWND tmp = 0;
-
 	Sleep(50); 
 	PostMessage(p->m_hWnd, WM_CLOSE, 0, 0);
 	return 0;
