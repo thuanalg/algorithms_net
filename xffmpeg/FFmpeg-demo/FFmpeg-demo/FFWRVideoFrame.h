@@ -11,6 +11,7 @@ public:
 	FFWRVideoFrame();
 	virtual ~FFWRVideoFrame();
 	void render(int increase);
+	int running;
 
 /*---------------------------------*/
 
@@ -37,7 +38,7 @@ protected:
 
     BOOL m_bDragging; //
 	CPoint m_ptStart; //
-    int running;
+    
 
   private:
 	FFWR_DEMUX_OBJS obj_demux;

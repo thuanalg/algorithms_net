@@ -34,13 +34,15 @@ protected:
 	virtual BOOL OnInitDialog();
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
+	afx_msg void OnClose();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 	afx_msg LRESULT OnFFWRMessage(WPARAM wParam, LPARAM lParam);
 
 private:
 	//FFWRVideoFrame *m_vframe;
-	
+	HANDLE m_hThread;
+	//int m_stopped;	
 
 public:
 	afx_msg void OnBnClickedCancel();
@@ -48,4 +50,5 @@ public:
 	afx_msg void OnBnClickedStart();
 	std::vector<FFWRVideoFrame *> m_listFrame;
 	void addVideoFrame(int n);
+	int OnCloseFFWRFrame();
 };

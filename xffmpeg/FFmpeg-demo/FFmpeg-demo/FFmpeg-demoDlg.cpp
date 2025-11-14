@@ -16,7 +16,9 @@
 
 DWORD WINAPI
 MyThreadProc(LPVOID lpParam);
-    // CAboutDlg dialog used for App About
+
+DWORD WINAPI
+MyThreadStop(LPVOID lpParam);
 
 class CAboutDlg : public CDialogEx
 {
@@ -78,6 +80,7 @@ void CFFmpegdemoDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CFFmpegdemoDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
+	ON_WM_CLOSE()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDCANCEL, &CFFmpegdemoDlg::OnBnClickedCancel)
 	ON_BN_CLICKED(IDSTOP, &CFFmpegdemoDlg::OnBnClickedStop)
@@ -85,11 +88,44 @@ BEGIN_MESSAGE_MAP(CFFmpegdemoDlg, CDialogEx)
 	ON_MESSAGE(WM_FFWR_MESSAGE, &CFFmpegdemoDlg::OnFFWRMessage)
 	END_MESSAGE_MAP()
 
+int
+CFFmpegdemoDlg::OnCloseFFWRFrame()
+{
+	for (int i = 0; i < m_listFrame.size(); ++i) {
+		if (m_listFrame[i]->running)
+			return 1;
+	}
+	return 0;
+}
 
-// CFFmpegdemoDlg message handlers
+void CFFmpegdemoDlg::OnClose()
+{
+	ShowWindow(SW_HIDE); 
+	if (OnCloseFFWRFrame()) {
+		this->OnBnClickedStop();
+		if (this->m_hThread) {
+			TerminateThread(this->m_hThread, 0);
+			this->m_hThread = 0;
+		}
+		
+		//m_stopped = 1;
+		DWORD dwThreadId;
+		m_hThread = CreateThread(NULL, // security attributes
+		    0,
+		    MyThreadStop, // thread function
+		    this,
+		    0, //
+		    &dwThreadId //
+		);
+		return;
+	}
+	CDialogEx::OnClose();
+}
+	// CFFmpegdemoDlg message handlers
 FFWR_INPUT_ST mfcinfo;
 BOOL CFFmpegdemoDlg::OnInitDialog()
 {
+	//m_stopped = 0;
 	m_listFrame.clear();
 	CDialogEx::OnInitDialog();
 
@@ -121,10 +157,9 @@ BOOL CFFmpegdemoDlg::OnInitDialog()
 
 	addVideoFrame(4);
 
-	HANDLE hThread;
 	DWORD dwThreadId;
 
-	hThread = CreateThread(NULL, // security attributes
+	m_hThread = CreateThread(NULL, // security attributes
 	    0, 
 	    MyThreadProc, // thread function
 	    this,
@@ -238,6 +273,18 @@ MyThreadProc(LPVOID lpParam)
 		Sleep(30); // sleep for 0.5 second
 	}
 
+	return 0;
+}
+
+DWORD WINAPI
+MyThreadStop(LPVOID lpParam)
+{
+	spllog(1, "Thread started! Param = %s\n", (char *)lpParam);
+	CFFmpegdemoDlg *p = (CFFmpegdemoDlg *)lpParam;
+	HWND tmp = 0;
+
+	Sleep(50); 
+	PostMessage(p->m_hWnd, WM_CLOSE, 0, 0);
 	return 0;
 }
 
