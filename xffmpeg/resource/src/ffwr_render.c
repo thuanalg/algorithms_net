@@ -196,10 +196,14 @@ ffwr_create_render_objects(FFWR_DEMUX_OBJS *obj) ;
 static int
 ffwr_destroy_render_objects(FFWR_RENDER_OBJECTS *);
 
+static int
+ffwr_create_audio_objects(FFWR_DEMUX_OBJS *obj) ;
+
+static int
+ffwr_destroy_audio_objects(FFWR_AUDIO_OBJECTS *);
+
 static int 
 ffwr_create_sync_buff(FFWR_DEMUX_OBJS *obj) ;
-
-
 
 static int 
 ffwr_create_genbuff(ffwr_gen_data_st **obj, int sz) ;
@@ -2005,5 +2009,34 @@ ffwr_semaphore_wait(void *obj)
 	} while(0);	
 	return ret;
 }
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int
+ffwr_create_audio_objects(FFWR_DEMUX_OBJS *obj)
+{
+	int ret = 0;
+	do {
+		if(!obj) {
+			ret = FFWR_SEM_NULL_ERR;
+			spllog(4, "FFWR_SEM_NULL_ERR");
+			break;
+		}		
+	} while(0);
+	return ret;
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int
+ffwr_destroy_audio_objects(FFWR_AUDIO_OBJECTS *obj)
+{
+	int ret = 0;
+	do {
+		if(!obj) {
+			ret = FFWR_SEM_NULL_ERR;
+			spllog(4, "FFWR_SEM_NULL_ERR");
+			break;
+		}		
+	} while(0);
+	return ret;	
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/

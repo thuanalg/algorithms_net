@@ -569,6 +569,8 @@ ffwr_get_stopping(FFWR_DEMUX_OBJS *obj);
 DLL_API_FFWR_RENDER int 
 ffwr_set_stopping(FFWR_DEMUX_OBJS *obj, int v);
 
+
+
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 #ifdef __cplusplus
