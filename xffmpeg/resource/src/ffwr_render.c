@@ -160,8 +160,6 @@ ffwr_create_rawvframe(FFWR_VFrame **dst, AVFrame *src);
 static int 
 ffwr_update_vframe(FFWR_VFrame **dst, AVFrame *src);
 
-static int 
-convert_audio_frame( AVFrame *src, AVFrame **outfr);
 
 static int 
 ffwr_fill_vframe(FFWR_VFrame *dst, AVFrame *src);
@@ -210,7 +208,7 @@ static int
 ffwr_create_a_swrContext_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame *dst);
 
 static int 
-convert_audio_frame_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame **outfr);
+convert_audio_frame(FFWR_INSTREAM *p, AVFrame *src, AVFrame **outfr);
 
 static int
 ffwr_convert_vframe_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame *dst);
@@ -564,7 +562,7 @@ void *ffwr_demux_routine(void *lpParam)
 					break;
 				}  
 
-            	convert_audio_frame_ext(pgb_instream, 
+            	convert_audio_frame(pgb_instream, 
 					pgb_instream->a_frame, 
                 	&(pgb_instream->a_dstframe));
 
@@ -823,7 +821,7 @@ int ffwr_update_vframe(FFWR_VFrame **dst, AVFrame *src) {
     return ret  = 0;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-int convert_audio_frame_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame **outfr)
+int convert_audio_frame(FFWR_INSTREAM *p, AVFrame *src, AVFrame **outfr)
 {
     int ret = 0;
     AVChannelLayout *src_layout = 0;
