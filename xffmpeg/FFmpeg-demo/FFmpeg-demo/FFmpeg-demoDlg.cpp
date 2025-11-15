@@ -355,4 +355,6 @@ void CFFmpegdemoDlg::OnBnClickedStart()
 #endif
 		m_listFrame[i]->xyz();
 	}
+	obj = (FFWR_DEMUX_OBJS *)m_listFrame[0]->get_demux_obj();
+	obj->audio.pause_on_fn(obj->audio.devid, 0);
 }
