@@ -379,9 +379,6 @@ typedef int (*FFWR_CALLBACL_FN)(void *);
 typedef void (*ffwr_audio_pause_on_cbfn)(unsigned int, int);
 typedef void (*ffwr_audio_close_cbfn)(unsigned int);
 
-//void
-//SDL_PauseAudioDevice(SDL_AudioDeviceID devid, int pause_on)
-
 typedef struct FFWR_Rect
 {
     int x, y;
