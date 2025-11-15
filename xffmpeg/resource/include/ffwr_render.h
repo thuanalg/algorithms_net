@@ -341,7 +341,7 @@ typedef enum __FFWR_LOG_ERR_CODE__ {
     FFWR_UNIX_SEM_POST_ERR, 
     FFWR_UNIX_SEM_WAIT_ERR, 
     FFWR_UNIX_PTHREAD_CREATE_ERR, 
-    FFWR_FMT_DEVICES_ERR, 
+    FFWR_FMT_DEVICES_ERR, FFWR_AUDIO_OBJECTS_NULL_ERR, 
 
 	
 	
@@ -376,6 +376,11 @@ typedef enum __FFWR_LOG_ERR_CODE__ {
 	}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 typedef int (*FFWR_CALLBACL_FN)(void *);
+typedef void (*ffwr_audio_pause_on)(unsigned int, int);
+typedef void (*ffwr_audio_close)(unsigned int);
+
+//void
+//SDL_PauseAudioDevice(SDL_AudioDeviceID devid, int pause_on)
 
 typedef struct FFWR_Rect
 {
@@ -403,6 +408,8 @@ typedef struct __FFWR_AUDIO_OBJECTS__ {
 	unsigned int devid;
 	void *want; /*SDL_AudioSpec*/
 	void *have; /*SDL_AudioSpec*/
+	ffwr_audio_pause_on pause_on;
+	ffwr_audio_close closedev;
 } FFWR_AUDIO_OBJECTS;
 
 

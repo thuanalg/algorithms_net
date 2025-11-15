@@ -227,7 +227,7 @@ ffwr_init_demux_objects(FFWR_DEMUX_OBJS *);
 /* Variables */
 
 
-SDL_AudioSpec gb_want, gb_have;
+//SDL_AudioSpec gb_want, gb_have;
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int
 ffwr_hello() {
@@ -1053,7 +1053,7 @@ int spl_mutex_unlock(void *mtx) {
 
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-
+#if 0
 int ffwr_open_audio_output(FFWR_DEMUX_OBJS *obj, int sz)
 {
     int ret = 0;
@@ -1080,7 +1080,7 @@ int ffwr_open_audio_output(FFWR_DEMUX_OBJS *obj, int sz)
 #endif
     } while(0);
 }
-
+#endif
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int ffwr_init_gen_buff(ffwr_gen_data_st *obj, int sz) 
 {
@@ -1277,6 +1277,26 @@ ffwr_init_demux_objects(FFWR_DEMUX_OBJS *obj)
 				spllog(4, "ffwr_create_render_objects");
 				break;
 			}	
+		}
+		if (!obj->audio.want) {
+			SDL_AudioSpec *p = 0;
+			
+			ffwr_malloc(sizeof(SDL_AudioSpec), 
+				obj->audio.want, SDL_AudioSpec);
+			ffwr_malloc(sizeof(SDL_AudioSpec), 
+				obj->audio.have, SDL_AudioSpec);
+			obj->audio.pause_on = SDL_PauseAudioDevice;
+			obj->audio.closedev = SDL_CloseAudioDevice;
+			p = obj->audio.want;
+			p->freq = FFWR_OUTPUT_ARATE;
+			p->format = AUDIO_F32SYS;
+			p->channels = 2;
+			p->samples = 4096; // size of buffer SDL
+			p->callback = ffwr_open_audio_output_cb;
+			p->userdata = obj; // inner buffer 
+			obj->audio.devid = SDL_OpenAudioDevice(
+			    0, 0, obj->audio.want, obj->audio.have, 0);
+			SDL_PauseAudioDevice( obj->audio.devid, 1);
 		}
 	} while(0);
 	return ret;
@@ -2016,10 +2036,10 @@ ffwr_create_audio_objects(FFWR_DEMUX_OBJS *obj)
 	int ret = 0;
 	do {
 		if(!obj) {
-			ret = FFWR_SEM_NULL_ERR;
-			spllog(4, "FFWR_SEM_NULL_ERR");
+			ret = FFWR_DEMUX_OBJS_NULL_ERR;
+			spllog(4, "FFWR_DEMUX_OBJS_NULL_ERR");
 			break;
-		}		
+		}	
 	} while(0);
 	return ret;
 }
@@ -2030,8 +2050,8 @@ ffwr_destroy_audio_objects(FFWR_AUDIO_OBJECTS *obj)
 	int ret = 0;
 	do {
 		if(!obj) {
-			ret = FFWR_SEM_NULL_ERR;
-			spllog(4, "FFWR_SEM_NULL_ERR");
+			ret = FFWR_AUDIO_OBJECTS_NULL_ERR;
+			spllog(4, "FFWR_AUDIO_OBJECTS_NULL_ERR");
 			break;
 		}		
 	} while(0);
