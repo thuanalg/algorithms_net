@@ -446,7 +446,7 @@ typedef struct __FFWR_DEMUX_DATA__
     ffwr_gen_data_st * shared_abuf; /*audio shared buffer*/
     void *mtx_abuf; /*Mutex shared audio buffer*/
     void *sem_abuf; /*sem shared audio buffer*/
-    int await;
+    int auwait;
 	
 } FFWR_DEMUX_DATA;
 

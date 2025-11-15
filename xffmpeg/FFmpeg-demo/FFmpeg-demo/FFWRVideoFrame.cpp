@@ -107,12 +107,7 @@ FFWRVideoFrame::xyz()
 {
 	int ret = 0;
 
-	if (obj_demux.buffer.vbuf) {
-		ffwr_gen_data_st *gb_frame = 0;
-		gb_frame = obj_demux.buffer.vbuf;
-		gb_frame->pc = 0;
-		gb_frame->pl = 0;
-	}
+
 	obj_demux.isstop = 0;
 	obj_demux.render_objects.native_window = this->m_hWnd;
 	//this->obj_demux.render_objects.
@@ -122,7 +117,12 @@ FFWRVideoFrame::xyz()
 		obj_demux.buffer.shared_vbuf->pc = 0;
 		obj_demux.buffer.shared_vbuf->pl = 0;
 	}
-
+	if (obj_demux.buffer.abuf) {
+		obj_demux.buffer.abuf->pc = 0;
+		obj_demux.buffer.abuf->pl = 0;
+		obj_demux.buffer.shared_abuf->pc = 0;
+		obj_demux.buffer.shared_abuf->pl = 0;
+	}
 	ret = ffwr_open_demux_objects(&obj_demux);
 	running = 1;
 }

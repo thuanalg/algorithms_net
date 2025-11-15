@@ -431,7 +431,7 @@ void *ffwr_demux_routine(void *lpParam)
 	void *vsem = 0;
 	void *asem = 0;
 	int vwait = 0;
-	int await = 0;
+	int auwait = 0;
 	int *pvwait = 0;
 	int *pawait = 0;
 	do {
@@ -476,13 +476,13 @@ void *ffwr_demux_routine(void *lpParam)
 		asem = obj->buffer.sem_abuf;
 		
 		pvwait = &(obj->buffer.vwait);
-		pawait = &(obj->buffer.await);
+		pawait = &(obj->buffer.auwait);
 		/*-----------------*/
 		//ffwr_open_audio_output( 2000000);
 		/*-----------------*/
 		while(1) 
 		{
-			vwait = await = 0;
+			vwait = auwait = 0;
 			stopping = ffwr_get_stopping(obj);
 			if(stopping) {
 				spllog(3, "ffwr_get_stopping    stop-instream");
@@ -590,10 +590,10 @@ void *ffwr_demux_routine(void *lpParam)
             	        shared_abuf->pl += 
             	            pgb_instream->a_dstframe->linesize[0];
             	    } else {
-						//await = 1;
+						*pawait = auwait = 1;
             	        spllog(1, "over audio range");
-						shared_abuf->pc = 0;
-						shared_abuf->pl = 0;
+						//shared_abuf->pc = 0;
+						//shared_abuf->pl = 0;
             	    }
             	} while(0);
             	spl_mutex_unlock(amutex);
@@ -601,9 +601,9 @@ void *ffwr_demux_routine(void *lpParam)
 				spl_vframe(pgb_instream->a_dstframe);
 				av_frame_unref(pgb_instream->a_dstframe); 
 				av_frame_unref(pgb_instream->a_frame);   
-				if(await) {
+				if (auwait) {
 					ffwr_semaphore_wait(asem);
-					await = 0;
+					auwait = 0;
 				}
 			}
 		}
@@ -698,21 +698,35 @@ int ffwr_get_stopping(FFWR_DEMUX_OBJS *obj) {
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int ffwr_set_stopping(FFWR_DEMUX_OBJS *obj, int v) {
-	int rel = 0;
+	int relv = 0;
+	int rela = 0;
     spl_mutex_lock(obj->buffer.mtx_vbuf);
 	do {
 	    obj->isstop = v;
 	    if (v) {
 		    if (obj->buffer.vwait) {
-			    rel = 1;
+			    relv = 1;
 			    obj->buffer.vwait = 0;
 		    }
 	    }
     } while (0);
     spl_mutex_unlock(obj->buffer.mtx_vbuf);	
-	if (rel) {
+	if (relv) {
 	    ffwr_semaphore_post(obj->buffer.sem_vbuf);
     }
+	spl_mutex_lock(obj->buffer.mtx_abuf);
+	do {
+		if (v) {
+			if (obj->buffer.auwait) {
+				rela = 1;
+				obj->buffer.auwait = 0;
+			}
+		}
+	} while (0);
+	spl_mutex_unlock(obj->buffer.mtx_abuf);
+	if (rela) {
+		ffwr_semaphore_post(obj->buffer.sem_abuf);
+	}
     return 0;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/

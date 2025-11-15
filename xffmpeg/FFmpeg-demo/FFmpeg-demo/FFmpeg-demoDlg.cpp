@@ -156,7 +156,7 @@ BOOL CFFmpegdemoDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 
-	addVideoFrame(4);
+	addVideoFrame(1);
 
 	DWORD dwThreadId;
 
