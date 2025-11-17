@@ -594,6 +594,7 @@ void *ffwr_demux_routine(void *lpParam)
 				av_frame_unref(pgb_instream->a_dstframe); 
 				av_frame_unref(pgb_instream->a_frame);   
 				if (auwait) {
+					spllog( 1, "ffwr_semaphore_wait sem_abuf");
 					ffwr_semaphore_wait(asem);
 					auwait = 0;
 				}
@@ -1171,7 +1172,8 @@ void ffwr_open_audio_output_cb(void *user, unsigned char * stream, int len)
     }
     
 	if (rela) {
-
+	    spllog(1, "ffwr_semaphore_post sem_abuf");
+	    ffwr_semaphore_post(bufffer->sem_abuf);
     }
 
     real_len = FFWR_MIN(len, obj->pl - obj->pc);

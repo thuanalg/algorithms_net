@@ -408,6 +408,7 @@ typedef struct __FFWR_AUDIO_OBJECTS__ {
 	ffwr_audio_pause_on_cbfn pause_on_fn;
 	ffwr_audio_close_cbfn closedev;
 	int is_on;
+	int delaytime;
 } FFWR_AUDIO_OBJECTS;
 
 

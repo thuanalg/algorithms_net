@@ -156,7 +156,7 @@ BOOL CFFmpegdemoDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 
-	addVideoFrame(2);
+	addVideoFrame(1);
 
 	DWORD dwThreadId;
 
@@ -287,7 +287,7 @@ MyThreadProc(LPVOID lpParam)
 	HWND tmp = 0;
 	for (;;) {
 		PostMessage(p->m_hWnd, WM_FFWR_MESSAGE, 0, 0);
-		Sleep(30); // sleep for 0.5 second
+		Sleep(50); // sleep for 0.5 second
 	}
 
 	return 0;
