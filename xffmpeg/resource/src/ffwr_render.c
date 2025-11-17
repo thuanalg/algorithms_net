@@ -1110,6 +1110,7 @@ int ffwr_init_gen_buff(ffwr_gen_data_st *obj, int sz)
 void ffwr_open_audio_output_cb(void *user, unsigned char * stream, int len)
 {
     ffwr_gen_data_st *obj = 0;
+	int rela = 0;
 	FFWR_DEMUX_OBJS *demux = 0;
     int real_len = 0;
 #if 0    
@@ -1138,6 +1139,8 @@ void ffwr_open_audio_output_cb(void *user, unsigned char * stream, int len)
         obj->pl = obj->pc = 0;
         spl_mutex_lock(amutex);
         do {
+			rela = bufffer->auwait;
+			bufffer->auwait = 0;
             if(bufffer->shared_abuf->pl < 1) {
                 break;
             }
@@ -1162,10 +1165,14 @@ void ffwr_open_audio_output_cb(void *user, unsigned char * stream, int len)
 
             bufffer->shared_abuf->pc = 0;
             bufffer->shared_abuf->pl = 0;
+
         } while(0);
         spl_mutex_unlock(amutex);
     }
     
+	if (rela) {
+
+    }
 
     real_len = FFWR_MIN(len, obj->pl - obj->pc);
 
@@ -1306,14 +1313,16 @@ ffwr_init_demux_objects(FFWR_DEMUX_OBJS *obj)
 				break;
 			}	
 		}
-		if (!obj->audio.want) {
+		if (!obj->audio.devid) {
 			SDL_AudioSpec *p = 0;
-			
-			ffwr_malloc(sizeof(SDL_AudioSpec), 
-				obj->audio.want, SDL_AudioSpec);
-			ffwr_malloc(sizeof(SDL_AudioSpec), 
-				obj->audio.have, SDL_AudioSpec);
-
+			if (!obj->audio.want) {
+				ffwr_malloc(sizeof(SDL_AudioSpec), 
+					obj->audio.want,
+				    SDL_AudioSpec);
+				ffwr_malloc(sizeof(SDL_AudioSpec), 
+					obj->audio.have,
+					SDL_AudioSpec);
+			}
 			obj->audio.pause_on_fn = ffwr_SDL_PauseAudioDevice;
 			obj->audio.closedev = ffwr_SDL_CloseAudioDevice;
 
