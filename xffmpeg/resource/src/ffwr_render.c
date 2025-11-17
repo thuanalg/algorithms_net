@@ -167,22 +167,16 @@ ffwr_fill_vframe(FFWR_VFrame *dst, AVFrame *src);
 static int 
 ffwr_create_a_swrContext(AVFrame *src, AVFrame *dst);
 
-#if 0
-static int 
-spl_mutex_lock(void *mtx);
-
-static int 
-spl_mutex_unlock(void *mtx);
-#endif
-
 static int 
 ffwr_init_gen_buff(ffwr_gen_data_st *obj, int sz);
 
 static void 
 ffwr_open_audio_output_cb(void *user, unsigned char * stream, int len);
 
+#if 0
 static int 
 ffwr_clode_audio_output();
+#endif
 
 static int
 ffwr_open_instream(FFWR_DEMUX_OBJS *obj) ;
@@ -608,7 +602,12 @@ void *ffwr_demux_routine(void *lpParam)
 		/*-----------------*/
 	} while(0);
 
-	
+	if (obj->audio.devid > 0) {
+		unsigned int devid = obj->audio.devid;
+		SDL_PauseAudioDevice(devid, 1);
+		SDL_CloseAudioDevice(devid);
+		obj->audio.devid = 0;
+	}
 
 	ffwr_frame_free(&tmp); 
 	ffwr_free(ffwr_vframe);
@@ -688,7 +687,6 @@ int ffwr_get_stopping(FFWR_DEMUX_OBJS *obj) {
     spl_mutex_lock(obj->buffer.mtx_vbuf);
         ret = obj->isstop;
     spl_mutex_unlock(obj->buffer.mtx_vbuf);
-	spllog(3, "---ret: %d", ret);
     return ret;;
 }
 
@@ -1114,7 +1112,9 @@ void ffwr_open_audio_output_cb(void *user, unsigned char * stream, int len)
     ffwr_gen_data_st *obj = 0;
 	FFWR_DEMUX_OBJS *demux = 0;
     int real_len = 0;
-    //static int step = 0;
+#if 0    
+	static int step = 0;
+#endif
     int stopping = 0;
 	void *amutex = 0;
 	FFWR_DEMUX_DATA *bufffer = 0;
@@ -1141,18 +1141,19 @@ void ffwr_open_audio_output_cb(void *user, unsigned char * stream, int len)
             if(bufffer->shared_abuf->pl < 1) {
                 break;
             }
-            //if(step == 0) {
-            //    if(bufffer->shared_abuf->pl > 0) {
-            //        step++;
-            //        bufffer->shared_abuf->pc = 0;
-            //        bufffer->shared_abuf->pl = 0;
-            //        break;
-            //    }
-            //}
-            //if(bufffer->shared_abuf->pl < 1) {
-            //    break;
-            //}
-
+#if 0
+            if(step == 0) {
+                if(bufffer->shared_abuf->pl > 0) {
+                    step++;
+                    bufffer->shared_abuf->pc = 0;
+                    bufffer->shared_abuf->pl = 0;
+                    break;
+                }
+            }
+            if(bufffer->shared_abuf->pl < 1) {
+                break;
+            }
+#endif
             memcpy(obj->data + obj->pl, 
                 bufffer->shared_abuf->data, 
                 bufffer->shared_abuf->pl);
@@ -1213,14 +1214,18 @@ void ffwr_open_audio_output_cb(void *user, unsigned char * stream, int len)
 }         
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+#if 0
 int ffwr_clode_audio_output() {
     int ret = 0;
     do {
-        SDL_PauseAudio(1); // stop audio
-        SDL_CloseAudio();  // close, free resources
+		/* stop audio */
+        SDL_PauseAudio(1); 
+		 /* close, free resources */
+        SDL_CloseAudio(); 
     } while(0);
     return ret;
 }
+#endif
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int 
 ffwr_destroy_render_objects(FFWR_RENDER_OBJECTS *p) 
@@ -1316,9 +1321,12 @@ ffwr_init_demux_objects(FFWR_DEMUX_OBJS *obj)
 			p->freq = FFWR_OUTPUT_ARATE;
 			p->format = AUDIO_F32SYS;
 			p->channels = 2;
-			p->samples = 4096; // size of buffer SDL
-			p->callback = ffwr_open_audio_output_cb;
-			p->userdata = obj; // inner buffer 
+			/*Size of buffer */
+			p->samples = 4096; 
+			/*Call back function .*/
+			p->callback = ffwr_open_audio_output_cb; 
+			/* Obj for callback function. */
+			p->userdata = obj; 
 			obj->audio.devid = SDL_OpenAudioDevice(
 			    0, 0, obj->audio.want, obj->audio.have, 0);
 
@@ -1406,6 +1414,8 @@ ffwr_close_demux_objects(FFWR_DEMUX_OBJS *obj)
 		
 		/*-------*/
 		ffwr_destroy_render_objects(&(obj->render_objects));
+		/*-------*/
+		ffwr_destroy_audio_objects(&(obj->audio));
 		/*-------*/
 	} while(0);
 	return ret;
@@ -2073,13 +2083,30 @@ ffwr_create_audio_objects(FFWR_DEMUX_OBJS *obj)
 int
 ffwr_destroy_audio_objects(FFWR_AUDIO_OBJECTS *obj)
 {
+#if 0
+typedef struct __FFWR_AUDIO_OBJECTS__ {
+	unsigned int devid;
+	void *want; /*SDL_AudioSpec*/
+	void *have; /*SDL_AudioSpec*/
+	ffwr_audio_pause_on_cbfn pause_on_fn;
+	ffwr_audio_close_cbfn closedev;
+	int is_on;
+} FFWR_AUDIO_OBJECTS;
+#endif
 	int ret = 0;
 	do {
 		if(!obj) {
 			ret = FFWR_AUDIO_OBJECTS_NULL_ERR;
 			spllog(4, "FFWR_AUDIO_OBJECTS_NULL_ERR");
 			break;
-		}		
+		}
+		ffwr_SDL_PauseAudioDevice(obj->devid, 1);
+		SDL_CloseAudioDevice(obj->devid);
+		obj->devid = 0;
+
+		ffwr_free(obj->want);
+		ffwr_free(obj->have);
+
 	} while(0);
 	return ret;	
 }
