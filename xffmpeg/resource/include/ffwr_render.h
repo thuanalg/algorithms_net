@@ -353,7 +353,7 @@ typedef enum __FFWR_LOG_ERR_CODE__ {
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 #define MEMORY_PADDING      2
 #define FFWR_BUFF_SIZE      12000000
-#define FFWR_OUTPUT_ARATE   48000
+#define FFWR_OUTPUT_ARATE   44100
 #define FFWR_AUDIO_BUF          (1024 * 1024 * 2)
 #define ffwr_malloc(__nn__, __obj__, __type__)                                 \
 	{                                                                      \

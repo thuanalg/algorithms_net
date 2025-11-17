@@ -488,7 +488,10 @@ void *ffwr_demux_routine(void *lpParam)
 				break;
 			}
 			if(pgb_instream->pkt.stream_index == 0) {
-				result = avcodec_send_packet(pgb_instream->v_cctx, &(pgb_instream->pkt));
+				result = avcodec_send_packet(
+					pgb_instream->v_cctx, 
+					&(pgb_instream->pkt));
+
 				if(result < 0) {
 					spllog(1, "v_cctx: 0x%p", pgb_instream->v_cctx);
 					break;
@@ -866,7 +869,8 @@ int convert_audio_frame(FFWR_INSTREAM *p, AVFrame *src, AVFrame **outfr)
 
         av_channel_layout_default(&dst->ch_layout, 2);
         dst->format = AV_SAMPLE_FMT_FLT;
-        dst->sample_rate = FFWR_OUTPUT_ARATE;  
+        //dst->sample_rate = FFWR_OUTPUT_ARATE;  
+        dst->sample_rate = src->sample_rate;  
 
         if(!p->a_scale) {
             ret = ffwr_create_a_swrContext_ext(p, src, dst);
@@ -887,7 +891,7 @@ int convert_audio_frame(FFWR_INSTREAM *p, AVFrame *src, AVFrame **outfr)
         dst->nb_samples = av_rescale_rnd(
             swr_get_delay(p->a_scale, 
                 src->sample_rate) + src->nb_samples, 
-                FFWR_OUTPUT_ARATE, src->sample_rate, AV_ROUND_UP);
+                src->sample_rate, src->sample_rate, AV_ROUND_UP);
 
         n = av_frame_get_buffer(dst, 0);
 	    if (n < 0) {
@@ -1333,7 +1337,7 @@ ffwr_init_demux_objects(FFWR_DEMUX_OBJS *obj)
 			p->format = AUDIO_F32SYS;
 			p->channels = 2;
 			/*Size of buffer */
-			p->samples = 4096; 
+			p->samples = 1024; 
 			/*Call back function .*/
 			p->callback = ffwr_open_audio_output_cb; 
 			/* Obj for callback function. */
@@ -1442,7 +1446,7 @@ ffwr_open_instream(FFWR_DEMUX_OBJS *obj)
     AVInputFormat *iformat = 0; 
 	char *name = 0;
     AVDictionary *options = 0;	
-	
+	AVRational fr = {0};
 	do {
 		if(!obj) {
 			ret = FFWR_DEMUX_OBJS_NULL_ERR;
@@ -1498,6 +1502,9 @@ ffwr_open_instream(FFWR_DEMUX_OBJS *obj)
             spllog(4, "FFWR_NO_VSTREAMS_ERR");
             break;
         }		
+		fr = pinput->v_st->avg_frame_rate;
+		spllog(1, "(den, num)=(%d, %d)", 
+			fr.den, fr.num);
         pinput->v_codec = avcodec_find_decoder(
             pinput->v_st->codecpar->codec_id);
         if(!pinput->v_codec) {
@@ -1512,7 +1519,8 @@ ffwr_open_instream(FFWR_DEMUX_OBJS *obj)
             spllog(4, "FFWR_NO_VCONTEXT_ERR");
             break;
         }    
-        result = avcodec_parameters_to_context(pinput->v_cctx, pinput->v_st->codecpar);
+        result = avcodec_parameters_to_context(
+			pinput->v_cctx, pinput->v_st->codecpar);
         if(result < 0) {
             ret = FFWR_PARAMETERS_TO_CONTEXT_ERR;
             spllog(4, "FFWR_PARAMETERS_TO_CONTEXT_ERR");
@@ -1542,7 +1550,9 @@ ffwr_open_instream(FFWR_DEMUX_OBJS *obj)
             spllog(1, "FFWR_NO_VSTREAM_ERR");
             break;
         }
-		
+
+			
+
         pinput->a_codec = avcodec_find_decoder(
             pinput->a_st->codecpar->codec_id);
 
@@ -1558,6 +1568,8 @@ ffwr_open_instream(FFWR_DEMUX_OBJS *obj)
             spllog(4, "FFWR_ALLOC_ACONTEX_ERR");
             break;
         }   
+		spllog(1, "(sample_rate)=(%d)", 
+			pinput->a_st->codecpar->sample_rate);	
         result = avcodec_parameters_to_context(pinput->a_cctx, pinput->a_st->codecpar);
         if(result < 0) {
             ret = FFWR_PARAMETERS_TO_ACONTEXT_ERR;

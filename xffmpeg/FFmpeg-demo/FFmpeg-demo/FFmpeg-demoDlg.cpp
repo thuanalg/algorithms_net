@@ -287,7 +287,7 @@ MyThreadProc(LPVOID lpParam)
 	HWND tmp = 0;
 	for (;;) {
 		PostMessage(p->m_hWnd, WM_FFWR_MESSAGE, 0, 0);
-		Sleep(50); // sleep for 0.5 second
+		Sleep(40); // sleep for 0.5 second
 	}
 
 	return 0;
@@ -324,7 +324,7 @@ CFFmpegdemoDlg::OnBnClickedStop()
 }
 const char *ghgdhsg[] = {
 	//"tcp://127.0.0.1:12345",
-	"C:/Users/DEll/Desktop/A2-TS_00_d.ts",
+	"C:/Users/DEll/Desktop/A3-TS_00_d.ts",
 	"C:/Users/DEll/Desktop/A2-TS_00_d.ts",
 	"C:/Users/DEll/Desktop/A1-TS_00_d.ts",
 	"C:/Users/DEll/Desktop/A1-TS_00_d.ts",
