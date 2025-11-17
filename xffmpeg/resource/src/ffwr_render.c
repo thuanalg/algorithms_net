@@ -592,8 +592,6 @@ void *ffwr_demux_routine(void *lpParam)
             	    } else {
 						*pawait = auwait = 1;
             	        spllog(1, "over audio range");
-						//shared_abuf->pc = 0;
-						//shared_abuf->pl = 0;
             	    }
             	} while(0);
             	spl_mutex_unlock(amutex);
@@ -631,10 +629,7 @@ int
 ffwr_convert_vframe_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame *dst)
 {
     int ret = 0;
-    //av_frame_get_buffer(src, 32);
     dst->format = 0;
-    //dst->width = 600;
-    //dst->height = 480;
     av_frame_get_buffer(dst, 32);
     if (!dst->data[0]) {
         ret = av_frame_get_buffer(dst, 32);
