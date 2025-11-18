@@ -1300,16 +1300,19 @@ ffwr_open_demux_objects(FFWR_DEMUX_OBJS *obj)
 	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-//void (*ffwr_audio_pause_on)(unsigned int, int);
+////void (*ffwr_audio_pause_on)(unsigned int, int);
 static void 
 ffwr_SDL_PauseAudioDevice(unsigned int devid, int onoff)
 {
+	spllog(1, "(devid, pause_on)=(%d, %d)", 
+		devid, onoff);
 	SDL_PauseAudioDevice(devid, onoff);
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 static void
 ffwr_SDL_CloseAudioDevice(unsigned int devid)
 {
+	spllog(1, "(devid)=(%d)", devid);
 	SDL_CloseAudioDevice(devid);
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
@@ -2116,6 +2119,18 @@ ffwr_create_audio_objects(FFWR_DEMUX_OBJS *obj)
 	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+#define ffwr_SDL_CloseAudioDevice(__id__) do{\
+	;spllog(1, "SDL_CloseAudioDevice id: %d", __id__);\
+	;SDL_CloseAudioDevice(__id__);\
+	(__id__) = 0;\
+} while(0);
+
+
+#define ffwr_SDL_PauseAudioDevice(__id__, __opt__) do{\
+	;spllog(1, "SDL_PauseAudioDevice id: %d", __id__);\
+	;SDL_PauseAudioDevice((__id__), (__opt__));\
+} while(0);
+
 int
 ffwr_destroy_audio_objects(FFWR_AUDIO_OBJECTS *obj)
 {
@@ -2137,7 +2152,7 @@ typedef struct __FFWR_AUDIO_OBJECTS__ {
 			break;
 		}
 		ffwr_SDL_PauseAudioDevice(obj->devid, 1);
-		SDL_CloseAudioDevice(obj->devid);
+		ffwr_SDL_CloseAudioDevice(obj->devid);
 		obj->devid = 0;
 
 		ffwr_free(obj->want);
