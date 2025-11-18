@@ -216,6 +216,13 @@ ffwr_convert_vframe_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame *dst);
 
 static int
 ffwr_init_demux_objects(FFWR_DEMUX_OBJS *);
+
+static void
+ffwr_SDL_CloseAudioDevice(unsigned int devid);
+
+static void 
+ffwr_SDL_PauseAudioDevice(unsigned int devid, int onoff);
+
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 /* Variables */
@@ -619,8 +626,11 @@ void *ffwr_demux_routine(void *lpParam)
 
 	if (obj->audio.devid > 0) {
 		unsigned int devid = obj->audio.devid;
-		SDL_PauseAudioDevice(devid, 1);
-		SDL_CloseAudioDevice(devid);
+		//SDL_PauseAudioDevice(devid, 1);
+		//SDL_CloseAudioDevice(devid);
+		//obj->audio.devid = 0;
+		ffwr_SDL_PauseAudioDevice(devid, 1);
+		ffwr_SDL_CloseAudioDevice(devid);
 		obj->audio.devid = 0;
 	}
 
@@ -1077,36 +1087,6 @@ int spl_mutex_unlock(void *mtx) {
 
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-//#if 0
-//int ffwr_open_audio_output(FFWR_DEMUX_OBJS *obj, int sz)
-//{
-//    int ret = 0;
-//    int insz = 3 * sz;
-//	SDL_AudioDeviceID dev = 0;
-//    do {
-//
-//        gb_want.freq = FFWR_OUTPUT_ARATE;
-//        gb_want.format = AUDIO_F32SYS;
-//        gb_want.channels = 2;
-//        gb_want.samples = 4096;        // kích thước buffer SDL
-//        gb_want.callback = ffwr_open_audio_output_cb;
-//        gb_want.userdata = obj; // buffer 
-//#if 0
-//        ret = SDL_OpenAudio(&gb_want, 0);
-//        spllog(1, "ret-SDL_OpenAudio: %d", ret);
-//        SDL_PauseAudio(0);           // start audio playback
-//#else
-//        dev = SDL_OpenAudioDevice(0, 0, 
-//			&gb_want, &gb_have, 0);
-//        if(!dev) {
-//            spllog(1, "SDL_OpenAudioDevice failed: %s\n", 
-//				SDL_GetError());
-//        }
-//        SDL_PauseAudioDevice(dev, 0); // open playback
-//#endif
-//    } while(0);
-//}
-//#endif
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
@@ -1317,9 +1297,17 @@ ffwr_SDL_PauseAudioDevice(unsigned int devid, int onoff)
 static void
 ffwr_SDL_CloseAudioDevice(unsigned int devid)
 {
-	spllog(1, "(devid)=(%d)", devid);
+	spllog(1, "SDL_CloseAudioDevice: (devid)=(%d)", devid);
 	SDL_CloseAudioDevice(devid);
 }
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+#define ffwr_SDL_OpenAudioDevice(__ret__, __v0__, __v1__, __v2__, __v3__, __v4__) do{\
+	;(__ret__) = SDL_OpenAudioDevice((__v0__), \
+		(__v1__), (__v2__), (__v3__), (__v4__));\
+	;if(__ret__ > 0) spllog(1, "SDL_OpenAudioDevice: id: %d", (__ret__));\
+	;if(__ret__ < 1) spllog(4, "SDL_OpenAudioDevice: id: %d", (__ret__));\
+	;\
+}while(0);
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int 
 ffwr_init_demux_objects(FFWR_DEMUX_OBJS *obj) 
@@ -1363,14 +1351,18 @@ ffwr_init_demux_objects(FFWR_DEMUX_OBJS *obj)
 			p->callback = ffwr_open_audio_output_cb; 
 			/* Obj for callback function. */
 			p->userdata = obj; 
-			obj->audio.devid = SDL_OpenAudioDevice(
-			    0, 0, obj->audio.want, obj->audio.have, 0);
+			ffwr_SDL_OpenAudioDevice(obj->audio.devid, 0, 
+				0, obj->audio.want, obj->audio.have, 0);
+			//obj->audio.devid = SDL_OpenAudioDevice( 0, 
+			//	0, obj->audio.want, obj->audio.have, 0);
 
 			obj->audio.pause_on_fn(obj->audio.devid, 1);
 		}
 	} while(0);
 	return ret;
 }
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*
 typedef struct __FFWR_INSTREAM__ {
@@ -2147,9 +2139,13 @@ typedef struct __FFWR_AUDIO_OBJECTS__ {
 			spllog(4, "FFWR_AUDIO_OBJECTS_NULL_ERR");
 			break;
 		}
-		ffwr_SDL_PauseAudioDevice(obj->devid, 1);
-		ffwr_SDL_CloseAudioDevice(obj->devid);
-		obj->devid = 0;
+		
+		if(obj->devid > 0)
+		{
+			ffwr_SDL_PauseAudioDevice(obj->devid, 1);
+			ffwr_SDL_CloseAudioDevice(obj->devid);
+			obj->devid = 0;
+		}
 
 		ffwr_free(obj->want);
 		ffwr_free(obj->have);
