@@ -170,13 +170,13 @@ ffwr_create_a_swrContext(AVFrame *src, AVFrame *dst);
 static int 
 ffwr_init_gen_buff(ffwr_gen_data_st *obj, int sz);
 
-static void 
-ffwr_open_audio_output_cb(void *user, unsigned char * stream, int len);
-
-#if 0
-static int 
-ffwr_clode_audio_output();
-#endif
+//static void 
+//ffwr_open_audio_output_cb(void *user, unsigned char * stream, int len);
+//
+//#if 0
+//static int 
+//ffwr_clode_audio_output();
+//#endif
 
 static int
 ffwr_open_instream(FFWR_DEMUX_OBJS *obj) ;
@@ -1077,34 +1077,39 @@ int spl_mutex_unlock(void *mtx) {
 
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-#if 0
-int ffwr_open_audio_output(FFWR_DEMUX_OBJS *obj, int sz)
-{
-    int ret = 0;
-    int insz = 3 * sz;
-    do {
+//#if 0
+//int ffwr_open_audio_output(FFWR_DEMUX_OBJS *obj, int sz)
+//{
+//    int ret = 0;
+//    int insz = 3 * sz;
+//	SDL_AudioDeviceID dev = 0;
+//    do {
+//
+//        gb_want.freq = FFWR_OUTPUT_ARATE;
+//        gb_want.format = AUDIO_F32SYS;
+//        gb_want.channels = 2;
+//        gb_want.samples = 4096;        // kích thước buffer SDL
+//        gb_want.callback = ffwr_open_audio_output_cb;
+//        gb_want.userdata = obj; // buffer 
+//#if 0
+//        ret = SDL_OpenAudio(&gb_want, 0);
+//        spllog(1, "ret-SDL_OpenAudio: %d", ret);
+//        SDL_PauseAudio(0);           // start audio playback
+//#else
+//        dev = SDL_OpenAudioDevice(0, 0, 
+//			&gb_want, &gb_have, 0);
+//        if(!dev) {
+//            spllog(1, "SDL_OpenAudioDevice failed: %s\n", 
+//				SDL_GetError());
+//        }
+//        SDL_PauseAudioDevice(dev, 0); // open playback
+//#endif
+//    } while(0);
+//}
+//#endif
 
-        gb_want.freq = FFWR_OUTPUT_ARATE;
-        gb_want.format = AUDIO_F32SYS;
-        gb_want.channels = 2;
-        gb_want.samples = 4096;        // kích thước buffer SDL
-        gb_want.callback = ffwr_open_audio_output_cb;
-        gb_want.userdata = obj; // buffer 
-#if 0
-        ret = SDL_OpenAudio(&gb_want, 0);
-        spllog(1, "ret-SDL_OpenAudio: %d", ret);
-        SDL_PauseAudio(0);           // start audio playback
-#else
-        SDL_AudioDeviceID dev = SDL_OpenAudioDevice(0, 0, &gb_want, &gb_have, 
-            0);
-        if(!dev) {
-            printf("SDL_OpenAudioDevice failed: %s\n", SDL_GetError());
-        }
-        SDL_PauseAudioDevice(dev, 0); // bật playback
-#endif
-    } while(0);
-}
-#endif
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int ffwr_init_gen_buff(ffwr_gen_data_st *obj, int sz) 
 {
@@ -2119,21 +2124,11 @@ ffwr_create_audio_objects(FFWR_DEMUX_OBJS *obj)
 	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-#define ffwr_SDL_CloseAudioDevice(__id__) do{\
-	;spllog(1, "SDL_CloseAudioDevice id: %d", __id__);\
-	;SDL_CloseAudioDevice(__id__);\
-	(__id__) = 0;\
-} while(0);
-
-
-#define ffwr_SDL_PauseAudioDevice(__id__, __opt__) do{\
-	;spllog(1, "SDL_PauseAudioDevice id: %d", __id__);\
-	;SDL_PauseAudioDevice((__id__), (__opt__));\
-} while(0);
 
 int
 ffwr_destroy_audio_objects(FFWR_AUDIO_OBJECTS *obj)
 {
+	
 #if 0
 typedef struct __FFWR_AUDIO_OBJECTS__ {
 	unsigned int devid;
@@ -2144,6 +2139,7 @@ typedef struct __FFWR_AUDIO_OBJECTS__ {
 	int is_on;
 } FFWR_AUDIO_OBJECTS;
 #endif
+
 	int ret = 0;
 	do {
 		if(!obj) {
@@ -2161,6 +2157,7 @@ typedef struct __FFWR_AUDIO_OBJECTS__ {
 	} while(0);
 	return ret;	
 }
+
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
