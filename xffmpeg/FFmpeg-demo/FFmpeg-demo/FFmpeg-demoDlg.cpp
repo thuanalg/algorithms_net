@@ -60,6 +60,7 @@ demux_callback_gui(void *obj)
 	if (!p) {
 		return 1;
 	}
+	//if ()
 	PostMessage((HWND)(p->render_objects.native_window), 
 		WM_FFWR_MESSAGE, 0, (LPARAM)obj);
 	return 0;
@@ -287,7 +288,7 @@ MyThreadProc(LPVOID lpParam)
 	HWND tmp = 0;
 	for (;;) {
 		PostMessage(p->m_hWnd, WM_FFWR_MESSAGE, 0, 0);
-		Sleep(40); // sleep for 0.5 second
+		Sleep(33); // sleep for 0.5 second
 	}
 
 	return 0;

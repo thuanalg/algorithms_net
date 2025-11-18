@@ -12,6 +12,7 @@ public:
 	virtual ~FFWRVideoFrame();
 	void render(int increase);
 	int running;
+	int startedRender;
 
 /*---------------------------------*/
 
@@ -43,7 +44,7 @@ protected:
 
   private:
 	FFWR_DEMUX_OBJS obj_demux;
-	
+    
 };
 
 

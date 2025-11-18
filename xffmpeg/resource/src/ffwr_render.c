@@ -428,6 +428,8 @@ void *ffwr_demux_routine(void *lpParam)
 	int auwait = 0;
 	int *pvwait = 0;
 	int *pawait = 0;
+	int count_audio_pkt = 0;
+	int sent_started_render = 0;
 	do {
 		if(!obj) {
 			ret = FFWR_DEMUX_OBJS_NULL_ERR;
@@ -572,7 +574,16 @@ void *ffwr_demux_routine(void *lpParam)
             	convert_audio_frame(pgb_instream, 
 					pgb_instream->a_frame, 
                 	&(pgb_instream->a_dstframe));
-
+				if (count_audio_pkt < 40) {
+					count_audio_pkt++;
+				} else if (!sent_started_render) {
+					if (obj->input.cb) {
+						obj->input.sz_type.type =
+						    FFWR_DEMUX_START_RENDER;
+						obj->input.cb(obj);
+						sent_started_render = 1;
+					}
+				}
             	spl_mutex_lock(amutex);
             	do {
             	    if(shared_abuf->range > 
@@ -1196,6 +1207,7 @@ void ffwr_open_audio_output_cb(void *user, unsigned char * stream, int len)
  
     spllog(1, "(pl, pc, real_len, len)=(%d, %d, %d, %d)", 
         obj->pl, obj->pc, real_len, len);   
+#if 0
     if((obj->pc * 2) > obj->pl) {
         int tlen = obj->pl - obj->pc;
         if(tlen > 0) {
@@ -1224,6 +1236,7 @@ void ffwr_open_audio_output_cb(void *user, unsigned char * stream, int len)
     if(obj->pl > 800000 + obj->pc) {
         obj->pl = obj->pc = 0;
     }
+#endif
 }         
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/

@@ -69,6 +69,9 @@ FFWRVideoFrame::OnLButtonUp(UINT nFlags, CPoint point)
 }
 void FFWRVideoFrame::OnPaint()
 {
+	if (!startedRender) {
+		return;
+	}
 	render(0);
 }
 
@@ -76,6 +79,7 @@ FFWRVideoFrame::FFWRVideoFrame()
 {
 	int ret = 0;
 	m_bDragging = 0;
+	startedRender = 0;
 	memset(&obj_demux, 0, sizeof(obj_demux));
 	if (!sdl_init) {
 		ret = ffwr_init(FFWRVideoFrame::sdl_flag);
@@ -90,8 +94,8 @@ FFWRVideoFrame::FFWRVideoFrame()
 	obj_demux.render_objects.format = FFWR_PIXELFORMAT_IYUV;
 	obj_demux.render_objects.access = FFWR_TEXTUREACCESS_STREAMING;
 	obj_demux.render_objects.ren_flags = (FFWR_INIT_AUDIO | FFWR_INIT_VIDEO);
-	obj_demux.buffer.vbuf_size = 10000000;
-	obj_demux.buffer.abuf_size = 6000000;
+	obj_demux.buffer.vbuf_size = 12000000;
+	obj_demux.buffer.abuf_size = 3000000;
 	obj_demux.render_objects.native_window = this->m_hWnd;
 
 	//ffwr_open_demux_objects(&obj_demux);
@@ -107,7 +111,7 @@ FFWRVideoFrame::xyz()
 {
 	int ret = 0;
 
-
+	this->startedRender = 0;
 	obj_demux.isstop = 0;
 	obj_demux.render_objects.native_window = this->m_hWnd;
 	//this->obj_demux.render_objects.
@@ -168,6 +172,9 @@ FFWRVideoFrame::render(int increase)
 	int *pvwait = 0;
 	int vwait = 0;
 	void *ref_ffwr_mtx = 0;
+	if (!this->startedRender) {
+		return;
+	}
 #if 0
 	CPaintDC dc(this); 
 
@@ -269,6 +276,10 @@ FFWRVideoFrame::OnFFWRMessage(WPARAM wParam, LPARAM lParam)
 		//ffwr_destroy_demux_objects(p);
 		this->running = 0;
 		
+	}
+	if (p && p->input.sz_type.type == FFWR_DEMUX_START_RENDER) {
+		// ffwr_destroy_demux_objects(p);
+		this->startedRender = 1;
 	}
 	return 0;
 }
