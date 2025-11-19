@@ -335,7 +335,7 @@ const char *ghgdhsg[] = {
 	"C:/Users/DEll/Desktop/A1-TS_00_d.ts",
 
 };
-
+#define FFWR_WIN_DIRECT			"video=Integrated Webcam:audio=Microphone (2- Realtek(R) Audio)"
 void CFFmpegdemoDlg::OnBnClickedStart()
 {
 	// TODO: Add your control notification handler code here
@@ -343,13 +343,15 @@ void CFFmpegdemoDlg::OnBnClickedStart()
 	for (int i = 0; i < this->m_listFrame.size(); ++i) {
 		obj = (FFWR_DEMUX_OBJS *)m_listFrame[i]->get_demux_obj();
 		obj->input.cb = demux_callback_gui;
-#if 1
-		snprintf(
-		    obj->input.name, sizeof(obj->input.name), "%s", 
+#if 0
+		snprintf( obj->input.name, sizeof(obj->input.name), "%s", 
 			ghgdhsg[i]);
 #else
-		snprintf(obj_demux.input.name, sizeof(obj_demux.input.name),
-		    "%s", "tcp://127.0.0.1:12345");
+		obj->input.mode = FFWR_T_WIN_DIRECT;
+		snprintf(obj->input.name, sizeof(obj->input.name),
+		    "%s", 
+			FFWR_WIN_DIRECT);
+			//"tcp://127.0.0.1:12345");
 #endif
 		m_listFrame[i]->xyz();
 	}

@@ -224,12 +224,6 @@ static void
 ffwr_SDL_PauseAudioDevice(unsigned int devid, int onoff);
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-
-/* Variables */
-
-
-//SDL_AudioSpec gb_want, gb_have;
-/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int
 ffwr_hello() {
 	int ret = 0;
@@ -555,7 +549,17 @@ void *ffwr_demux_routine(void *lpParam)
 					}
 				} while(0);
 				spl_mutex_unlock(vmutex);
-
+				if (!sent_started_render) {
+					if (obj->input.mode != FFWR_T_WIN_DIRECT)
+						if (obj->input.cb) {
+							obj->input.sz_type
+							    .type =
+							    FFWR_DEMUX_START_RENDER;
+							obj->input.cb(obj);
+							sent_started_render = 1;
+						}
+				}
+				
 				av_frame_unref(tmp);
 				av_frame_unref(pgb_instream->vframe);
 				if(vwait) {
@@ -581,7 +585,7 @@ void *ffwr_demux_routine(void *lpParam)
             	convert_audio_frame(pgb_instream, 
 					pgb_instream->a_frame, 
                 	&(pgb_instream->a_dstframe));
-				if (count_audio_pkt < 40) {
+				if ( (obj->input.mode != FFWR_T_WIN_DIRECT) && count_audio_pkt < 40) {
 					count_audio_pkt++;
 				} else if (!sent_started_render) {
 					if (obj->input.cb) {
@@ -1451,15 +1455,17 @@ ffwr_open_instream(FFWR_DEMUX_OBJS *obj)
 		name = obj->input.name;
 		spllog(1, "name: %s", name);
 #ifndef UNIX_LINUX
+		if(obj->input.mode == FFWR_T_WIN_DIRECT) {
+			iformat = av_find_input_format("dshow");
+			if(!iformat) {
+				ret = FFWR_FIND_IFMT_WIN_ERR;
+				break;
+			}
+		}
 #else
-		//iformat = av_find_input_format("v4l2");
-		//if(!iformat) {
-		//	ret = FFWR_FMT_DEVICES_ERR;
-		//	spllog(4, "err name: %s", "v4l2");
-		//	break;
-		//}
-#endif		
 
+#endif		
+		
         ffwr_avformat_open_input(result, 
 			&(pinput->fmt_ctx), 
 			name,  iformat, &options);

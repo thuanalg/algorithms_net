@@ -341,7 +341,9 @@ typedef enum __FFWR_LOG_ERR_CODE__ {
     FFWR_UNIX_SEM_POST_ERR, 
     FFWR_UNIX_SEM_WAIT_ERR, 
     FFWR_UNIX_PTHREAD_CREATE_ERR, 
-    FFWR_FMT_DEVICES_ERR, FFWR_AUDIO_OBJECTS_NULL_ERR, 
+    FFWR_FMT_DEVICES_ERR, 
+	FFWR_AUDIO_OBJECTS_NULL_ERR, 
+	FFWR_FIND_IFMT_WIN_ERR,
 
 	
 	
@@ -473,6 +475,14 @@ typedef struct {
 	FFWR_SIZE_TYPE sz_type;
 	char data[0];
 } FFWR_INPUT_ST;
+
+typedef enum __asasas__ {
+    FFWR_T_TS,
+    FFWR_T_MP4,
+    FFWR_T_WIN_DIRECT,
+    FFWR_T_END,
+    
+} __asasas__;
 
 typedef struct __FFWR_DEMUX_OBJS__ {
 	int isstop; 		/*Keep for whole life-cycle.*/
