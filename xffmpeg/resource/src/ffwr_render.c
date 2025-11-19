@@ -1192,36 +1192,7 @@ void ffwr_open_audio_output_cb(void *user, unsigned char * stream, int len)
  
     spllog(1, "(pl, pc, real_len, len)=(%d, %d, %d, %d)", 
         obj->pl, obj->pc, real_len, len);   
-#if 0
-    if((obj->pc * 2) > obj->pl) {
-        int tlen = obj->pl - obj->pc;
-        if(tlen > 0) {
-            memcpy(obj->data, 
-                obj->data + obj->pc, tlen);
-            obj->pc = 0;
-            obj->pl = tlen;
-            spllog(1, "(pl, pc, real_len, len)=(%d, %d, %d, %d)", 
-                obj->pl, obj->pc, real_len, len); 
-            spl_mutex_lock(amutex);
-            do {
-                if(obj->range >= obj->pl + bufffer->shared_abuf->pl) {
-                    memcpy(obj->data + obj->pl, 
-                        bufffer->shared_abuf->data, 
-                        bufffer->shared_abuf->pl);
 
-                    obj->pl += bufffer->shared_abuf->pl;
-                }
-
-                bufffer->shared_abuf->pc = 0;
-                bufffer->shared_abuf->pl = 0;
-            } while(0);
-            spl_mutex_unlock(amutex);
-        }
-    }
-    if(obj->pl > 800000 + obj->pc) {
-        obj->pl = obj->pc = 0;
-    }
-#endif
 }         
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/

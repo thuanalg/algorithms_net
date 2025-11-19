@@ -186,12 +186,9 @@ CFFmpegdemoDlg::clearVideoFrames()
 {
 	for (auto frame : m_listFrame) {
 		if (frame) {
-			// 1. Hủy window control
 			if (frame->GetSafeHwnd()) {
 				frame->DestroyWindow();
 			}
-
-			// 2. Delete object
 			delete frame;
 		}
 	}

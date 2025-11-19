@@ -44,9 +44,11 @@ init_spllog()
 	int ret = 0;
 	char cfgpath[1024] = {0}; 
 	SPL_INPUT_ARG input = {0};
+	char processid[32] = {0};
+	snprintf(processid, 32, "%llu", (LLU)GetCurrentProcessId());
 	snprintf(input.folder, sizeof(input.folder) - 1, "%s", "D:/zz/ffmpeg-demo/z.cfg");
 	spl_console_log("input.folder: %s.\n", input.folder);
-	snprintf(input.id_name, sizeof(input.id_name), "%s", "ffwr-win");
+	snprintf(input.id_name, sizeof(input.id_name), "%s", processid);
 	ret = spl_init_log_ext(&input);
 }
 
