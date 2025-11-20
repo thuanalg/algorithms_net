@@ -89,6 +89,7 @@ FFWRVideoFrame::FFWRVideoFrame()
 		sdl_init = 1;
 	}
 	running = 0;
+	shouldupdate = 1;
 	obj_demux.render_objects.w = 640;
 	obj_demux.render_objects.h = 480;
 	obj_demux.render_objects.format = FFWR_PIXELFORMAT_IYUV;
@@ -113,6 +114,7 @@ FFWRVideoFrame::xyz()
 
 	this->startedRender = 0;
 	obj_demux.isstop = 0;
+	shouldupdate = 1;
 	obj_demux.render_objects.native_window = this->m_hWnd;
 	//this->obj_demux.render_objects.
 	if (obj_demux.buffer.vbuf) {
@@ -226,10 +228,17 @@ FFWRVideoFrame::render(int increase)
 		spllog(4, "FFWRVideoFrame::sdl_texture null");
 		return;
 	}
+
 	// spllog(1, "window, sdl_render, sdl_texture");
-	if (gb_frame->pl < 1 && running) {
+	if (shouldupdate && running) {
 		spl_mutex_lock(ref_ffwr_mtx);
 		do {
+			if (gb_tsplanVFrame->pl < 1) {
+				break;
+			}
+			shouldupdate = 0;
+			gb_frame->pl = gb_frame->pc = 0;
+			
 			vwait = *pvwait;
 			*pvwait = 0;
 			memcpy(gb_frame->data + gb_frame->pl,
@@ -245,10 +254,7 @@ FFWRVideoFrame::render(int increase)
 			ffwr_semaphore_post(obj_demux.buffer.sem_vbuf);
 		}
 	}
-	if (gb_frame->pl <= gb_frame->pc) {
-		gb_frame->pl = gb_frame->pc = 0;
-		return;
-	}
+
 	it = (FFWR_SIZE_TYPE *)(gb_frame->data + gb_frame->pc);
 	p = (FFWR_VFrame *)(gb_frame->data + gb_frame->pc);
 	ffwr_UpdateYUVTexture(obj_demux.render_objects.sdl_texture, 0,
@@ -265,6 +271,9 @@ FFWRVideoFrame::render(int increase)
 		if (running && increase) {
 			gb_frame->pc += it->total;
 		}
+	}
+	if (gb_frame->pl <= gb_frame->pc) {
+		shouldupdate = 1;
 	}
 }
 

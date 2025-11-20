@@ -533,6 +533,14 @@ void *ffwr_demux_routine(void *lpParam)
 				}
 				spl_mutex_lock(vmutex);
 				do {
+					if (obj->input.mode == FFWR_T_WIN_DIRECT) {
+						memcpy( pst_shared_vframe->data,
+						    ffwr_vframe, ffwr_vframe->tt_sz.total);
+						pst_shared_vframe->pc = 0;
+						pst_shared_vframe->pl =
+						    ffwr_vframe->tt_sz.total;
+						break;
+					}
 					if(pst_shared_vframe->range > 
 						pst_shared_vframe->pl + (ffwr_vframe->tt_sz.total << 1)) {                      
 						memcpy(pst_shared_vframe->data + pst_shared_vframe->pl, 
@@ -597,6 +605,17 @@ void *ffwr_demux_routine(void *lpParam)
 				}
             	spl_mutex_lock(amutex);
             	do {
+					if (obj->input.mode == FFWR_T_WIN_DIRECT) {
+						memcpy(shared_abuf->data,
+							pgb_instream->a_dstframe->data[0],
+							pgb_instream->a_dstframe->linesize[0]);
+
+						shared_abuf->pc = 0;
+						shared_abuf->pl =
+						    pgb_instream->a_dstframe ->linesize[0];
+						break;
+					}
+
             	    if(shared_abuf->range > 
             	        shared_abuf->pl + 
             	        pgb_instream->a_dstframe->linesize[0]) 

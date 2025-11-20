@@ -94,7 +94,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>D:\x\algorithms_net\xffmpeg\resource\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\x\algorithms_net\xffmpeg\resource\include;D:\ProgramFiles\NVIDIA-CUDA\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

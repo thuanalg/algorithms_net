@@ -12,6 +12,7 @@ public:
 	virtual ~FFWRVideoFrame();
 	void render(int increase);
 	int running;
+	int shouldupdate;
 	int startedRender;
 
 /*---------------------------------*/
