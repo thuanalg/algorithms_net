@@ -468,6 +468,19 @@ typedef struct __FFWR_VFrame__ {
     unsigned char data[0];
 } FFWR_VFrame;
 
+typedef struct __FFWR_VPacket__ {
+	FFWR_SIZE_TYPE tt_sz;
+	int size;
+	int h;
+	int fmt;
+	int pts;
+	int linesize[FFWR_NUM_DATA_POINTERS];
+	int pos[FFWR_NUM_DATA_POINTERS + 1];
+	int len[FFWR_NUM_DATA_POINTERS + 1];
+
+	unsigned char data[0];
+} FFWR_VPacket;
+
 typedef struct {
 	char name[1024];
 	int mode;

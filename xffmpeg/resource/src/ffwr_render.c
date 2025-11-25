@@ -593,6 +593,7 @@ void *ffwr_demux_routine(void *lpParam)
             	convert_audio_frame(pgb_instream, 
 					pgb_instream->a_frame, 
                 	&(pgb_instream->a_dstframe));
+
 				if ( (obj->input.mode != FFWR_T_WIN_DIRECT) && count_audio_pkt < 40) {
 					count_audio_pkt++;
 				} else if (!sent_started_render) {
@@ -603,6 +604,7 @@ void *ffwr_demux_routine(void *lpParam)
 						sent_started_render = 1;
 					}
 				}
+
             	spl_mutex_lock(amutex);
             	do {
 					if (obj->input.mode == FFWR_T_WIN_DIRECT) {
