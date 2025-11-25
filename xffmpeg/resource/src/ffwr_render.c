@@ -17,6 +17,8 @@
 #ifndef UNIX_LINUX
 	#include <SDL2/SDL_syswm.h>
 	#include <windows.h>
+	#include <libavutil/buffer.h>
+//	#include <libavutil/buffer_internal.h>
 #else
 	#include <pthread.h>
 	#include <semaphore.h>
@@ -479,6 +481,7 @@ void *ffwr_demux_routine(void *lpParam)
 		/*-----------------*/
 		while(1) 
 		{
+			FFWR_AVBuffer *ppp = 0;
 			vwait = auwait = 0;
 			stopping = ffwr_get_stopping(obj);
 			if(stopping) {
@@ -490,7 +493,10 @@ void *ffwr_demux_routine(void *lpParam)
 			if(result) {
 				break;
 			}
+			ffrw_avpkt(&(pgb_instream->pkt));
 			if(pgb_instream->pkt.stream_index == 0) {
+				ppp = (FFWR_AVBuffer *)
+					  (pgb_instream->pkt.buf->buffer);
 				result = avcodec_send_packet(
 					pgb_instream->v_cctx, 
 					&(pgb_instream->pkt));

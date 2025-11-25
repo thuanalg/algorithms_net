@@ -376,6 +376,17 @@ typedef enum __FFWR_LOG_ERR_CODE__ {
 			(__obj__) = 0;                                         \
 		}                                                              \
 	}
+#define ffrw_avpkt(__pkt__)                                                     \
+	do {                                                                   \
+		if (!(__pkt__))                                                \
+			break;                                                 \
+		spllog(1, "(sti, sz, pts, dts, data)=(%d, %d, %ld, %ld, 0x%p)",      \
+		    (__pkt__)->stream_index, \
+            (__pkt__)->size, \
+            (__pkt__)->pts,  \
+		    (__pkt__)->dts, \
+            (__pkt__)->data);                          \
+	} while (0);
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 typedef int (*FFWR_CALLBACL_FN)(void *);
 typedef void (*ffwr_audio_pause_on_cbfn)(unsigned int, int);
