@@ -145,13 +145,21 @@ typedef struct __FFWR_INSTREAM__ {
 
 
 #ifndef UNIX_LINUX
-
 static DWORD WINAPI 
 ffwr_demux_routine(LPVOID lpParam);
+
+static DWORD WINAPI
+ffwr_png_routine(LPVOID lpParam);
 #else	
 static void *
 ffwr_demux_routine(void *obj);
+
+static void *
+ffwr_png_routine(void *obj);
 #endif
+
+static int
+ffwr_init_png(FFWR_PNG_OBJ *png);
 
 static int 
 ffwr_get_rawsize_vframe(AVFrame *src);
@@ -206,6 +214,9 @@ ffwr_create_genbuff(ffwr_gen_data_st **obj, int sz) ;
 
 static int
 ffwr_create_demux_thread(void *obj);
+
+static int
+ffwr_create_png_thread(void *obj);
 
 static int 
 ffwr_create_a_swrContext_ext(FFWR_INSTREAM *p, AVFrame *src, AVFrame *dst);
@@ -433,6 +444,7 @@ void *ffwr_demux_routine(void *lpParam)
 	int *pawait = 0;
 	int count_audio_pkt = 0;
 	int sent_started_render = 0;
+	FFWR_PNG_OBJ png = {0};
 	do {
 		if(!obj) {
 			ret = FFWR_DEMUX_OBJS_NULL_ERR;
@@ -443,6 +455,10 @@ void *ffwr_demux_routine(void *lpParam)
 		if(ret) {
 			spllog(4, "ffwr_open_instream");
 			break;			
+		}
+		if (obj->childmode) {
+			ffwr_init_png(&png);
+			ret = ffwr_create_png_thread(&png);
 		}
 		pgb_instream = (FFWR_INSTREAM *) obj->inner_demux;
 		info = &(obj->input);
@@ -1908,6 +1924,26 @@ ffwr_create_demux_thread(void *obj)
 	return ret;
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int
+ffwr_create_png_thread(void *obj)
+{
+	int ret = 0;
+#ifndef UNIX_LINUX
+	HANDLE hThread = 0;
+	DWORD dwThreadId = 0;
+	hThread = CreateThread(0, 0, ffwr_demux_routine, obj, 0, &dwThreadId);
+#else
+	pthread_t threadid = 0;
+	ret = pthread_create(&threadid, 0, ffwr_demux_routine, obj);
+	if (ret) {
+		ret = FFWR_UNIX_PTHREAD_CREATE_ERR;
+		spllog(4, "pthread_create errno: %d, errtext: %s.", errno,
+		    strerror(errno));
+	}
+#endif
+	return ret;
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int 
 ffwr_destroy_mutex(void *obj)
 {
@@ -2163,6 +2199,66 @@ typedef struct __FFWR_AUDIO_OBJECTS__ {
 	return ret;	
 }
 
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+#ifndef UNIX_LINUX
+
+static DWORD WINAPI
+ffwr_png_routine(LPVOID lpParam)
+#else
+static void *
+ffwr_png_routine(void *lpParam)
+#endif
+{
+	FFWR_PNG_OBJ *png = 0;
+	png = (FFWR_PNG_OBJ *)lpParam;
+	do {
+		while (1) {
+
+		}
+	} while (0);
+	return 0;
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int
+ffwr_init_png(FFWR_PNG_OBJ *png)
+{
+#if 0
+	typedef struct __FFWR_PNG_OBJ__ {
+		void *parent; /*Demux object*/
+		void *sem_pkt;
+		void *mtx_pkt;
+		FFWR_VPacket *pkts;
+
+	} FFWR_PNG_OBJ;
+#endif
+	int ret = 0;
+	ffwr_gen_data_st *buf = 0;
+	do {
+		if (!png) {
+			ret = FFWR_INIT_PNG_NULL_ERR;
+			break;
+		}
+		ret = ffwr_create_semaphore(&(png->sem_pkt), 0);
+		if (ret) {
+			spllog(4, "ffwr_create_semaphore");
+			break;
+		}
+		ret = ffwr_create_mutex(&(png->mtx_pkt), 0);
+		if (ret) {
+			spllog(4, "ffwr_create_mutex");
+			break;
+		}
+		ret = ffwr_create_genbuff(&buf, 7000000);
+		if (ret) {
+			spllog(4, "ffwr_create_genbuff");
+			break;
+		}
+	} while (0);
+	return ret;
+}
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/

@@ -344,6 +344,7 @@ typedef enum __FFWR_LOG_ERR_CODE__ {
     FFWR_FMT_DEVICES_ERR, 
 	FFWR_AUDIO_OBJECTS_NULL_ERR, 
 	FFWR_FIND_IFMT_WIN_ERR,
+	FFWR_INIT_PNG_NULL_ERR,
 
 	
 	
@@ -524,6 +525,7 @@ typedef enum __asasas__ {
 
 typedef struct __FFWR_DEMUX_OBJS__ {
 	int isstop; 		/*Keep for whole life-cycle.*/
+	int childmode;
 	FFWR_RENDER_OBJECTS render_objects; /*Keep for whole life-cycle.*/
 	FFWR_AUDIO_OBJECTS audio; /*Keep for whole life-cycle.*/
 	void *inner_demux; /*Must be cleared for each session.*/
@@ -533,6 +535,10 @@ typedef struct __FFWR_DEMUX_OBJS__ {
 } FFWR_DEMUX_OBJS;
 
 typedef struct __FFWR_PNG_OBJ__ {
+	void *parent; /*Demux object*/
+	void *sem_pkt;
+	void *mtx_pkt;
+	FFWR_VPacket *pkts;
 
 } FFWR_PNG_OBJ;
 
