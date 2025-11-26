@@ -380,12 +380,12 @@ typedef enum __FFWR_LOG_ERR_CODE__ {
 	do {                                                                   \
 		if (!(__pkt__))                                                \
 			break;                                                 \
-		spllog(1, "(sti, sz, pts, dts, data)=(%d, %d, %ld, %ld, 0x%p)",      \
+		spllog(1, "(sti, sz, pts, dts, data)=(%d, %d, %lld, %lld, 0x%p)",      \
 		    (__pkt__)->stream_index, \
             (__pkt__)->size, \
             (__pkt__)->pts,  \
 		    (__pkt__)->dts, \
-            (__pkt__)->data);                          \
+            (__pkt__)->data); \
 	} while (0);
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 typedef int (*FFWR_CALLBACL_FN)(void *);

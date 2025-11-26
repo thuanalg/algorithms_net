@@ -481,7 +481,6 @@ void *ffwr_demux_routine(void *lpParam)
 		/*-----------------*/
 		while(1) 
 		{
-			FFWR_AVBuffer *ppp = 0;
 			vwait = auwait = 0;
 			stopping = ffwr_get_stopping(obj);
 			if(stopping) {
@@ -493,10 +492,16 @@ void *ffwr_demux_routine(void *lpParam)
 			if(result) {
 				break;
 			}
+		#if 0
+			pgb_instream->pkt.buf = 0;
+		#endif
 			ffrw_avpkt(&(pgb_instream->pkt));
 			if(pgb_instream->pkt.stream_index == 0) {
+		#if 0
+				FFWR_AVBuffer *ppp = 0;
 				ppp = (FFWR_AVBuffer *)
 					  (pgb_instream->pkt.buf->buffer);
+		#endif
 				result = avcodec_send_packet(
 					pgb_instream->v_cctx, 
 					&(pgb_instream->pkt));
