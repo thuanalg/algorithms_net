@@ -479,15 +479,29 @@ typedef struct __FFWR_VFrame__ {
     unsigned char data[0];
 } FFWR_VFrame;
 
+
+#ifndef LLI
+    #define LLI long long int
+#endif 
+
+typedef struct FFWR_AVRational
+{
+	int num; 
+	int den; 
+}
+FFWR_AVRational;
+
 typedef struct __FFWR_VPacket__ {
 	FFWR_SIZE_TYPE tt_sz;
+	LLI pts;
+	LLI dts;
 	int size;
-	int h;
-	int fmt;
-	int pts;
-	int linesize[FFWR_NUM_DATA_POINTERS];
-	int pos[FFWR_NUM_DATA_POINTERS + 1];
-	int len[FFWR_NUM_DATA_POINTERS + 1];
+	int stream_index;
+	int flags;
+	int side_data_elems;
+	LLI duration;
+	LLI pos;
+	FFWR_AVRational time_base;
 
 	unsigned char data[0];
 } FFWR_VPacket;
@@ -517,6 +531,10 @@ typedef struct __FFWR_DEMUX_OBJS__ {
 	FFWR_INPUT_ST input; /*From UI/User, may be changed for whole life-cycle.*/
 
 } FFWR_DEMUX_OBJS;
+
+typedef struct __FFWR_PNG_OBJ__ {
+
+} FFWR_PNG_OBJ;
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
