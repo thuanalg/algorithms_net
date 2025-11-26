@@ -538,7 +538,9 @@ typedef struct __FFWR_PNG_OBJ__ {
 	void *parent; /*Demux object*/
 	void *sem_pkt;
 	void *mtx_pkt;
-	FFWR_VPacket *pkts;
+	//FFWR_VPacket *pkts;
+	ffwr_gen_data_st *data;
+	ffwr_gen_data_st *data_shared;
 
 } FFWR_PNG_OBJ;
 

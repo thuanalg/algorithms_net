@@ -114,6 +114,7 @@ FFWRVideoFrame::xyz()
 
 	this->startedRender = 0;
 	obj_demux.isstop = 0;
+	obj_demux.childmode = 1;
 	shouldupdate = 1;
 	obj_demux.render_objects.native_window = this->m_hWnd;
 	//this->obj_demux.render_objects.

@@ -457,6 +457,7 @@ void *ffwr_demux_routine(void *lpParam)
 			break;			
 		}
 		if (obj->childmode) {
+			png.parent = obj;
 			ffwr_init_png(&png);
 			ret = ffwr_create_png_thread(&png);
 		}
@@ -512,12 +513,15 @@ void *ffwr_demux_routine(void *lpParam)
 			pgb_instream->pkt.buf = 0;
 		#endif
 			ffrw_avpkt(&(pgb_instream->pkt));
+
 			if(pgb_instream->pkt.stream_index == 0) {
+
 		#if 0
 				FFWR_AVBuffer *ppp = 0;
 				ppp = (FFWR_AVBuffer *)
 					  (pgb_instream->pkt.buf->buffer);
 		#endif
+				ffwr_semaphore_post(png.sem_pkt);
 				result = avcodec_send_packet(
 					pgb_instream->v_cctx, 
 					&(pgb_instream->pkt));
@@ -1931,10 +1935,10 @@ ffwr_create_png_thread(void *obj)
 #ifndef UNIX_LINUX
 	HANDLE hThread = 0;
 	DWORD dwThreadId = 0;
-	hThread = CreateThread(0, 0, ffwr_demux_routine, obj, 0, &dwThreadId);
+	hThread = CreateThread(0, 0, ffwr_png_routine, obj, 0, &dwThreadId);
 #else
 	pthread_t threadid = 0;
-	ret = pthread_create(&threadid, 0, ffwr_demux_routine, obj);
+	ret = pthread_create(&threadid, 0, ffwr_png_routine, obj);
 	if (ret) {
 		ret = FFWR_UNIX_PTHREAD_CREATE_ERR;
 		spllog(4, "pthread_create errno: %d, errtext: %s.", errno,
@@ -2210,10 +2214,22 @@ ffwr_png_routine(void *lpParam)
 #endif
 {
 	FFWR_PNG_OBJ *png = 0;
+	int ret = 0;
 	png = (FFWR_PNG_OBJ *)lpParam;
 	do {
 		while (1) {
-
+			ret = ffwr_semaphore_wait(png->sem_pkt);
+			spllog(1, "got image event");
+			if (png->data->pl <= png->data->pc) {
+				png->data->pl = png->data->pc = 0;
+				spl_mutex_lock(png->mtx_pkt);
+					do {
+						memcpy(png->data->data,
+						    png->data_shared->data,
+						    png->data_shared->pl);
+					} while (0);
+					spl_mutex_unlock(png->mtx_pkt);
+			} 
 		}
 	} while (0);
 	return 0;
@@ -2250,9 +2266,16 @@ ffwr_init_png(FFWR_PNG_OBJ *png)
 		}
 		ret = ffwr_create_genbuff(&buf, 7000000);
 		if (ret) {
-			spllog(4, "ffwr_create_genbuff");
+			spllog(4, "data - ffwr_create_genbuff");
 			break;
 		}
+		png->data = buf;
+		ret = ffwr_create_genbuff(&buf, 7000000);
+		if (ret) {
+			spllog(4, "data_shared - ffwr_create_genbuff");
+			break;
+		}
+		png->data_shared = buf;
 	} while (0);
 	return ret;
 }
