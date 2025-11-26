@@ -445,6 +445,7 @@ void *ffwr_demux_routine(void *lpParam)
 	int count_audio_pkt = 0;
 	int sent_started_render = 0;
 	FFWR_PNG_OBJ png = {0};
+	FFWR_VPacket *ffwr_pkt = 0;
 	do {
 		if(!obj) {
 			ret = FFWR_DEMUX_OBJS_NULL_ERR;
@@ -514,14 +515,54 @@ void *ffwr_demux_routine(void *lpParam)
 		#endif
 			ffrw_avpkt(&(pgb_instream->pkt));
 
-			if(pgb_instream->pkt.stream_index == 0) {
-
-		#if 0
+			if (pgb_instream->pkt.stream_index == 0) {
+#if 0
 				FFWR_AVBuffer *ppp = 0;
 				ppp = (FFWR_AVBuffer *)
 					  (pgb_instream->pkt.buf->buffer);
-		#endif
-				ffwr_semaphore_post(png.sem_pkt);
+#endif
+				if (obj->childmode) {
+					//ffwr_pkt = ffwr_malloc()
+					//ffwr_pkt.size = pgb_instream->pkt.size;
+					//ffwr_pkt.size = pgb_instream->pkt.size;
+					if (!ffwr_pkt) {
+						int sz = 0;
+						sz = pgb_instream->pkt.size;
+						sz += sizeof(FFWR_VPacket);
+						ffwr_malloc(
+						    sz, ffwr_pkt, FFWR_VPacket);
+						ffwr_pkt->tt_sz.total = sz;
+						ffwr_pkt->tt_sz.type =
+						    FFWR_DTYPE_PACKET;
+					}
+					else if (ffwr_pkt->size <
+						pgb_instream->pkt.size)
+					{
+						int sz = 0;
+						sz = pgb_instream->pkt.size;
+						sz += sizeof(FFWR_VPacket);
+						ffwr_pkt = realloc(ffwr_pkt, sz);
+					}
+					ffwr_pkt->size = pgb_instream->pkt.size;
+					memcpy(ffwr_pkt->data,
+					    pgb_instream->pkt.data,
+					    ffwr_pkt->size);
+
+					spl_mutex_lock(png.mtx_pkt);
+					do {
+						memcpy(png.data_shared->data +
+							   png.data_shared->pl,
+								(char*)ffwr_pkt,
+						    ffwr_pkt->tt_sz.total);
+						png.data_shared->pl +=
+						    ffwr_pkt->tt_sz.total;
+
+					} while (0);
+					spl_mutex_unlock(png.mtx_pkt);
+
+					ffwr_semaphore_post(png.sem_pkt);
+				}
+				
 				result = avcodec_send_packet(
 					pgb_instream->v_cctx, 
 					&(pgb_instream->pkt));
@@ -2216,6 +2257,7 @@ ffwr_png_routine(void *lpParam)
 	FFWR_PNG_OBJ *png = 0;
 	int ret = 0;
 	png = (FFWR_PNG_OBJ *)lpParam;
+	FFWR_VPacket *p = 0;
 	do {
 		while (1) {
 			ret = ffwr_semaphore_wait(png->sem_pkt);
@@ -2227,9 +2269,20 @@ ffwr_png_routine(void *lpParam)
 						memcpy(png->data->data,
 						    png->data_shared->data,
 						    png->data_shared->pl);
+						png->data->pl =
+						    png->data_shared->pl;
+						png->data_shared->pc = 0;
+						png->data_shared->pl = 0;
 					} while (0);
-					spl_mutex_unlock(png->mtx_pkt);
+				spl_mutex_unlock(png->mtx_pkt);
 			} 
+			if (!png->data->pl) {
+				continue;
+			}
+			p = (FFWR_VPacket *)png->data->data;
+			spllog(1, "imge size: %d", p->size);
+			png->data->pc = 0;
+			png->data->pl = 0;
 		}
 	} while (0);
 	return 0;
