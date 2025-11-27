@@ -494,6 +494,7 @@ FFWR_AVRational;
 
 typedef struct __FFWR_VPacket__ {
 	FFWR_SIZE_TYPE tt_sz;
+	
 	LLI pts;
 	LLI dts;
 	int size;
@@ -535,6 +536,7 @@ typedef struct __FFWR_DEMUX_OBJS__ {
 } FFWR_DEMUX_OBJS;
 
 typedef struct __FFWR_PNG_OBJ__ {
+	char isoff;
 	void *parent; /*Demux object*/
 	void *sem_pkt;
 	void *mtx_pkt;

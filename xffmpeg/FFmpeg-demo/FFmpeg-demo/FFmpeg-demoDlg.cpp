@@ -336,7 +336,7 @@ const char *ghgdhsg[] = {
 	"C:/Users/DEll/Desktop/A1-TS_00_d.ts",
 
 };
-#define FFWR_WIN_DIRECT			"video=Integrated Webcam:audio=Microphone (2- Realtek(R) Audio)"
+#define FFWR_WIN_DIRECT			"video=Integrated Webcam:audio=Microphone (Realtek(R) Audio)"
 void CFFmpegdemoDlg::OnBnClickedStart()
 {
 	// TODO: Add your control notification handler code here
