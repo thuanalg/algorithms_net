@@ -707,6 +707,15 @@ void *ffwr_demux_routine(void *lpParam)
 		/*-----------------*/
 	} while(0);
 
+#if 0
+	if (obj->childmode) {
+		spl_mutex_lock(png.mtx_pkt);
+		png.isoff = 1;
+		spl_mutex_unlock(png.mtx_pkt);
+		ffwr_semaphore_wait(png.sem_off);
+	}
+#endif
+
 	if (obj->audio.devid > 0) {
 		unsigned int devid = obj->audio.devid;
 		//SDL_PauseAudioDevice(devid, 1);
@@ -726,7 +735,17 @@ void *ffwr_demux_routine(void *lpParam)
 		obj->input.sz_type.type = FFWR_DEMUX_THREAD_EXIT;
 		obj->input.cb(obj);
 	}
-	
+#if 1
+	if (obj->childmode) {
+		spl_mutex_lock(png.mtx_pkt);
+			png.isoff = 1;
+		spl_mutex_unlock(png.mtx_pkt);
+		ffwr_semaphore_post(png.sem_pkt);
+		ffwr_semaphore_wait(png.sem_off);
+	}
+#endif
+
+	spllog(1, "End demux thread");
 	return ret;
 }
 
@@ -2229,55 +2248,6 @@ typedef struct __FFWR_AUDIO_OBJECTS__ {
 	} while(0);
 	return ret;	
 }
-
-/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-#ifndef UNIX_LINUX
-
-static DWORD WINAPI
-ffwr_png_routine(LPVOID lpParam)
-#else
-static void *
-ffwr_png_routine(void *lpParam)
-#endif
-{
-	FFWR_PNG_OBJ *png = 0;
-	int ret = 0;
-	png = (FFWR_PNG_OBJ *)lpParam;
-	FFWR_VPacket *p = 0;
-	do {
-		while (1) {
-			ret = ffwr_semaphore_wait(png->sem_pkt);
-			spllog(1, "got image event");
-			if (png->data->pl <= png->data->pc) {
-				png->data->pl = png->data->pc = 0;
-				spl_mutex_lock(png->mtx_pkt);
-					do {
-						memcpy(png->data->data,
-						    png->data_shared->data,
-						    png->data_shared->pl);
-						png->data->pl =
-						    png->data_shared->pl;
-						png->data_shared->pc = 0;
-						png->data_shared->pl = 0;
-					} while (0);
-				spl_mutex_unlock(png->mtx_pkt);
-			} 
-			if (!png->data->pl) {
-				continue;
-			}
-			p = (FFWR_VPacket *)png->data->data;
-			if (p->isoff) {
-				break;
-			}
-			spllog(1, "(size, total): (%d, %d)", 
-				p->size,
-				p->tt_sz.total);
-			png->data->pc = 0;
-			png->data->pl = 0;
-		}
-	} while (0);
-	return 0;
-}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int
 ffwr_init_png(FFWR_PNG_OBJ *png)
@@ -2300,7 +2270,12 @@ ffwr_init_png(FFWR_PNG_OBJ *png)
 		}
 		ret = ffwr_create_semaphore(&(png->sem_pkt), 0);
 		if (ret) {
-			spllog(4, "ffwr_create_semaphore");
+			spllog(4, "sem_pkt - ffwr_create_semaphore");
+			break;
+		}
+		ret = ffwr_create_semaphore(&(png->sem_off), 0);
+		if (ret) {
+			spllog(4, "sem_off - ffwr_create_semaphore");
 			break;
 		}
 		ret = ffwr_create_mutex(&(png->mtx_pkt), 0);
@@ -2323,6 +2298,69 @@ ffwr_init_png(FFWR_PNG_OBJ *png)
 	} while (0);
 	return ret;
 }
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+#ifndef UNIX_LINUX
+
+static DWORD WINAPI
+ffwr_png_routine(LPVOID lpParam)
+#else
+static void *
+ffwr_png_routine(void *lpParam)
+#endif
+{
+	FFWR_PNG_OBJ *png = 0;
+	int ret = 0;
+	char isoff = 0;
+	png = (FFWR_PNG_OBJ *)lpParam;
+	FFWR_VPacket *p = 0;
+	do {
+		while (1) {
+			//spl_mutex_lock(png->mtx_pkt);
+				isoff = png->isoff;
+			//spl_mutex_unlock(png->mtx_pkt);
+
+			spllog(1, 
+				"isoff exit png thread: %d.", 
+				isoff);
+			if (isoff) {
+				break;
+			}
+			ret = ffwr_semaphore_wait(png->sem_pkt);
+			spllog(1, "got image event");
+			if (png->data->pl <= png->data->pc) {
+				png->data->pl = png->data->pc = 0;
+				spl_mutex_lock(png->mtx_pkt);
+					do {
+						memcpy(png->data->data,
+						    png->data_shared->data,
+						    png->data_shared->pl);
+						png->data->pl =
+						    png->data_shared->pl;
+						png->data_shared->pc = 0;
+						png->data_shared->pl = 0;
+					} while (0);
+				spl_mutex_unlock(png->mtx_pkt);
+			} 
+			//if (!png->data->pl) {
+			//	continue;
+			//}
+			p = (FFWR_VPacket *)png->data->data;
+			//if (png->isoff) {
+			//	break;
+			//}
+			spllog(1, "(size, total): (%d, %d)", 
+				p->size,
+				p->tt_sz.total);
+			png->data->pc = 0;
+			png->data->pl = 0;
+		}
+	} while (0);
+	spllog(1, "exit png thread.");
+	ffwr_semaphore_post(png->sem_off);
+	spllog(1, "exit png thread.");
+	return 0;
+}
+
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
