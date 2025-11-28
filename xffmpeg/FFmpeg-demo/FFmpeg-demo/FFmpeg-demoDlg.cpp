@@ -296,7 +296,7 @@ DWORD WINAPI
 MyThreadStop(LPVOID lpParam)
 {
 	CFFmpegdemoDlg *p = (CFFmpegdemoDlg *)lpParam;
-	Sleep(50); 
+	Sleep(500); 
 	PostMessage(p->m_hWnd, WM_CLOSE, 0, 0);
 	return 0;
 }

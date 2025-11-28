@@ -778,12 +778,7 @@ void *ffwr_demux_routine(void *lpParam)
 	ffwr_free(ffwr_vframe);
 	
 	ffwr_close_instream(obj);
-	
-	if(obj->input.cb) {
-		obj->input.sz_type.type = FFWR_DEMUX_THREAD_EXIT;
-		obj->input.cb(obj);
-	}
-#if 1
+
 	if (obj->childmode) {
 		spl_mutex_lock(png.mtx_pkt);
 			png.isoff = 1;
@@ -792,8 +787,11 @@ void *ffwr_demux_routine(void *lpParam)
 		ffwr_semaphore_wait(png.sem_off);
 		ffwr_clear_png(&png);
 	}
-#endif
 
+	if (obj->input.cb) {
+		obj->input.sz_type.type = FFWR_DEMUX_THREAD_EXIT;
+		obj->input.cb(obj);
+	}
 	spllog(1, "End demux thread");
 	return ret;
 }
