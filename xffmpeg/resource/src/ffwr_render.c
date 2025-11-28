@@ -237,7 +237,12 @@ ffwr_SDL_CloseAudioDevice(unsigned int devid);
 static void 
 ffwr_SDL_PauseAudioDevice(unsigned int devid, int onoff);
 
-/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+static int
+ffwr_mv_frame(void*, FFWR_VFrame *p, AVFrame *src, AVFrame *dst);
+
+int
+ffwr_premv_frame(void *, FFWR_VFrame *p, AVFrame *src, AVFrame *dst, int);
+    /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int
 ffwr_hello() {
 	int ret = 0;
@@ -2322,18 +2327,18 @@ ffwr_init_png(FFWR_PNG_OBJ *png)
 			spllog(4, "ffwr_create_mutex");
 			break;
 		}
-		ret = ffwr_create_genbuff(&buf, 7000000);
-		if (ret) {
-			spllog(4, "data - ffwr_create_genbuff");
-			break;
-		}
-		png->data = buf;
-		ret = ffwr_create_genbuff(&buf, 7000000);
-		if (ret) {
-			spllog(4, "data_shared - ffwr_create_genbuff");
-			break;
-		}
-		png->data_shared = buf;
+		//ret = ffwr_create_genbuff(&buf, 7000000);
+		//if (ret) {
+		//	spllog(4, "data - ffwr_create_genbuff");
+		//	break;
+		//}
+		//png->data = buf;
+		//ret = ffwr_create_genbuff(&buf, 7000000);
+		//if (ret) {
+		//	spllog(4, "data_shared - ffwr_create_genbuff");
+		//	break;
+		//}
+		//png->data_shared = buf;
 
 		ret = ffwr_create_genbuff(&buf, 7000000);
 		if (ret) {
@@ -2366,11 +2371,12 @@ ffwr_png_routine(void *lpParam)
 	char isoff = 0;
 	png = (FFWR_PNG_OBJ *)lpParam;
 	FFWR_VFrame *p = 0;
-	AVPacket src_pkt = {0};
+	//AVPacket src_pkt = {0};
 	AVPacket dst_pkt = {0};
 	AVCodecContext *png_ctx = 0; // Original video decoder context
 	AVCodec *png_codec = 0;
-	AVFrame *frame = 0 ; // Raw frame to receive decoded data
+	AVFrame *framedraw = 0 ; // Raw frame to receive decoded data
+	AVFrame *framepng = 0 ; // Raw frame to receive decoded data
 	FFWR_DEMUX_OBJS *parent = 0;
 	ffwr_gen_data_st *pdta = 0;
 	ffwr_gen_data_st *pshared = 0;
@@ -2406,14 +2412,22 @@ ffwr_png_routine(void *lpParam)
 			return -1;
 		}
 
-		frame = av_frame_alloc();
-		if (!frame) {
+		framedraw = av_frame_alloc();
+		if (!framedraw) {
 			fprintf(stderr, "Could not allocate video frame\n");
 			return -1;
-		}		
+		}
+
+		framepng = av_frame_alloc();
+		if (!framepng) {
+			fprintf(stderr, "framepng Could not allocate video frame\n");
+			return -1;
+		}
+
 
 		while (1) {
 			p = 0;
+			ffwr_packet_unref(&dst_pkt);
 			if (isoff) {
 				break;
 			}
@@ -2444,7 +2458,7 @@ ffwr_png_routine(void *lpParam)
 				continue;
 			}
 			p = (FFWR_VFrame *)pdta->data;
-			
+			ffwr_mv_frame(png, p, framedraw, framepng);
 			pdta->pc = 0;
 			pdta->pl = 0;
 
@@ -2474,8 +2488,13 @@ ffwr_png_routine(void *lpParam)
 #endif
 		}
 	} while (0);
-	if (frame) {
-		ffwr_frame_free(&frame);
+
+	if (framedraw) {
+		ffwr_frame_free(&framedraw);
+	}
+
+	if (framepng) {
+		ffwr_frame_free(&framepng);
 	}
 	if (png_ctx) {
 		ffwr_avcodec_free_context(&png_ctx);
@@ -2488,7 +2507,70 @@ ffwr_png_routine(void *lpParam)
 }
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int
+ffwr_mv_frame(void *obj, FFWR_VFrame* p, AVFrame* src, AVFrame* dst)
+{
+	int ret = 0;
+	do {
+		ffwr_premv_frame(obj, p, src, dst, AV_PIX_FMT_RGB24);
+	} while (0);
+	return ret;
+}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int
+ffwr_premv_frame(void *obj, FFWR_VFrame *p, AVFrame *src, AVFrame *dst, int format)
+{
+	int ret = 0;
+	int sizebuff = 0;
+	char changed = 0;
+	char changedsrc = 0;
+	char changeddst = 0;
+	FFWR_PNG_OBJ *png = 0;
+	do {
+		png = (FFWR_PNG_OBJ *)obj;
+
+		if (src->format != p->fmt) {
+			src->format = p->fmt;
+			changedsrc = 1;
+		}
+		if (src->width != p->w) {
+			src->width = p->w;
+			changedsrc = 1;
+		}
+		if (src->height != p->h) {
+			src->height = p->h;
+			changedsrc = 1;
+		}
+		if (changedsrc) {
+			av_frame_get_buffer(src, 32);
+		}
+
+		if (dst->format != format) {
+			dst->format = format;
+			changeddst = 1;
+		}
+		if (dst->width != p->w) {
+			dst->width = p->w;
+			changeddst = 1;
+		}
+		if (dst->height != p->h) {
+			dst->height = p->h;
+			changeddst = 1;
+		}
+		if (changeddst) {
+			av_frame_get_buffer(dst, 32);
+		}
+		if (!png->sws_ctx) {
+			ffwr_sws_getContext(png->sws_ctx, src->width, src->height,
+				src->format, dst->width, dst->height, dst->format,
+				SWS_BILINEAR, NULL, NULL, NULL);
+		}
+		if (!png->sws_ctx) {
+			spllog(4, "sws_ctx");
+		}
+	} while (0);
+	return ret;
+}
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/

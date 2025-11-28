@@ -542,12 +542,12 @@ typedef struct __FFWR_PNG_OBJ__ {
 	void *sem_off;
 	void *mtx_pkt;
 	//FFWR_VPacket *pkts;
-	ffwr_gen_data_st *data;
-	ffwr_gen_data_st *data_shared;
+	//ffwr_gen_data_st *data;
+	//ffwr_gen_data_st *data_shared;
 
     ffwr_gen_data_st *data_ffwr_frame;
     ffwr_gen_data_st *share_data_ffwr_frame;
-
+    void *sws_ctx;
 } FFWR_PNG_OBJ;
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
