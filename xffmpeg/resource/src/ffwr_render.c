@@ -162,6 +162,9 @@ ffwr_png_routine(void *obj);
 static int
 ffwr_init_png(FFWR_PNG_OBJ *png);
 
+static int
+ffwr_clear_png(FFWR_PNG_OBJ *png);
+
 static int 
 ffwr_get_rawsize_vframe(AVFrame *src);
 
@@ -787,6 +790,7 @@ void *ffwr_demux_routine(void *lpParam)
 		spl_mutex_unlock(png.mtx_pkt);
 		ffwr_semaphore_post(png.sem_pkt);
 		ffwr_semaphore_wait(png.sem_off);
+		ffwr_clear_png(&png);
 	}
 #endif
 
@@ -2293,6 +2297,7 @@ typedef struct __FFWR_AUDIO_OBJECTS__ {
 	} while(0);
 	return ret;	
 }
+
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int
 ffwr_init_png(FFWR_PNG_OBJ *png)
@@ -2357,6 +2362,29 @@ ffwr_init_png(FFWR_PNG_OBJ *png)
 	} while (0);
 	return ret;
 }
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+int
+ffwr_clear_png(FFWR_PNG_OBJ *png)
+{
+	int ret = 0;
+	do {
+		if (!png) {
+			ret = 1;
+			break;
+		}
+		ffwr_destroy_semaphore(png->sem_pkt);
+		png->sem_pkt = 0;
+		ffwr_destroy_semaphore(png->sem_off);
+		png->sem_off = 0;
+		ffwr_destroy_mutex(png->mtx_pkt);
+		png->mtx_pkt = 0;
+		ffwr_free(png->data_ffwr_frame);
+		ffwr_free(png->share_data_ffwr_frame);
+	} while (0);
+	return ret;
+}
+#if 0
+#endif
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 #ifndef UNIX_LINUX
 
