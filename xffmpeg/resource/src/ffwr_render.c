@@ -2331,7 +2331,31 @@ ffwr_png_routine(void *lpParam)
 	FFWR_VPacket *p = 0;
 	AVPacket src_pkt = {0};
 	AVPacket dst_pkt = {0};
+	AVCodecContext *png_ctx = 0; // Original video decoder context
+	AVCodec *png_codec = 0;
+	AVFrame *frame = 0 ; // Raw frame to receive decoded data
+	
 	do {
+		// Find the PNG encoder by name
+		png_codec = avcodec_find_encoder_by_name("png");
+		if (!png_codec) {
+			fprintf(stderr, "PNG encoder not found\n");
+			return -1;
+		}
+		// Allocate context for the PNG encoder
+		ffwr_avcodec_alloc_context3(png_ctx, png_codec);
+		if (!png_ctx) {
+			fprintf(
+			    stderr, "Could not allocate PNG codec context\n");
+			return -1;
+		}
+
+		frame = av_frame_alloc();
+		if (!frame) {
+			fprintf(stderr, "Could not allocate video frame\n");
+			return -1;
+		}		
+
 		while (1) {
 			p = 0;
 			if (isoff) {
@@ -2394,6 +2418,14 @@ ffwr_png_routine(void *lpParam)
 #endif
 		}
 	} while (0);
+	if (frame) {
+		ffwr_frame_free(&frame);
+	}
+	if (png_ctx) {
+		ffwr_avcodec_free_context(&png_ctx);
+	}
+	ffwr_packet_unref(&dst_pkt);
+
 	ffwr_semaphore_post(png->sem_off);
 	spllog(1, "exit png thread.");
 	return 0;
