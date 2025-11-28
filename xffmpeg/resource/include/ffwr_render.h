@@ -547,7 +547,7 @@ typedef struct __FFWR_PNG_OBJ__ {
 
     ffwr_gen_data_st *data_ffwr_frame;
     ffwr_gen_data_st *share_data_ffwr_frame;
-    void *sws_ctx;
+    //void *sws_ctx;
 } FFWR_PNG_OBJ;
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/

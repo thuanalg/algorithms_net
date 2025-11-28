@@ -238,10 +238,11 @@ static void
 ffwr_SDL_PauseAudioDevice(unsigned int devid, int onoff);
 
 static int
-ffwr_mv_frame(void*, FFWR_VFrame *p, AVFrame *src, AVFrame *dst);
+ffwr_mv_frame(void **, FFWR_VFrame *p, AVFrame *src, AVFrame *dst);
 
 int
-ffwr_premv_frame(void *, FFWR_VFrame *p, AVFrame *src, AVFrame *dst, int);
+ffwr_premv_frame(
+    void **, FFWR_VFrame *p, AVFrame *src, AVFrame *dst, int);
     /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int
 ffwr_hello() {
@@ -2381,6 +2382,7 @@ ffwr_png_routine(void *lpParam)
 	ffwr_gen_data_st *pdta = 0;
 	ffwr_gen_data_st *pshared = 0;
 	int count = 0;
+	void *sws_ctx = 0;
 	do {
 		pdta = png->data_ffwr_frame;
 		pshared = png->share_data_ffwr_frame;
@@ -2459,7 +2461,7 @@ ffwr_png_routine(void *lpParam)
 				continue;
 			}
 			p = (FFWR_VFrame *)pdta->data;
-			ffwr_mv_frame(png, p, framedraw, framepng);
+			ffwr_mv_frame(&sws_ctx, p, framedraw, framepng);
 			pdta->pc = 0;
 			pdta->pl = 0;
 			ret = avcodec_send_frame(png_ctx, framepng);
@@ -2484,35 +2486,11 @@ ffwr_png_routine(void *lpParam)
 			} else if (ret == AVERROR_EOF) {
 				spllog(1, "---");
 			}
-
-
-			//src_pkt.size = p->size;
-			//src_pkt.data = p->data;
-			//
-			//src_pkt.pts = p->pts;
-			//src_pkt.stream_index = p->stream_index;
-			//src_pkt.flags = p->flags;
-			//src_pkt.side_data_elems = p->side_data_elems;
-			//src_pkt.duration = p->duration;
-			//src_pkt.pos = p->pos;
-			//src_pkt.time_base.num = p->time_base.num;
-			//src_pkt.time_base.den = p->time_base.den;
-#if 0
- 	LLI pts;
-	LLI dts;
-	int size;
-	int stream_index;
-	int flags;
-	int side_data_elems;
-	LLI duration;
-	LLI pos;
-	FFWR_AVRational time_base;
-
-	unsigned char data[0];
-#endif
 		}
 	} while (0);
+	if (!sws_ctx) {
 
+	}
 	if (framedraw) {
 		ffwr_frame_free(&framedraw);
 	}
@@ -2532,14 +2510,12 @@ ffwr_png_routine(void *lpParam)
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int
-ffwr_mv_frame(void *obj, FFWR_VFrame* p, AVFrame* src, AVFrame* dst)
+ffwr_mv_frame( void ** sws_ctx, FFWR_VFrame *p, AVFrame *src, AVFrame *dst)
 {
 	int ret = 0;
 	int i = 0;
-	FFWR_PNG_OBJ *png = 0;
 	do {
-		png = (FFWR_PNG_OBJ *)obj;
-		ret = ffwr_premv_frame(obj, p, src, dst, AV_PIX_FMT_RGB24);
+		ret = ffwr_premv_frame(sws_ctx, p, src, dst, AV_PIX_FMT_RGB24);
 		if (ret) {
 			break;
 		}
@@ -2549,7 +2525,7 @@ ffwr_mv_frame(void *obj, FFWR_VFrame* p, AVFrame* src, AVFrame* dst)
 			src->linesize[i] = p->linesize[i];
 			++i;
 		}
-		ret = sws_scale(png->sws_ctx, (const uint8_t *const *)src->data,
+		ret = sws_scale( *sws_ctx, (const uint8_t *const *)src->data,
 		    src->linesize, 0, src->height, dst->data, dst->linesize);
 		dst->pts = src->pts;
 		if (ret < 1) {
@@ -2561,17 +2537,15 @@ ffwr_mv_frame(void *obj, FFWR_VFrame* p, AVFrame* src, AVFrame* dst)
 }
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 int
-ffwr_premv_frame(void *obj, FFWR_VFrame *p, AVFrame *src, AVFrame *dst, int format)
+ffwr_premv_frame(void **sws_ctx, FFWR_VFrame *p, AVFrame *src,
+    AVFrame *dst, int format)
 {
 	int ret = 0;
 	int sizebuff = 0;
 	char changed = 0;
 	char changedsrc = 0;
 	char changeddst = 0;
-	FFWR_PNG_OBJ *png = 0;
 	do {
-		png = (FFWR_PNG_OBJ *)obj;
-
 		if (src->format != p->fmt) {
 			src->format = p->fmt;
 			changedsrc = 1;
@@ -2603,13 +2577,16 @@ ffwr_premv_frame(void *obj, FFWR_VFrame *p, AVFrame *src, AVFrame *dst, int form
 		if (changeddst) {
 			av_frame_get_buffer(dst, 32);
 		}
-		if (!png->sws_ctx) {
-			ffwr_sws_getContext(png->sws_ctx, src->width, src->height,
+		if (! (*sws_ctx)) {
+			void *tmp = 0;
+			ffwr_sws_getContext(tmp, src->width, src->height,
 				src->format, dst->width, dst->height, dst->format,
 				SWS_BILINEAR, NULL, NULL, NULL);
+			*sws_ctx = tmp;
 		}
-		if (!png->sws_ctx) {
+		if (!(*sws_ctx)) {
 			spllog(4, "sws_ctx");
+			ret = 1;
 		}
 	} while (0);
 	return ret;
