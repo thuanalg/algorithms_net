@@ -13,6 +13,7 @@
 #include <simplelog.h>
 #include <libavdevice/avdevice.h>
 #include <libavformat/avformat.h>
+#include <libavutil/imgutils.h>
 
 #ifndef UNIX_LINUX
 	#include <SDL2/SDL_syswm.h>
@@ -2313,8 +2314,11 @@ ffwr_png_routine(void *lpParam)
 	char isoff = 0;
 	png = (FFWR_PNG_OBJ *)lpParam;
 	FFWR_VPacket *p = 0;
+	AVPacket src_pkt = {0};
+	AVPacket dst_pkt = {0};
 	do {
 		while (1) {
+			p = 0;
 			if (isoff) {
 				break;
 			}
@@ -2346,6 +2350,33 @@ ffwr_png_routine(void *lpParam)
 				p->tt_sz.total);
 			png->data->pc = 0;
 			png->data->pl = 0;
+			if (!p) {
+				continue;
+			}
+			src_pkt.size = p->size;
+			src_pkt.data = p->data;
+
+			src_pkt.pts = p->pts;
+			src_pkt.stream_index = p->stream_index;
+			src_pkt.flags = p->flags;
+			src_pkt.side_data_elems = p->side_data_elems;
+			src_pkt.duration = p->duration;
+			src_pkt.pos = p->pos;
+			src_pkt.time_base.num = p->time_base.num;
+			src_pkt.time_base.den = p->time_base.den;
+#if 0
+ 	LLI pts;
+	LLI dts;
+	int size;
+	int stream_index;
+	int flags;
+	int side_data_elems;
+	LLI duration;
+	LLI pos;
+	FFWR_AVRational time_base;
+
+	unsigned char data[0];
+#endif
 		}
 	} while (0);
 	ffwr_semaphore_post(png->sem_off);
