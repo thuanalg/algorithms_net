@@ -546,6 +546,15 @@ void *ffwr_demux_routine(void *lpParam)
 
 					spl_mutex_lock(png.mtx_pkt);
 					do {
+						/*TODO: overrange ->pl 251128*/
+						if ((ffwr_pkt.size +
+							sizeof(ffwr_pkt) +
+							png.data_shared->pl) >
+							png.data_shared->range)
+						{
+							png.data_shared->pc = 0;
+							png.data_shared->pl = 0;
+						}
 						memcpy(png.data_shared->data +
 							   png.data_shared->pl,
 						    (char *)( &ffwr_pkt),
@@ -558,7 +567,7 @@ void *ffwr_demux_routine(void *lpParam)
 						    ffwr_pkt.size);
 						png.data_shared->pl +=
 						    ffwr_pkt.size;
-
+						
 					} while (0);
 					spl_mutex_unlock(png.mtx_pkt);
 
@@ -2334,8 +2343,10 @@ ffwr_png_routine(void *lpParam)
 	AVCodecContext *png_ctx = 0; // Original video decoder context
 	AVCodec *png_codec = 0;
 	AVFrame *frame = 0 ; // Raw frame to receive decoded data
-	
+	FFWR_DEMUX_OBJS *parent = 0;
+
 	do {
+		parent = (FFWR_DEMUX_OBJS *)png->parent;
 		// Find the PNG encoder by name
 		png_codec = avcodec_find_encoder_by_name("png");
 		if (!png_codec) {
@@ -2347,6 +2358,19 @@ ffwr_png_routine(void *lpParam)
 		if (!png_ctx) {
 			fprintf(
 			    stderr, "Could not allocate PNG codec context\n");
+			return -1;
+		}
+		// Configure parameters for the PNG encoder
+		png_ctx->width = 640;
+		png_ctx->height = 480;
+		// PNG typically uses RGB24 or RGBA
+		png_ctx->pix_fmt = AV_PIX_FMT_RGB24;
+		png_ctx->time_base =
+		    (AVRational){1, 25}; // An arbitrary time base
+
+		// Open the PNG encoder
+		if (avcodec_open2(png_ctx, png_codec, NULL) < 0) {
+			fprintf(stderr, "Could not open PNG codec\n");
 			return -1;
 		}
 
