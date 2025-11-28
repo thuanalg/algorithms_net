@@ -2315,17 +2315,16 @@ ffwr_png_routine(void *lpParam)
 	FFWR_VPacket *p = 0;
 	do {
 		while (1) {
-			//spl_mutex_lock(png->mtx_pkt);
-				isoff = png->isoff;
-			//spl_mutex_unlock(png->mtx_pkt);
-
-			spllog(1, 
-				"isoff exit png thread: %d.", 
-				isoff);
 			if (isoff) {
 				break;
 			}
 			ret = ffwr_semaphore_wait(png->sem_pkt);
+			spl_mutex_lock(png->mtx_pkt);
+				isoff = png->isoff;
+			spl_mutex_unlock(png->mtx_pkt);
+			if (isoff) {
+				break;
+			}
 			spllog(1, "got image event");
 			if (png->data->pl <= png->data->pc) {
 				png->data->pl = png->data->pc = 0;
@@ -2341,13 +2340,7 @@ ffwr_png_routine(void *lpParam)
 					} while (0);
 				spl_mutex_unlock(png->mtx_pkt);
 			} 
-			//if (!png->data->pl) {
-			//	continue;
-			//}
 			p = (FFWR_VPacket *)png->data->data;
-			//if (png->isoff) {
-			//	break;
-			//}
 			spllog(1, "(size, total): (%d, %d)", 
 				p->size,
 				p->tt_sz.total);
@@ -2355,7 +2348,6 @@ ffwr_png_routine(void *lpParam)
 			png->data->pl = 0;
 		}
 	} while (0);
-	spllog(1, "exit png thread.");
 	ffwr_semaphore_post(png->sem_off);
 	spllog(1, "exit png thread.");
 	return 0;
