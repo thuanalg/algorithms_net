@@ -529,6 +529,21 @@ void *ffwr_demux_routine(void *lpParam)
 					}
 					ffwr_pkt.size = pgb_instream->pkt.size;
 
+					ffwr_pkt.pts = pgb_instream->pkt.pts;
+					ffwr_pkt.stream_index =
+					    pgb_instream->pkt.stream_index;
+					ffwr_pkt.flags =
+					    pgb_instream->pkt.flags;
+					ffwr_pkt.side_data_elems =
+					    pgb_instream->pkt.side_data_elems;
+					ffwr_pkt.duration =
+					    pgb_instream->pkt.duration;
+					ffwr_pkt.pos = pgb_instream->pkt.pos;
+					ffwr_pkt.time_base.num =
+					    pgb_instream->pkt.time_base.num;
+					ffwr_pkt.time_base.den =
+					    pgb_instream->pkt.time_base.den;
+
 					spl_mutex_lock(png.mtx_pkt);
 					do {
 						memcpy(png.data_shared->data +
