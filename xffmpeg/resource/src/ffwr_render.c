@@ -2488,8 +2488,8 @@ ffwr_png_routine(void *lpParam)
 			}
 		}
 	} while (0);
-	if (!sws_ctx) {
-
+	if (sws_ctx) {
+		ffwr_sws_freeContext(sws_ctx);
 	}
 	if (framedraw) {
 		ffwr_frame_free(&framedraw);
