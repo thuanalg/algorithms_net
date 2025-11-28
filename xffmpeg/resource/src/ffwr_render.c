@@ -2511,8 +2511,18 @@ int
 ffwr_mv_frame(void *obj, FFWR_VFrame* p, AVFrame* src, AVFrame* dst)
 {
 	int ret = 0;
+	int i = 0;
 	do {
-		ffwr_premv_frame(obj, p, src, dst, AV_PIX_FMT_RGB24);
+		ret = ffwr_premv_frame(obj, p, src, dst, AV_PIX_FMT_RGB24);
+		if (ret) {
+			break;
+		}
+		src->pts = p->pts;
+		while (i < FFWR_NUM_DATA_POINTERS) {
+			src->data[i] = p->data + p->pos[i];
+			src->linesize[i] = p->linesize[i];
+			++i;
+		}
 	} while (0);
 	return ret;
 }
