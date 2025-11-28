@@ -519,59 +519,59 @@ void *ffwr_demux_routine(void *lpParam)
 					//ffwr_pkt = ffwr_malloc()
 					//ffwr_pkt.size = pgb_instream->pkt.size;
 					//ffwr_pkt.size = pgb_instream->pkt.size;
-					if (ffwr_pkt.size !=
-					    pgb_instream->pkt.size) {
-						int sz = 0;
-						sz = pgb_instream->pkt.size;
-						sz += sizeof(FFWR_VPacket);
-						ffwr_pkt.tt_sz.total = sz;
-						ffwr_pkt.tt_sz.type = FFWR_DTYPE_PACKET;
-					}
-					ffwr_pkt.size = pgb_instream->pkt.size;
-
-					ffwr_pkt.pts = pgb_instream->pkt.pts;
-					ffwr_pkt.stream_index =
-					    pgb_instream->pkt.stream_index;
-					ffwr_pkt.flags =
-					    pgb_instream->pkt.flags;
-					ffwr_pkt.side_data_elems =
-					    pgb_instream->pkt.side_data_elems;
-					ffwr_pkt.duration =
-					    pgb_instream->pkt.duration;
-					ffwr_pkt.pos = pgb_instream->pkt.pos;
-					ffwr_pkt.time_base.num =
-					    pgb_instream->pkt.time_base.num;
-					ffwr_pkt.time_base.den =
-					    pgb_instream->pkt.time_base.den;
-
-					spl_mutex_lock(png.mtx_pkt);
-					do {
-						/*TODO: overrange ->pl 251128*/
-						if ((ffwr_pkt.size +
-							sizeof(ffwr_pkt) +
-							png.data_shared->pl) >
-							png.data_shared->range)
-						{
-							png.data_shared->pc = 0;
-							png.data_shared->pl = 0;
-						}
-						memcpy(png.data_shared->data +
-							   png.data_shared->pl,
-						    (char *)( &ffwr_pkt),
-						    sizeof(ffwr_pkt));
-						png.data_shared->pl +=
-						    sizeof(ffwr_pkt);
-						memcpy(png.data_shared->data +
-							   png.data_shared->pl,
-						    (char *)pgb_instream->pkt.data,
-						    ffwr_pkt.size);
-						png.data_shared->pl +=
-						    ffwr_pkt.size;
-						
-					} while (0);
-					spl_mutex_unlock(png.mtx_pkt);
-
-					ffwr_semaphore_post(png.sem_pkt);
+					//if (ffwr_pkt.size !=
+					//    pgb_instream->pkt.size) {
+					//	int sz = 0;
+					//	sz = pgb_instream->pkt.size;
+					//	sz += sizeof(FFWR_VPacket);
+					//	ffwr_pkt.tt_sz.total = sz;
+					//	ffwr_pkt.tt_sz.type = FFWR_DTYPE_PACKET;
+					//}
+					//ffwr_pkt.size = pgb_instream->pkt.size;
+					//
+					//ffwr_pkt.pts = pgb_instream->pkt.pts;
+					//ffwr_pkt.stream_index =
+					//    pgb_instream->pkt.stream_index;
+					//ffwr_pkt.flags =
+					//    pgb_instream->pkt.flags;
+					//ffwr_pkt.side_data_elems =
+					//    pgb_instream->pkt.side_data_elems;
+					//ffwr_pkt.duration =
+					//    pgb_instream->pkt.duration;
+					//ffwr_pkt.pos = pgb_instream->pkt.pos;
+					//ffwr_pkt.time_base.num =
+					//    pgb_instream->pkt.time_base.num;
+					//ffwr_pkt.time_base.den =
+					//    pgb_instream->pkt.time_base.den;
+					//
+					//spl_mutex_lock(png.mtx_pkt);
+					//do {
+					//	/*TODO: overrange ->pl 251128*/
+					//	if ((ffwr_pkt.size +
+					//		sizeof(ffwr_pkt) +
+					//		png.data_shared->pl) >
+					//		png.data_shared->range)
+					//	{
+					//		png.data_shared->pc = 0;
+					//		png.data_shared->pl = 0;
+					//	}
+					//	memcpy(png.data_shared->data +
+					//		   png.data_shared->pl,
+					//	    (char *)( &ffwr_pkt),
+					//	    sizeof(ffwr_pkt));
+					//	png.data_shared->pl +=
+					//	    sizeof(ffwr_pkt);
+					//	memcpy(png.data_shared->data +
+					//		   png.data_shared->pl,
+					//	    (char *)pgb_instream->pkt.data,
+					//	    ffwr_pkt.size);
+					//	png.data_shared->pl +=
+					//	    ffwr_pkt.size;
+					//	
+					//} while (0);
+					//spl_mutex_unlock(png.mtx_pkt);
+					//
+					//ffwr_semaphore_post(png.sem_pkt);
 				}
 				
 				result = avcodec_send_packet(
@@ -590,6 +590,7 @@ void *ffwr_demux_routine(void *lpParam)
 					spllog(4, "avcodec_receive_frame");
 					break;
 				} 
+				spl_vframe(tmp);
 				pgb_instream->vframe->width = obj->render_objects.w;
 				pgb_instream->vframe->height = obj->render_objects.h;
 				ffwr_convert_vframe_ext(pgb_instream, tmp, pgb_instream->vframe);
@@ -613,6 +614,19 @@ void *ffwr_demux_routine(void *lpParam)
 				if(!pst_shared_vframe) {
 					spllog(4, "pst_shared_vframe");
 					break;
+				}
+				if (obj->childmode) {
+					spl_mutex_lock(png.mtx_pkt);
+					if (1) {
+						memcpy(png.share_data_ffwr_frame
+							   ->data,
+						    ffwr_vframe,
+						    ffwr_vframe->tt_sz.total);
+						png.share_data_ffwr_frame->pl =
+						    ffwr_vframe->tt_sz.total;
+					}
+					spl_mutex_unlock(png.mtx_pkt);
+					ffwr_semaphore_post(png.sem_pkt);
 				}
 				spl_mutex_lock(vmutex);
 				do {
@@ -2320,6 +2334,20 @@ ffwr_init_png(FFWR_PNG_OBJ *png)
 			break;
 		}
 		png->data_shared = buf;
+
+		ret = ffwr_create_genbuff(&buf, 7000000);
+		if (ret) {
+			spllog(4, "data_shared - ffwr_create_genbuff");
+			break;
+		}
+		png->data_ffwr_frame = buf;
+
+		ret = ffwr_create_genbuff(&buf, 7000000);
+		if (ret) {
+			spllog(4, "data_shared - ffwr_create_genbuff");
+			break;
+		}
+		png->share_data_ffwr_frame = buf;
 	} while (0);
 	return ret;
 }
@@ -2337,15 +2365,19 @@ ffwr_png_routine(void *lpParam)
 	int ret = 0;
 	char isoff = 0;
 	png = (FFWR_PNG_OBJ *)lpParam;
-	FFWR_VPacket *p = 0;
+	FFWR_VFrame *p = 0;
 	AVPacket src_pkt = {0};
 	AVPacket dst_pkt = {0};
 	AVCodecContext *png_ctx = 0; // Original video decoder context
 	AVCodec *png_codec = 0;
 	AVFrame *frame = 0 ; // Raw frame to receive decoded data
 	FFWR_DEMUX_OBJS *parent = 0;
-
+	ffwr_gen_data_st *pdta = 0;
+	ffwr_gen_data_st *pshared = 0;
 	do {
+		pdta = png->data_ffwr_frame;
+		pshared = png->share_data_ffwr_frame;
+
 		parent = (FFWR_DEMUX_OBJS *)png->parent;
 		// Find the PNG encoder by name
 		png_codec = avcodec_find_encoder_by_name("png");
@@ -2393,40 +2425,40 @@ ffwr_png_routine(void *lpParam)
 				break;
 			}
 			spllog(1, "got image event");
-			if (png->data->pl <= png->data->pc) {
-				png->data->pl = png->data->pc = 0;
+			if (pdta->pl <= pdta->pc) 
+			{
+				pdta->pl = pdta->pc = 0;
+
 				spl_mutex_lock(png->mtx_pkt);
 					do {
-						memcpy(png->data->data,
-						    png->data_shared->data,
-						    png->data_shared->pl);
-						png->data->pl =
-						    png->data_shared->pl;
-						png->data_shared->pc = 0;
-						png->data_shared->pl = 0;
+						memcpy(pdta->data, 
+							pshared->data, pshared->pl);
+						pdta->pl = pshared->pl;
+						pshared->pc = 0;
+						pshared->pl =
+						    0;
 					} while (0);
 				spl_mutex_unlock(png->mtx_pkt);
 			} 
-			p = (FFWR_VPacket *)png->data->data;
-			spllog(1, "(size, total): (%d, %d)", 
-				p->size,
-				p->tt_sz.total);
-			png->data->pc = 0;
-			png->data->pl = 0;
-			if (!p) {
+			if (pdta->pl <= pdta->pc) {
 				continue;
 			}
-			src_pkt.size = p->size;
-			src_pkt.data = p->data;
+			p = (FFWR_VFrame *)pdta->data;
+			
+			pdta->pc = 0;
+			pdta->pl = 0;
 
-			src_pkt.pts = p->pts;
-			src_pkt.stream_index = p->stream_index;
-			src_pkt.flags = p->flags;
-			src_pkt.side_data_elems = p->side_data_elems;
-			src_pkt.duration = p->duration;
-			src_pkt.pos = p->pos;
-			src_pkt.time_base.num = p->time_base.num;
-			src_pkt.time_base.den = p->time_base.den;
+			//src_pkt.size = p->size;
+			//src_pkt.data = p->data;
+			//
+			//src_pkt.pts = p->pts;
+			//src_pkt.stream_index = p->stream_index;
+			//src_pkt.flags = p->flags;
+			//src_pkt.side_data_elems = p->side_data_elems;
+			//src_pkt.duration = p->duration;
+			//src_pkt.pos = p->pos;
+			//src_pkt.time_base.num = p->time_base.num;
+			//src_pkt.time_base.den = p->time_base.den;
 #if 0
  	LLI pts;
 	LLI dts;
