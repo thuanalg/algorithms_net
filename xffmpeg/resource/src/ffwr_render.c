@@ -2380,6 +2380,7 @@ ffwr_png_routine(void *lpParam)
 	FFWR_DEMUX_OBJS *parent = 0;
 	ffwr_gen_data_st *pdta = 0;
 	ffwr_gen_data_st *pshared = 0;
+	int count = 0;
 	do {
 		pdta = png->data_ffwr_frame;
 		pshared = png->share_data_ffwr_frame;
@@ -2461,6 +2462,29 @@ ffwr_png_routine(void *lpParam)
 			ffwr_mv_frame(png, p, framedraw, framepng);
 			pdta->pc = 0;
 			pdta->pl = 0;
+			ret = avcodec_send_frame(png_ctx, framepng);
+			if (ret < 0) {
+				printf("send_frame error\n");
+			}
+			ret = avcodec_receive_packet(png_ctx, &dst_pkt);
+			if (ret == 0) {
+				char name[256];
+				FILE *fp = 0;
+				snprintf(name, 256, 
+					"C:/Users/DEll/Desktop/img/output_%0.7d.png", count);
+				fp = fopen(name, "wb");
+				if (fp) {
+					fwrite(dst_pkt.data, 1, dst_pkt.size, fp);
+					count++;
+					fclose(fp);
+				}
+			} else if (ret == AVERROR(EAGAIN)) {
+				spllog(1, "---");
+				continue;
+			} else if (ret == AVERROR_EOF) {
+				spllog(1, "---");
+			}
+
 
 			//src_pkt.size = p->size;
 			//src_pkt.data = p->data;
@@ -2512,7 +2536,9 @@ ffwr_mv_frame(void *obj, FFWR_VFrame* p, AVFrame* src, AVFrame* dst)
 {
 	int ret = 0;
 	int i = 0;
+	FFWR_PNG_OBJ *png = 0;
 	do {
+		png = (FFWR_PNG_OBJ *)obj;
 		ret = ffwr_premv_frame(obj, p, src, dst, AV_PIX_FMT_RGB24);
 		if (ret) {
 			break;
@@ -2523,6 +2549,13 @@ ffwr_mv_frame(void *obj, FFWR_VFrame* p, AVFrame* src, AVFrame* dst)
 			src->linesize[i] = p->linesize[i];
 			++i;
 		}
+		ret = sws_scale(png->sws_ctx, (const uint8_t *const *)src->data,
+		    src->linesize, 0, src->height, dst->data, dst->linesize);
+		dst->pts = src->pts;
+		if (ret < 1) {
+			spllog(4, "sws_scale");
+		}
+
 	} while (0);
 	return ret;
 }
