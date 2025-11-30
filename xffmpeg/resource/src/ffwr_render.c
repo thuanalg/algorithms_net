@@ -1517,34 +1517,7 @@ ffwr_close_demux_objects(FFWR_DEMUX_OBJS *obj)
 			spllog(4, "FFWR_DEMUX_OBJS_NULL_ERR");
 			break;
 		}	
-		/*Clear: 
-			typedef struct __FFWR_DEMUX_OBJS__ {
-				int isstop;
-				3. FFWR_RENDER_OBJECTS render_objects;
-				1. void *inner_demux = 0; 
-				//Did clear in demux thread.
-				2. FFWR_DEMUX_DATA buffer;
-				FFWR_INPUT_ST input;
-			} FFWR_DEMUX_OBJS;
-		
-		*/
 
-		/*-------*/
-		/*Clear: FFWR_DEMUX_DATA
-			typedef struct __FFWR_DEMUX_DATA__
-			{
-				int vbuf_size;
-				ffwr_gen_data_st * vbuf; 
-				ffwr_gen_data_st * shared_vbuf; 
-				void *mtx_vbuf; 
-				
-				int abuf_size;
-				ffwr_gen_data_st * abuf;
-				ffwr_gen_data_st * shared_abuf; 
-				void *; 
-				
-			} FFWR_DEMUX_DATA;
-		*/
 		ffwr_free(obj->buffer.vbuf);
 		ffwr_free(obj->buffer.shared_vbuf);
 		ffwr_free(obj->buffer.abuf);
@@ -1594,8 +1567,11 @@ ffwr_open_instream(FFWR_DEMUX_OBJS *obj)
 			break;
 		}
 		obj->inner_demux = pinput;
-		if (!av_dict_get(options, "scan_all_pmts", NULL, AV_DICT_MATCH_CASE)) {
-			av_dict_set(&options, "scan_all_pmts", "1", AV_DICT_DONT_OVERWRITE);
+		if (!av_dict_get(options, 
+			"scan_all_pmts", NULL, AV_DICT_MATCH_CASE)) {
+			av_dict_set(&options, 
+				"scan_all_pmts", 
+				"1", AV_DICT_DONT_OVERWRITE);
 		}        
 		name = obj->input.name;
 		spllog(1, "name: %s", name);
@@ -1617,10 +1593,13 @@ ffwr_open_instream(FFWR_DEMUX_OBJS *obj)
 
         if(result < 0) {
             ret = FFWR_AV_OPEN_INPUT_ERR;
-            spllog(4, "FFWR_AV_OPEN_INPUT_ERR, name: %s", name);
+            spllog(4, 
+				"FFWR_AV_OPEN_INPUT_ERR, name: %s", 
+				name);
             break;
         }	
-        result = avformat_find_stream_info(pinput->fmt_ctx, 0);
+        result = avformat_find_stream_info(
+			pinput->fmt_ctx, 0);
         if(result < 0) {
             ret = FFWR_AV_FIND_STREAM_INFO_ERR;
             spllog(4, "FFWR_AV_FIND_STREAM_INFO_ERR");
@@ -1661,7 +1640,8 @@ ffwr_open_instream(FFWR_DEMUX_OBJS *obj)
             spllog(4, "FFWR_PARAMETERS_TO_CONTEXT_ERR");
             break;
         }
-		result = avcodec_open2(pinput->v_cctx, pinput->v_codec, 0);
+		result = avcodec_open2(
+			pinput->v_cctx, pinput->v_codec, 0);
 		if (result < 0) {
 			ret = FFWR_OPEN_VCODEC_ERR;
             spllog(4, "avcodec_open2, result: %d", result);
@@ -1705,7 +1685,8 @@ ffwr_open_instream(FFWR_DEMUX_OBJS *obj)
         }   
 		spllog(1, "(sample_rate)=(%d)", 
 			pinput->a_st->codecpar->sample_rate);	
-        result = avcodec_parameters_to_context(pinput->a_cctx, pinput->a_st->codecpar);
+        result = avcodec_parameters_to_context(
+			pinput->a_cctx, pinput->a_st->codecpar);
         if(result < 0) {
             ret = FFWR_PARAMETERS_TO_ACONTEXT_ERR;
             spllog(4, "FFWR_PARAMETERS_TO_ACONTEXT_ERR");
@@ -2331,18 +2312,7 @@ ffwr_init_png(FFWR_PNG_OBJ *png)
 			spllog(4, "ffwr_create_mutex");
 			break;
 		}
-		//ret = ffwr_create_genbuff(&buf, 7000000);
-		//if (ret) {
-		//	spllog(4, "data - ffwr_create_genbuff");
-		//	break;
-		//}
-		//png->data = buf;
-		//ret = ffwr_create_genbuff(&buf, 7000000);
-		//if (ret) {
-		//	spllog(4, "data_shared - ffwr_create_genbuff");
-		//	break;
-		//}
-		//png->data_shared = buf;
+
 
 		ret = ffwr_create_genbuff(&buf, 7000000);
 		if (ret) {
