@@ -5,8 +5,8 @@ from torchvision import models
 # ================================
 # 1. Đường dẫn file
 # ================================
-PTH_FILE = "D:/python3/faceA_model.pth"
-ONNX_FILE = "D:/python3/faceA_model.onnx"
+PTH_FILE = "D:/x/algorithms_net/xffmpeg/python-3.11.8/faceA_model.pth"
+ONNX_FILE = "D:/x/algorithms_net/xffmpeg/python-3.11.8/faceA_model.onnx"
 
 # ================================
 # 2. Tạo lại model đúng cấu trúc
