@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\x\\algorithms_net\\xffmpeg\\onnxruntime\\ffwr_onnxruntime\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{E4A15BD3-5748-4511-8F8B-B60D13881BCD}|test\\test.vcxproj|D:\\x\\algorithms_net\\xffmpeg\\onnxruntime\\ffwr_onnxruntime\\test\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{E4A15BD3-5748-4511-8F8B-B60D13881BCD}|test\\test.vcxproj|solutionrelative:test\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "main.cpp",
+              "DocumentMoniker": "D:\\x\\algorithms_net\\xffmpeg\\onnxruntime\\ffwr_onnxruntime\\test\\main.cpp",
+              "RelativeDocumentMoniker": "test\\main.cpp",
+              "ToolTip": "D:\\x\\algorithms_net\\xffmpeg\\onnxruntime\\ffwr_onnxruntime\\test\\main.cpp",
+              "RelativeToolTip": "test\\main.cpp",
+              "ViewState": "AgIAAAQAAAAAAAAAAAAuwBYAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-12-03T02:36:38.385Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
