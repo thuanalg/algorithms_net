@@ -30,8 +30,7 @@
               "ToolTip": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\include\\xmemory",
               "ViewState": "AgIAAMgCAAAAAAAAAAAlwNsCAABRAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2025-12-03T06:30:01.586Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-03T06:30:01.586Z"
             },
             {
               "$type": "Document",
@@ -43,8 +42,7 @@
               "RelativeToolTip": "..\\..\\..\\..\\onnxruntime\\include\\onnxruntime\\core\\session\\onnxruntime_cxx_inline.h",
               "ViewState": "AgIAABQAAAAAAAAAAAAuwCYAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-03T06:22:45.24Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-03T06:22:45.24Z"
             },
             {
               "$type": "Document",
@@ -54,7 +52,7 @@
               "RelativeDocumentMoniker": "test\\main.cpp",
               "ToolTip": "D:\\x\\algorithms_net\\xffmpeg\\onnxruntime\\ffwr_onnxruntime\\test\\main.cpp",
               "RelativeToolTip": "test\\main.cpp",
-              "ViewState": "AgIAACUBAAAAAAAAAAAQwCoBAAAmAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAWAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-12-03T02:36:38.385Z",
               "EditorCaption": ""

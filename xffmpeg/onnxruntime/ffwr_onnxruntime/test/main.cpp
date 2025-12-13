@@ -17,7 +17,7 @@ using namespace std;
 #include "stb_image.h"
 #include <cstdlib>
 #include <cstdio>
-
+#include <png.h>
 // Resize nearest neighbor - giữ nguyên
 std::vector<unsigned char>
 ResizeImage(const unsigned char *src, int src_w, int src_h, int dst_w,
